@@ -1,0 +1,785 @@
+import { DatePattern, DotOrdinalPattern, PhonePattern, SuffixPattern } from "../../numbers/patterns.ts";
+import { Kind, numeral, type Match, type Numeral } from "../../numbers/match.ts";
+import { codeValue, fitsClock, isSpokenDigits, parseValue, spacedSuffix, value } from "../../numbers/scanning.ts";
+import { Context, PUNCTUATION, stripped, wordsOf } from "../../text/context.ts";
+import type { Span } from "../../text/document.ts";
+import { digitsEnd, isClearBefore, join } from "../../text/scan.ts";
+import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
+import { isDigit, isLower, isSpace, isWord } from "../../text/unicode.ts";
+import { Case, Gender } from "../grammar.ts";
+import { PatternLanguage } from "../language.ts";
+import {
+  ADJECTIVE_ENDINGS,
+  AMOUNT_NOUNS,
+  BILLION,
+  CARDINALS,
+  CLITICS,
+  COMBINING,
+  COMPLEX_PREPOSITIONS,
+  CONJUNCTIONS,
+  COPULAS,
+  COUNT_NOUNS,
+  CURRENCIES,
+  CURRENCY_WORDS,
+  DATE_FORMAT,
+  DECADE_WORDS,
+  FEMININE_PLURALS,
+  GENITIVE_VERBS,
+  GROSZ,
+  HEADINGS,
+  JOINERS,
+  LOCATIVE_PREPOSITIONS,
+  MILLION,
+  MONTH_WORDS,
+  MONTHS_GENITIVE,
+  NOTATION,
+  NOUN_ENDINGS,
+  ONE,
+  ORDINAL_HEADINGS,
+  ORDINAL_STEMS,
+  ORDINAL_SUFFIXES,
+  PERCENT,
+  PHONE_FORMATS,
+  PHONE_WORDS,
+  PREPOSITION_CASES,
+  SCALES,
+  SYMBOLS,
+  TERMS,
+  THOUSAND,
+  TIME_WORDS,
+  UNITS,
+  YEAR_FORMAT,
+  YEAR_PREPOSITIONS,
+  YEAR_SUFFIXES,
+  type Noun,
+} from "./constants.ts";
+
+// Whether a number reads as a count or as an ordinal (years, days of a month, headings)
+const Form = { CARDINAL: 0, ORDINAL: 1 } as const;
+type Form = (typeof Form)[keyof typeof Form];
+
+// Inflection of a number: its form, and the case and gender its words agree with
+interface Inflection {
+  form: Form; // An ordinal for years, days of a month and headings
+  grammaticalCase: Case;
+  gender: Gender;
+}
+
+function inflection(form: Form = Form.CARDINAL, grammaticalCase: Case = Case.NOMINATIVE): Inflection {
+  return { form, grammaticalCase, gender: Gender.MASCULINE };
+}
+
+// What the words around a match say about reading its numbers: the inflection of its first number, and more
+interface Cues extends Inflection {
+  plural: boolean; // lata 70.: an ordinal in the plural
+  amountCase: Case; // The case of an amount (5 kg): of its number and its noun
+  numbered: boolean; // numerem 3x38: the "x" of a document number stands for a slash
+}
+
+function startsWithAny(word: string, stems: readonly string[]): boolean {
+  return stems.some((stem) => word.startsWith(stem));
+}
+
+// ------------------------
+// ----- Number words -----
+// ------------------------
+
+// The column of CARDINALS: nominative and accusative, genitive and locative, dative, instrumental
+function column(c: Case): number {
+  switch (c) {
+    case Case.NOMINATIVE:
+    case Case.ACCUSATIVE:
+      return 0;
+    case Case.GENITIVE:
+    case Case.LOCATIVE:
+      return 1;
+    case Case.DATIVE:
+      return 2;
+    default:
+      return 3;
+  }
+}
+
+// The form of a noun after a number: 1 / 2-4 / 5+ in the nominative, the plural of the case otherwise
+function form(noun: Noun, n: bigint, c: Case, fraction = false): string {
+  if (fraction) {
+    return noun.singular[Case.GENITIVE];
+  }
+  if (n === 1n) {
+    return noun.singular[c];
+  }
+  if (c === Case.NOMINATIVE || c === Case.ACCUSATIVE) {
+    const few = n % 10n >= 2n && n % 10n <= 4n && (n % 100n < 12n || n % 100n > 14n);
+    return noun.plural[few ? Case.NOMINATIVE : Case.GENITIVE];
+  }
+  return noun.plural[c];
+}
+
+function belowThousand(n: bigint, c: Case, g: Gender): string {
+  if (n === 0n) {
+    return CARDINALS.get(0n)![column(c)];
+  }
+
+  const r = n % 100n;
+  const words: string[] = [];
+  for (const part of [n - r, r < 20n ? r : r - (r % 10n), r < 20n ? 0n : r % 10n]) {
+    if (part === 1n) {
+      words.push("jeden"); // Inside a compound number "jeden" does not inflect
+    } else if (
+      part === 2n &&
+      g === Gender.FEMININE &&
+      (c === Case.NOMINATIVE || c === Case.ACCUSATIVE || c === Case.INSTRUMENTAL)
+    ) {
+      words.push(c === Case.INSTRUMENTAL ? "dwiema" : "dwie");
+    } else if (part !== 0n) {
+      words.push(CARDINALS.get(part)![column(c)]);
+    }
+  }
+  return join(words);
+}
+
+function cardinal(n: bigint, c: Case = Case.NOMINATIVE, g: Gender = Gender.MASCULINE): string {
+  if (n === 1n) {
+    return ONE[g][c];
+  }
+
+  const parts: string[] = [];
+  for (const [scale, noun] of [
+    [1000000000n, BILLION],
+    [1000000n, MILLION],
+    [1000n, THOUSAND],
+  ] as const) {
+    const q = n / scale;
+    n %= scale;
+    if (q !== 0n) {
+      parts.push(q === 1n ? form(noun, q, c) : `${cardinal(q, c)} ${form(noun, q, c)}`);
+    }
+  }
+  if (n !== 0n || parts.length === 0) {
+    parts.push(belowThousand(n, c, g));
+  }
+  return join(parts);
+}
+
+// An ordinal stem with an adjective ending: drug + y -> drugi, trzec + a -> trzecia
+function adjective(stem: string, ending: string): string {
+  let e = ending;
+  if (stem.endsWith("g") || stem.endsWith("k")) {
+    e = e[0] === "y" ? `i${e.slice(1)}` : e[0] === "e" ? `i${e}` : e;
+  } else if (stem.endsWith("c")) {
+    e = e[0] === "y" ? `i${e.slice(1)}` : `i${e}`;
+  }
+  return stem + e;
+}
+
+// The form of a number inside a compound: czterdziestopięcio(metrowe), stu(letni)
+function combining(n: bigint): string {
+  const h = n - (n % 100n);
+  const r = n % 100n;
+  if (h >= 1000n) {
+    return cardinal(n);
+  }
+  let words = h !== 0n ? COMBINING.get(h)! : "";
+  if (r !== 0n) {
+    words += r < 20n || r % 10n === 0n ? COMBINING.get(r)! : COMBINING.get(r - (r % 10n))! + COMBINING.get(r % 10n)!;
+  }
+  return words;
+}
+
+// Only the last two parts inflect: dwa tysiące dwudziestym drugim, tysiąc osiemsetnym
+function ordinal(n: bigint, c: Case = Case.NOMINATIVE, g: Gender = Gender.MASCULINE, plural = false): string {
+  const e = ADJECTIVE_ENDINGS[plural ? 3 : g][c];
+
+  const r = n % 100n;
+  if (r !== 0n) {
+    const words = [n - r !== 0n ? cardinal(n - r) : ""];
+    if (r < 20n || r % 10n === 0n) {
+      words.push(adjective(ORDINAL_STEMS.get(r)!, e));
+    } else {
+      words.push(adjective(ORDINAL_STEMS.get(r - (r % 10n))!, e));
+      words.push(adjective(ORDINAL_STEMS.get(r % 10n)!, e));
+    }
+    return join(words);
+  }
+
+  const h = n % 1000n;
+  if (h !== 0n) {
+    const words = [n - h !== 0n ? cardinal(n - h) : "", adjective(ORDINAL_STEMS.get(h)!, e)];
+    return join(words);
+  }
+
+  const t = n / 1000n;
+  return adjective(`${t === 1n ? "" : combining(t)}tysięczn`, e);
+}
+
+function digits(text: string): string {
+  const words: string[] = [];
+  for (const c of text) {
+    words.push(c === "1" ? "jeden" : CARDINALS.get(BigInt(c))![0]);
+  }
+  return join(words);
+}
+
+// -------------------
+// ----- Context -----
+// -------------------
+
+// A noun's case, gender and number, guessed from its ending (as seen after an ordinal): sesji, sesję, roku
+interface NounForm {
+  grammaticalCase: Case;
+  gender: Gender;
+  plural: boolean;
+}
+
+// Whether a word is made only of given characters (and is not empty).
+function madeOf(word: string, characters: string): boolean {
+  return word !== "" && [...word].every((c) => contains(characters, c));
+}
+
+const DIGITS = "0123456789";
+
+let genitivePluralForms: ReadonlySet<string> | undefined;
+
+function genitivePlurals(): ReadonlySet<string> {
+  return (genitivePluralForms ??= new Set(
+    [UNITS, CURRENCIES, SCALES].flatMap((table) => Object.values(table).map((noun) => noun.plural[Case.GENITIVE])),
+  ));
+}
+
+// A noun that a number counts: osób, metrów, złotych (as opposed to a verb, or nothing after a year)
+function counted(word: string): boolean {
+  return (
+    COUNT_NOUNS.has(word) ||
+    genitivePlurals().has(word) ||
+    word.endsWith("ów") ||
+    word.endsWith("ych") ||
+    word.endsWith("ich")
+  );
+}
+
+/**
+ * The words before a number within its clause (lowercased), and the first word after it, skipping a range
+ * or coordination it belongs to (20-30, 3 a 368) and the złote of an amount of grosze (39 532 złotych 20 groszy).
+ */
+function surroundings(context: Context): [string[], string] {
+  const head = context.head();
+  let clause = 0;
+  for (let i = 0; i + 1 < head.length; ++i) {
+    if (contains(",;:.!?", head[i]) && isSpace(head[i + 1])) {
+      clause = i + 1;
+    }
+  }
+
+  const before: string[] = [];
+  for (const word of wordsOf(head.slice(clause))) {
+    before.push(toLower(str(stripped(word))));
+  }
+  const rangeStart = (word: string) => {
+    const w = [...word];
+    return w.length > 1 && isDigit(w[0]) && w.at(-1) === "-" && madeOf(str(w, 0, w.length - 1), "0123456789,. ");
+  };
+  while (before.length > 0 && rangeStart(before[before.length - 1])) {
+    before.pop();
+  }
+  while (
+    before.length >= 2 &&
+    CONJUNCTIONS.has(before[before.length - 1]) &&
+    madeOf(before[before.length - 2], "0123456789,.")
+  ) {
+    before.length -= 2;
+  }
+  if (before.length > 0 && CURRENCY_WORDS.has(before[before.length - 1])) {
+    before.pop();
+    while (before.length > 0 && madeOf(before[before.length - 1], DIGITS)) {
+      before.pop();
+    }
+  }
+
+  // The first word after, beyond the end of a range (-30)
+  let next = "";
+  const tail = context.tail();
+  if (tail.length === 0 || !contains(PUNCTUATION, tail[0])) {
+    for (const word of wordsOf(tail)) {
+      const w = stripped(word);
+      if (!(w.length > 1 && w[0] === "-" && madeOf(str(w, 1), "0123456789,."))) {
+        next = toLower(str(w));
+        break;
+      }
+    }
+  }
+  return [before, next];
+}
+
+// The context of the number this one continues after a comma (140 g mąki, 130 g mąki): both share a case.
+function enumerated(context: Context): Context | undefined {
+  const head = context.head();
+  let end = head.length - 1;
+  while (end >= 0 && contains(" \t\n\r", head[end])) {
+    end--;
+  }
+  if (end < 0 || head[end] !== ",") {
+    return undefined;
+  }
+
+  // The last number before the comma, at most four words before it
+  const text: Text = head.slice(0, end);
+  let number: Span | undefined;
+  for (let i = 0; i < text.length;) {
+    if (isDigit(text[i]) && isClearBefore(text, i, ".,")) {
+      number = { begin: i, end: digitsEnd(text, i) };
+      i = number.end;
+    } else {
+      i++;
+    }
+  }
+  if (!number || wordsOf(text.slice(number.end)).length > 4) {
+    return undefined;
+  }
+  return new Context(text, number);
+}
+
+// The case of a number governed by an amount noun, a genitive verb or a negation right before it.
+function governed(before: readonly string[]): Case | undefined {
+  const w1 = before.length === 0 ? "" : before[before.length - 1];
+  for (const stem of AMOUNT_NOUNS) {
+    if (w1.startsWith(stem) && NOUN_ENDINGS.has(w1.slice(stem.length))) {
+      return Case.GENITIVE; // od kwoty trzystu tysięcy
+    }
+  }
+
+  const window = before.slice(before.length - Math.min(before.length, 3));
+  const verbs = window.filter((w) => !CLITICS.has(w));
+  if (verbs.length > 0 && startsWithAny(verbs[verbs.length - 1], GENITIVE_VERBS)) {
+    return Case.GENITIVE; // potrzebowali stu czterdziestu gramów, brakuje nam trzech osób
+  }
+
+  // nie powinno przekraczać pięciu gramów, but not: nie jest to pięć, nie więcej niż pięć
+  const no = window.indexOf("nie");
+  if (no !== -1 && !window.slice(no + 1).some((w) => COPULAS.has(w) || w === "niż" || w === "tylko")) {
+    return Case.GENITIVE;
+  }
+  return undefined;
+}
+
+function nounForm(word: string, preposition: string): NounForm {
+  const locative = LOCATIVE_PREPOSITIONS.has(preposition);
+  const instrumental =
+    preposition === "z" ||
+    preposition === "ze" ||
+    preposition === "przed" ||
+    preposition === "nad" ||
+    preposition === "pod";
+
+  const endings: ReadonlyArray<readonly [string, NounForm]> = [
+    ["ami", { grammaticalCase: Case.INSTRUMENTAL, gender: Gender.MASCULINE, plural: true }],
+    ["ach", { grammaticalCase: Case.LOCATIVE, gender: Gender.MASCULINE, plural: true }],
+    ["ych", { grammaticalCase: Case.GENITIVE, gender: Gender.MASCULINE, plural: true }],
+    ["ów", { grammaticalCase: Case.GENITIVE, gender: Gender.MASCULINE, plural: true }],
+    ["iem", { grammaticalCase: Case.INSTRUMENTAL, gender: Gender.MASCULINE, plural: false }],
+    ["em", { grammaticalCase: Case.INSTRUMENTAL, gender: Gender.MASCULINE, plural: false }],
+    [
+      "ą",
+      { grammaticalCase: instrumental ? Case.INSTRUMENTAL : Case.ACCUSATIVE, gender: Gender.FEMININE, plural: false },
+    ],
+    ["ę", { grammaticalCase: Case.ACCUSATIVE, gender: Gender.FEMININE, plural: false }],
+    ["a", { grammaticalCase: Case.NOMINATIVE, gender: Gender.FEMININE, plural: false }],
+    ["i", { grammaticalCase: locative ? Case.LOCATIVE : Case.GENITIVE, gender: Gender.FEMININE, plural: false }],
+    ["y", { grammaticalCase: locative ? Case.LOCATIVE : Case.GENITIVE, gender: Gender.FEMININE, plural: false }],
+    ["u", { grammaticalCase: locative ? Case.LOCATIVE : Case.GENITIVE, gender: Gender.MASCULINE, plural: false }],
+    ["ie", { grammaticalCase: Case.LOCATIVE, gender: Gender.MASCULINE, plural: false }],
+    ["e", { grammaticalCase: Case.NOMINATIVE, gender: Gender.NEUTER, plural: false }],
+    ["o", { grammaticalCase: Case.NOMINATIVE, gender: Gender.NEUTER, plural: false }],
+  ];
+  for (const [ending, nounForm] of endings) {
+    if (word.endsWith(ending)) {
+      return nounForm;
+    }
+  }
+  return { grammaticalCase: Case.NOMINATIVE, gender: Gender.MASCULINE, plural: false };
+}
+
+// The form, case and gender of a number from its context: an ordinal for years, days and headings.
+function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbreviation = false): Inflection {
+  const [before, next] = surroundings(context);
+  const w1 = before.length === 0 ? "" : before[before.length - 1];
+  const w2 = before.length < 2 ? "" : before[before.length - 2];
+  const noun = yearAbbreviation ? "roku" : next; // 2020 r.
+
+  // 1. Years, days and headings are ordinals
+  const locative = LOCATIVE_PREPOSITIONS.has(w1);
+  if (noun === "roku" || noun === "rok" || noun === "rokiem") {
+    // prettier-ignore
+    const c =
+      noun === "rok" ? Case.NOMINATIVE
+      : noun === "rokiem" ? Case.INSTRUMENTAL
+      : locative ? Case.LOCATIVE
+      : Case.GENITIVE;
+    return inflection(Form.ORDINAL, c);
+  }
+  if (w1 === "dnia") {
+    return inflection(Form.ORDINAL, Case.GENITIVE); // z dnia 1.
+  }
+  if (w1 === "roku" || w1 === "rok") {
+    const w2Locative = LOCATIVE_PREPOSITIONS.has(w2);
+    return inflection(Form.ORDINAL, w1 === "rok" ? Case.NOMINATIVE : w2Locative ? Case.LOCATIVE : Case.GENITIVE);
+  }
+  if ((MONTHS_GENITIVE as readonly string[]).includes(noun) && n >= 1n && n <= 31n) {
+    return inflection(Form.ORDINAL, COPULAS.has(w1) ? Case.NOMINATIVE : Case.GENITIVE); // od pierwszego kwietnia
+  }
+  if (MONTH_WORDS.has(w1) && n >= 1000n && n <= 2100n) {
+    return inflection(Form.ORDINAL, Case.GENITIVE);
+  }
+  if ((w1 === "w" || w1 === "we") && n >= 1000n && n <= 2100n && !genitivePlurals().has(noun)) {
+    return inflection(Form.ORDINAL, Case.LOCATIVE);
+  }
+  const yearCase = YEAR_PREPOSITIONS.get(w1);
+  if (yearCase !== undefined && n >= 1900n && n <= 2100n && !counted(noun)) {
+    return inflection(Form.ORDINAL, yearCase); // od dwa tysiące dwudziestego do dwa tysiące dwudziestego drugiego
+  }
+  if (startsWithAny(w1, ORDINAL_HEADINGS) && n < 100n) {
+    return inflection(Form.ORDINAL, nounForm(w1, w2).grammaticalCase); // w punkcie drugim
+  }
+
+  // 2. The case of a cardinal: from a preposition, a governing word or a number it continues
+  const result = inflection();
+  const prepositionCase = PREPOSITION_CASES.get(w1);
+  let governing: Case | undefined;
+  let earlier: Context | undefined;
+  if (prepositionCase !== undefined) {
+    result.grammaticalCase = prepositionCase;
+  } else if (COMPLEX_PREPOSITIONS.has(w1) && COMPLEX_PREPOSITIONS.get(w1) === w2) {
+    result.grammaticalCase = Case.GENITIVE;
+  } else if ((governing = decimal ? undefined : governed(before)) !== undefined) {
+    result.grammaticalCase = governing;
+  } else if ((earlier = enumerated(context)) !== undefined) {
+    result.grammaticalCase = inflectionOf(earlier, 0n, false).grammaticalCase;
+  }
+
+  // 3. The noun after it, as it agrees with the number
+  const few = n % 10n >= 2n && n % 10n <= 4n && (n % 100n < 12n || n % 100n > 14n);
+  const nominative = result.grammaticalCase === Case.NOMINATIVE || result.grammaticalCase === Case.ACCUSATIVE;
+  if ((noun.endsWith("ami") || noun.endsWith("mi")) && size(noun) > 4) {
+    result.grammaticalCase = Case.INSTRUMENTAL;
+  } else if (noun.endsWith("ach") && size(noun) > 4) {
+    result.grammaticalCase = Case.LOCATIVE;
+  } else if (nominative && few && counted(noun)) {
+    result.grammaticalCase = Case.GENITIVE; // trzech osób: the noun is genitive, so the number is too
+  }
+
+  if ((noun.endsWith("a") && n === 1n) || startsWithAny(noun, FEMININE_PLURALS)) {
+    result.gender = Gender.FEMININE;
+  } else if (noun === "euro") {
+    result.gender = Gender.NEUTER;
+  }
+  return result;
+}
+
+// The word governing a dot ordinal: the one before it, or before the first ordinal of "lat 50. i 60."
+function ordinalCue(context: Context): string {
+  const w1 = context.before();
+  const head = wordsOf(context.head());
+  if (w1 !== "czy" && CONJUNCTIONS.has(w1) && head.length > 1) {
+    const previous = head[head.length - 2];
+    if (previous.at(-1) === "." && madeOf(str(previous, 0, previous.length - 1), DIGITS)) {
+      return context.before(3);
+    }
+  }
+  return w1;
+}
+
+// The gender of a counted noun, for the number before it: dwie tony, dwa metry
+function genderOf(noun: Noun): Gender {
+  const nominative = noun.singular[Case.NOMINATIVE];
+  return nominative.endsWith("a") ? Gender.FEMININE : nominative === "euro" ? Gender.NEUTER : Gender.MASCULINE;
+}
+
+// A decimal number in a case: dwa przecinek pięć, półtora, dwa i pół
+function decimal(number: Numeral, c: Case): string {
+  // 801.04, 4.0: a dotted code rather than a decimal
+  if (number.decimalMark === "." && (number.fraction.length === 2 || number.fraction === "0")) {
+    const f = parseValue(number.fraction) ?? 0n;
+    return `${cardinal(value(number))} ${number.fraction[0] === "0" ? digits(number.fraction) : cardinal(f)}`;
+  }
+
+  const zero = number.integer !== ""; // .5 has no zero before its point
+  if (number.integer === "1" && number.fraction === "5") {
+    return "półtora";
+  }
+  const head = zero ? `${cardinal(value(number), c)} ` : "";
+  if (number.fraction === "5") {
+    return `${head}i pół`;
+  }
+
+  const words = ["przecinek"];
+  const zeros = number.fraction.search(/[^0]/);
+  words.push(...Array<string>(zeros === -1 ? number.fraction.length : zeros).fill("zero"));
+  if (zeros !== -1) {
+    words.push(cardinal(parseValue(number.fraction) ?? 0n, c));
+  }
+  return head + join(words);
+}
+
+// A number counting a noun, both in a case: pięćset dwadzieścia cztery kilometry
+function amount(number: Numeral, noun: Noun, c: Case): string {
+  let words: string;
+  if (number.fraction !== "") {
+    words = decimal(number, c);
+  } else {
+    const n = parseValue(number.integer);
+    words = n === undefined || isSpokenDigits(number, 7) ? digits(number.integer) : cardinal(n, c, genderOf(noun));
+  }
+  return `${words} ${form(noun, value(number), c, number.fraction !== "")}`;
+}
+
+function isZloty(currency: string): boolean {
+  return currency === "zł" || currency === "PLN";
+}
+
+function cuesOf(match: Match): Cues {
+  const context = match.context;
+  const cues: Cues = { ...inflection(), plural: false, amountCase: Case.NOMINATIVE, numbered: false };
+
+  switch (match.kind) {
+    case Kind.DATE:
+      cues.grammaticalCase = COPULAS.has(context.before()) ? Case.NOMINATIVE : Case.GENITIVE;
+      return cues;
+
+    case Kind.TIME: {
+      // o osiemnastej trzydzieści: the hour is a feminine ordinal (godzina) in the case of the word before
+      const w1 = context.before();
+      // prettier-ignore
+      cues.grammaticalCase =
+        w1 === "o" || w1 === "godzinie" || w1 === "po" ? Case.LOCATIVE
+        : w1 === "do" || w1 === "od" || w1 === "około" || w1 === "koło" ? Case.GENITIVE
+        : w1 === "przed" || w1 === "między" ? Case.INSTRUMENTAL
+        : w1 === "na" || w1 === "za" ? Case.ACCUSATIVE
+        : Case.NOMINATIVE;
+      return cues;
+    }
+
+    case Kind.ORDINAL: {
+      // "29. sesji": an ordinal agreeing with the noun after it, the decade of "lat 70.", or a heading
+      cues.form = Form.ORDINAL;
+      const w1 = ordinalCue(context);
+      const decadeCase = DECADE_WORDS.get(w1);
+      if (decadeCase !== undefined) {
+        cues.grammaticalCase = decadeCase;
+        cues.plural = true;
+      } else if (startsWithAny(w1, HEADINGS) && value(match.numbers[0]) < 100n) {
+        cues.grammaticalCase = nounForm(w1, context.before(2)).grammaticalCase; // Punkt 3., w punkcie 5.
+      } else {
+        const words = wordsOf(context.tail());
+        const next = nounForm(words.length === 0 ? "" : toLower(str(stripped(words[0]))), w1);
+        cues.grammaticalCase = next.grammaticalCase;
+        cues.gender = next.gender;
+        cues.plural = next.plural;
+      }
+      return cues;
+    }
+
+    case Kind.DIMENSION: {
+      // numerem 3x38: a document number, where "x" stands for a slash
+      const head = context.head();
+      let digits = head.length;
+      while (digits > 0 && isDigit(head[digits - 1])) {
+        digits--;
+      }
+      let wordEnd = digits;
+      while (wordEnd > 0 && isSpace(head[wordEnd - 1])) {
+        wordEnd--;
+      }
+      let wordBegin = wordEnd;
+      while (wordBegin > 0 && isWord(head[wordBegin - 1])) {
+        wordBegin--;
+      }
+      const word = str(head, wordBegin, wordEnd);
+      cues.numbered = digits < head.length && wordEnd < digits && (word.startsWith("numer") || word === "nr");
+      return cues;
+    }
+
+    default:
+      break;
+  }
+
+  // A number: its own inflection (the start of a range for amounts), and the case of what it counts
+  if (match.numbers.length > 0) {
+    const first = match.numbers[0];
+    const yearAbbreviation = match.suffix === "r.";
+    Object.assign(
+      cues,
+      first.fraction === ""
+        ? inflectionOf(context, value(first), false, yearAbbreviation)
+        : inflectionOf(context, 0n, true, yearAbbreviation),
+    );
+
+    const last = match.numbers[match.numbers.length - 1];
+    const grosze = match.kind === Kind.MONEY && match.scale === "" && last.fraction.length === 2 && isZloty(match.unit);
+    cues.amountCase = inflectionOf(context, 0n, last.fraction !== "" && !grosze).grammaticalCase;
+  }
+  return cues;
+}
+
+// --------------------
+// ----- Language -----
+// --------------------
+
+/**
+ * Polish numbers inflect for case and gender, so most readings first find the case a number takes:
+ * from the preposition before it (od pięciu), the noun after it (z trzema kolegami), a governing noun or verb
+ * (od kwoty trzystu tysięcy), or the year and date patterns which make it an ordinal (w 1985 roku).
+ */
+class Polish extends PatternLanguage {
+  constructor() {
+    super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
+    this.addPattern(new DatePattern(DATE_FORMAT));
+    for (const format of PHONE_FORMATS) {
+      this.addPattern(new PhonePattern(format));
+    }
+    this.addPattern(new DotOrdinalPattern(true, true));
+    this.addPattern(new SuffixPattern(Kind.NUMBER, YEAR_SUFFIXES, YEAR_FORMAT));
+  }
+
+  protected override readNumber(number: Numeral, match: Match): string {
+    const cues = cuesOf(match);
+    if (number.fraction !== "") {
+      return decimal(number, cues.grammaticalCase);
+    }
+
+    const n = parseValue(number.integer);
+    if (n === undefined || isSpokenDigits(number, 7)) {
+      return digits(number.integer);
+    }
+    if (cues.form === Form.ORDINAL) {
+      return ordinal(n, cues.grammaticalCase, cues.gender);
+    }
+    return cardinal(n, cues.grammaticalCase, cues.gender);
+  }
+
+  protected override readCodeDigits(text: string): string {
+    const n = codeValue(text, 6);
+    return n !== undefined ? cardinal(n) : digits(text);
+  }
+
+  protected override readDate(match: Match): string | undefined {
+    const words = [
+      ordinal(value(match.numbers[0]), cuesOf(match).grammaticalCase),
+      MONTHS_GENITIVE[Number(value(match.numbers[1])) - 1],
+      ordinal(value(match.numbers[2]), Case.GENITIVE),
+    ];
+    if (match.suffix !== "") {
+      words.push("roku");
+    }
+    return join(words);
+  }
+
+  protected override readPhone(match: Match): string | undefined {
+    // 600 123 456 is a count, unless a word says it is a phone number
+    if (match.kind === Kind.PHONE && match.separator === " " && !PHONE_WORDS.has(match.context.before())) {
+      return undefined;
+    }
+
+    // In groups: sześćset sto dwadzieścia trzy; a longer one digit by digit
+    const words: string[] = [];
+    for (const group of match.numbers) {
+      words.push(group.integer.length > 3 ? digits(group.integer) : cardinal(value(group)));
+    }
+    return join(words);
+  }
+
+  protected override readTime(match: Match): string | undefined {
+    const minutes = match.numbers[1].integer;
+    const round = minutes === "00" || minutes === "15" || minutes === "30" || minutes === "45";
+    const decimal = match.separator === "." && !round && !TIME_WORDS.has(match.context.before());
+    if (!fitsClock(match) || decimal) {
+      return undefined;
+    }
+
+    const hours = ordinal(value(match.numbers[0]), cuesOf(match).grammaticalCase, Gender.FEMININE);
+    if (value(match.numbers[1]) === 0n) {
+      return hours;
+    }
+    return `${hours} ${minutes[0] === "0" ? digits(minutes) : cardinal(value(match.numbers[1]))}`;
+  }
+
+  protected override readOrdinal(match: Match): string | undefined {
+    // An ordinal agrees with the noun after it: "29. sesji", but "Punkt 3. Dalej" ends a sentence
+    const w1 = ordinalCue(match.context);
+    const words = wordsOf(match.context.tail());
+    const next = words.length === 0 ? [] : stripped(words[0]);
+    const heading = startsWithAny(w1, HEADINGS) && value(match.numbers[0]) < 100n;
+    if (!DECADE_WORDS.has(w1) && !heading && (next.length === 0 || !isLower(next[0]))) {
+      return undefined;
+    }
+
+    const cues = cuesOf(match);
+    return ordinal(value(match.numbers[0]), cues.grammaticalCase, cues.gender, cues.plural);
+  }
+
+  protected override readCompound(match: Match): string | undefined {
+    const number = match.numbers[0];
+    if (number.fraction !== "") {
+      return `${this.readNumber(number, match)}-${match.suffix}`;
+    }
+
+    // lat 70-tych: siedemdziesiątych - the first gender and case taking the ending of the suffix
+    const ending = ORDINAL_SUFFIXES.get(match.suffix);
+    if (ending !== undefined) {
+      for (let g = 0; g < ADJECTIVE_ENDINGS.length; ++g) {
+        for (let c = 0; c < ADJECTIVE_ENDINGS[g].length; ++c) {
+          if (ADJECTIVE_ENDINGS[g][c] === ending) {
+            const gender = g === 3 ? Gender.MASCULINE : (g as Gender);
+            return ordinal(value(number), c as Case, gender, g === 3);
+          }
+        }
+      }
+    }
+
+    // 45-metrowe: czterdziestopięciometrowe
+    return combining(value(number)) + match.suffix;
+  }
+
+  protected override readPlain(match: Match): string | undefined {
+    return this.readNumber(match.numbers[0], match) + (match.suffix === "r." ? " roku" : "");
+  }
+
+  protected override readMoney(number: Numeral, match: Match): string | undefined {
+    const currency = CURRENCIES[match.unit];
+    const c = cuesOf(match).amountCase;
+    if (match.scale !== "") {
+      return `${amount(number, SCALES[match.scale], c)} ${currency.plural[Case.GENITIVE]}`;
+    }
+
+    // dwanaście złotych dziewięćdziesiąt dziewięć groszy
+    if (number.fraction.length === 2 && isZloty(match.unit)) {
+      const grosze = parseValue(number.fraction) ?? 0n;
+      const zlote = numeral({ span: { begin: 0, end: 0 }, integer: number.integer, grouped: number.grouped });
+      return `${amount(zlote, currency, c)} ${cardinal(grosze, c)} ${form(GROSZ, grosze, c)}`;
+    }
+    return amount(number, currency, c);
+  }
+
+  protected override readScale(number: Numeral, match: Match): string | undefined {
+    return amount(number, SCALES[match.scale], cuesOf(match).amountCase);
+  }
+
+  protected override readPercent(number: Numeral, match: Match): string | undefined {
+    return amount(number, PERCENT, cuesOf(match).amountCase) + spacedSuffix(match);
+  }
+
+  protected override readUnit(number: Numeral, match: Match): string | undefined {
+    return amount(number, UNITS[match.unit], cuesOf(match).amountCase);
+  }
+
+  protected override readJoiner(match: Match): string | undefined {
+    if (match.kind === Kind.DIMENSION) {
+      return cuesOf(match).numbered ? " przez " : " na ";
+    }
+    return super.readJoiner(match);
+  }
+}
+
+let instance: Polish | undefined;
+
+export function language(): PatternLanguage {
+  return (instance ??= new Polish());
+}

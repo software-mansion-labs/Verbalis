@@ -10,9 +10,11 @@ node_modules/
 # Claude Code, per-user
 .claude/settings.local.json
 CLAUDE.local.md
+.claude/worktrees/
 
 .DS_Store
 
 # Local, unlicensed test inputs for the refactor comparison
 tests/parity/local/
 wheelhouse/
+ts/dist/

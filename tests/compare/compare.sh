@@ -6,6 +6,7 @@
 #
 # Inputs: the inputs of tests/parity/baseline/*.jsonl, plus any tests/parity/local/*.jsonl (gitignored, uncommitted).
 set -euo pipefail
+shopt -s nullglob # tests/parity/local/ may be missing or empty
 
 ROOT=$(git -C "$(dirname "$0")" rev-parse --show-toplevel)
 REFERENCE=${1:-3143074}
@@ -33,22 +34,4 @@ cat "$ROOT"/tests/parity/baseline/*.jsonl "$ROOT"/tests/parity/local/*.jsonl 2>/
 "$WORK/reference-$REFERENCE-build/run" < "$WORK/inputs.jsonl" > "$WORK/reference.jsonl"
 "$WORK/current-build/run" < "$WORK/inputs.jsonl" > "$WORK/current.jsonl"
 
-python3 - "$WORK/reference.jsonl" "$WORK/current.jsonl" <<'PY'
-import json, sys
-from collections import Counter
-reference = [json.loads(l) for l in open(sys.argv[1], encoding="utf-8")]
-current = [json.loads(l) for l in open(sys.argv[2], encoding="utf-8")]
-total, differ = Counter(), Counter()
-shown = 0
-for r, c in zip(reference, current):
-    total[r["lang"]] += 1
-    if r["output"] != c["output"]:
-        differ[r["lang"]] += 1
-        if shown < 10:
-            shown += 1
-            print(f"[{r['lang']}] {r['input']}\n  reference: {r['output']}\n  current:   {c['output']}")
-for lang in sorted(total):
-    print(f"{lang}: {total[lang] - differ[lang]}/{total[lang]} identical")
-print(f"compare: {sum(total.values()) - sum(differ.values())}/{sum(total.values())} identical")
-sys.exit(1 if differ else 0)
-PY
+python3 "$ROOT/tests/compare/diff.py" "$WORK/reference.jsonl" "$WORK/current.jsonl" reference current

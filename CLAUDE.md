@@ -23,7 +23,9 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
   from `cpp/`. `pyproject.toml` (repository root, scikit-build-core) also sets what the sdist ships: the C++ sources,
   the bindings, and licences, never `tests/`.
 - `tests/python/`: pytest: the API (`test_verbalizer.py`) and the parity baseline (`test_parity.py`).
-- `ts/`: planned (the TypeScript port).
+- `ts/`: the TypeScript package, a pure port of the C++ (`src/` mirrors `cpp/src/verbalis/`). Read
+  `knowledge/ts-port.md` before porting or changing it.
+- `tests/ts/`: vitest: the API (`verbalizer.test.ts`) and the parity contract (`parity.test.ts`).
 
 ## Commands
 
@@ -32,6 +34,8 @@ cmake -S cpp -B cpp/build -DVERBALIS_BUILD_TESTS=ON && cmake --build cpp/build -
 ctest --test-dir cpp/build --output-on-failure             # unit tests and parity
 cpp/build/tests/verbalis_parity tests/parity/baseline       # parity summary per language and category
 uv venv && uv pip install ".[test]" && .venv/bin/pytest     # Python package: build, API and parity tests
+(cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format and types, API and parity tests
+tests/compare/cross.sh [lang ...]                           # TypeScript outputs identical to the C++ working tree
 tests/compare/compare.sh [commit]                           # outputs identical to a reference commit (default 3143074)
 ```
 
@@ -40,9 +44,11 @@ local hi and zh sentences that can't be committed yet.
 
 ## Parity
 
-- The C++ output is the reference. Every implementation must reproduce `tests/parity/baseline/` exactly.
+- The C++ output is the reference. Every implementation must reproduce `tests/parity/baseline/` (outputs of
+  `process`) and `tests/parity/api.jsonl` (options, and the changes of `process_with_changes`) exactly.
 - A change to the C++ that changes any baseline output is a behaviour change: update the baseline in the same change,
   and say in the commit which outputs changed and why.
+  Regenerate `api.jsonl` with `.venv/bin/python tests/parity/api.py`.
 - Offsets in `process_with_changes` count Unicode code points in every implementation.
 
 ## Code style

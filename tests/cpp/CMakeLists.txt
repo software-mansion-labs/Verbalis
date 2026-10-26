@@ -8,4 +8,5 @@ add_test(NAME unit COMMAND verbalis_tests)
 add_executable(verbalis_parity ${CMAKE_CURRENT_SOURCE_DIR}/parity.cpp)
 target_include_directories(verbalis_parity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
 target_link_libraries(verbalis_parity PRIVATE verbalis)
-add_test(NAME parity COMMAND verbalis_parity ${CMAKE_CURRENT_SOURCE_DIR}/../parity/baseline)
+add_test(NAME parity COMMAND verbalis_parity ${CMAKE_CURRENT_SOURCE_DIR}/../parity/baseline
+                                         ${CMAKE_CURRENT_SOURCE_DIR}/../parity/api.jsonl)

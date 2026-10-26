@@ -1,0 +1,41 @@
+{
+  "name": "verbalis",
+  "version": "0.1.0",
+  "description": "Rewrites text the way it is read aloud: numbers, dates, symbols, abbreviations, and web addresses as words.",
+  "license": "MIT",
+  "author": "Software Mansion",
+  "keywords": [
+    "tts",
+    "text-normalization",
+    "verbalization",
+    "speech"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "format": "prettier --write src ../tests/ts *.config.ts",
+    "lint": "prettier --check src ../tests/ts *.config.ts && tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "prettier": "^3.9.10",
+    "tsdown": "^0.23.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

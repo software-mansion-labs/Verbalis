@@ -56,7 +56,27 @@ for change in english.process_with_changes(text).changes:
 `Verbalizer("xx")` raises `ValueError` for an unsupported language; `Verbalizer.languages()` lists the supported
 codes. A `Verbalizer` is immutable and releases the GIL while it works, so threads can share one instance.
 
-A TypeScript package with the same API is in progress.
+## TypeScript
+
+```bash
+npm install verbalis   # not yet published; to build from a checkout: cd ts && npm ci && npm run build
+```
+
+```ts
+import { Verbalizer } from "verbalis";
+
+const english = new Verbalizer("en-us");
+english.process("I bought 3 tickets for $49."); // "I bought three tickets for forty-nine dollars."
+
+// Turn steps off, or add readings of your own
+const custom = new Verbalizer("en-us", { numbers: false, abbreviations: { "approx.": "approximately" } });
+
+// Offsets count code points: slice [...text], not text, when the text may hold emoji
+const { changes } = english.processWithChanges("5 apples & pears");
+```
+
+A pure TypeScript port with no dependencies, for Node.js 20 and later and browsers. It produces exactly the C++
+output. `new Verbalizer("xx")` throws a `RangeError` for an unsupported language.
 
 ## Development
 
@@ -65,9 +85,11 @@ cmake -S cpp -B cpp/build -DVERBALIS_BUILD_TESTS=ON && cmake --build cpp/build -
 ctest --test-dir cpp/build --output-on-failure
 
 uv venv && uv pip install ".[test]" && .venv/bin/pytest   # Python: build the extension, run tests/python
+(cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format, types, and tests/ts
+tests/compare/cross.sh                                    # TypeScript output identical to the C++
 ```
 
-The parity tests check the C++ and Python output against `tests/parity/baseline/`, which every implementation must match.
+The parity tests check the C++, Python, and TypeScript output against `tests/parity/baseline/`, which every implementation must match.
 
 ## License
 
