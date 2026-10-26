@@ -1,0 +1,13 @@
+# Builds
+build/
+cpp/build/
+*.egg-info/
+dist/
+__pycache__/
+node_modules/
+
+# Claude Code, per-user
+.claude/settings.local.json
+CLAUDE.local.md
+
+.DS_Store
