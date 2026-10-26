@@ -1,11 +1,12 @@
 #include "test.h"
-#include <verbalis/processor/common/document.h>
+
+#include <verbalis/text/document.h>
 
 #include <stdexcept>
 
 namespace verbalis::test {
 
-using namespace processor;
+using namespace text;
 
 namespace {
 // Whether a call rejects its arguments

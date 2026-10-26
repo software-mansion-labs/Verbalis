@@ -5,13 +5,13 @@ distributed under their own terms, listed below. The full license texts are in [
 
 ## cn2an
 
-- **Files:** `cpp/src/verbalis/lang/zh/num2word.cpp`, `cpp/src/verbalis/lang/zh/constants.h`.
+- **Files:** `cpp/src/verbalis/languages/zh/mandarin.cpp`, `cpp/src/verbalis/languages/zh/constants.h`.
 - **Source:** a C++ port of the `an2cn` transform of [cn2an](https://github.com/Ailln/cn2an) by Ailln.
 - **License:** MIT, see [`licenses/cn2an-MIT.txt`](licenses/cn2an-MIT.txt).
 
 ## Unicode Character Database
 
-- **Files:** `cpp/src/verbalis/utils/unicode_table.h`.
+- **Files:** `cpp/src/verbalis/text/unicode_table.h`.
 - **Source:** character properties generated from Python's `unicodedata` (the Unicode Character Database) by
   Phonemis's `scripts/tools/generate_unicode_table.py`.
 - **License:** Unicode License v3, see [`licenses/Unicode-3.0.txt`](licenses/Unicode-3.0.txt).

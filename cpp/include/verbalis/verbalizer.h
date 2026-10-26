@@ -16,7 +16,6 @@ struct Options {
   bool terms = true;     // Abbreviations and web addresses as words: "e.g." -> "for example"
   bool numbers = true;   // Numbers, dates, times, money, and units as words: "$5" -> "five dollars"
   bool symbols = true;   // Remaining symbols as words: "&" -> "and"
-  bool sanitize = true;  // Characters the language doesn't expect, replaced or removed
 
   std::map<std::string, std::string> abbreviations; // Added or replaced readings: {"approx.", "approximately"}
   std::map<std::string, std::string> symbol_words;  // Added or replaced readings: {"™", "trademark"}
@@ -60,7 +59,7 @@ public:
   static const std::vector<std::string>& languages();
 
 private:
-  struct Impl;
+  class Impl;
   std::unique_ptr<Impl> impl_;
 };
 

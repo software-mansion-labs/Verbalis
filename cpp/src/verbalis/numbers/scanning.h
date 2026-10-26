@@ -1,0 +1,62 @@
+#pragma once
+
+#include "formats.h"
+#include "match.h"
+
+#include <cstdint>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
+/**
+ * Scanning numbers
+ *
+ * Written numbers at a position of a text, on top of the shared scanning in text/scan.h, and the shared steps of the
+ * languages' readings: values of digits, digit-by-digit decisions, and the parts of codes.
+ */
+namespace verbalis::numbers {
+
+using text::Span;
+
+// The digits starting at a position, as a number.
+Number digits_at(std::u32string_view text, size_t position);
+
+/**
+ * A written number at a position: 1,000.5 or 1 000,5 or 15.
+ * @returns its possible readings, in the order a regex would try them: grouped first,
+ *          each with and then without its fraction. Empty if no number starts there.
+ */
+std::vector<Number> numbers_at(std::u32string_view text, size_t position, std::u32string_view group,
+                               std::u32string_view decimal);
+
+// The value of a run of digits; nullopt if it is empty or too long to hold.
+std::optional<uint64_t> parse_value(std::u32string_view digits);
+
+// The value of a number's integer part; 0 if it has none or it is too long to hold.
+uint64_t value(const Number& number);
+
+// Whether a number is "1" as written, which counts a singular noun.
+bool is_one(const Number& number);
+
+// Whether an integer is read digit by digit: a leading zero, or a long code that is not a round amount.
+bool is_spoken_digits(const Number& number, size_t longest);
+
+// The value of the digits of a code or phone number, or nullopt if they read digit by digit: a leading zero, more than
+// longest digits, or too long to hold.
+std::optional<uint64_t> code_value(std::u32string_view digits, size_t longest);
+
+// Whether a time's hours and minutes fit a clock: at most 24 and 59. An hour alone always fits.
+bool fits_clock(const Match& time);
+
+// The words of a fraction with its own words (1/2: half), or nullopt.
+std::optional<std::u32string> named_fraction(const Fractions& fractions, const Match& fraction);
+
+// The suffix of a match with a space before it, to follow its reading; empty if the match has none.
+std::u32string spaced_suffix(const Match& match);
+
+// The parts of a code (MP3, H.264, F-16s): digits with their decimals, ".digits", runs of other characters,
+// and single apostrophes, dots and hyphens.
+std::vector<std::u32string_view> code_parts(std::u32string_view code);
+
+} // namespace verbalis::numbers

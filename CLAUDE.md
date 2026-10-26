@@ -7,10 +7,15 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
 
 ## Layout
 
-- `cpp/`: the C++ core. `include/verbalis/verbalizer.h` is the public API; `src/verbalis/` holds the processor and
-  its layers (`processor/`), one folder per language (`lang/<xx>/`), the language registry (`languages.cpp`), and
-  UTF-8/UTF-32 helpers (`utils/`).
-- `tests/cpp/`: C++ unit and API tests, and the parity runner. `tests/parity/baseline/`: the shared parity baseline,
+- `cpp/`: the C++ core. `include/verbalis/verbalizer.h` is the public API. Under `src/verbalis/`:
+  - `verbalizer.cpp`: the fixed pipeline, normalize → trim → terms → numbers → symbols.
+  - `text/`: the document and its edits, the context around a match, scanning, Unicode, and UTF-8.
+  - `steps/`: normalize, trim, terms, and symbols.
+  - `numbers/`: the number engine: matches, formats, patterns, and the scanners and helpers they share.
+  - `languages/`: `language.h` (`Language`, and `PatternLanguage` with its default readings), `grammar.h` (joiners,
+    noun forms, case, gender), the registry, and one folder per language: `<xx>/constants.h` (tables) and `<xx>/<name>.cpp` (the class).
+- `tests/cpp/`: C++ tests, through the public API (`verbalize.h`), and the parity runner. `tests/compare/`: the
+  reference comparison. `tests/parity/baseline/`: the shared parity baseline,
   one JSONL file per language.
 - `knowledge/`: what was decided and why. Read `knowledge/provenance.md` before changing the core.
 - `python/` and `ts/`: planned (Python wrapper next, then the TypeScript port).
@@ -21,7 +26,11 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
 cmake -S cpp -B cpp/build -DVERBALIS_BUILD_TESTS=ON && cmake --build cpp/build -j
 ctest --test-dir cpp/build --output-on-failure             # unit tests and parity
 cpp/build/tests/verbalis_parity tests/parity/baseline       # parity summary per language and category
+tests/compare/compare.sh [commit]                           # outputs identical to a reference commit (default 3143074)
 ```
+
+A refactor must keep `compare.sh` at 100% identical. It also runs on any `tests/parity/local/*.jsonl` (gitignored):
+local hi and zh sentences that can't be committed yet.
 
 ## Parity
 
@@ -33,14 +42,20 @@ cpp/build/tests/verbalis_parity tests/parity/baseline       # parity summary per
 ## Code style
 
 - C++ follows `knowledge/code_style.md`, with `.clang-format` and `.clang-tidy`: CamelCase types, snake_case
-  functions, `kCamelCase` constants, language behaviour in `lang/<xx>/constants.h` tables first and subclasses second,
-  UTF-32 inside and UTF-8 at the API.
-- To add a language: add `cpp/src/verbalis/lang/<xx>/` (copy the closest language), add one entry to `kLanguages` in
-  `cpp/src/verbalis/languages.cpp`, add `tests/cpp/num2word_<xx>_test.cpp`, and add a baseline file.
+  functions, `kCamelCase` constants, language behaviour in `languages/<xx>/constants.h` tables first and overridden
+  readings second, UTF-32 inside and UTF-8 at the API. Format with `clang-format -i`; tables are excluded in
+  `.clang-format-ignore`.
+- A reading returns `std::optional`; `std::nullopt` leaves the match as written. A reading that builds on another
+  calls a private helper, not the other reading, so each kind's acceptance checks run once. What the words around a
+  match say (a case, a gender, a year rather than a count) is the language's `Cues`, from `cues_of(match)`. Helpers
+  more than one language needs go in `numbers/scanning.h`.
+- To add a language: add `cpp/src/verbalis/languages/<xx>/` (copy the closest language), declare its `language()` and
+  add it to `kLanguages` in `languages/registry.cpp`, add `tests/cpp/numbers_<xx>_test.cpp`, and add a baseline file.
 
 ## ⚑ Gotchas
 
 - `tests/parity/baseline/` contains sentences from the Leipzig Corpora Collection. Check their terms before the repo
   or a package containing them goes public (`knowledge/parity-dataset.md`).
 - Some baseline outputs are wrong (inherited from Phonemis); parity means matching the reference, not being correct.
-- `lang/*/num2word.cpp` is mostly AI-generated; take style from `processor/` and `lang/en/` instead.
+- `knowledge/code_style.md` describes Phonemis. Its naming, formatting, and comment rules apply; its architecture and
+  layout sections don't (the layout is in this file).

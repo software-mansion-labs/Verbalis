@@ -1,5 +1,5 @@
-# Formatting rules (see .claude/CLAUDE.md, section 4), checked by ./scripts/lint.sh.
-# Hand-aligned data tables and generated files are excluded in .clang-format-ignore.
+# Formatting rules (see knowledge/code_style.md). Hand-aligned data tables (languages/*/constants.h, unicode_table.h)
+# are excluded in .clang-format-ignore.
 BasedOnStyle: Google
 Language: Cpp
 Standard: c++20
@@ -41,22 +41,21 @@ BreakConstructorInitializers: BeforeColon
 ConstructorInitializerIndentWidth: 4
 PackConstructorInitializers: NextLine
 
-# Comments (their length is checked by ./scripts/lint.sh, not reflowed)
+# Comments (not reflowed)
 AlignTrailingComments: true
 SpacesBeforeTrailingComments: 1
 ReflowComments: false
 
-# Includes: quoted -> <phonemis/...> -> <third-party/...> -> standard library.
-# The own header is not forced first.
+# Includes: quoted, then <verbalis/...>, then third-party, then the standard library, each its own block.
 SortIncludes: CaseSensitive
-IncludeBlocks: Preserve
+IncludeBlocks: Regroup
 IncludeIsMainRegex: '(_no_main_header)$'
 IncludeCategories:
   - Regex: '^"'
     Priority: 1
-  - Regex: '^<phonemis/'
+  - Regex: '^<verbalis/'
     Priority: 2
-  - Regex: '^<third-party/'
+  - Regex: '^<(nlohmann|third_party)/'
     Priority: 3
   - Regex: '^<'
     Priority: 4

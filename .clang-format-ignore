@@ -1,0 +1,3 @@
+cpp/src/verbalis/languages/*/constants.h
+cpp/src/verbalis/text/unicode_table.h
+tests/cpp/third_party/**
