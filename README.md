@@ -32,16 +32,42 @@ add_subdirectory(verbalis/cpp)   # or FetchContent
 target_link_libraries(your_target PRIVATE verbalis::verbalis)
 ```
 
-Python and TypeScript packages with the same API are in progress.
+## Python
+
+```bash
+pip install verbalis   # not yet published; to build from a checkout: pip install .
+```
+
+```python
+from verbalis import Options, Verbalizer
+
+english = Verbalizer("en-us")
+english.process("I bought 3 tickets for $49.")  # "I bought three tickets for forty-nine dollars."
+
+# Turn steps off, or add readings of your own
+custom = Verbalizer("en-us", Options(numbers=False, abbreviations={"approx.": "approximately"}))
+
+# Map the output back to the input: offsets count code points, so they index Python strings
+text = "5 apples & pears"
+for change in english.process_with_changes(text).changes:
+    print(text[change.start : change.end], "->", change.replacement)
+```
+
+`Verbalizer("xx")` raises `ValueError` for an unsupported language; `Verbalizer.languages()` lists the supported
+codes. A `Verbalizer` is immutable and releases the GIL while it works, so threads can share one instance.
+
+A TypeScript package with the same API is in progress.
 
 ## Development
 
 ```bash
 cmake -S cpp -B cpp/build -DVERBALIS_BUILD_TESTS=ON && cmake --build cpp/build -j
 ctest --test-dir cpp/build --output-on-failure
+
+uv venv && uv pip install ".[test]" && .venv/bin/pytest   # Python: build the extension, run tests/python
 ```
 
-The parity test checks the C++ output against `tests/parity/baseline/`, which every implementation must match.
+The parity tests check the C++ and Python output against `tests/parity/baseline/`, which every implementation must match.
 
 ## License
 

@@ -18,7 +18,12 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
   reference comparison. `tests/parity/baseline/`: the shared parity baseline,
   one JSONL file per language.
 - `knowledge/`: what was decided and why. Read `knowledge/provenance.md` before changing the core.
-- `python/` and `ts/`: planned (Python wrapper next, then the TypeScript port).
+- `python/`: the Python package. `src/bindings.cpp` binds the public C++ API with nanobind (module
+  `verbalis._verbalis`, typed stubs generated at build time); `verbalis/` is the package; `CMakeLists.txt` builds it
+  from `cpp/`. `pyproject.toml` (repository root, scikit-build-core) also sets what the sdist ships: the C++ sources,
+  the bindings, and licences, never `tests/`.
+- `tests/python/`: pytest: the API (`test_verbalizer.py`) and the parity baseline (`test_parity.py`).
+- `ts/`: planned (the TypeScript port).
 
 ## Commands
 
@@ -26,6 +31,7 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
 cmake -S cpp -B cpp/build -DVERBALIS_BUILD_TESTS=ON && cmake --build cpp/build -j
 ctest --test-dir cpp/build --output-on-failure             # unit tests and parity
 cpp/build/tests/verbalis_parity tests/parity/baseline       # parity summary per language and category
+uv venv && uv pip install ".[test]" && .venv/bin/pytest     # Python package: build, API and parity tests
 tests/compare/compare.sh [commit]                           # outputs identical to a reference commit (default 3143074)
 ```
 
