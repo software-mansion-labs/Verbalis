@@ -1,20 +1,41 @@
-import { DatePattern, DotOrdinalPattern, Pattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
+import {
+  DatePattern,
+  DotOrdinalPattern,
+  FractionPattern,
+  Pattern,
+  ScalePattern,
+  SuffixPattern,
+  RomanPattern,
+} from "../../numbers/patterns.ts";
+import { keysOf } from "../../numbers/formats.ts";
 import { Kind, match as matchOf, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
   digitsAt,
   fitsClock,
+  isOne,
   isSpokenDigits,
+  fractionOf,
+  isMarkedFraction,
   namedFraction,
   parseValue,
   value,
   romanRole,
   RomanRole,
 } from "../../numbers/scanning.ts";
-import { stripped, wordsOf, type Context } from "../../text/context.ts";
-import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
+import { PUNCTUATION, stripped, wordsOf, type Context } from "../../text/context.ts";
+import {
+  digitsEnd,
+  isClearAfter,
+  isClearBefore,
+  isDigitAfter,
+  join,
+  keysAt,
+  skipSpace,
+  type Keys,
+} from "../../text/scan.ts";
 import { contains, str, toLower, type Text } from "../../text/strings.ts";
-import { isDigit, isUpper, toUpper } from "../../text/unicode.ts";
+import { isDigit, isLower, isUpper, toUpper } from "../../text/unicode.ts";
 import { Case, Gender } from "../grammar.ts";
 import { PatternLanguage } from "../language.ts";
 import {
@@ -26,6 +47,7 @@ import {
   DECADE_FORMAT,
   DECADE_SUFFIXES,
   FEMININE_ENDINGS,
+  FRACTION_WORDS,
   FRACTIONS,
   GENDERS,
   GENITIVE,
@@ -33,6 +55,7 @@ import {
   MEASURE_WORDS,
   MIXED,
   MONTHS,
+  NOMINATIVE_WORDS,
   NEUTER_ENDINGS,
   NOTATION,
   ONES,
@@ -45,7 +68,9 @@ import {
   WEAK,
   WEAK_NOMINATIVE,
   YEAR_CUES,
+  ORDINAL_SUFFIXES,
   ROMAN_CUES,
+  SECONDS_SUFFIXES,
   FEMININE_NAMES,
 } from "./constants.ts";
 
@@ -104,6 +129,9 @@ function cardinal(n: bigint): string {
     return `${stem(n / 1000n)}tausend` + (n % 1000n ? cardinal(n % 1000n) : "");
   }
   for (const [scale, one, many] of [
+    [1000000000000000000n, "Trillion", "Trillionen"],
+    [1000000000000000n, "Billiarde", "Billiarden"],
+    [1000000000000n, "Billion", "Billionen"],
     [1000000000n, "Milliarde", "Milliarden"],
     [1000000n, "Million", "Millionen"],
   ] as const) {
@@ -152,6 +180,14 @@ function article(c: Case, g: Gender): string {
   ] as const;
   const row = c === Case.GENITIVE ? 1 : c === Case.DATIVE ? 2 : c === Case.ACCUSATIVE ? 3 : 0;
   return forms[row][g];
+}
+
+// "halb" after "ein", by case and gender: ein halber Meter, einen halben Liter, eine halbe Stunde
+function half(c: Case, g: Gender): string {
+  if (c === Case.DATIVE || c === Case.GENITIVE || (c === Case.ACCUSATIVE && g === Gender.MASCULINE)) {
+    return "halben";
+  }
+  return g === Gender.MASCULINE ? "halber" : g === Gender.FEMININE ? "halbe" : "halbes";
 }
 
 // The adjective ending of an ordinal: am dritten, der dritte, ein zweiter, dritter
@@ -311,8 +347,19 @@ function cuesOf(match: Match): Cues {
     }
   }
   result.article = capitalized(noun) && noun !== "Quadrat" && (noun !== next || !labelled(context));
-  result.grammaticalCase = caseAfter(context.before());
+  // über 1/4, unter 3 Euro: "more than", "less than" before an amount, not prepositions
+  const before = context.before();
+  result.grammaticalCase = before === "über" || before === "unter" ? Case.NOMINATIVE : caseAfter(before);
   result.gender = genderOf(noun);
+
+  // kostet 1 Euro, lief 1 km: after a verb, an amount is its object (einen Euro); but ist 1 Euro, als 1 Euro
+  const head = wordsOf(context.head());
+  const last = head.length === 0 ? "" : str(stripped(head[head.length - 1]));
+  const amount = match.kind === Kind.MONEY || match.kind === Kind.UNIT || match.kind === Kind.FRACTION;
+  const lowercaseWord = last !== "" && [...last].every((c) => isLower(c));
+  if (amount && result.grammaticalCase === Case.NOMINATIVE && lowercaseWord && !NOMINATIVE_WORDS.has(last)) {
+    result.grammaticalCase = Case.ACCUSATIVE;
+  }
 
   // 1998 Abi gemacht, im Jahr 1945; but 1945 Einwohner, 1920 mal 1080
   const month = (MONTHS as readonly string[]).includes(next);
@@ -329,21 +376,29 @@ function cuesOf(match: Match): Cues {
 // ----- Patterns -----
 // --------------------
 
-// 030 1234567, 0800-123 45 67: an area code starting with 0, then the number, optionally in groups.
+// 030 1234567, 0800-123 45 67, (0411) 1234-1234: an area code starting with 0, then the number, optionally in groups.
 class AreaCodePattern extends Pattern {
   constructor() {
     super(Kind.PHONE);
   }
 
   match(text: Text, position: number): Match | undefined {
-    if (!isClearBefore(text, position, ".,") || text[position] !== "0") {
+    const parenthesized = text[position] === "(";
+    const area = parenthesized ? position + 1 : position;
+    if (!isClearBefore(text, position, ".,") || area >= text.length || text[area] !== "0") {
       return undefined;
     }
 
-    // The area code and the number: written together (0301234567), or apart (030 1234567, 030/1234567)
-    let end = digitsEnd(text, position);
-    const length = end - position;
-    if (length < 6) {
+    // The area code and the number: written together (0301234567), or apart (030 1234567, 030/1234567, (030) 1234567)
+    let end = digitsEnd(text, area);
+    const length = end - area;
+    if (parenthesized) {
+      const number = end < text.length && text[end] === ")" ? skipSpace(text, end + 1) : end;
+      if (length < 3 || number === end || digitsEnd(text, number) < number + 2) {
+        return undefined;
+      }
+      end = digitsEnd(text, number);
+    } else if (length < 6) {
       const apart =
         length >= 3 &&
         end < text.length &&
@@ -355,14 +410,17 @@ class AreaCodePattern extends Pattern {
       end = digitsEnd(text, end + 1);
     }
 
-    // Then any further groups: 0800-123 45 67. Each could end the number, if nothing continues it there.
+    // Then any further groups: 0800-123 45 67, (030) 4664 - 911300. Each could end the number, if nothing continues it.
     const ends = [end];
-    while (
-      ends[ends.length - 1] + 1 < text.length &&
-      (text[ends[ends.length - 1]] === " " || text[ends[ends.length - 1]] === "-") &&
-      isDigit(text[ends[ends.length - 1] + 1])
-    ) {
-      ends.push(digitsEnd(text, ends[ends.length - 1] + 1));
+    for (;;) {
+      const last = ends[ends.length - 1];
+      const spaced = text[last] === " " && text[last + 1] === "-" && text[last + 2] === " ";
+      const next = last + (spaced ? 3 : 1);
+      const separator = last < text.length && (text[last] === " " || text[last] === "-");
+      if (!separator || next >= text.length || !isDigit(text[next])) {
+        break;
+      }
+      ends.push(digitsEnd(text, next));
     }
     for (let k = ends.length - 1; k >= 0; k--) {
       const at = ends[k];
@@ -386,6 +444,67 @@ class AreaCodePattern extends Pattern {
   }
 }
 
+// 02:02:23 Uhr, 2:08:29, 13:46:36 Stunden: hours, minutes, and seconds, with an optional word after them.
+class SecondsPattern extends Pattern {
+  constructor() {
+    super(Kind.TIME);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const hours = digitsEnd(text, position);
+    if (!isClearBefore(text, position, ".,:") || hours === position || hours > position + 2) {
+      return undefined;
+    }
+    const time = matchOf({ kind: Kind.TIME, numbers: [digitsAt(text, position)], separator: ":" });
+    let end = hours;
+    for (let part = 0; part < 2; part++) {
+      if (end >= text.length || text[end] !== ":" || digitsEnd(text, end + 1) !== end + 3) {
+        return undefined;
+      }
+      time.numbers.push(digitsAt(text, end + 1));
+      end += 3;
+    }
+    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:")) {
+      return undefined;
+    }
+    time.span = { begin: position, end };
+    const word = skipSpace(text, end);
+    for (const key of keysAt(text, word, SECONDS_SUFFIXES)) {
+      if (isClearAfter(text, word + key.length)) {
+        time.span = { begin: position, end: word + key.length };
+        time.suffix = key;
+        break;
+      }
+    }
+    return time;
+  }
+}
+
+// 90 Millionen g, 1 1/2 ft: a scale or a fraction, then a unit after an optional space.
+class UnitAfterPattern extends Pattern {
+  readonly #base: Pattern;
+  readonly #units: Keys = keysOf(UNITS);
+
+  constructor(base: Pattern) {
+    super(base.kind);
+    this.#base = base;
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const found = this.#base.match(text, position);
+    if (!found) {
+      return undefined;
+    }
+    const start = skipSpace(text, found.span.end);
+    for (const unit of keysAt(text, start, this.#units)) {
+      if (isClearAfter(text, start + unit.length)) {
+        return { ...found, span: { begin: found.span.begin, end: start + unit.length }, unit };
+      }
+    }
+    return undefined;
+  }
+}
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -403,7 +522,11 @@ class German extends PatternLanguage {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
     this.addPattern(new AreaCodePattern());
-    this.addPattern(new DotOrdinalPattern());
+    this.addPattern(new SecondsPattern());
+    this.addPattern(new UnitAfterPattern(new ScalePattern(NOTATION)));
+    this.addPattern(new UnitAfterPattern(new FractionPattern()));
+    this.addPattern(new DotOrdinalPattern(true));
+    this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new SuffixPattern(Kind.DECADE, DECADE_SUFFIXES, DECADE_FORMAT));
     this.addPattern(new RomanPattern(true));
   }
@@ -414,8 +537,15 @@ class German extends PatternLanguage {
       return `${head}Komma ${digits(number.fraction)}`;
     }
 
+    // The whole number of 1 1/2: ein einhalb
+    if (match.kind === Kind.FRACTION && isOne(number)) {
+      return "ein";
+    }
+    // A long number is a code (40474 Düsseldorf, WKN 840400), unless it is an amount: 18880 €, 42259 m²
     const n = parseValue(number.integer);
-    if (n === undefined || isSpokenDigits(number, 5)) {
+    const amount =
+      match.kind === Kind.MONEY || match.kind === Kind.UNIT || match.kind === Kind.PERCENT || match.kind === Kind.SCALE;
+    if (n === undefined || (isSpokenDigits(number, 5) && !(amount && number.integer[0] !== "0"))) {
       return digits(number.integer);
     }
     const cues = cuesOf(match);
@@ -447,13 +577,29 @@ class German extends PatternLanguage {
   }
 
   protected override readFraction(match: Match): string | undefined {
-    return (
-      namedFraction(FRACTIONS, match) ??
-      `${cardinal(value(match.numbers[0]))} durch ${cardinal(value(match.numbers[1]))}`
-    );
+    // A half before a unit or a noun: 1/2 l einen halben Liter, 1/2 Stunde eine halbe Stunde
+    const cues = cuesOf(match);
+    const [a, b] = fractionOf(match);
+    const next = match.context.after();
+    const noun = match.unit === "" ? next : UNITS[match.unit].one;
+    if (a === 1n && b === 2n && match.numbers.length === 2 && capitalized(noun)) {
+      const gender = genderOf(noun);
+      const words = `${article(cues.grammaticalCase, gender)} ${half(cues.grammaticalCase, gender)}`;
+      return match.unit === "" ? words : `${words} ${noun}`;
+    }
+    if (match.unit === "") {
+      return this.#fraction(match, cues.grammaticalCase);
+    }
+
+    // 1 1/2 ft: ein einhalb Fuß; 3/4 m: drei Viertel Meter
+    const unit = UNITS[match.unit];
+    return `${this.#fraction(match, cues.grammaticalCase)} ${match.numbers.length === 3 ? unit.many : unit.one}`;
   }
 
   protected override readTime(match: Match): string | undefined {
+    if (match.numbers.length === 3) {
+      return this.#readSeconds(match);
+    }
     if (match.numbers.length === 2) {
       const decimal = match.separator === "." && match.suffix === "";
       if (!fitsClock(match) || decimal) {
@@ -468,12 +614,26 @@ class German extends PatternLanguage {
   }
 
   protected override readOrdinal(match: Match): string | undefined {
+    // 3ten, 121tem, 20ste: the ending as written
+    if (match.suffix !== ".") {
+      return ordinal(value(match.numbers[0]), match.suffix.slice(match.suffix.startsWith("st") ? 2 : 1));
+    }
+
     // "Platz 3. Danach", "Platz 1. 2 Tore": a sentence end, not an ordinal
     const words = wordsOf(match.context.tail());
     const next = words.length === 0 ? "" : str(words[0]);
     const month = (MONTHS as readonly string[]).includes(next);
     const sentence = capitalized(next) && !month && !INFLECTING.has(match.context.before());
-    if (next === "" || isDigit(String.fromCodePoint(next.codePointAt(0) as number)) || sentence) {
+    // Before a comma or the end: only right after an article (in der 79., am 3.), not "Platz 23.," or "von 1983."
+    const first = next === "" ? "" : String.fromCodePoint(next.codePointAt(0) as number);
+    if (next === "" || contains(PUNCTUATION, first)) {
+      const previous = match.context.before();
+      if (!WEAK.has(previous) && !WEAK_NOMINATIVE.has(previous)) {
+        return undefined;
+      }
+      return ordinal(value(match.numbers[0]), ending(cuesOf(match))) + (next === "" ? "." : "");
+    }
+    if (isDigit(first) || sentence) {
       return undefined;
     }
     return ordinal(value(match.numbers[0]), ending(cuesOf(match)));
@@ -539,29 +699,56 @@ class German extends PatternLanguage {
   }
 
   protected override readMoney(number: Numeral, match: Match): string | undefined {
-    const noun = CURRENCIES[match.unit];
+    // 12,50 €/m²: zwölf Euro fünfzig pro Quadratmeter
+    let noun = CURRENCIES[match.unit];
+    let per = "";
+    const at = noun.indexOf(" pro ");
+    if (at !== -1) {
+      if (match.span.begin < match.numbers[0].span.begin) {
+        return undefined; // Only after its amount: 19,87 €/l, not €/l 14,90
+      }
+      per = noun.slice(at);
+      noun = noun.slice(0, at);
+    }
+    return this.#price(number, match, noun) + per;
+  }
+
+  // An amount of a currency: drei Euro fünfzig, neunundneunzig Cent
+  #price(number: Numeral, match: Match, noun: string): string {
     const one = article(cuesOf(match).grammaticalCase, genderOf(noun));
     if (match.scale !== "") {
       return `${this.#scaled(number, match)} ${noun}`;
     }
 
-    // A price: drei Euro fünfzig, neunundneunzig Cent
-    if (number.fraction.length === 2) {
-      const cents = parseValue(number.fraction) ?? 0n;
-      if (value(number) === 0n) {
-        return `${cardinal(cents)} Cent`;
+    // Decimals as cents, without trailing zeros: 2,2 € and 2,200 € read like 2,20 €
+    let fraction = number.fraction;
+    while (fraction.length > 2 && fraction.endsWith("0")) {
+      fraction = fraction.slice(0, -1);
+    }
+    if (fraction.length === 1) {
+      fraction += "0";
+    }
+    const amount = { ...number, fraction };
+
+    // A price: drei Euro fünfzig, neunundneunzig Cent, ein Cent; 2,00 €: zwei Euro
+    if (amount.fraction.length === 2) {
+      const cents = parseValue(amount.fraction) ?? 0n;
+      if (value(amount) === 0n) {
+        return `${cents === 1n ? article(cuesOf(match).grammaticalCase, Gender.MASCULINE) : cardinal(cents)} Cent`;
       }
-      const whole = numeral({ span: { begin: 0, end: 0 }, integer: number.integer, grouped: number.grouped });
-      const words = number.integer === "1" ? one : this.readNumber(whole, match);
-      return `${words} ${noun} ${cardinal(cents)}`;
+      const whole = numeral({ span: { begin: 0, end: 0 }, integer: amount.integer, grouped: amount.grouped });
+      const words = `${amount.integer === "1" ? one : this.readNumber(whole, match)} ${noun}`;
+      return cents !== 0n ? `${words} ${cardinal(cents)}` : words;
     }
 
-    const single = number.integer === "1" && number.fraction === "";
-    return `${single ? one : this.readNumber(number, match)} ${noun}`;
+    const single = amount.integer === "1" && amount.fraction === "";
+    return `${single ? one : this.readNumber(amount, match)} ${noun}`;
   }
 
   protected override readScale(number: Numeral, match: Match): string | undefined {
-    return this.#scaled(number, match);
+    // 90 Millionen g: neunzig Millionen Gramm
+    const words = this.#scaled(number, match);
+    return match.unit === "" ? words : `${words} ${UNITS[match.unit].many}`;
   }
 
   protected override readPercent(number: Numeral, match: Match): string | undefined {
@@ -576,6 +763,53 @@ class German extends PatternLanguage {
       return `${article(cuesOf(match).grammaticalCase, genderOf(unit.one))} ${unit.one}`;
     }
     return `${this.readNumber(number, match)} ${unit.many}`;
+  }
+
+  // ein Fünftel, drei Achtel, ein Zwanzigstel, ein Hundertstel; else drei durch sieben. After a whole number, a half is
+  // einhalb: zweieinhalb. The "ein" is the article of a neuter noun (das Drittel): von einem Achtel.
+  #fraction(match: Match, grammaticalCase: Case): string {
+    const [a, b] = fractionOf(match);
+    if (a === 1n && b === 2n && match.numbers.length === 3) {
+      return "einhalb";
+    }
+    const one = article(grammaticalCase, Gender.NEUTER);
+    const words = namedFraction(FRACTIONS, match);
+    if (words !== undefined) {
+      return a === 1n && b > 2n && match.numbers.length === 2 ? one + words.slice(3) : words;
+    }
+
+    // Seasons and school years: 2023/24, 2011/2012 read as two years
+    const [first, second] = match.numbers.slice(-2).map((number) => number.integer);
+    const years =
+      first.length === 4 &&
+      a >= 1900n &&
+      a < 2100n &&
+      ((second.length === 2 && b === (a + 1n) % 100n) || (second.length === 4 && b === a + 1n));
+    if (years) {
+      return `${year(a)} ${second.length === 2 ? cardinal(b) : year(b)}`;
+    }
+
+    if (b < 3n || a >= b || !isMarkedFraction(match, FRACTION_WORDS)) {
+      return `${cardinal(a)} durch ${cardinal(b)}`;
+    }
+    let denominator = ordinal(b, "el");
+    if (b === 100n || b === 1000n) {
+      denominator = denominator.slice(3); // einhundertstel
+    }
+    return `${a === 1n ? one : cardinal(a)} ${toUpper(denominator[0])}${denominator.slice(1)}`;
+  }
+
+  // A clock time before "Uhr": zwei Uhr zwei Minuten dreiundzwanzig Sekunden; else a duration: zwei Stunden acht
+  // Minuten neunundzwanzig Sekunden
+  #readSeconds(match: Match): string | undefined {
+    const [hours, minutes, seconds] = match.numbers.map(value);
+    const clock = match.suffix === "Uhr";
+    if (minutes > 59n || seconds > 59n || (clock && hours > 24n)) {
+      return undefined;
+    }
+    const count = (n: bigint, one: string, many: string) => (n === 1n ? `eine ${one}` : `${cardinal(n)} ${many}`);
+    const head = clock ? `${stem(hours)} Uhr` : count(hours, "Stunde", "Stunden");
+    return `${head} ${count(minutes, "Minute", "Minuten")} ${count(seconds, "Sekunde", "Sekunden")}`;
   }
 
   // An amount with its scale: drei Millionen, zehntausend

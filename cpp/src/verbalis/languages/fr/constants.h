@@ -4,6 +4,7 @@
 #include <verbalis/numbers/formats.h>
 #include <verbalis/steps/terms.h>
 #include <verbalis/text/readings.h>
+#include <verbalis/text/unicode.h>
 
 #include <array>
 #include <cstdint>
@@ -45,7 +46,14 @@ inline const std::unordered_set<std::u32string> kWeekdays = {
 
 inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"€", {U"euro", U"euros"}},    {U"$", {U"dollar", U"dollars"}}, {U"£", {U"livre", U"livres"}},
-  {U"CHF", {U"franc suisse", U"francs suisses"}}, {U"M€", {U"million d'euros", U"millions d'euros"}}
+  {U"CHF", {U"franc suisse", U"francs suisses"}}, {U"M€", {U"million d'euros", U"millions d'euros"}},
+  // A price per unit: 2 000 €/mois
+  {U"€/mois", {U"euro par mois", U"euros par mois"}}, {U"€/an", {U"euro par an", U"euros par an"}},
+  {U"€/jour", {U"euro par jour", U"euros par jour"}}, {U"€/semaine", {U"euro par semaine", U"euros par semaine"}},
+  {U"€/h", {U"euro de l'heure", U"euros de l'heure"}}, {U"€/heure", {U"euro de l'heure", U"euros de l'heure"}},
+  {U"€/nuit", {U"euro la nuit", U"euros la nuit"}}, {U"€/personne", {U"euro par personne", U"euros par personne"}},
+  {U"€/kg", {U"euro le kilo", U"euros le kilo"}}, {U"€/m²", {U"euro le mètre carré", U"euros le mètre carré"}},
+  {U"€/l", {U"euro le litre", U"euros le litre"}}
 };
 
 inline const std::unordered_map<std::u32string, std::u32string> kScales = {
@@ -79,12 +87,18 @@ inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions 
   {{3, 4}, U"trois quarts"}
 };
 
-// Nouns in -e are feminine unless listed below or ending like a masculine noun; other feminine nouns are listed
+// Words after a fraction which mark it as one: 1/3 d'eau
+inline const std::unordered_set<std::u32string> kFractionWords = {U"de", U"du", U"des", U"d'"};
+
+// Nouns in -e, -té, -tion, -sion, and -aison are feminine unless listed below or ending like a masculine noun; other
+// feminine nouns are listed
 inline const std::unordered_set<std::u32string> kFeminineNouns = {
   U"fois", U"voix", U"nuit", U"part", U"dent", U"main", U"fleur", U"mort", U"photo", U"vidéo", U"radio", U"moto",
   U"eau", U"loi", U"foi", U"fin", U"faim", U"peur", U"mer", U"cour", U"tour", U"souris", U"noix", U"paix", U"croix",
-  U"forêt", U"image", U"page", U"plage", U"cage", U"nage", U"rage"
+  U"forêt", U"image", U"page", U"plage", U"cage", U"nage", U"rage", U"chanson", U"leçon", U"façon", U"boisson",
+  U"prison", U"cuisson", U"sœur", U"fourmi", U"clé", U"paroi", U"tribu", U"vertu", U"brebis", U"perdrix"
 };
+inline const std::vector<std::u32string> kFeminineEndings = {U"té", U"tion", U"sion", U"aison"};
 inline const std::unordered_set<std::u32string> kMasculineInE = {
   U"monde", U"livre", U"groupe", U"modèle", U"problème", U"système", U"programme", U"exemple", U"nombre", U"membre",
   U"homme", U"père", U"frère", U"rôle", U"style", U"site", U"espace", U"service", U"commerce", U"couple",
@@ -92,7 +106,8 @@ inline const std::unordered_set<std::u32string> kMasculineInE = {
   U"volume", U"domaine", U"vote", U"texte", U"téléphone", U"jeune", U"collège", U"kilowattheure", U"gramme",
   U"kilogramme", U"milligramme", U"pourcentage", U"ordre", U"type", U"genre", U"acte", U"arbre", U"autre",
   U"génome", U"crime", U"trimestre", U"semestre", U"siècle", U"masque", U"risque", U"casque", U"disque", U"manque",
-  U"parc", U"vice", U"film"
+  U"parc", U"vice", U"film", U"été", U"côté", U"comité", U"traité", U"député", U"pâté", U"arrêté", U"comté",
+  U"karaté", U"velouté"
 };
 inline const std::vector<std::u32string> kMasculineEndings = {U"age", U"ège", U"isme", U"ème", U"aire", U"tre", U"cle", U"ste", U"ome"};
 
@@ -108,6 +123,21 @@ inline const std::unordered_set<std::u32string> kNumberWords = {
   U"douze", U"treize", U"quatorze", U"quinze", U"seize", U"vingt", U"vingts", U"trente", U"quarante", U"cinquante",
   U"soixante", U"cent", U"cents", U"mille"
 };
+
+// Words before a number which make it an ordinal, without the plural s of quatre-vingts and cents: les années
+// quatre-vingt, page deux cent, l'an mille neuf cent
+inline const std::unordered_set<std::u32string> kOrdinalWords = {
+  U"années", U"année", U"an", U"l'an", U"page", U"numéro", U"chapitre", U"article", U"chambre"
+};
+
+// Words before a version, which is not a date: version 3.8.10
+inline const std::unordered_set<std::u32string> kVersionWords = {U"version", U"v", U"ios", U"android"};
+
+// Words before a decade written with an s: les 80s
+inline const std::unordered_set<std::u32string> kDecadeWords = {U"les", U"des", U"aux", U"dans", U"années"};
+
+// Words before a number which make it a code: numéro 1035836, code 75001
+inline const std::unordered_set<std::u32string> kCodeWords = {U"numéro", U"n°", U"nº", U"code", U"réf", U"référence"};
 
 // Words before a time with a dot, which make it a time: à 18.30
 inline const std::unordered_set<std::u32string> kTimeWords = {
@@ -127,7 +157,8 @@ inline const RomanCues kRomanCues = {
   },
   .before = {
     U"chapitre", U"tome", U"livre", U"acte", U"scène", U"titre", U"article", U"partie", U"volume", U"saison",
-    U"épisode", U"annexe", U"phase", U"vatican", U"niveau", U"type", U"classe", U"catégorie"
+    U"épisode", U"annexe", U"phase", U"vatican", U"niveau", U"type", U"classe", U"catégorie", U"l'acte",
+    U"l'article", U"l'annexe", U"l'épisode"
   },
   .after = {
     U"siècle", U"siècles", U"millénaire", U"république", U"empire", U"arrondissement", U"congrès", U"édition",
@@ -149,11 +180,15 @@ inline const Notation kNotation = {
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
-  .point = U"virgule", .dot = U"point", .range = U" à ", .by = U"par", .score = U" à ", .minus = U"moins", .plus = U"plus"
+  .point = U"point", .dot = U"point", .range = U" à ", .by = U"par", .score = U" à ", .minus = U"moins", .plus = U"plus",
+  .fraction = U" et ", .half = U" et demi"
 };
 
 // 05/11, 05/11/2024, 1.5.2024: the year is optional
 inline const DateFormat kDateFormat = {.separators = U"./", .boundaries = U".,/", .year_required = false};
+
+// 12-05-2024, but not 12-05, which may be a range or a score
+inline const DateFormat kDashDateFormat = {.separators = U"-", .boundaries = U".,/"};
 
 // 06 12 34 56 78, 06.12.34.56.78, 0612345678
 inline const PhoneFormat kPhoneFormat = {
@@ -176,8 +211,45 @@ inline const Readings kSymbols = {
   {U"£", {U"livres"}}
 };
 
+using ::verbalis::text::after_any;
+using ::verbalis::text::before_name;
 using ::verbalis::text::before_number;
+
+// Days of a month, the word before a month abbreviation in a date: 2 janv. 2003, 1er févr.
+inline const std::unordered_set<std::u32string> kDays = [] {
+  std::unordered_set<std::u32string> days = {U"1er"};
+  for (char32_t day = 1; day <= 31; day++) {
+    std::u32string tens(1, U'0' + day / 10), ones(1, U'0' + day % 10);
+    days.insert(day < 10 ? ones : tens + ones);
+    days.insert(tens + ones); // 02 janv.
+  }
+  return days;
+}();
 using ::verbalis::steps::Terms;
+
+// XXe s., Ve s.: the century after a Roman ordinal (not after Le, De, Ce, Me)
+inline bool after_roman_ordinal(const ::verbalis::text::Context& context) {
+  auto words = ::verbalis::text::words_of(context.head());
+  std::u32string_view word = words.empty() ? U"" : ::verbalis::text::stripped(words.back());
+  bool numeral = word.size() > 2 || word == U"Ie" || word == U"Ve" || word == U"Xe";
+  return numeral && word.back() == U'e' && word.find_first_not_of(U"IVXLCDM") == word.size() - 1;
+}
+
+// St-Étienne: a name after a hyphen
+inline bool before_hyphenated_name(const ::verbalis::text::Context& context) {
+  std::u32string_view tail = context.tail();
+  return tail.size() > 1 && tail[0] == U'-' && ::verbalis::text::unicode::isupper(tail[1]);
+}
+
+// M. et Mme Durand
+inline bool before_and_madame(const ::verbalis::text::Context& context) {
+  return context.tail().starts_with(U" et Mme");
+}
+
+// M. Dupont, but not the M. of J. M. Ayuso
+inline bool before_name_not_initial(const ::verbalis::text::Context& context) {
+  return before_name(context) && context.before().size() != 1;
+}
 
 inline const Terms kTerms = {
   .abbreviations = {
@@ -188,8 +260,58 @@ inline const Terms kTerms = {
     {U"p.", {{U"page", before_number}}},
     {U"art.", {{U"article", before_number}}},
     {U"Art.", {{U"article", before_number}}},
+    {U"pp.", {{U"pages", before_number}}},
+    {U"chap.", {{U"chapitre", before_number}}},
+    {U"vol.", {{U"volume", before_number}}},
+    {U"fig.", {{U"figure", before_number}}},
+    {U"s.", {{U"siècle", after_roman_ordinal}}},
+    // Before a name: M. Dupont, Dr Martin, St-Étienne
+    {U"M.", {{U"monsieur", before_name_not_initial}, {U"monsieur", before_and_madame}}},
+    {U"Mr", {{U"monsieur", before_name}}},
+    {U"Dr", {{U"docteur", before_name}}},
+    {U"Dr.", {{U"docteur", before_name}}},
+    {U"Pr", {{U"professeur", before_name}}},
+    {U"St", {{U"saint", before_name}, {U"saint", before_hyphenated_name}}},
+    {U"Ste", {{U"sainte", before_name}, {U"sainte", before_hyphenated_name}}},
+    {U"Mgr", {{U"monseigneur", before_name}}},
+    // After a day: 2 janv. 2003
+    {U"janv.", {{U"janvier", after_any(kDays)}}},
+    {U"févr.", {{U"février", after_any(kDays)}}},
+    {U"fév.", {{U"février", after_any(kDays)}}},
+    {U"avr.", {{U"avril", after_any(kDays)}}},
+    {U"juil.", {{U"juillet", after_any(kDays)}}},
+    {U"sept.", {{U"septembre", after_any(kDays)}}},
+    {U"oct.", {{U"octobre", after_any(kDays)}}},
+    {U"nov.", {{U"novembre", after_any(kDays)}}},
+    {U"déc.", {{U"décembre", after_any(kDays)}}},
+    // Anywhere
+    {U"MM.", {U"messieurs"}},
+    {U"Mme", {U"madame"}},
+    {U"Mmes", {U"mesdames"}},
+    {U"Mlle", {U"mademoiselle"}},
+    {U"Mlles", {U"mesdemoiselles"}},
+    {U"Mᵐᵉ", {U"madame"}},
+    {U"Mᵐᵉˢ", {U"mesdames"}},
+    {U"Mˡˡᵉ", {U"mademoiselle"}},
+    {U"Mˡˡᵉˢ", {U"mesdemoiselles"}},
+    {U"Dʳ", {U"docteur"}},
+    {U"Dʳˢ", {U"docteurs"}},
+    {U"Dʳᵉ", {U"docteure"}},
+    {U"Dʳᵉˢ", {U"docteures"}},
+    {U"Pʳ", {U"professeur"}},
+    {U"etc.", {U"et cetera"}},
+    {U"Tél.", {U"téléphone"}},
+    {U"tél.", {U"téléphone"}},
+    {U"cf.", {U"confer"}},
+    {U"env.", {U"environ"}},
+    {U"c.-à-d.", {U"c'est-à-dire"}},
+    {U"p. ex.", {U"par exemple"}},
+    {U"J.-C.", {U"Jésus-Christ"}},
+    {U"av. J.-C.", {U"avant Jésus-Christ"}},
+    {U"apr. J.-C.", {U"après Jésus-Christ"}},
   },
-  .web = {.dot = U"point", .at = U"arobase", .slash = U"slash"}
+  .web = {.dot = U"point", .at = U"arobase", .slash = U"slash", .hyphen = U"tiret", .underscore = U"tiret bas",
+          .digits = {U"zéro", U"un", U"deux", U"trois", U"quatre", U"cinq", U"six", U"sept", U"huit", U"neuf"}}
 };
 
 } // namespace verbalis::languages::fr

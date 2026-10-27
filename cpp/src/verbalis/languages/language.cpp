@@ -77,7 +77,7 @@ std::optional<std::u32string> PatternLanguage::read_match(const Match& match) co
     case Kind::SCORE:
       return read_joiner(match);
     case Kind::FRACTION:
-      return read_fraction(match);
+      return read_mixed_fraction(match);
     case Kind::TIME:
       return read_time(match);
     case Kind::MONEY:
@@ -121,7 +121,28 @@ std::optional<std::u32string> PatternLanguage::read_phone(const Match& match) co
 }
 
 std::optional<std::u32string> PatternLanguage::read_fraction(const Match& match) const {
-  return read_each(match);
+  Match fraction = match;
+  fraction.numbers.erase(fraction.numbers.begin(), fraction.numbers.end() - 2);
+  return read_each(fraction);
+}
+
+std::optional<std::u32string> PatternLanguage::read_mixed_fraction(const Match& match) const {
+  if (match.numbers.size() == 2) {
+    return read_fraction(match);
+  }
+  // 3 1/2: three and a half; 3 3/4: three and three quarters; -4 1/3: minus four and one third
+  std::u32string whole = read_number(match.numbers[0], match);
+  if (match.text.starts_with(U'-')) {
+    whole = joiners_.minus + U" " + whole;
+  }
+  if (numbers::fraction_of(match) == std::pair<uint64_t, uint64_t>{1, 2} && !joiners_.half.empty()) {
+    return whole + joiners_.half;
+  }
+  auto fraction = read_fraction(match);
+  if (!fraction) {
+    return std::nullopt;
+  }
+  return whole + (joiners_.fraction.empty() ? U" " : joiners_.fraction) + *fraction;
 }
 
 std::optional<std::u32string> PatternLanguage::read_time(const Match& match) const {
@@ -217,7 +238,7 @@ std::optional<std::u32string> PatternLanguage::read_international_phone(const Ma
   if (!words) {
     return std::nullopt;
   }
-  return joiners_.plus + U" " + read_code_digits(match.numbers[0].integer) + U" " + *words;
+  return joiners_.plus + U" " + read_country_code(match.numbers[0].integer) + U" " + *words;
 }
 
 std::u32string PatternLanguage::read_code(const Match& match) const {
@@ -251,7 +272,7 @@ std::u32string PatternLanguage::read_code(const Match& match) const {
                auto words = part == U"s" && after_digits ? plural(out.back()) : std::nullopt) {
       out.back() = *words; // F-16s
     } else {
-      word = std::u32string(part);
+      word = read_code_letters(part);
     }
 
     if (word) {

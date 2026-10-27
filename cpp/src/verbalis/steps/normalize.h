@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace verbalis::steps {
@@ -16,6 +17,7 @@ using text::Document;
 struct CharacterClass {
   std::u32string characters; // « » „ “ ” ‟ ˝
   std::u32string canonical;  // "; empty to remove them
+  bool letter = false;       // A letter read in the wrong encoding (zupe³nie): replaced only next to a letter
 };
 
 using Characters = std::vector<CharacterClass>;
@@ -33,7 +35,11 @@ inline constexpr std::u32string_view kDashes = U"—–‒―";
 
 /**
  * Writes equivalent characters in one canonical form, before anything reads the text:
- * quotes as ", apostrophes as ', an ellipsis as ..., dashes as - or " - ", and no invisible characters.
+ * quotes as ", apostrophes as ', an ellipsis as ..., dashes as - or " - ", a degree written as an ordinal sign
+ * (18ºC) as °, and no invisible characters.
+ *
+ * A language whose classes have letters read in the wrong encoding also gets UTF-8 read as Windows-1252 repaired:
+ * siÄ™ -> się.
  */
 class Normalizer {
 public:
@@ -42,6 +48,11 @@ public:
   void apply(Document& document) const;
 
 private:
+  // A letter class character at a position stands for a letter: next to a letter, but not after a metric unit (m³)
+  bool is_letter(std::u32string_view text, size_t position) const;
+
+  std::unordered_set<char32_t> letters_; // The characters of letter classes
+  bool utf8_ = false;                    // Whether UTF-8 read as Windows-1252 is repaired
   /**
    * A dash at a position: "-" inside a word or a number (1990–2000), and " - " for a run of dashes with
    * the spaces around it elsewhere (a – b), except between numbers, which stay a range (2020 – 2022 -> 2020-2022).

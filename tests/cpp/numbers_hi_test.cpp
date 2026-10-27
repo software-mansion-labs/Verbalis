@@ -71,4 +71,62 @@ REGISTER_TEST(numbers_hi_date_test) {
   return true;
 }
 
+REGISTER_TEST(numbers_hi_context_test) {
+
+  // Scales up to शंख; long numbers as numbers, but mobile numbers and codes after their word digit by digit
+  ASSERT_EQUALS(U"इक्यावन अरब दो करोड़ तेईस लाख पैंतालीस हज़ार पाँच सौ सड़सठ", verbalize("hi", U"51022345567"));
+  ASSERT_EQUALS(U"मेरा नंबर नौ आठ सात छह पाँच चार तीन दो एक शून्य है।", verbalize("hi", U"मेरा नंबर 9876543210 है।"));
+  ASSERT_EQUALS(U"पिन कोड एक एक शून्य शून्य दो तीन", verbalize("hi", U"पिन कोड 110023"));
+  ASSERT_EQUALS(U"लखनऊ, उत्तर प्रदेश दो दो छह शून्य शून्य एक", verbalize("hi", U"लखनऊ, उत्तर प्रदेश 226001"));
+  ASSERT_EQUALS(U"मंगलवार को इक्यावन हज़ार तीन सौ चालीस.", verbalize("hi", U"मंगलवार को 51340."));
+
+  // Years in hundreds where the words around mark them, and in dates
+  ASSERT_EQUALS(U"उनका जन्म उन्नीस सौ सैंतालीस में हुआ।", verbalize("hi", U"उनका जन्म 1947 में हुआ।"));
+  ASSERT_EQUALS(U"सन अठारह सौ सत्तावन की क्रांति", verbalize("hi", U"सन 1857 की क्रांति"));
+  ASSERT_EQUALS(U"दो जुलाई उन्नीस सौ सत्तर", verbalize("hi", U"02-07-1970"));
+  ASSERT_EQUALS(U"तीन हज़ार दो सौ से ज्यादा", verbalize("hi", U"3200 से ज्यादा"));
+  ASSERT_EQUALS(U"उन्नीस सौ नब्बे ईसवी में", verbalize("hi", U"1990 ई. में"));
+  ASSERT_EQUALS(U"दो सौ सत्तानवे से दो सौ बहत्तर ईसा पूर्व में", verbalize("hi", U"297-272 ई. पू. में"));
+  ASSERT_EQUALS(U"छह मई", verbalize("hi", U"06-05"));
+  ASSERT_EQUALS(U"दस से पंद्रह लोग", verbalize("hi", U"10-15 लोग"));
+
+  // Times with seconds and with a dot, money with its smaller unit, units
+  ASSERT_EQUALS(U"बारह बजकर दस मिनट दस सेकंड", verbalize("hi", U"12:10:10"));
+  ASSERT_EQUALS(U"रात ग्यारह पचपन बजे", verbalize("hi", U"रात 11.55 बजे"));
+  ASSERT_EQUALS(U"इसकी कीमत नौ रुपये पचास पैसे है।", verbalize("hi", U"इसकी कीमत ₹9.50 है।"));
+  ASSERT_EQUALS(U"एक रुपया पचास पैसे", verbalize("hi", U"₹1.50"));
+  ASSERT_EQUALS(U"निन्यानवे सेंट", verbalize("hi", U"$0.99"));
+  ASSERT_EQUALS(U"एक दशमलव पाँच मिलियन डॉलर", verbalize("hi", U"$1.5 मिलियन"));
+  ASSERT_EQUALS(U"ढाई साल", verbalize("hi", U"2.5 yr"));
+  ASSERT_EQUALS(U"दो सौ बाई दस के गद्दे", verbalize("hi", U"200x10 के गद्दे"));
+
+  // Ordinals and Roman numerals
+  ASSERT_EQUALS(U"सेवंथ क्रॉस", verbalize("hi", U"7th क्रॉस"));
+  ASSERT_EQUALS(U"कक्षा बारह की परीक्षा", verbalize("hi", U"कक्षा XII की परीक्षा"));
+  ASSERT_EQUALS(U"चंद्रयान-तीन", verbalize("hi", U"चंद्रयान-III"));
+  ASSERT_EQUALS(U"बारहवीं कक्षा", verbalize("hi", U"XIIवीं कक्षा"));
+
+  // Phones, codes, ranges, fractions
+  ASSERT_EQUALS(U"प्लस नौ एक नौ आठ सात छह पाँच चार तीन दो एक शून्य", verbalize("hi", U"+91 9876543210"));
+  ASSERT_EQUALS(U"शून्य तीन आठ छह दो तीन पाँच एक सात नौ एक", verbalize("hi", U"03862-351791"));
+  ASSERT_EQUALS(U"टी बीस मैच", verbalize("hi", U"टी20 मैच"));
+  ASSERT_EQUALS(U"ए बी सी एक सौ तेईस", verbalize("hi", U"ABC-123"));
+  ASSERT_EQUALS(U"COVID उन्नीस", verbalize("hi", U"COVID-19"));
+  ASSERT_EQUALS(U"दो क्यूब", verbalize("hi", U"2^3"));
+  ASSERT_EQUALS(U"एक-आठ सौ-पाँच सौ पचपन", verbalize("hi", U"1-800-555"));
+  ASSERT_EQUALS(U"चौदह बटा तीन, मथुरा रोड", verbalize("hi", U"14/3, मथुरा रोड"));
+  ASSERT_EQUALS(U"सत्तानवे दशमलव शून्य", verbalize("hi", U"97.0"));
+
+  // Titles, addresses, paths
+  ASSERT_EQUALS(U"डॉक्टर अमित", verbalize("hi", U"डॉ. अमित"));
+  ASSERT_EQUALS(U"रोक ले.", verbalize("hi", U"रोक ले."));
+  ASSERT_EQUALS(U"एक नौ दो डॉट एक छह आठ डॉट एक डॉट एक", verbalize("hi", U"192.168.1.1"));
+  ASSERT_EQUALS(U"C कोलन बैकवर्ड स्लैश Users बैकवर्ड स्लैश HP", verbalize("hi", U"C:\\Users\\HP"));
+  ASSERT_EQUALS(U"report डॉट pdf", verbalize("hi", U"report.pdf"));
+  ASSERT_EQUALS(U"(PCB/PCM) विषय", verbalize("hi", U"(PCB/PCM) विषय"));
+  ASSERT_EQUALS(U"green हाइफ़न turner डॉट org", verbalize("hi", U"green-turner.org"));
+
+  return true;
+}
+
 } // namespace verbalis::test

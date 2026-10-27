@@ -59,7 +59,10 @@ std::u32string cardinal(uint64_t n) {
     return stem(n / 1000) + U"tausend" + (n % 1000 ? cardinal(n % 1000) : U"");
   }
   for (auto [scale, one, many] :
-       {std::tuple{1000000000ULL, U"Milliarde", U"Milliarden"}, std::tuple{1000000ULL, U"Million", U"Millionen"}}) {
+       {std::tuple{1000000000000000000ULL, U"Trillion", U"Trillionen"},
+        std::tuple{1000000000000000ULL, U"Billiarde", U"Billiarden"},
+        std::tuple{1000000000000ULL, U"Billion", U"Billionen"}, std::tuple{1000000000ULL, U"Milliarde", U"Milliarden"},
+        std::tuple{1000000ULL, U"Million", U"Millionen"}}) {
     if (n >= scale) {
       uint64_t q = n / scale, r = n % scale;
       std::u32string head = q == 1 ? U"eine " + std::u32string(one) : cardinal(q) + U" " + std::u32string(many);
@@ -107,6 +110,14 @@ std::u32string article(Case c, Gender g) {
   }};
   size_t row = c == Case::GENITIVE ? 1 : c == Case::DATIVE ? 2 : c == Case::ACCUSATIVE ? 3 : 0;
   return std::u32string(forms[row][static_cast<size_t>(g)]);
+}
+
+// "halb" after "ein", by case and gender: ein halber Meter, einen halben Liter, eine halbe Stunde
+std::u32string half(Case c, Gender g) {
+  if (c == Case::DATIVE || c == Case::GENITIVE || (c == Case::ACCUSATIVE && g == Gender::MASCULINE)) {
+    return U"halben";
+  }
+  return g == Gender::MASCULINE ? U"halber" : g == Gender::FEMININE ? U"halbe" : U"halbes";
 }
 
 // The adjective ending of an ordinal: am dritten, der dritte, ein zweiter, dritter
@@ -260,8 +271,20 @@ Cues cues_of(const Match& match) {
     }
   }
   cues.article = capitalized(noun) && noun != U"Quadrat" && (noun != next || !labelled(context));
-  cues.grammatical_case = case_after(context.before());
+  // über 1/4, unter 3 Euro: "more than", "less than" before an amount, not prepositions
+  std::u32string before = context.before();
+  cues.grammatical_case = before == U"über" || before == U"unter" ? Case::NOMINATIVE : case_after(before);
   cues.gender = gender_of(noun);
+
+  // kostet 1 Euro, lief 1 km: after a verb, an amount is its object (einen Euro); but ist 1 Euro, als 1 Euro
+  auto head = words_of(context.head());
+  std::u32string_view last = head.empty() ? U"" : stripped(head.back());
+  bool amount = match.kind == Kind::MONEY || match.kind == Kind::UNIT || match.kind == Kind::FRACTION;
+  bool lowercase_word = !last.empty() && std::ranges::all_of(last, unicode::islower);
+  if (amount && cues.grammatical_case == Case::NOMINATIVE && lowercase_word &&
+      !kNominativeWords.contains(std::u32string(last))) {
+    cues.grammatical_case = Case::ACCUSATIVE;
+  }
 
   // 1998 Abi gemacht, im Jahr 1945; but 1945 Einwohner, 1920 mal 1080
   bool month = std::ranges::find(kMonths, next) != kMonths.end();
@@ -278,20 +301,28 @@ Cues cues_of(const Match& match) {
 // ----- Patterns -----
 // --------------------
 
-// 030 1234567, 0800-123 45 67: an area code starting with 0, then the number, optionally in groups.
+// 030 1234567, 0800-123 45 67, (0411) 1234-1234: an area code starting with 0, then the number, optionally in groups.
 class AreaCodePattern : public Pattern {
 public:
   AreaCodePattern() : Pattern(Kind::PHONE) {}
 
   std::optional<Match> match(std::u32string_view text, size_t position) const override {
-    if (!is_clear_before(text, position, U".,") || text[position] != U'0') {
+    bool parenthesized = text[position] == U'(';
+    size_t area = parenthesized ? position + 1 : position;
+    if (!is_clear_before(text, position, U".,") || area >= text.size() || text[area] != U'0') {
       return std::nullopt;
     }
 
-    // The area code and the number: written together (0301234567), or apart (030 1234567, 030/1234567)
-    size_t end = digits_end(text, position);
-    size_t length = end - position;
-    if (length < 6) {
+    // The area code and the number: written together (0301234567), or apart (030 1234567, 030/1234567, (030) 1234567)
+    size_t end = digits_end(text, area);
+    size_t length = end - area;
+    if (parenthesized) {
+      size_t number = end < text.size() && text[end] == U')' ? skip_space(text, end + 1) : end;
+      if (length < 3 || number == end || digits_end(text, number) < number + 2) {
+        return std::nullopt;
+      }
+      end = digits_end(text, number);
+    } else if (length < 6) {
       bool apart = length >= 3 && end < text.size() && (text[end] == U' ' || text[end] == U'/' || text[end] == U'-') &&
                    digits_end(text, end + 1) >= end + 4;
       if (!apart) {
@@ -300,11 +331,15 @@ public:
       end = digits_end(text, end + 1);
     }
 
-    // Then any further groups: 0800-123 45 67. Each could end the number, if nothing continues it there.
+    // Then any further groups: 0800-123 45 67, (030) 4664 - 911300. Each could end the number, if nothing continues it.
     std::vector<size_t> ends = {end};
-    while (ends.back() + 1 < text.size() && (text[ends.back()] == U' ' || text[ends.back()] == U'-') &&
-           unicode::isdigit(text[ends.back() + 1])) {
-      ends.push_back(digits_end(text, ends.back() + 1));
+    while (true) {
+      size_t next = ends.back() + (text.substr(ends.back()).starts_with(U" - ") ? 3 : 1);
+      bool separator = ends.back() < text.size() && (text[ends.back()] == U' ' || text[ends.back()] == U'-');
+      if (!separator || next >= text.size() || !unicode::isdigit(text[next])) {
+        break;
+      }
+      ends.push_back(digits_end(text, next));
     }
     for (auto it = ends.rbegin(); it != ends.rend(); ++it) {
       // Not followed by a digit, even after a word character, a dot or a comma
@@ -328,6 +363,68 @@ public:
   }
 };
 
+// 02:02:23 Uhr, 2:08:29, 13:46:36 Stunden: hours, minutes, and seconds, with an optional word after them.
+class SecondsPattern : public Pattern {
+public:
+  SecondsPattern() : Pattern(Kind::TIME) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    size_t hours = digits_end(text, position);
+    if (!is_clear_before(text, position, U".,:") || hours == position || hours > position + 2) {
+      return std::nullopt;
+    }
+    Match time{.kind = Kind::TIME, .numbers = {digits_at(text, position)}, .separator = U':'};
+    size_t end = hours;
+    for (int part = 0; part < 2; part++) {
+      if (end >= text.size() || text[end] != U':' || digits_end(text, end + 1) != end + 3) {
+        return std::nullopt;
+      }
+      time.numbers.push_back(digits_at(text, end + 1));
+      end += 3;
+    }
+    if (!is_clear_after(text, end) || is_digit_after(text, end, U".,:")) {
+      return std::nullopt;
+    }
+    time.span = {position, end};
+    size_t word = skip_space(text, end);
+    for (auto key : keys_at(text, word, kSecondsSuffixes)) {
+      if (is_clear_after(text, word + key.size())) {
+        time.span.end = word + key.size();
+        time.suffix = key;
+        break;
+      }
+    }
+    return time;
+  }
+};
+
+// 90 Millionen g, 1 1/2 ft: a scale or a fraction, then a unit after an optional space.
+class UnitAfterPattern : public Pattern {
+public:
+  explicit UnitAfterPattern(std::unique_ptr<Pattern> base)
+      : Pattern(base->kind()), base_(std::move(base)), units_(keys_of(kUnits)) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    auto found = base_->match(text, position);
+    if (!found) {
+      return std::nullopt;
+    }
+    size_t start = skip_space(text, found->span.end);
+    for (auto unit : keys_at(text, start, units_)) {
+      if (is_clear_after(text, start + unit.size())) {
+        found->span.end = start + unit.size();
+        found->unit = unit;
+        return found;
+      }
+    }
+    return std::nullopt;
+  }
+
+private:
+  std::unique_ptr<Pattern> base_;
+  Keys units_;
+};
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -337,7 +434,11 @@ public:
   German() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
     add_pattern(std::make_unique<AreaCodePattern>());
-    add_pattern(std::make_unique<DotOrdinalPattern>());
+    add_pattern(std::make_unique<SecondsPattern>());
+    add_pattern(std::make_unique<UnitAfterPattern>(std::make_unique<ScalePattern>(kNotation)));
+    add_pattern(std::make_unique<UnitAfterPattern>(std::make_unique<FractionPattern>()));
+    add_pattern(std::make_unique<DotOrdinalPattern>(true));
+    add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<SuffixPattern>(Kind::DECADE, kDecadeSuffixes, kDecadeFormat));
     add_pattern(std::make_unique<RomanPattern>(true));
   }
@@ -349,8 +450,15 @@ protected:
       return head + U"Komma " + digits(number.fraction);
     }
 
+    // The whole number of 1 1/2: ein einhalb
+    if (match.kind == Kind::FRACTION && is_one(number)) {
+      return U"ein";
+    }
+    // A long number is a code (40474 Düsseldorf, WKN 840400), unless it is an amount: 18880 €, 42259 m²
     auto n = parse_value(number.integer);
-    if (!n || is_spoken_digits(number, 5)) {
+    bool amount = match.kind == Kind::MONEY || match.kind == Kind::UNIT || match.kind == Kind::PERCENT ||
+                  match.kind == Kind::SCALE;
+    if (!n || (is_spoken_digits(number, 5) && !(amount && number.integer[0] != U'0'))) {
       return digits(number.integer);
     }
     Cues cues = cues_of(match);
@@ -387,11 +495,29 @@ protected:
   }
 
   std::optional<std::u32string> read_fraction(const Match& match) const override {
-    return named_fraction(kFractions, match)
-        .value_or(cardinal(value(match.numbers[0])) + U" durch " + cardinal(value(match.numbers[1])));
+    // A half before a unit or a noun: 1/2 l einen halben Liter, 1/2 Stunde eine halbe Stunde
+    Cues cues = cues_of(match);
+    auto [a, b] = fraction_of(match);
+    std::u32string next = match.context.after();
+    std::u32string noun = match.unit.empty() ? next : kUnits.at(std::u32string(match.unit)).one;
+    if (a == 1 && b == 2 && match.numbers.size() == 2 && capitalized(noun)) {
+      Gender gender = gender_of(noun);
+      std::u32string words = article(cues.grammatical_case, gender) + U" " + half(cues.grammatical_case, gender);
+      return match.unit.empty() ? words : words + U" " + noun;
+    }
+    if (match.unit.empty()) {
+      return fraction(match, cues.grammatical_case);
+    }
+
+    // 1 1/2 ft: ein einhalb Fuß; 3/4 m: drei Viertel Meter
+    const Forms& unit = kUnits.at(std::u32string(match.unit));
+    return fraction(match, cues.grammatical_case) + U" " + (match.numbers.size() == 3 ? unit.many : unit.one);
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
+    if (match.numbers.size() == 3) {
+      return read_seconds(match);
+    }
     if (match.numbers.size() == 2) {
       bool decimal = match.separator == U'.' && match.suffix.empty();
       if (!fits_clock(match) || decimal) {
@@ -406,6 +532,12 @@ protected:
   }
 
   std::optional<std::u32string> read_ordinal(const Match& match) const override {
+    // 3ten, 121tem, 20ste: the ending as written
+    if (match.suffix != U".") {
+      std::u32string_view suffix = match.suffix;
+      return ordinal(value(match.numbers[0]), suffix.substr(suffix.starts_with(U"st") ? 2 : 1));
+    }
+
     // "Platz 3. Danach", "Platz 1. 2 Tore": a sentence end, not an ordinal
     static const std::unordered_set<std::u32string> inflecting = [] {
       std::unordered_set<std::u32string> words = {U"und", U"oder", U"bis"};
@@ -418,7 +550,16 @@ protected:
     std::u32string_view next = words.empty() ? U"" : words[0];
     bool month = std::ranges::find(kMonths, next) != kMonths.end();
     bool sentence = capitalized(next) && !month && !inflecting.contains(match.context.before());
-    if (next.empty() || unicode::isdigit(next[0]) || sentence) {
+    // Before a comma or the end: only right after an article (in der 79., am 3.), not "Platz 23.," or "von 1983."
+    bool word = !next.empty() && !strings::contains(text::kPunctuation, next[0]);
+    if (!word) {
+      std::u32string previous = match.context.before();
+      if (!kWeak.contains(previous) && !kWeakNominative.contains(previous)) {
+        return std::nullopt;
+      }
+      return ordinal(value(match.numbers[0]), ending(cues_of(match))) + (next.empty() ? U"." : U"");
+    }
+    if (unicode::isdigit(next[0]) || sentence) {
       return std::nullopt;
     }
     return ordinal(value(match.numbers[0]), ending(cues_of(match)));
@@ -479,29 +620,23 @@ protected:
   }
 
   std::optional<std::u32string> read_money(const Number& number, const Match& match) const override {
-    const std::u32string& noun = kCurrencies.at(std::u32string(match.unit));
-    std::u32string one = article(cues_of(match).grammatical_case, gender_of(noun));
-    if (!match.scale.empty()) {
-      return scaled(number, match) + U" " + noun;
-    }
-
-    // A price: drei Euro fünfzig, neunundneunzig Cent
-    if (number.fraction.size() == 2) {
-      uint64_t cents = parse_value(number.fraction).value_or(0);
-      if (value(number) == 0) {
-        return cardinal(cents) + U" Cent";
+    // 12,50 €/m²: zwölf Euro fünfzig pro Quadratmeter
+    std::u32string noun = kCurrencies.at(std::u32string(match.unit));
+    std::u32string per;
+    if (size_t at = noun.find(U" pro "); at != std::u32string::npos) {
+      if (match.span.begin < match.numbers[0].span.begin) {
+        return std::nullopt; // Only after its amount: 19,87 €/l, not €/l 14,90
       }
-      Number whole{.integer = number.integer, .grouped = number.grouped};
-      std::u32string words = number.integer == U"1" ? one : read_number(whole, match);
-      return words + U" " + noun + U" " + cardinal(cents);
+      per = noun.substr(at);
+      noun.resize(at);
     }
-
-    bool single = number.integer == U"1" && number.fraction.empty();
-    return (single ? one : read_number(number, match)) + U" " + noun;
+    return price(number, match, noun) + per;
   }
 
   std::optional<std::u32string> read_scale(const Number& number, const Match& match) const override {
-    return scaled(number, match);
+    // 90 Millionen g: neunzig Millionen Gramm
+    std::u32string words = scaled(number, match);
+    return match.unit.empty() ? words : words + U" " + kUnits.at(std::u32string(match.unit)).many;
   }
 
   std::optional<std::u32string> read_percent(const Number& number, const Match& match) const override {
@@ -519,6 +654,85 @@ protected:
   }
 
 private:
+  // An amount of a currency: drei Euro fünfzig, neunundneunzig Cent
+  std::u32string price(const Number& number, const Match& match, const std::u32string& noun) const {
+    std::u32string one = article(cues_of(match).grammatical_case, gender_of(noun));
+    if (!match.scale.empty()) {
+      return scaled(number, match) + U" " + noun;
+    }
+
+    // Decimals as cents, without trailing zeros: 2,2 € and 2,200 € read like 2,20 €
+    Number amount = number;
+    while (amount.fraction.size() > 2 && amount.fraction.back() == U'0') {
+      amount.fraction.pop_back();
+    }
+    if (amount.fraction.size() == 1) {
+      amount.fraction += U'0';
+    }
+
+    // A price: drei Euro fünfzig, neunundneunzig Cent, ein Cent; 2,00 €: zwei Euro
+    if (amount.fraction.size() == 2) {
+      uint64_t cents = parse_value(amount.fraction).value_or(0);
+      if (value(amount) == 0) {
+        return (cents == 1 ? article(cues_of(match).grammatical_case, Gender::MASCULINE) : cardinal(cents)) + U" Cent";
+      }
+      Number whole{.integer = amount.integer, .grouped = amount.grouped};
+      std::u32string words = (amount.integer == U"1" ? one : read_number(whole, match)) + U" " + noun;
+      return cents ? words + U" " + cardinal(cents) : words;
+    }
+
+    bool single = amount.integer == U"1" && amount.fraction.empty();
+    return (single ? one : read_number(amount, match)) + U" " + noun;
+  }
+
+  // ein Fünftel, drei Achtel, ein Zwanzigstel, ein Hundertstel; else drei durch sieben. After a whole number, a half is
+  // einhalb: zweieinhalb. The "ein" is the article of a neuter noun (das Drittel): von einem Achtel.
+  std::u32string fraction(const Match& match, Case grammatical_case) const {
+    auto [a, b] = fraction_of(match);
+    if (a == 1 && b == 2 && match.numbers.size() == 3) {
+      return U"einhalb";
+    }
+    std::u32string one = article(grammatical_case, Gender::NEUTER);
+    if (auto words = named_fraction(kFractions, match)) {
+      return a == 1 && b > 2 && match.numbers.size() == 2 ? one + words->substr(3) : *words;
+    }
+
+    // Seasons and school years: 2023/24, 2011/2012 read as two years
+    size_t n = match.numbers.size();
+    const auto& first = match.numbers[n - 2].integer;
+    const auto& second = match.numbers[n - 1].integer;
+    bool years = first.size() == 4 && a >= 1900 && a < 2100 &&
+                 ((second.size() == 2 && b == (a + 1) % 100) || (second.size() == 4 && b == a + 1));
+    if (years) {
+      return year(a) + U" " + (second.size() == 2 ? cardinal(b) : year(b));
+    }
+
+    if (b < 3 || a >= b || !is_marked_fraction(match, kFractionWords)) {
+      return cardinal(a) + U" durch " + cardinal(b);
+    }
+    std::u32string denominator = ordinal(b, U"el");
+    if (b == 100 || b == 1000) {
+      denominator.erase(0, 3); // einhundertstel
+    }
+    denominator[0] = unicode::toupper(denominator[0]);
+    return (a == 1 ? one : cardinal(a)) + U" " + denominator;
+  }
+
+  // A clock time before "Uhr": zwei Uhr zwei Minuten dreiundzwanzig Sekunden; else a duration: zwei Stunden acht
+  // Minuten neunundzwanzig Sekunden
+  std::optional<std::u32string> read_seconds(const Match& match) const {
+    uint64_t hours = value(match.numbers[0]), minutes = value(match.numbers[1]), seconds = value(match.numbers[2]);
+    bool clock = match.suffix == U"Uhr";
+    if (minutes > 59 || seconds > 59 || (clock && hours > 24)) {
+      return std::nullopt;
+    }
+    auto count = [](uint64_t n, std::u32string_view one, std::u32string_view many) {
+      return (n == 1 ? U"eine " + std::u32string(one) : cardinal(n) + U" " + std::u32string(many));
+    };
+    std::u32string head = clock ? stem(hours) + U" Uhr" : count(hours, U"Stunde", U"Stunden");
+    return head + U" " + count(minutes, U"Minute", U"Minuten") + U" " + count(seconds, U"Sekunde", U"Sekunden");
+  }
+
   // An amount with its scale: drei Millionen, zehntausend
   std::u32string scaled(const Number& number, const Match& match) const {
     const Forms& scale = kScales.at(std::u32string(match.scale));

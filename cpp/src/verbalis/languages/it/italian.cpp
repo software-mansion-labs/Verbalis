@@ -109,6 +109,94 @@ std::u32string digits(std::u32string_view text) {
   return join(words);
 }
 
+// An integer as a cardinal, or digit by digit if it reads as a code: 0039, 1034500
+std::u32string integer_words(const Number& number) {
+  auto n = parse_value(number.integer);
+  return !n || is_spoken_digits(number, 7) ? digits(number.integer) : cardinal(*n);
+}
+
+// -------------------
+// ----- Context -----
+// -------------------
+
+bool is_vowel(char32_t c) {
+  return strings::contains(std::u32string_view(U"aeiouàèéìòù"), c);
+}
+
+bool is_feminine(std::u32string_view noun) {
+  std::u32string word = strings::to_lower(noun);
+  if (word.ends_with(U'a')) {
+    return !kMasculineInA.contains(word);
+  }
+  if (word.ends_with(U"ione")) {
+    return !kMasculineInIone.contains(word);
+  }
+  return word.ends_with(U"tà") || word.ends_with(U"tù") || word.ends_with(U"si") || word.ends_with(U"ie") ||
+         kFeminineInE.contains(word);
+}
+
+// The article form of "uno" before a noun: un anno, una volta, uno studente, un'ora
+std::u32string one_before(std::u32string_view noun) {
+  std::u32string word = strings::to_lower(noun.substr(0, noun.find(U' ')));
+  if (word.empty()) {
+    return U"uno";
+  }
+  if (is_feminine(word)) {
+    return is_vowel(word[0]) ? U"un'" : U"una";
+  }
+  bool impure = (word[0] == U's' && word.size() > 1 && !is_vowel(word[1])) || word[0] == U'z' || word[0] == U'x' ||
+                word[0] == U'y' || word.starts_with(U"gn") || word.starts_with(U"ps") || word.starts_with(U"pn");
+  return impure ? U"uno" : U"un";
+}
+
+// One of a noun: un metro, una sterlina, un'ora
+std::u32string one_of(std::u32string_view noun) {
+  std::u32string article = one_before(noun);
+  return article + (article.ends_with(U'\'') ? U"" : U" ") + std::u32string(noun);
+}
+
+// Whether a word after a number may be a noun it counts: figli, chili, but not su, è, dell'anno, maggio
+bool is_noun(std::u32string_view word) {
+  return !word.empty() && unicode::islower(word[0]) && !kStopWords.contains(std::u32string(word)) &&
+         word.find_first_of(U"'’") == std::u32string_view::npos && std::ranges::find(kMonths, word) == kMonths.end();
+}
+
+// The text before a match without the spaces closing it
+std::u32string_view head_of(const Match& match) {
+  std::u32string_view head = match.context.head();
+  while (!head.empty() && unicode::isspace(head.back())) {
+    head.remove_suffix(1);
+  }
+  return head;
+}
+
+// Whether a decimal with a dot measures the noun after it (pesava 72.3 chili), unlike a version (Python 3.12 introduce)
+bool measures_noun(const Match& match) {
+  std::u32string_view head = head_of(match);
+  size_t word = head.find_last_of(U" \t\n");
+  word = word == std::u32string_view::npos ? 0 : word + 1;
+  std::u32string previous = match.context.before();
+  // A capitalized word before it names the version (Python 3.12), unless it is an article opening a sentence (Il 72.3)
+  bool name = word < head.size() && (unicode::isupper(head[word]) || unicode::isdigit(head[word])) &&
+              !kStopWords.contains(previous) && !kCountWords.contains(previous);
+  bool percent =
+      match.context.after() == U"percento" || (match.context.after() == U"per" && match.context.after(2) == U"cento");
+  return (is_noun(match.context.after()) || percent) && !name && !kVersionWords.contains(previous);
+}
+
+// Whether a 1 counts the noun after it: ha 1 figlio, but articolo 1 comma 2, 1 su 3
+bool counts_noun(const Match& match) {
+  if (!is_noun(match.context.after())) {
+    return false;
+  }
+  std::u32string_view head = head_of(match);
+  std::u32string previous = match.context.before();
+  bool participle = previous.size() > 4 && (previous.ends_with(U"ato") || previous.ends_with(U"ito") ||
+                                            previous.ends_with(U"uto") || previous.ends_with(U"ati"));
+  return head.empty() || strings::contains(std::u32string_view(U".,!?:;(\""), head.back()) ||
+         kCountWords.contains(previous) || participle;
+}
+
 // --------------------
 // ----- Patterns -----
 // --------------------
@@ -133,6 +221,33 @@ public:
   }
 };
 
+// 17:15:26: hours, minutes, and seconds.
+class SecondsPattern : public Pattern {
+public:
+  SecondsPattern() : Pattern(Kind::TIME) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    if (!is_clear_before(text, position, U".,:")) {
+      return std::nullopt;
+    }
+    Match time{.kind = Kind::TIME, .separator = U':'};
+    for (size_t start = position; time.numbers.size() < 3; start = time.numbers.back().span.end + 1) {
+      Number part = digits_at(text, start);
+      size_t length = part.integer.size();
+      if (length == 0 || length > 2 || (!time.numbers.empty() && length != 2) ||
+          (time.numbers.size() < 2 && (part.span.end >= text.size() || text[part.span.end] != U':'))) {
+        return std::nullopt;
+      }
+      time.numbers.push_back(part);
+    }
+    time.span = {position, time.numbers.back().span.end};
+    if (!is_clear_after(text, time.span.end) || is_digit_after(text, time.span.end, U".,:")) {
+      return std::nullopt;
+    }
+    return time;
+  }
+};
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -141,6 +256,7 @@ class Italian final : public PatternLanguage {
 public:
   Italian() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
+    add_pattern(std::make_unique<SecondsPattern>());
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -153,16 +269,19 @@ public:
 protected:
   std::u32string read_number(const Number& number, const Match& match) const override {
     if (number.fraction.empty()) {
-      auto n = parse_value(number.integer);
-      if (!n || is_spoken_digits(number, 7)) {
-        return digits(number.integer);
+      if (number.integer != U"1") {
+        return integer_words(number);
       }
-      // 1 maggio: "1" before a month is "primo"
-      bool month = std::ranges::find(kMonths, strings::to_lower(match.context.after())) != kMonths.end();
-      return *n == 1 && month ? U"primo" : cardinal(*n);
+      // 1 maggio: primo maggio; ha 1 figlio: un figlio
+      if (std::ranges::find(kMonths, strings::to_lower(match.context.after())) != kMonths.end()) {
+        return U"primo";
+      }
+      return match.kind == Kind::NUMBER && counts_noun(match) ? one_before(match.context.after()) : U"uno";
     }
 
-    // The separator is read as written: due virgola cinque, due punto cinque
+    // A decimal comma reads virgola; a dot reads punto (versione 2.1), but virgola in an amount (1.5 kg, 4.3%)
+    bool amount = match.kind == Kind::MONEY || match.kind == Kind::SCALE || match.kind == Kind::PERCENT ||
+                  match.kind == Kind::UNIT || (match.kind == Kind::NUMBER && measures_noun(match));
     std::vector<std::u32string> fraction;
     size_t zeros = number.fraction.find_first_not_of(U'0');
     fraction.insert(fraction.end(), std::min(zeros, number.fraction.size()), U"zero");
@@ -170,7 +289,7 @@ protected:
       fraction.push_back(cardinal(parse_value(number.fraction).value_or(0)));
     }
     std::u32string head = number.integer.empty() ? U"" : cardinal(value(number)) + U" ";
-    return head + (number.decimal_mark == U',' ? U"virgola " : U"punto ") + join(fraction);
+    return head + (number.decimal_mark == U',' || amount ? U"virgola " : U"punto ") + join(fraction);
   }
 
   std::u32string read_code_digits(std::u32string_view text) const override {
@@ -194,7 +313,21 @@ protected:
   }
 
   std::optional<std::u32string> read_fraction(const Match& match) const override {
-    return named_fraction(kFractions, match);
+    // 1/2 litro: mezzo litro, 1/2 porzione: mezza porzione
+    std::u32string noun = match.context.after();
+    if (fraction_of(match) == std::pair<uint64_t, uint64_t>{1, 2} && match.numbers.size() == 2 && is_noun(noun) &&
+        !kFractionWords.contains(noun)) {
+      return is_feminine(noun) ? U"mezza" : U"mezzo";
+    }
+    if (auto words = named_fraction(kFractions, match)) {
+      return words;
+    }
+    auto [a, b] = fraction_of(match);
+    if (b < 2 || a >= b || !is_marked_fraction(match, kFractionWords)) {
+      return std::nullopt;
+    }
+    // un quinto, due terzi, tre undicesimi
+    return (a == 1 ? U"un" : cardinal(a)) + U" " + ordinal(b, a == 1 ? U'o' : U'i');
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
@@ -206,8 +339,16 @@ protected:
       return std::nullopt;
     }
 
-    // alle 21.30: ventuno e trenta
+    // alle 21.30: ventuno e trenta; 17:15:26: diciassette e quindici minuti e ventisei secondi
     std::u32string hour = hours == 1 ? U"una" : cardinal(hours);
+    if (match.numbers.size() == 3) {
+      uint64_t seconds = value(match.numbers[2]);
+      if (seconds > 59) {
+        return std::nullopt;
+      }
+      return hour + (minutes ? U" e " + (minutes == 1 ? U"un minuto" : cardinal(minutes) + U" minuti") : U"") +
+             (seconds ? U" e " + (seconds == 1 ? U"un secondo" : cardinal(seconds) + U" secondi") : U"");
+    }
     return minutes ? hour + U" e " + cardinal(minutes) : hour;
   }
 
@@ -228,7 +369,12 @@ protected:
     if (value(match.numbers[0]) == 0) {
       return std::nullopt;
     }
+    // il 3° posto, la 3° edizione: ° takes the gender of the article
     char32_t ending = match.suffix == U"ª" ? U'a' : (match.suffix == U"º" ? U'o' : match.suffix.back());
+    if (std::u32string article = match.context.before(); match.suffix == U"°") {
+      bool elided = kElidedArticles.contains(article);
+      ending = (elided ? is_feminine(match.context.after()) : kFeminineArticles.contains(article)) ? U'a' : U'o';
+    }
     return ordinal(value(match.numbers[0]), ending);
   }
 
@@ -245,14 +391,21 @@ protected:
       return scaled(number, match) + (thousands ? U" " : U" di ") + currency.many;
     }
 
-    // 10,50 €: dieci euro e cinquanta
-    if (number.fraction.size() == 2 && number.decimal_mark == U',') {
+    // 10,50 €: dieci euro e cinquanta centesimi; 0,01 €: un centesimo; but 41,2 €/MWh: quarantuno virgola due euro
+    auto cents_of = kCents.find(std::u32string(match.unit));
+    if (number.fraction.size() == 2 && cents_of != kCents.end()) {
       Number whole{.integer = number.integer.empty() ? U"0" : number.integer, .grouped = number.grouped};
       uint64_t cents = parse_value(number.fraction).value_or(0);
-      return read_number(whole, match) + U" " + (number.integer == U"1" ? currency.one : currency.many) +
-             (cents ? U" e " + cardinal(cents) : U"");
+      std::u32string cents_words = counted(cents, cents_of->second);
+      if (whole.integer.find_first_not_of(U'0') == std::u32string::npos && cents) {
+        return cents_words;
+      }
+      return counted(whole, currency) + (cents ? U" e " + cents_words : U"");
     }
-    return read_number(number, match) + U" " + (is_one(number) ? currency.one : currency.many);
+    if (number.fraction.empty()) {
+      return counted(number, currency);
+    }
+    return read_number(number, match) + U" " + currency.many;
   }
 
   std::optional<std::u32string> read_scale(const Number& number, const Match& match) const override {
@@ -268,11 +421,30 @@ protected:
   }
 
   std::optional<std::u32string> read_unit(const Number& number, const Match& match) const override {
+    // il 1° gennaio, al 90° minuto: an ordinal, read by its own pattern
+    if (match.unit == U"°" && match.numbers.size() == 1 &&
+        (kOrdinalArticles.contains(match.context.before()) ||
+         std::ranges::find(kMonths, strings::to_lower(match.context.after())) != kMonths.end())) {
+      return std::nullopt;
+    }
+    // 155 d: giorni, but not Italia/2007 d.17' nor 1 d'oro
+    if (match.unit == U"d" && !match.context.tail().empty() &&
+        strings::contains(std::u32string_view(U".'’"), match.context.tail()[0])) {
+      return std::nullopt;
+    }
     const Forms& unit = kUnits.at(std::u32string(match.unit));
-    return read_number(number, match) + U" " + (is_one(number) ? unit.one : unit.many);
+    return number.fraction.empty() ? counted(number, unit) : read_number(number, match) + U" " + unit.many;
   }
 
 private:
+  // A whole number before its noun: un euro, una sterlina, due euro
+  static std::u32string counted(const Number& number, const Forms& noun) {
+    return is_one(number) ? one_of(noun.one) : integer_words(number) + U" " + noun.many;
+  }
+  static std::u32string counted(uint64_t n, const Forms& noun) {
+    return n == 1 ? one_of(noun.one) : cardinal(n) + U" " + noun.many;
+  }
+
   // An amount with its scale: settantaquattromila, tre milioni
   std::u32string scaled(const Number& number, const Match& match) const {
     const Forms& scale = kScales.at(std::u32string(match.scale));
@@ -281,8 +453,7 @@ private:
     if (scale.one == U"mila" && number.fraction.empty()) {
       return cardinal(value(number) * 1000);
     }
-    bool singular = value(number) < 2 && number.fraction.empty();
-    return read_number(number, match) + U" " + (singular ? scale.one : scale.many);
+    return number.fraction.empty() ? counted(number, scale) : read_number(number, match) + U" " + scale.many;
   }
 };
 } // namespace

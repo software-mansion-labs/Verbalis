@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 
 namespace verbalis::numbers {
 
@@ -27,13 +28,26 @@ std::vector<Number> numbers_at(std::u32string_view text, size_t position, std::u
   // Integer parts: 1-3 digits followed by whole groups (1 000 000), then a plain run of digits
   std::vector<Number> integers;
   if (run <= 3) {
+    // Every group after the same separator: 1.000.000, but the 1.234 of 1.234,56
     size_t end = position + run;
-    while (end + 3 < text.size() && strings::contains(group, text[end]) && digits_end(text, end + 1) >= end + 4) {
+    char32_t separator = end < text.size() ? text[end] : 0;
+    while (end + 3 < text.size() && text[end] == separator && strings::contains(group, separator) &&
+           digits_end(text, end + 1) >= end + 4) {
       end += 4;
     }
-    // A group may not be followed by a digit, nor by a separator and a digit
+    // Indian groups: pairs before the last three digits (3,94,227, 12,34,56,789)
+    if (end == position + run && run <= 2) {
+      size_t pairs = end;
+      while (pairs + 3 < text.size() && text[pairs] == U',' && digits_end(text, pairs + 1) == pairs + 3) {
+        pairs += 3;
+      }
+      if (pairs > end && pairs + 3 < text.size() && text[pairs] == U',' && digits_end(text, pairs + 1) == pairs + 4) {
+        end = pairs + 4;
+      }
+    }
+    // A group may not be followed by a digit, nor by its separator and a digit
     bool complete = end > position + run && !is_digit_after(text, end) &&
-                    !(end < text.size() && strings::contains(group, text[end]) && is_digit_after(text, end + 1));
+                    !(end < text.size() && text[end] == separator && is_digit_after(text, end + 1));
     if (complete) {
       std::u32string digits;
       std::ranges::copy_if(text.substr(position, end - position), std::back_inserter(digits), unicode::isdigit);
@@ -95,12 +109,38 @@ bool fits_clock(const Match& time) {
   return time.numbers.size() < 2 || (value(time.numbers[0]) <= 24 && value(time.numbers[1]) <= 59);
 }
 
+std::pair<uint64_t, uint64_t> fraction_of(const Match& fraction) {
+  size_t n = fraction.numbers.size();
+  return {value(fraction.numbers[n - 2]), value(fraction.numbers[n - 1])};
+}
+
 std::optional<std::u32string> named_fraction(const Fractions& fractions, const Match& fraction) {
-  auto it = fractions.find({value(fraction.numbers[0]), value(fraction.numbers[1])});
+  auto it = fractions.find(fraction_of(fraction));
   if (it == fractions.end()) {
     return std::nullopt;
   }
   return it->second;
+}
+
+bool is_marked_fraction(const Match& fraction, const std::unordered_set<std::u32string>& words) {
+  if (fraction.numbers.size() == 3) {
+    return true;
+  }
+  // An inch has binary fractions: 3/8"
+  auto [a, b] = fraction_of(fraction);
+  std::u32string_view tail = fraction.context.tail();
+  bool inch = tail.starts_with(U'"') || tail.starts_with(U"''") || tail.starts_with(U'″');
+  if (inch && b <= 64 && std::has_single_bit(b)) {
+    return true;
+  }
+
+  // A common denominator, not a year or a number of a series: 1/3 of, but 40/2023 du, 18/20 da
+  std::u32string word = strings::to_lower(fraction.context.after());
+  if (size_t apostrophe = word.find(U'\''); apostrophe != std::u32string::npos) {
+    word.resize(apostrophe + 1);
+  }
+  bool common = b <= 10 || b == 12 || b == 16 || b == 100 || b == 1000;
+  return common && words.contains(word);
 }
 
 std::u32string spaced_suffix(const Match& match) {
@@ -156,11 +196,22 @@ std::optional<uint64_t> roman_value(std::u32string_view numeral) {
   }
 
   // Only the canonical spelling of its value: IV, not IIII; XC, not LXL
-  static constexpr std::array<std::pair<uint64_t, std::u32string_view>, 13> kNumerals = {
-      {{1000, U"M"}, {900, U"CM"}, {500, U"D"}, {400, U"CD"}, {100, U"C"}, {90, U"XC"}, {50, U"L"}, {40, U"XL"},
-       {10, U"X"}, {9, U"IX"}, {5, U"V"}, {4, U"IV"}, {1, U"I"}}};
+  static constexpr std::array<std::pair<uint64_t, std::u32string_view>, 13> kNumerals = {{{1000, U"M"},
+                                                                                          {900, U"CM"},
+                                                                                          {500, U"D"},
+                                                                                          {400, U"CD"},
+                                                                                          {100, U"C"},
+                                                                                          {90, U"XC"},
+                                                                                          {50, U"L"},
+                                                                                          {40, U"XL"},
+                                                                                          {10, U"X"},
+                                                                                          {9, U"IX"},
+                                                                                          {5, U"V"},
+                                                                                          {4, U"IV"},
+                                                                                          {1, U"I"}}};
   std::u32string canonical;
-  for (auto rest = static_cast<uint64_t>(std::max<int64_t>(value, 0)); const auto& [numeral_value, symbol] : kNumerals) {
+  for (auto rest = static_cast<uint64_t>(std::max<int64_t>(value, 0));
+       const auto& [numeral_value, symbol] : kNumerals) {
     for (; rest >= numeral_value; rest -= numeral_value) {
       canonical += symbol;
     }

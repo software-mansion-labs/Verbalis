@@ -7,6 +7,8 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_set>
+#include <utility>
 #include <vector>
 
 /**
@@ -49,8 +51,19 @@ std::optional<uint64_t> code_value(std::u32string_view digits, size_t longest);
 // Whether a time's hours and minutes fit a clock: at most 24 and 59. An hour alone always fits.
 bool fits_clock(const Match& time);
 
+// The numerator and denominator of a fraction: its last two numbers (3 1/2 has its whole number first).
+std::pair<uint64_t, uint64_t> fraction_of(const Match& fraction);
+
 // The words of a fraction with its own words (1/2: half), or nullopt.
 std::optional<std::u32string> named_fraction(const Fractions& fractions, const Match& fraction);
+
+/**
+ * Whether a fraction is written as one: after a whole number (3 1/2), with a binary denominator before an inch mark
+ * (3/8"), or with a common denominator (to 10, 12, 16, 100, 1000) before one of a language's words (1/3 of). A bare
+ * 3/4 may be a date, a score, or a rating.
+ * @param words lowercase; a word with an apostrophe matches up to it (d', dell')
+ */
+bool is_marked_fraction(const Match& fraction, const std::unordered_set<std::u32string>& words);
 
 // The suffix of a match with a space before it, to follow its reading; empty if the match has none.
 std::u32string spaced_suffix(const Match& match);

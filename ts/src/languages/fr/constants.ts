@@ -1,7 +1,10 @@
 import { dateFormat, keysOf, notation, phoneFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
+import { stripped, wordsOf, type Context } from "../../text/context.ts";
 import type { Keys } from "../../text/scan.ts";
-import { beforeNumber, type Readings } from "../../text/readings.ts";
+import { afterAny, beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
+import { size } from "../../text/strings.ts";
+import { isUpper } from "../../text/unicode.ts";
 import type { Forms, Joiners } from "../grammar.ts";
 
 export const ONES = [
@@ -24,6 +27,13 @@ export const WEEKDAYS: ReadonlySet<string> = new Set([
 export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "€": { one: "euro", many: "euros" },    "$": { one: "dollar", many: "dollars" }, "£": { one: "livre", many: "livres" },
   "CHF": { one: "franc suisse", many: "francs suisses" }, "M€": { one: "million d'euros", many: "millions d'euros" },
+  // A price per unit: 2 000 €/mois
+  "€/mois": { one: "euro par mois", many: "euros par mois" }, "€/an": { one: "euro par an", many: "euros par an" },
+  "€/jour": { one: "euro par jour", many: "euros par jour" }, "€/semaine": { one: "euro par semaine", many: "euros par semaine" },
+  "€/h": { one: "euro de l'heure", many: "euros de l'heure" }, "€/heure": { one: "euro de l'heure", many: "euros de l'heure" },
+  "€/nuit": { one: "euro la nuit", many: "euros la nuit" }, "€/personne": { one: "euro par personne", many: "euros par personne" },
+  "€/kg": { one: "euro le kilo", many: "euros le kilo" }, "€/m²": { one: "euro le mètre carré", many: "euros le mètre carré" },
+  "€/l": { one: "euro le litre", many: "euros le litre" },
 };
 
 export const SCALES: Readonly<Record<string, string>> = {
@@ -56,12 +66,18 @@ export const FRACTIONS: Fractions = {
   "1/2": "un demi", "1/3": "un tiers", "2/3": "deux tiers", "1/4": "un quart", "3/4": "trois quarts",
 };
 
-// Nouns in -e are feminine unless listed below or ending like a masculine noun; other feminine nouns are listed
+// Words after a fraction which mark it as one: 1/3 d'eau
+export const FRACTION_WORDS: ReadonlySet<string> = new Set(["de", "du", "des", "d'"]);
+
+// Nouns in -e, -té, -tion, -sion, and -aison are feminine unless listed below or ending like a masculine noun; other
+// feminine nouns are listed
 export const FEMININE_NOUNS: ReadonlySet<string> = new Set([
   "fois", "voix", "nuit", "part", "dent", "main", "fleur", "mort", "photo", "vidéo", "radio", "moto",
   "eau", "loi", "foi", "fin", "faim", "peur", "mer", "cour", "tour", "souris", "noix", "paix", "croix",
-  "forêt", "image", "page", "plage", "cage", "nage", "rage",
+  "forêt", "image", "page", "plage", "cage", "nage", "rage", "chanson", "leçon", "façon", "boisson",
+  "prison", "cuisson", "sœur", "fourmi", "clé", "paroi", "tribu", "vertu", "brebis", "perdrix",
 ]);
+export const FEMININE_ENDINGS = ["té", "tion", "sion", "aison"] as const;
 export const MASCULINE_IN_E: ReadonlySet<string> = new Set([
   "monde", "livre", "groupe", "modèle", "problème", "système", "programme", "exemple", "nombre", "membre",
   "homme", "père", "frère", "rôle", "style", "site", "espace", "service", "commerce", "couple",
@@ -69,7 +85,8 @@ export const MASCULINE_IN_E: ReadonlySet<string> = new Set([
   "volume", "domaine", "vote", "texte", "téléphone", "jeune", "collège", "kilowattheure", "gramme",
   "kilogramme", "milligramme", "pourcentage", "ordre", "type", "genre", "acte", "arbre", "autre",
   "génome", "crime", "trimestre", "semestre", "siècle", "masque", "risque", "casque", "disque", "manque",
-  "parc", "vice", "film",
+  "parc", "vice", "film", "été", "côté", "comité", "traité", "député", "pâté", "arrêté", "comté",
+  "karaté", "velouté",
 ]);
 export const MASCULINE_ENDINGS = ["age", "ège", "isme", "ème", "aire", "tre", "cle", "ste", "ome"] as const;
 
@@ -85,6 +102,21 @@ export const NUMBER_WORDS: ReadonlySet<string> = new Set([
   "douze", "treize", "quatorze", "quinze", "seize", "vingt", "vingts", "trente", "quarante", "cinquante",
   "soixante", "cent", "cents", "mille",
 ]);
+
+// Words before a number which make it an ordinal, without the plural s of quatre-vingts and cents: les années
+// quatre-vingt, page deux cent, l'an mille neuf cent
+export const ORDINAL_WORDS: ReadonlySet<string> = new Set([
+  "années", "année", "an", "l'an", "page", "numéro", "chapitre", "article", "chambre",
+]);
+
+// Words before a version, which is not a date: version 3.8.10
+export const VERSION_WORDS: ReadonlySet<string> = new Set(["version", "v", "ios", "android"]);
+
+// Words before a decade written with an s: les 80s
+export const DECADE_WORDS: ReadonlySet<string> = new Set(["les", "des", "aux", "dans", "années"]);
+
+// Words before a number which make it a code: numéro 1035836, code 75001
+export const CODE_WORDS: ReadonlySet<string> = new Set(["numéro", "n°", "nº", "code", "réf", "référence"]);
 
 // Words before a time with a dot, which make it a time: à 18.30
 export const TIME_WORDS: ReadonlySet<string> = new Set([
@@ -104,7 +136,8 @@ export const ROMAN_CUES: RomanCues = {
   ]),
   before: new Set([
     "chapitre", "tome", "livre", "acte", "scène", "titre", "article", "partie", "volume", "saison", "épisode",
-    "annexe", "phase", "vatican", "niveau", "type", "classe", "catégorie",
+    "annexe", "phase", "vatican", "niveau", "type", "classe", "catégorie", "l'acte",
+    "l'article", "l'annexe", "l'épisode",
   ]),
   after: new Set([
     "siècle", "siècles", "millénaire", "république", "empire", "arrondissement", "congrès", "édition", "festival",
@@ -130,11 +163,15 @@ export const NOTATION = notation({
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 export const JOINERS: Joiners = {
-  point: "virgule", dot: "point", range: " à ", by: "par", score: " à ", minus: "moins", plus: "plus",
+  point: "point", dot: "point", range: " à ", by: "par", score: " à ", minus: "moins", plus: "plus",
+  fraction: " et ", half: " et demi",
 };
 
 // 05/11, 05/11/2024, 1.5.2024: the year is optional
 export const DATE_FORMAT = dateFormat({ separators: "./", boundaries: ".,/", yearRequired: false });
+
+// 12-05-2024, but not 12-05, which may be a range or a score
+export const DASH_DATE_FORMAT = dateFormat({ separators: "-", boundaries: ".,/" });
 
 // 06 12 34 56 78, 06.12.34.56.78, 0612345678
 export const PHONE_FORMAT = phoneFormat({
@@ -155,6 +192,34 @@ export const SYMBOLS: Readings = {
   "£": ["livres"],
 };
 
+// Days of a month, the word before a month abbreviation in a date: 2 janv. 2003, 1er févr.
+export const DAYS: readonly string[] = [
+  "1er", ...Array.from({ length: 31 }, (_, i) => [String(i + 1), String(i + 1).padStart(2, "0")]).flat(),
+];
+
+// XXe s., Ve s.: the century after a Roman ordinal (not after Le, De, Ce, Me)
+function afterRomanOrdinal(context: Context): boolean {
+  const words = wordsOf(context.head());
+  const word = words.length === 0 ? "" : stripped(words[words.length - 1]).join("");
+  return /^([IVX]|[IVXLCDM]{2,})e$/.test(word);
+}
+
+// St-Étienne: a name after a hyphen
+function beforeHyphenatedName(context: Context): boolean {
+  const tail = context.tail();
+  return tail.length > 1 && tail[0] === "-" && isUpper(tail[1]);
+}
+
+// M. et Mme Durand
+function beforeAndMadame(context: Context): boolean {
+  return context.tail().join("").startsWith(" et Mme");
+}
+
+// M. Dupont, but not the M. of J. M. Ayuso
+function beforeNameNotInitial(context: Context): boolean {
+  return beforeName(context) && size(context.before()) !== 1;
+}
+
 export const TERMS: Terms = {
   abbreviations: {
     // Before a number only: n° 5
@@ -164,6 +229,60 @@ export const TERMS: Terms = {
     "p.": [{ words: "page", when: beforeNumber }],
     "art.": [{ words: "article", when: beforeNumber }],
     "Art.": [{ words: "article", when: beforeNumber }],
+    "pp.": [{ words: "pages", when: beforeNumber }],
+    "chap.": [{ words: "chapitre", when: beforeNumber }],
+    "vol.": [{ words: "volume", when: beforeNumber }],
+    "fig.": [{ words: "figure", when: beforeNumber }],
+    "s.": [{ words: "siècle", when: afterRomanOrdinal }],
+    // Before a name: M. Dupont, Dr Martin, St-Étienne
+    "M.": [
+      { words: "monsieur", when: beforeNameNotInitial },
+      { words: "monsieur", when: beforeAndMadame },
+    ],
+    "Mr": [{ words: "monsieur", when: beforeName }],
+    "Dr": [{ words: "docteur", when: beforeName }],
+    "Dr.": [{ words: "docteur", when: beforeName }],
+    "Pr": [{ words: "professeur", when: beforeName }],
+    "St": [{ words: "saint", when: beforeName }, { words: "saint", when: beforeHyphenatedName }],
+    "Ste": [{ words: "sainte", when: beforeName }, { words: "sainte", when: beforeHyphenatedName }],
+    "Mgr": [{ words: "monseigneur", when: beforeName }],
+    // After a day: 2 janv. 2003
+    "janv.": [{ words: "janvier", when: afterAny(DAYS) }],
+    "févr.": [{ words: "février", when: afterAny(DAYS) }],
+    "fév.": [{ words: "février", when: afterAny(DAYS) }],
+    "avr.": [{ words: "avril", when: afterAny(DAYS) }],
+    "juil.": [{ words: "juillet", when: afterAny(DAYS) }],
+    "sept.": [{ words: "septembre", when: afterAny(DAYS) }],
+    "oct.": [{ words: "octobre", when: afterAny(DAYS) }],
+    "nov.": [{ words: "novembre", when: afterAny(DAYS) }],
+    "déc.": [{ words: "décembre", when: afterAny(DAYS) }],
+    // Anywhere
+    "MM.": ["messieurs"],
+    "Mme": ["madame"],
+    "Mmes": ["mesdames"],
+    "Mlle": ["mademoiselle"],
+    "Mlles": ["mesdemoiselles"],
+    "Mᵐᵉ": ["madame"],
+    "Mᵐᵉˢ": ["mesdames"],
+    "Mˡˡᵉ": ["mademoiselle"],
+    "Mˡˡᵉˢ": ["mesdemoiselles"],
+    "Dʳ": ["docteur"],
+    "Dʳˢ": ["docteurs"],
+    "Dʳᵉ": ["docteure"],
+    "Dʳᵉˢ": ["docteures"],
+    "Pʳ": ["professeur"],
+    "etc.": ["et cetera"],
+    "Tél.": ["téléphone"],
+    "tél.": ["téléphone"],
+    "cf.": ["confer"],
+    "env.": ["environ"],
+    "c.-à-d.": ["c'est-à-dire"],
+    "p. ex.": ["par exemple"],
+    "J.-C.": ["Jésus-Christ"],
+    "av. J.-C.": ["avant Jésus-Christ"],
+    "apr. J.-C.": ["après Jésus-Christ"],
   },
-  web: { dot: "point", at: "arobase", slash: "slash" },
+  web: { dot: "point", at: "arobase", slash: "slash", hyphen: "tiret", underscore: "tiret bas",
+    digits: ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf"],
+  },
 };

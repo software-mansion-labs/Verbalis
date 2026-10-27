@@ -89,13 +89,28 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"GHz", {U"gigahertz", U"gigahertz"}},          {U"W", {U"watt", U"watts"}},
   {U"kW", {U"quilowatt", U"quilowatts"}},          {U"kWh", {U"quilowatt-hora", U"quilowatts-hora"}},
   {U"V", {U"volt", U"volts"}},                     {U"km/h", {U"quilômetro por hora", U"quilômetros por hora"}},
-  {U"mph", {U"milha por hora", U"milhas por hora"}}, {U"°C", {U"grau Celsius", U"graus Celsius"}},
-  {U"°", {U"grau", U"graus"}}
+  {U"mph", {U"milha por hora", U"milhas por hora"}}, {U"°C", {U"grau Celsius", U"graus Celsius"}}, {U"°F", {U"grau Fahrenheit", U"graus Fahrenheit"}},
+  {U"°", {U"grau", U"graus"}},                    {U"min", {U"minuto", U"minutos"}},
+  {U"s", {U"segundo", U"segundos"}}
 };
 
 inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions = {
   {{1, 2}, U"meio"}, {{1, 3}, U"um terço"}, {{2, 3}, U"dois terços"}, {{1, 4}, U"um quarto"},
   {{3, 4}, U"três quartos"}
+};
+
+// Words after a fraction which mark it as one: 1/3 da
+inline const std::unordered_set<std::u32string> kFractionWords = {U"de", U"do", U"da", U"dos", U"das"};
+
+// Words before a day and a month without a year which make them a date: dia 15/9, quinta-feira (16/3)
+inline const std::unordered_set<std::u32string> kDateWords = {
+  U"dia", U"dias", U"em", U"até", U"desde", U"hoje", U"ontem", U"amanhã", U"data", U"sábado", U"domingo"
+};
+
+// Words before a number and a year after a slash, which is not a fraction: Lei 15/98, nº 913/2010
+inline const std::unordered_set<std::u32string> kLawWords = {
+  U"lei", U"decreto", U"decreto-lei", U"portaria", U"processo", U"proc", U"resolução", U"despacho", U"emenda",
+  U"parecer", U"acórdão", U"número", U"nº", U"n.º"
 };
 
 // Scale words which take "de" before a currency: um milhão de reais, but dez mil reais
@@ -104,7 +119,7 @@ inline const std::vector<std::u32string> kScaleWords = {
 };
 
 // Words before an hour, which make it feminine: às duas, das dez
-inline const std::unordered_set<std::u32string> kHourWords = {U"às", U"à", U"das", U"pelas"};
+inline const std::unordered_set<std::u32string> kHourWords = {U"às", U"à", U"as", U"das", U"pelas"};
 
 // Parts of the day after "da": duas da tarde
 inline const std::unordered_set<std::u32string> kDayParts = {U"manhã", U"tarde", U"noite", U"madrugada"};
@@ -117,17 +132,20 @@ inline const std::unordered_set<std::u32string> kMasculineInA = {
   U"dia", U"mapa", U"problema", U"sistema", U"programa", U"tema", U"idioma", U"clima", U"planeta", U"poema",
   U"cometa", U"drama", U"esquema", U"sofá", U"diagrama", U"teorema", U"telefonema", U"cinema", U"prisma",
   U"pijama", U"aroma", U"dilema", U"fantasma", U"panorama", U"enigma", U"dogma", U"carisma", U"atleta", U"guia",
-  U"pila"
+  U"pila", U"grama", U"quilograma", U"miligrama", U"micrograma"
 };
 inline const std::unordered_set<std::u32string> kFeminineNouns = {
   U"vez", U"mão", U"foto", U"moto", U"mulher", U"flor", U"noite", U"tarde", U"parte", U"gente", U"lei", U"luz",
   U"voz", U"paz", U"rede", U"sede", U"fase", U"base", U"frase", U"classe", U"chave", U"fonte", U"mente", U"morte",
   U"sorte", U"ponte", U"árvore", U"nuvem", U"ordem", U"série", U"espécie", U"superfície", U"cor", U"dor", U"mãe",
-  U"pele", U"neve", U"febre", U"carne", U"torre", U"hora", U"semana", U"polegada", U"lição"
+  U"pele", U"neve", U"febre", U"carne", U"torre", U"hora", U"semana", U"polegada", U"lição", U"colher"
 };
 inline const std::vector<std::u32string> kFeminineEndings = {
-  U"a", U"ção", U"são", U"dade", U"tude", U"gem", U"ise", U"ite", U"ez"
+  U"a", U"ã", U"ção", U"são", U"dade", U"tude", U"gem", U"ise", U"ite", U"ez"
 };
+
+// Words before a year, which agrees with no noun after it: em 2020 havia
+inline const std::unordered_set<std::u32string> kYearWords = {U"em", U"de", U"desde", U"até", U"ano"};
 
 // Words after a number which are not the noun it counts
 inline const std::unordered_set<std::u32string> kStopWords = {
@@ -136,7 +154,8 @@ inline const std::unordered_set<std::u32string> kStopWords = {
   U"menos", U"até", U"desde", U"entre", U"sobre", U"contra", U"após", U"cada", U"todo", U"toda", U"todos", U"todas",
   U"este", U"esta", U"estes", U"estas", U"esse", U"essa", U"esses", U"essas", U"isso", U"isto", U"já", U"agora",
   U"quando", U"onde", U"muito", U"também", U"se", U"lhe", U"me", U"te", U"ao", U"à", U"aos", U"às", U"pelo",
-  U"pela", U"pelos", U"pelas", U"não", U"sim", U"meu", U"minha", U"seu", U"sua"
+  U"pela", U"pelos", U"pelas", U"não", U"sim", U"meu", U"minha", U"seu", U"sua",
+  U"nada", U"ainda", U"apenas", U"embora", U"fora"
 };
 
 // D. Pedro II (segundo), Bento XVI (dezesseis), século XXI (vinte e um), capítulo IV (quatro), a II Guerra (Segunda)
@@ -173,23 +192,30 @@ inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
 
 // --- Notation: how numbers are written ---
 inline const Notation kNotation = {
-  .group_separators = U".", .decimal_separators = U",.", .time_separators = U":h", .time_suffixes = {U"h"},
+  .group_separators = U". \u00a0\u202f", .decimal_separators = U",.", .time_separators = U":hH.", .time_suffixes = {U"h", U"hs"},
   .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true
 };
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
-  .point = U"ponto", .dot = U"ponto", .range = U" a ", .by = U"por", .score = U" a ", .minus = U"menos", .plus = U"mais"
+  .point = U"ponto", .dot = U"ponto", .range = U" a ", .by = U"por", .score = U" a ", .minus = U"menos", .plus = U"mais",
+  .fraction = U" e "
 };
 
-// 24/03/2022, 07-11-2018
-inline const DateFormat kDateFormat = {.separators = U"/-", .boundaries = U".,/-"};
+// 24/03/2022, 07-11-2018, 15/09
+inline const DateFormat kDateFormat = {.separators = U"/-", .boundaries = U".,/-", .year_required = false};
 
-// (11) 98765-4321, 0800-123456, 3456-7890, 213 456 789 (after a word of kPhoneWords): the longest first
+// 15.03.2024: with dots, only with a full year
+inline const DateFormat kDotDateFormat = {.separators = U".", .boundaries = U".,/-", .short_year = false};
+
+// (11) 98765-4321, 11 98765-4321, 0800-123456, 3456-7890, 213 456 789 (after a word of kPhoneWords), 555-1234: the
+// longest first
 inline const std::vector<PhoneFormat> kPhoneFormats = {
   {.groups = {{2, 2}, {4, 5}, {4, 4}}, .parenthesized = true, .closing = U"-"},
-  {.groups = {{4, 5}, {4, 6}}, .separators = U"-", .boundaries = U".,-", .closing = U"-"},
-  {.groups = {{3, 3}, {3, 3}, {3, 3}}, .separators = U" ", .boundaries = U".,-", .closing = U"-"}
+  {.groups = {{2, 2}, {4, 5}, {4, 4}}, .separators = U" -", .boundaries = U".,-", .closing = U"-"},
+  {.groups = {{4, 5}, {4, 7}}, .separators = U"-", .boundaries = U".,-", .closing = U"-"},
+  {.groups = {{3, 3}, {3, 3}, {3, 3}}, .separators = U" ", .boundaries = U".,-", .closing = U"-"},
+  {.groups = {{3, 3}, {4, 4}}, .separators = U"-", .boundaries = U".,-", .closing = U"-"}
 };
 
 // Words before a phone number written with spaces, which else reads as numbers: ligue para 213 456 789
@@ -200,6 +226,10 @@ inline const std::unordered_set<std::u32string> kPhoneWords = {
 // 1º, 2 ª: a sign, possibly after a space
 inline const Keys kOrdinalSigns = {U"º", U"ª"};
 inline const SuffixFormat kOrdinalSignFormat = {.space = true, .word_end = false};
+
+// anos 90s, década de 80s, '80s, 1980s; but 30s alone is thirty seconds
+inline const Keys kDecadeSuffixes = {U"s"};
+inline const SuffixFormat kDecadeFormat = {.apostrophes = true, .boundaries = U".,-"};
 
 using ::verbalis::text::Readings;
 
@@ -224,8 +254,10 @@ inline const Terms kTerms = {
     {U"Art.", {{U"artigo", before_number}}},
     {U"pág.", {{U"página", before_number}}},
     {U"§", {{U"parágrafo", before_number}}},
+    {U"ext.", {{U"extensão", before_number}}},
   },
-  .web = {.dot = U"ponto", .at = U"arroba", .slash = U"barra"}
+  .web = {.dot = U"ponto", .at = U"arroba", .slash = U"barra", .hyphen = U"hífen", .underscore = U"sublinhado",
+          .digits = {U"zero", U"um", U"dois", U"três", U"quatro", U"cinco", U"seis", U"sete", U"oito", U"nove"}}
 };
 
 } // namespace verbalis::languages::pt

@@ -158,7 +158,7 @@ std::u32string scaled(const Number& number, std::u32string_view scale, Gender ge
   if (forms.one == U"mil") {
     return number_with(number, gender) + U" mil";
   }
-  return number_with(number, Gender::MASCULINE) + U" " + (value(number) < 2 ? forms.one : forms.many);
+  return number_with(number, Gender::MASCULINE) + U" " + (value(number) == 1 ? forms.one : forms.many);
 }
 
 // -------------------
@@ -209,6 +209,105 @@ bool lettered(const Match& range, const Context& context) {
   return (before > 0 && is_ascii_letter(head[before - 1])) || (after < tail.size() && is_ascii_letter(tail[after]));
 }
 
+// A proper fraction with a small denominator, read as one without a word after it: 3/8, 5/13, 1/100
+bool small_fraction(uint64_t a, uint64_t b) {
+  return a < b && (b < 20 || b == 100 || b == 1000);
+}
+
+// The numbers of a slashed pair which a text starts with (6/2), or ends with if from_end; nullopt if none
+std::optional<std::pair<uint64_t, uint64_t>> slashed(std::u32string_view text, bool from_end) {
+  size_t start = 0;
+  if (from_end) {
+    size_t end = text.size();
+    start = end;
+    while (start > 0 && unicode::isdigit(text[start - 1])) {
+      start--;
+    }
+    if (start == end || start < 2 || text[start - 1] != U'/' || !unicode::isdigit(text[start - 2])) {
+      return std::nullopt;
+    }
+    start -= 2;
+    while (start > 0 && unicode::isdigit(text[start - 1])) {
+      start--;
+    }
+  }
+  size_t slash = digits_end(text, start);
+  size_t end = digits_end(text, slash + 1);
+  if (slash == start || slash >= text.size() || text[slash] != U'/' || end == slash + 1) {
+    return std::nullopt;
+  }
+  auto a = parse_value(text.substr(start, slash - start));
+  auto b = parse_value(text.substr(slash + 1, end - slash - 1));
+  if (!a || !b) {
+    return std::nullopt;
+  }
+  return std::pair{*a, *b};
+}
+
+// A phone number written with spaces only: after a word for one (ligue para 213 456 789), or nine digits that start
+// as a Portuguese number does (2, 3, 7, 8, 9) and count nothing after them (através do 707 246 707 (dias úteis)), but
+// not 213 456 789 pessoas or 300 000 000 €
+bool spaced_phone(const Match& phone) {
+  const Context& context = phone.context;
+  if (kPhoneWords.contains(context.before())) {
+    return true;
+  }
+  std::u32string_view tail = context.tail();
+  size_t next = tail.starts_with(U' ') ? 1 : 0;
+  std::u32string word = strings::to_lower(context.after());
+  bool counts = next < tail.size() && tail[next] != U'(' && !word.empty() && !kStopWords.contains(word);
+  const auto& numbers = phone.numbers;
+  bool national = numbers.size() == 3 && strings::contains(std::u32string_view(U"23789"), numbers[0].integer[0]);
+  return national && numbers.back().integer != U"000" && !counts;
+}
+
+// A round number before "s" which is a decade: anos 90s, década de 80s, '80s, 1980s
+bool decade(const Match& match) {
+  const Number& number = match.numbers.back();
+  uint64_t n = value(number);
+  std::u32string word = match.context.before();
+  bool marked = word == U"anos" || word == U"década" || (word == U"de" && match.context.before(2) == U"década") ||
+                match.text.starts_with(U'\'') || match.context.head().ends_with(U'\'');
+  return n % 10 == 0 &&
+         ((number.integer.size() == 2 && marked) || (number.integer.size() == 4 && n >= 1000 && n <= 2100));
+}
+
+// A day and a month marked as a date by the word before them, or by parentheses: dia 15/9, quinta-feira (16/3);
+// after "de" if they are no fraction: de 31/12, but de 1/3
+bool dated(const Match& date) {
+  std::u32string word = date.context.before();
+  bool parenthesized = date.context.head().ends_with(U'(') && date.context.tail().starts_with(U')');
+  bool after_de = word == U"de" && !small_fraction(value(date.numbers[0]), value(date.numbers[1]));
+  return kDateWords.contains(word) || word.ends_with(U"-feira") || parenthesized || after_de;
+}
+
+// A fraction without a word after it: 3/8, 5/13, 1/100. Not a law number (Lei 15/98), a grade (18/20), or a score in
+// a list of them (3/6, 6/2 e 7/6; 22/24 e 12/15).
+bool bare_fraction(const Match& fraction) {
+  const auto& numbers = fraction.numbers;
+  bool leading_zero = numbers.front().integer[0] == U'0' || numbers.back().integer[0] == U'0';
+  auto [a, b] = fraction_of(fraction);
+  if (numbers.size() != 2 || leading_zero || !small_fraction(a, b) || kLawWords.contains(fraction.context.before())) {
+    return false;
+  }
+  std::u32string_view head = fraction.context.head(), tail = fraction.context.tail();
+  for (std::u32string_view joiner : {U", ", U" e "}) {
+    std::optional<std::pair<uint64_t, uint64_t>> next, previous;
+    if (tail.starts_with(joiner)) {
+      next = slashed(tail.substr(joiner.size()), false);
+    }
+    if (head.ends_with(joiner)) {
+      previous = slashed(head.substr(0, head.size() - joiner.size()), true);
+    }
+    for (const auto& pair : {next, previous}) {
+      if (pair && !small_fraction(pair->first, pair->second)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 Cues cues_of(const Match& match) {
   const Context& context = match.context;
   Cues cues{.gender = gender_of(context),
@@ -228,6 +327,85 @@ Cues cues_of(const Match& match) {
   return cues;
 }
 
+// ---------------------
+// ----- Patterns -----
+// ---------------------
+
+// 2024/03/15, 2024.03.15, 03/15/2024: a date written year first, or month first where the day can't be a month.
+// Its numbers are ordered as day, month, year.
+class ReorderedDatePattern : public Pattern {
+public:
+  ReorderedDatePattern() : Pattern(Kind::DATE) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    size_t first_end = digits_end(text, position);
+    if (!is_clear_before(text, position, U".,/-") || first_end == position || first_end >= text.size()) {
+      return std::nullopt;
+    }
+    std::vector<Number> parts = {digits_at(text, position)};
+    char32_t separator = text[first_end];
+    if (separator != U'/' && separator != U'.') {
+      return std::nullopt;
+    }
+    for (size_t end = parts[0].span.end; parts.size() < 3; end = parts.back().span.end) {
+      if (end + 1 >= text.size() || text[end] != separator || !unicode::isdigit(text[end + 1])) {
+        return std::nullopt;
+      }
+      parts.push_back(digits_at(text, end + 1));
+    }
+    size_t end = parts[2].span.end;
+    if (!is_clear_after(text, end) || is_digit_after(text, end, U".,/-")) {
+      return std::nullopt;
+    }
+
+    auto fits = [&](size_t i, uint64_t low, uint64_t high) {
+      return parts[i].integer.size() <= 2 && value(parts[i]) >= low && value(parts[i]) <= high;
+    };
+    Match date{.kind = Kind::DATE, .span = {position, end}, .separator = separator};
+    if (parts[0].integer.size() == 4 && fits(1, 1, 12) && fits(2, 1, 31)) {
+      date.numbers = {parts[2], parts[1], parts[0]};
+    } else if (separator == U'/' && fits(0, 1, 12) && fits(1, 13, 31) && parts[2].integer.size() == 4) {
+      date.numbers = {parts[1], parts[0], parts[2]};
+    } else {
+      return std::nullopt;
+    }
+    return date;
+  }
+};
+
+// 14:30:05: a time with seconds
+class SecondsPattern : public Pattern {
+public:
+  SecondsPattern() : Pattern(Kind::TIME) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    if (!is_clear_before(text, position, U".,")) {
+      return std::nullopt;
+    }
+    Match time{.kind = Kind::TIME, .separator = U':'};
+    size_t end = position;
+    for (size_t i = 0; i < 3; ++i) {
+      if (i > 0) {
+        if (end >= text.size() || text[end] != U':') {
+          return std::nullopt;
+        }
+        end++;
+      }
+      size_t length = digits_end(text, end) - end;
+      if (length < (i == 0 ? 1 : 2) || length > 2) {
+        return std::nullopt;
+      }
+      time.numbers.push_back(digits_at(text, end));
+      end += length;
+    }
+    if (!is_clear_after(text, end) || is_digit_after(text, end, U".,:") || value(time.numbers[2]) > 59) {
+      return std::nullopt;
+    }
+    time.span = {position, end};
+    return time;
+  }
+};
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -236,10 +414,14 @@ class Portuguese final : public PatternLanguage {
 public:
   Portuguese() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
+    add_pattern(std::make_unique<DatePattern>(kDotDateFormat));
+    add_pattern(std::make_unique<ReorderedDatePattern>());
+    add_pattern(std::make_unique<SecondsPattern>());
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSigns, kOrdinalSignFormat));
+    add_pattern(std::make_unique<SuffixPattern>(Kind::DECADE, kDecadeSuffixes, kDecadeFormat));
     add_pattern(std::make_unique<RomanPattern>(false, kRomanMarkers));
   }
 
@@ -249,7 +431,10 @@ protected:
     if (number.fraction.empty() && cues.day && number.integer == U"1") {
       return U"primeiro";
     }
-    return number_with(number, number.fraction.empty() ? cues.gender : Gender::MASCULINE);
+    // Em 2020 havia: a year counts nothing after it
+    bool year = kYearWords.contains(match.context.before()) && number.integer.size() == 4 && !number.grouped &&
+                value(number) >= 1000 && value(number) <= 2100;
+    return number_with(number, number.fraction.empty() && !year ? cues.gender : Gender::MASCULINE);
   }
 
   std::u32string read_code_digits(std::u32string_view text) const override {
@@ -259,17 +444,31 @@ protected:
 
   std::optional<std::u32string> read_date(const Match& match) const override {
     uint64_t day = value(match.numbers[0]);
-    return (day == 1 ? U"primeiro" : cardinal(day)) + U" de " + kMonths[value(match.numbers[1]) - 1] + U" de " +
-           cardinal(value(match.numbers[2]));
+    std::u32string words = (day == 1 ? U"primeiro" : cardinal(day)) + U" de " + kMonths[value(match.numbers[1]) - 1];
+    if (match.numbers.size() == 3) {
+      return words + U" de " + cardinal(value(match.numbers[2]));
+    }
+
+    // Without a year, a zero-padded or marked date: 03/04, dia 15/9, quinta-feira (16/3); but 1/4 do salário, 3/4
+    bool padded = match.numbers[0].integer[0] == U'0' || match.numbers[1].integer[0] == U'0';
+    if (match.separator != U'/' || (!padded && (is_marked_fraction(match, kFractionWords) || !dated(match)))) {
+      return std::nullopt;
+    }
+    return words;
   }
 
   std::optional<std::u32string> read_phone(const Match& match) const override {
-    // 2021-2022: a range of years; 213 456 789 is a count, unless a word says it is a phone number
+    // 2021-2022, 20 2021-2022: a range of years; 500-1000: a range of round numbers; 213 456 789 pessoas: a count
     if (match.kind == Kind::PHONE) {
-      bool years = std::ranges::all_of(match.numbers, [](const Number& group) {
+      auto year = [](const Number& group) {
         return group.integer.size() == 4 && value(group) >= 1900 && value(group) <= 2100;
-      });
-      if (years || (match.separator == U' ' && !kPhoneWords.contains(match.context.before()))) {
+      };
+      const auto& numbers = match.numbers;
+      size_t n = numbers.size();
+      bool years = year(numbers[n - 2]) && year(numbers[n - 1]);
+      bool round = n == 2 && numbers[0].integer.ends_with(U'0') && numbers[1].integer.ends_with(U'0');
+      bool spaced = match.separator == U' ' && match.text.find(U'-') == std::u32string_view::npos;
+      if (years || round || (spaced && !spaced_phone(match))) {
         return std::nullopt;
       }
     }
@@ -282,19 +481,45 @@ protected:
   }
 
   std::optional<std::u32string> read_fraction(const Match& match) const override {
-    return named_fraction(kFractions, match);
+    // 1/2 litro: meio litro; 1/2 xícara, 1 1/2 xícara: meia xícara, uma e meia xícara
+    if (auto words = named_fraction(kFractions, match)) {
+      return *words == U"meio" && cues_of(match).gender == Gender::FEMININE ? U"meia" : *words;
+    }
+    auto [a, b] = fraction_of(match);
+    if (b < 2 || a >= b || !(is_marked_fraction(match, kFractionWords) || bare_fraction(match))) {
+      return std::nullopt;
+    }
+    // um quinto, dois terços, um centésimo, três onze avos
+    if (b > 10 && b != 100 && b != 1000) {
+      return cardinal(a) + U" " + cardinal(b) + U" avos";
+    }
+    std::u32string denominator = b == 2 ? U"meio" : b == 3 ? U"terço" : ordinal(b, false);
+    return cardinal(a) + U" " + denominator + (a == 1 ? U"" : U"s");
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
-    if (!fits_clock(match)) {
+    // A dot makes a time only after an hour word or before "h": às 21.30, 21.30h, but 1.71
+    bool decimal = match.separator == U'.' && match.suffix.empty() && !kHourWords.contains(match.context.before());
+    if (!fits_clock(match) || decimal) {
       return std::nullopt;
     }
 
-    // 14h30: catorze e trinta; 21h: vinte e uma horas
+    // 15h da tarde: três horas da tarde; 21h da noite: nove horas da noite
     uint64_t hours = value(match.numbers[0]);
+    std::u32string part = match.context.after() == U"da" ? strings::to_lower(match.context.after(2)) : U"";
+    if ((part == U"tarde" && hours >= 13 && hours <= 18) || (part == U"noite" && hours >= 19 && hours <= 23)) {
+      hours -= 12;
+    }
+
+    // 14h30: catorze horas e trinta; 14:30:05: catorze horas e trinta minutos e cinco segundos
+    std::u32string words = cardinal(hours, Gender::FEMININE) + (hours == 1 ? U" hora" : U" horas");
     uint64_t minutes = match.numbers.size() > 1 ? value(match.numbers[1]) : 0;
-    std::u32string hour = cardinal(hours, Gender::FEMININE);
-    return minutes ? hour + U" e " + cardinal(minutes) : hour + (hours == 1 ? U" hora" : U" horas");
+    if (match.numbers.size() == 3) {
+      uint64_t seconds = value(match.numbers[2]);
+      return words + U" e " + cardinal(minutes) + (minutes == 1 ? U" minuto e " : U" minutos e ") + cardinal(seconds) +
+             (seconds == 1 ? U" segundo" : U" segundos");
+    }
+    return minutes ? words + U" e " + cardinal(minutes) : words;
   }
 
   std::optional<std::u32string> read_roman(const Match& match) const override {
@@ -312,7 +537,8 @@ protected:
       case RomanRole::AFTER: // a Segunda Guerra, o terceiro congresso
         return ordinal(n, kFeminineRomanNouns.contains(strings::to_lower(match.context.after())));
       default: // século quinto, Vaticano segundo, but século vinte e um; capítulo quatro
-        return (previous.starts_with(U"século") || previous == U"vaticano") && n <= 10 ? ordinal(n, false) : cardinal(n);
+        return (previous.starts_with(U"século") || previous == U"vaticano") && n <= 10 ? ordinal(n, false) :
+                                                                                         cardinal(n);
     }
   }
 
@@ -322,6 +548,14 @@ protected:
       return std::nullopt;
     }
     return n >= 10 && cues_of(match).heading ? cardinal(n) : ordinal(n, match.suffix == U"ª");
+  }
+
+  // anos 90s: anos noventa; anos 1980s: anos mil novecentos e oitenta
+  std::optional<std::u32string> read_decade(const Match& match) const override {
+    if (!decade(match)) {
+      return std::nullopt;
+    }
+    return cardinal(value(match.numbers[0]));
   }
 
   std::optional<std::u32string> read_compound(const Match& match) const override {
@@ -338,6 +572,8 @@ protected:
         number.fraction.size() == 3) {
       amount = {.integer = number.integer + number.fraction};
     }
+    // R$ 1811605: an amount, however long, is not a code
+    amount.grouped = amount.grouped || !amount.integer.starts_with(U'0');
 
     if (cues_of(match).named) {
       return match.scale.empty() ? number_with(amount, gender) : scaled(amount, match.scale, gender);
@@ -374,10 +610,14 @@ protected:
   }
 
   std::optional<std::u32string> read_unit(const Number& number, const Match& match) const override {
+    // 45 s, 30s, but anos 90s
+    if (match.unit == U"s" && !match.text.ends_with(U" s") && decade(match)) {
+      return std::nullopt;
+    }
     const Forms& unit = kUnits.at(std::u32string(match.unit));
     std::u32string_view first_word = std::u32string_view(unit.one).substr(0, unit.one.find(U' '));
     Gender gender = feminine(first_word) ? Gender::FEMININE : Gender::MASCULINE;
-    return number_with(number, gender) + U" " + (value(number) < 2 ? unit.one : unit.many);
+    return number_with(number, gender) + U" " + (value(number) == 1 ? unit.one : unit.many);
   }
 
   std::u32string read_range(const Number& from, const Number& to, const Match& match) const override {

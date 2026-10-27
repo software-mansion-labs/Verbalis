@@ -39,6 +39,26 @@ REGISTER_TEST(numbers_fr_test) {
                 verbalize("fr", U"Il a 101 ans et 71 euros, 91 pommes, 81 voitures.", only(&Options::numbers)));
   ASSERT_EQUALS(U"Il était quatorze heures vingt ce mercredi.",
                 verbalize("fr", U"Il était 14 h 20 ce mercredi.", only(&Options::numbers)));
+  ASSERT_EQUALS(
+      U"Le millième et le millionième visiteur, un cinquième de la ville, moins quatre et un tiers.",
+      verbalize("fr", U"Le 1 000e et le 1 000 000e visiteur, 1/5 de la ville, -4 1/3.", only(&Options::numbers)));
+  ASSERT_EQUALS(U"Les dix-sept, dix-huit juin, le deux mars deux mille trois, dans les années quatre-vingt.",
+                verbalize("fr", U"Les 17/18 juin, le 02-03-2003, dans les 80s.", only(&Options::numbers)));
+  ASSERT_EQUALS(
+      U"Il y a quatre cent quinze mille deux cent quatre-vingt-dix-sept habitants, sept cinq zéro zéro un Paris.",
+      verbalize("fr", U"Il y a 415297 habitants, 75001 Paris.", only(&Options::numbers)));
+  ASSERT_EQUALS(U"deux mille euros par mois, trois euros cinquante, un million de dollars.",
+                verbalize("fr", U"2 000 €/mois, 3 € 50, 1 000 000 $.", only(&Options::numbers)));
+  ASSERT_EQUALS(U"un mètre soixante-cinq, un mètre quatre-vingts, trois kilomètres et demi.",
+                verbalize("fr", U"1m65, 1,80 m, 3 1/2 km.", only(&Options::numbers)));
+  ASSERT_EQUALS(U"En mille neuf cent quatre-vingt, page deux cent, mille neuf cent quatre-vingts habitants.",
+                verbalize("fr", U"En 1980, page 200, 1980 habitants.", only(&Options::numbers)));
+  ASSERT_EQUALS(U"La version trois point huit point dix, quarante et une maisons et une propriété.",
+                verbalize("fr", U"La version 3.8.10, 41 maisons et 1 propriété.", only(&Options::numbers)));
+  ASSERT_EQUALS(U"Au vingtième siècle, monsieur et madame Durand, messieurs les députés.",
+                verbalize("fr", U"Au XXe s., M. et Mme Durand, MM. les députés."));
+  ASSERT_EQUALS(U"monsieur Dupont et madame Martin, le docteur Roux à saint-Étienne, et cetera.",
+                verbalize("fr", U"M. Dupont et Mme Martin, le Dr Roux à St-Étienne, etc."));
 
   return true;
 }

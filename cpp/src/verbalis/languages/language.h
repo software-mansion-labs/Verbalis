@@ -78,12 +78,21 @@ protected:
   // A run of digits in a code or a phone number: the 380 of A380
   virtual std::u32string read_code_digits(std::u32string_view digits) const = 0;
 
+  // The letters of a code (the MP of MP3), as written by default
+  virtual std::u32string read_code_letters(std::u32string_view letters) const { return std::u32string(letters); }
+
+  // The country code of an international phone number (the 48 of +48 600 123 456), as code digits by default
+  virtual std::u32string read_country_code(std::u32string_view digits) const { return read_code_digits(digits); }
+
   // Readings of whole matches; by default their numbers one by one
   virtual std::optional<std::u32string> read_date(const Match& match) const;
 
   // A phone number's groups. It also reads the groups of an international number, as a match of that kind.
   virtual std::optional<std::u32string> read_phone(const Match& match) const;
+  // A fraction: its last two numbers (see numbers::fraction_of); the whole number of 3 1/2 is read before it
   virtual std::optional<std::u32string> read_fraction(const Match& match) const;
+  // A fraction, after its whole number if it has one (3 1/2), by the joiners
+  virtual std::optional<std::u32string> read_mixed_fraction(const Match& match) const;
   virtual std::optional<std::u32string> read_time(const Match& match) const;
   virtual std::optional<std::u32string> read_ordinal(const Match& match) const;
   virtual std::optional<std::u32string> read_decade(const Match& match) const;

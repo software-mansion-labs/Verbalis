@@ -2,9 +2,13 @@ import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from 
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
+  digitsAt,
   fitsClock,
   isSpokenDigits,
+  fractionOf,
+  isMarkedFraction,
   namedFraction,
+  numbersAt,
   parseValue,
   spacedSuffix,
   value,
@@ -13,16 +17,21 @@ import {
   romanValue,
   toDigits,
 } from "../../numbers/scanning.ts";
-import type { Context } from "../../text/context.ts";
-import { isClearAfter, isClearBefore, join, keysAt } from "../../text/scan.ts";
+import { stripped, wordsOf, type Context } from "../../text/context.ts";
+import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join, keysAt, skipSpace } from "../../text/scan.ts";
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
-import { isLower } from "../../text/unicode.ts";
+import { isAlpha, isLower, isUpper } from "../../text/unicode.ts";
 import type { Forms } from "../grammar.ts";
 import { PatternLanguage } from "../language.ts";
 import {
+  CODE_WORDS,
   CURRENCIES,
+  DASH_DATE_FORMAT,
   DATE_FORMAT,
+  DECADE_WORDS,
+  FEMININE_ENDINGS,
   FEMININE_NOUNS,
+  FRACTION_WORDS,
   FRACTIONS,
   JOINERS,
   MASCULINE_ENDINGS,
@@ -32,6 +41,7 @@ import {
   NUMBER_WORDS,
   ONES,
   ORDINAL_SUFFIXES,
+  ORDINAL_WORDS,
   PHONE_FORMAT,
   SCALES,
   STOP_WORDS,
@@ -40,6 +50,7 @@ import {
   TERMS,
   TIME_WORDS,
   UNITS,
+  VERSION_WORDS,
   WEEKDAYS,
   ROMAN_CUES,
   ROMAN_ORDINAL_SUFFIXES,
@@ -117,10 +128,15 @@ function ordinal(n: bigint, feminine = false): string {
     return feminine ? "première" : "premier";
   }
 
-  // vingtième, cinquième, neuvième, onzième
+  // vingtième, cinquième, neuvième, onzième; millionième, deux millionièmes: without "un" and the plural s
   let words = cardinal(n);
-  if (words.endsWith("vingts") || words.endsWith("cents")) {
-    words = words.slice(0, -1);
+  if (words === "un million" || words === "un milliard") {
+    words = words.slice(3);
+  }
+  for (const plural of ["vingts", "cents", "millions", "milliards"]) {
+    if (words.endsWith(plural)) {
+      words = words.slice(0, -1);
+    }
   }
   if (words.endsWith("neuf")) {
     words = `${words.slice(0, -1)}v`;
@@ -141,7 +157,7 @@ function digits(text: string): string {
 function gendered(number: Numeral, cues: Cues, feminine: boolean): string {
   if (number.fraction === "") {
     const n = parseValue(number.integer);
-    return n === undefined || isSpokenDigits(number, 5) ? digits(number.integer) : cardinal(n, feminine, cues.pluralS);
+    return n === undefined || isSpokenDigits(number, 8) ? digits(number.integer) : cardinal(n, feminine, cues.pluralS);
   }
 
   // Up to three decimals read as a number: zéro virgule zéro cinq, deux virgule soixante-quinze
@@ -165,13 +181,20 @@ function gendered(number: Numeral, cues: Cues, feminine: boolean): string {
 // ----- Context -----
 // -------------------
 
+// A capitalized word after a number starts a title or a name, not a noun it counts: Rennes 1 Situation
 function feminine(noun: string): boolean {
+  if (noun !== "" && isUpper(String.fromCodePoint(noun.codePointAt(0)!))) {
+    return false;
+  }
   let word = toLower(noun);
   word = word.slice(word.lastIndexOf("-") + 1);
   if (!FEMININE_NOUNS.has(word) && word.endsWith("s")) {
     word = word.slice(0, -1);
   }
-  if (FEMININE_NOUNS.has(word)) {
+  // eurodéputé is masculine as député is, but propriété is feminine although été is masculine
+  const masculine = (noun: string): boolean => word === noun || (noun.length > 4 && word.endsWith(noun));
+  const feminineEnding = FEMININE_ENDINGS.some((e) => word.endsWith(e));
+  if (FEMININE_NOUNS.has(word) || (feminineEnding && ![...MASCULINE_IN_E].some(masculine))) {
     return true;
   }
   const masculineEnding = MASCULINE_ENDINGS.some((e) => word.endsWith(e));
@@ -186,18 +209,62 @@ function counted(context: Context): boolean {
   return lowercaseWord && !STOP_WORDS.has(word) && !NUMBER_WORDS.has(word);
 }
 
+// An ungrouped number of five digits or more is an amount (166870 euros, 12500 habitants, 415297) unless something
+// marks it as a code: a hyphen or a slash (0-89100-396-7), a word naming a code (numéro 1035836), or a name next to
+// it (75005 Paris, Naca 23012) without a noun it counts after it (Environ 12500 personnes)
+function isCode(number: Numeral, match: Match): boolean {
+  if (number.grouped || number.fraction !== "" || number.integer.length < 5) {
+    return false;
+  }
+  const head = match.context.head();
+  const tail = match.context.tail();
+  const joined =
+    (head.length > 0 && contains("-/", head[head.length - 1])) || (tail.length > 0 && contains("-/", tail[0]));
+  const words = wordsOf(head);
+  const previous = words.length === 0 ? [] : stripped(words[words.length - 1]);
+  const after = match.context.after();
+  const name =
+    (previous.length > 0 && isUpper(previous[0])) ||
+    (after !== "" && isUpper(String.fromCodePoint(after.codePointAt(0)!)));
+  return joined || CODE_WORDS.has(match.context.before()) || (name && !counted(match.context));
+}
+
 // A noun after a number is singular below 2: un virgule cinq kilomètre, deux kilomètres
 function numberForm(number: Numeral, forms: Forms): string {
   return value(number) < 2n ? forms.one : forms.many;
 }
 
+// En 1900, vers 1980: a year, whose quatre-vingt and cent take no plural s
+function isYear(match: Match): boolean {
+  if (match.kind !== Kind.NUMBER || match.numbers.length !== 1) {
+    return false;
+  }
+  const number = match.numbers[0];
+  const n = value(number);
+  const previous = match.context.before();
+  const dimension = previous === "par" || previous === "fois"; // 1920x1080, read before
+  return !number.grouped && number.fraction === "" && n >= 1000n && n < 2100n && !counted(match.context) && !dimension;
+}
+
 function cuesOf(match: Match): Cues {
   const previous = match.context.before();
   return {
-    feminine: feminine(match.context.after()),
-    pluralS: previous !== "années" && previous !== "année",
+    feminine: counted(match.context) && feminine(match.context.after()),
+    pluralS: !ORDINAL_WORDS.has(previous) && !isYear(match),
     equation: match.kind === Kind.DIMENSION && match.context.tail().includes("="),
   };
+}
+
+// A noun after "de": de dollars, d'euros
+function of(noun: string): string {
+  const vowel = contains("aeiouyéh", noun[0]);
+  return (vowel ? "d'" : "de ") + noun;
+}
+
+// Whether a whole amount ends in millions or billions, which take "de" before a noun: un million de dollars
+function roundMillions(number: Numeral): boolean {
+  const n = value(number);
+  return number.fraction === "" && n >= 1000000n && n % 1000000n === 0n;
 }
 
 // An amount with its scale: trois millions, un virgule cinq million, dix mille
@@ -253,6 +320,170 @@ class RomanOrdinalPattern extends Pattern {
   }
 }
 
+// 1 000e, 2 000 000e: an ordinal of a grouped number, which the suffix pattern doesn't read
+class GroupedOrdinalPattern extends Pattern {
+  constructor() {
+    super(Kind.ORDINAL);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,")) {
+      return undefined;
+    }
+    for (const number of numbersAt(text, position, " \u00a0\u202f", "")) {
+      const end = number.span.end;
+      if (!number.grouped) {
+        continue;
+      }
+      for (const suffix of keysAt(text, end, ORDINAL_SUFFIXES)) {
+        if (isClearAfter(text, end + suffix.length)) {
+          return match({
+            kind: Kind.ORDINAL,
+            span: { begin: position, end: end + suffix.length },
+            numbers: [number],
+            suffix,
+          });
+        }
+      }
+    }
+    return undefined;
+  }
+}
+
+// 3 1/2 km: a whole number and a half before a masculine unit, read "trois kilomètres et demi" (the whole number by
+// readNumber, and "et demi" by the joiners)
+class HalfUnitPattern extends Pattern {
+  constructor() {
+    super(Kind.FRACTION);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const wholeEnd = digitsEnd(text, position);
+    if (
+      !isClearBefore(text, position, "./-:,") ||
+      wholeEnd === position ||
+      wholeEnd > position + 3 ||
+      str(text, wholeEnd, wholeEnd + 5) !== " 1/2 "
+    ) {
+      return undefined;
+    }
+    const unit = wholeEnd + 5;
+    for (const key of keysAt(text, unit, NOTATION.units)) {
+      const one = UNITS[key].one;
+      const space = one.indexOf(" ");
+      if (isClearAfter(text, unit + key.length) && !feminine(space === -1 ? one : one.slice(0, space))) {
+        return match({
+          kind: Kind.FRACTION,
+          span: { begin: position, end: unit + key.length },
+          numbers: [digitsAt(text, position), digitsAt(text, wholeEnd + 1), digitsAt(text, wholeEnd + 3)],
+          unit: key,
+        });
+      }
+    }
+    return undefined;
+  }
+}
+
+// 3 € 50, 12 € 99: euros and cents
+class EuroCentsPattern extends Pattern {
+  constructor() {
+    super(Kind.MONEY);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const euro = skipSpace(text, digitsEnd(text, position));
+    const cents = skipSpace(text, euro + 1);
+    if (
+      !isClearBefore(text, position, ".,-") ||
+      euro === position ||
+      euro >= text.length ||
+      text[euro] !== "€" ||
+      digitsEnd(text, cents) !== cents + 2 ||
+      !isClearAfter(text, cents + 2) ||
+      isDigitAfter(text, cents + 2, ".,")
+    ) {
+      return undefined;
+    }
+    const amount = digitsAt(text, position);
+    const numbers = [
+      { ...amount, span: { begin: amount.span.begin, end: cents + 2 }, fraction: str(text, cents, cents + 2) },
+    ];
+    return match({ kind: Kind.MONEY, span: { begin: position, end: cents + 2 }, numbers, unit: "€" });
+  }
+}
+
+// 1m65: a height in meters and centimeters
+class MetersPattern extends Pattern {
+  constructor() {
+    super(Kind.UNIT);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const m = digitsEnd(text, position);
+    if (
+      !isClearBefore(text, position, ".,-") ||
+      m === position ||
+      m > position + 1 ||
+      m >= text.length ||
+      text[m] !== "m" ||
+      digitsEnd(text, m + 1) !== m + 3 ||
+      !isClearAfter(text, m + 3)
+    ) {
+      return undefined;
+    }
+    const length = digitsAt(text, position);
+    const numbers = [{ ...length, span: { begin: length.span.begin, end: m + 3 }, fraction: str(text, m + 1, m + 3) }];
+    return match({ kind: Kind.UNIT, span: { begin: position, end: m + 3 }, numbers, unit: "m" });
+  }
+}
+
+// les 17/18 juin, les 17-18-19 juin: days of a month, listed
+class DayListPattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,/-")) {
+      return undefined;
+    }
+    const numbers: Numeral[] = [];
+    let separator = "";
+    let daysEnd = position;
+    for (let p = position; ; p++) {
+      const end = digitsEnd(text, p);
+      const day = parseValue(str(text, p, end)) ?? 0n;
+      if (end > p + 2 || day < 1n || day > 31n) {
+        return undefined;
+      }
+      numbers.push(digitsAt(text, p));
+      daysEnd = end;
+      const next = end < text.length && (text[end] === "/" || text[end] === "-");
+      if (!next || (separator !== "" && text[end] !== separator)) {
+        break;
+      }
+      separator = text[end];
+      p = end;
+    }
+
+    // Two days or more with a slash, or three with a hyphen (17-18 juin is a range), then a month
+    const least = separator === "/" ? 2 : 3;
+    const month = daysEnd + 1;
+    let monthEnd = month;
+    while (monthEnd < text.length && isAlpha(text[monthEnd])) {
+      monthEnd++;
+    }
+    const beforeMonth =
+      daysEnd < text.length &&
+      text[daysEnd] === " " &&
+      (MONTHS as readonly string[]).includes(str(text, month, monthEnd));
+    if (numbers.length < least || !beforeMonth) {
+      return undefined;
+    }
+    return match({ kind: Kind.DATE, span: { begin: position, end: daysEnd }, numbers, separator });
+  }
+}
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -260,24 +491,56 @@ class RomanOrdinalPattern extends Pattern {
 class French extends PatternLanguage {
   constructor() {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
+    this.addPattern(new DayListPattern());
     this.addPattern(new DatePattern(DATE_FORMAT));
+    this.addPattern(new DatePattern(DASH_DATE_FORMAT));
     this.addPattern(new PhonePattern(PHONE_FORMAT));
+    this.addPattern(new EuroCentsPattern());
+    this.addPattern(new MetersPattern());
+    this.addPattern(new HalfUnitPattern());
+    this.addPattern(new GroupedOrdinalPattern());
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new RomanOrdinalPattern());
     this.addPattern(new RomanPattern());
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
+    if (isCode(number, match)) {
+      return digits(number.integer);
+    }
+    // 3 1/2 km: trois kilomètres (et demi)
+    if (match.kind === Kind.FRACTION && match.unit !== "") {
+      return `${cardinal(value(number))} ${numberForm(number, UNITS[match.unit])}`;
+    }
     const cues = cuesOf(match);
     return gendered(number, cues, number.fraction === "" && cues.feminine);
   }
 
   protected override readCodeDigits(text: string): string {
     const n = codeValue(text, 4);
-    return n !== undefined ? cardinal(n) : digits(text);
+    return n !== undefined ? cardinal(n, false, false) : digits(text); // A380: a trois cent quatre-vingt
   }
 
   protected override readDate(match: Match): string | undefined {
+    // les dix-sept, dix-huit juin
+    if (
+      match.numbers.length > 1 &&
+      !match.numbers[0].integer.startsWith("0") &&
+      (MONTHS as readonly string[]).includes(match.context.after())
+    ) {
+      return match.numbers.map((day) => (day.integer === "1" ? ordinal(1n) : cardinal(value(day)))).join(", ");
+    }
+    // 3.8.10 after "version", or with a one-digit day and month and a short year, is a version
+    const numbers = match.numbers;
+    const shortVersion =
+      match.separator === "." &&
+      numbers.length === 3 &&
+      numbers[2].integer.length === 2 &&
+      numbers[0].integer.length === 1 &&
+      numbers[1].integer.length === 1;
+    if (shortVersion || VERSION_WORDS.has(match.context.before())) {
+      return undefined;
+    }
     // Without a year only a zero-padded day or month is a date: 05/11, but not 3/4
     if (match.numbers.length !== 3 && match.numbers[0].integer[0] !== "0" && match.numbers[1].integer[0] !== "0") {
       return undefined;
@@ -302,9 +565,25 @@ class French extends PatternLanguage {
   }
 
   protected override readFraction(match: Match): string | undefined {
-    return (
-      namedFraction(FRACTIONS, match) ?? `${cardinal(value(match.numbers[0]))} sur ${cardinal(value(match.numbers[1]))}`
-    );
+    const words = namedFraction(FRACTIONS, match);
+    if (words !== undefined) {
+      return words;
+    }
+    // un cinquième, deux tiers, trois quarts; else trois sur sept
+    const [a, b] = fractionOf(match);
+    if (b < 2n || a >= b || (!isMarkedFraction(match, FRACTION_WORDS) && !French.#isPlainFraction(match))) {
+      return `${cardinal(a)} sur ${cardinal(b)}`;
+    }
+    const denominator = b === 2n ? "demi" : b === 3n ? "tiers" : b === 4n ? "quart" : ordinal(b);
+    return `${cardinal(a)} ${denominator}${a > 1n && b !== 3n ? "s" : ""}`;
+  }
+
+  // A bare unit fraction of a small denominator: 1/5, 1/10; but 2/9 may be a score (5/9 au tir), 1/6 tirs a count, and
+  // (1/6) a part of a series
+  static #isPlainFraction(match: Match): boolean {
+    const [a, b] = fractionOf(match);
+    const head = match.context.head();
+    return a === 1n && b <= 10n && !counted(match.context) && head[head.length - 1] !== "(";
   }
 
   protected override readTime(match: Match): string | undefined {
@@ -365,23 +644,26 @@ class French extends PatternLanguage {
       if (SCALES[scale] === "mille") {
         return `${words} ${currency.many}`;
       }
-      const vowel = contains("aeiouyéh", currency.many[0]);
-      return words + (vowel ? " d'" : " de ") + currency.many;
+      return `${words} ${of(currency.many)}`;
     }
 
-    // A price: trois euros cinquante, quatre-vingt-dix-neuf centimes
+    // A price: trois euros cinquante, quatre-vingt-dix-neuf centimes, trois euros cinquante par mois
     const feminine = currency.one === "livre";
     if (number.fraction.length === 2) {
       const cents = parseValue(number.fraction) ?? 0n;
+      const per = match.unit.includes("/");
+      const unit = per ? currency.one.slice(currency.one.indexOf(" ")) : "";
       if (value(number) === 0n) {
-        return `${cardinal(cents)} centimes`;
+        return `${cardinal(cents)} centimes${unit}`;
       }
       const whole = numeral({ span: { begin: 0, end: 0 }, integer: number.integer, grouped: number.grouped });
+      const words = number.integer === "1" ? currency.one : currency.many;
       return (
-        `${gendered(whole, cues, feminine)} ${number.integer === "1" ? currency.one : currency.many} ` + cardinal(cents)
+        `${gendered(whole, cues, feminine)} ${words.slice(0, words.length - unit.length)} ` + cardinal(cents) + unit
       );
     }
-    return `${gendered(number, cues, feminine)} ${numberForm(number, currency)}`;
+    const noun = numberForm(number, currency);
+    return `${gendered(number, cues, feminine)} ${roundMillions(number) ? of(noun) : noun}`;
   }
 
   protected override readScale(number: Numeral, match: Match): string | undefined {
@@ -397,6 +679,25 @@ class French extends PatternLanguage {
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
+    // les 80s, les 1980s: a decade (les années quatre-vingt), not seconds
+    const n = value(number);
+    const decade = n % 10n === 0n && ((n >= 10n && n < 100n) || (n >= 1000n && n < 10000n)) && number.fraction === "";
+    if (
+      match.unit === "s" &&
+      decade &&
+      match.numbers.length === 1 &&
+      !match.text.includes(" ") &&
+      DECADE_WORDS.has(match.context.before())
+    ) {
+      return `années ${cardinal(n, false, false)}`;
+    }
+    // 1,80 m, 1m65: un mètre quatre-vingts, un mètre soixante-cinq
+    const meters = match.unit === "m" && n >= 1n && n < 10n && number.fraction !== "" && number.fraction.length <= 2;
+    if (meters && match.numbers.length === 1) {
+      const centimeters = (parseValue(number.fraction) ?? 0n) * (number.fraction.length === 1 ? 10n : 1n);
+      const whole = numeral({ span: { begin: 0, end: 0 }, integer: number.integer });
+      return `${cardinal(n)} ${numberForm(whole, UNITS["m"])}` + (centimeters ? ` ${cardinal(centimeters)}` : "");
+    }
     const unit = UNITS[match.unit];
     const space = unit.one.indexOf(" ");
     const firstWord = space === -1 ? unit.one : unit.one.slice(0, space);
@@ -406,6 +707,13 @@ class French extends PatternLanguage {
   protected override readJoiner(match: Match): string | undefined {
     if (match.kind === Kind.DIMENSION) {
       return cuesOf(match).equation ? " fois " : " par ";
+    }
+    // 0-89100-396-7: a hyphen in a code, not a range
+    if (
+      match.kind === Kind.RANGE &&
+      match.numbers.some((number) => !number.grouped && number.integer.length >= 5 && !number.integer.endsWith("000"))
+    ) {
+      return undefined;
     }
     return super.readJoiner(match);
   }

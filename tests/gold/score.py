@@ -48,7 +48,8 @@ for path in sorted(GOLD.glob("*.jsonl")):
         output = verbalizer.process(case["input"])
         exact = output in case["outputs"]
         ok = exact or normalized(output) in {normalized(o) for o in case["outputs"]}
-        for name in (case["class"], "all"):
+        origin = "own" if case["source"] == "verbalis" else "independent"
+        for name in (case["class"], "all", origin):
             counts = by_class[name]
             counts[0] += 1
             counts[1] += exact
@@ -59,13 +60,20 @@ for path in sorted(GOLD.glob("*.jsonl")):
             failures[lang].append((case, output))
     totals[lang] = by_class
 
-print(f"{'language':10}{'cases':>7}{'exact':>9}{'normalized':>12}")
+def share(counts):
+    return f"{100 * counts[2] / counts[0]:.1f}% of {counts[0]}" if counts[0] else "-"
+
+
+# "independent": cases from NeMo and WeTextProcessing; "own": cases written for Verbalis (source "verbalis"),
+# which are only as right as their author, until a native speaker has checked them
+print(f"{'language':10}{'cases':>7}{'exact':>9}{'normalized':>12}   {'independent':>18}   {'own':>18}")
 for lang, by_class in totals.items():
     n, exact, ok = by_class["all"]
-    print(f"{lang:10}{n:>7}{100 * exact / n:>8.1f}%{100 * ok / n:>11.1f}%")
+    print(f"{lang:10}{n:>7}{100 * exact / n:>8.1f}%{100 * ok / n:>11.1f}%   "
+          f"{share(by_class['independent']):>18}   {share(by_class['own']):>18}")
     if args.classes:
         for name, (n, exact, ok) in sorted(by_class.items()):
-            if name != "all":
+            if name not in ("all", "independent", "own"):
                 print(f"  {name:24}{n:>5}{100 * exact / n:>8.1f}%{100 * ok / n:>11.1f}%")
 all_n = sum(t["all"][0] for t in totals.values())
 all_ok = sum(t["all"][2] for t in totals.values())

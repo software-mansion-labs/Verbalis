@@ -8,45 +8,364 @@
 {"lang": "it", "source": "nemo", "class": "cardinal", "input": "3544", "outputs": ["tremila cinquecento quarantaquattro"]}
 {"lang": "it", "source": "nemo", "class": "cardinal", "input": "1000", "outputs": ["mille"]}
 {"lang": "it", "source": "nemo", "class": "cardinal", "input": "1034500", "outputs": ["un milione trentaquattromila cinquecento"]}
-{"lang": "it", "source": "nemo", "class": "cardinal", "input": "3453243534", "outputs": ["tremila quattrocento cinquantatre milioni duecento quarantatremila cinquecento trentaquattro"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "3453243534", "outputs": ["tre miliardi quattrocentocinquantatré milioni duecentoquarantatremila cinquecentotrentaquattro"]}
 {"lang": "it", "source": "nemo", "class": "cardinal", "input": "38", "outputs": ["trentotto"]}
 {"lang": "it", "source": "nemo", "class": "cardinal", "input": "7 giorni sono una settimana", "outputs": ["sette giorni sono una settimana"]}
-{"lang": "it", "source": "nemo", "class": "decimal", "input": "33,32", "outputs": ["trentatre virgola trentadue"]}
+{"lang": "it", "source": "nemo", "class": "decimal", "input": "33,32", "outputs": ["trentatré virgola trentadue"]}
 {"lang": "it", "source": "nemo", "class": "decimal", "input": "5,342", "outputs": ["cinque virgola trecento quarantadue"]}
 {"lang": "it", "source": "nemo", "class": "decimal", "input": "4,56 milioni", "outputs": ["quattro virgola cinquantasei milioni"]}
 {"lang": "it", "source": "nemo", "class": "decimal", "input": "3,55 miliardi", "outputs": ["tre virgola cinquantacinque miliardi"]}
 {"lang": "it", "source": "nemo", "class": "electronic", "input": "Trovateci su mail.university.edu.", "outputs": ["Trovateci su m a i l punto u n i v e r s i t y punto edu ."]}
 {"lang": "it", "source": "nemo", "class": "electronic", "input": "Trovateci su mail.nasa.gov.", "outputs": ["Trovateci su m a i l punto n a s a punto gov ."]}
 {"lang": "it", "source": "nemo", "class": "electronic", "input": "Trovateci su mail.nasa.mx.", "outputs": ["Trovateci su m a i l punto n a s a punto m x ."]}
-{"lang": "it", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com", "outputs": ["h t t p s due punti slash slash w w w punto nvidia punto com"]}
-{"lang": "it", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com/abc/ciao.html", "outputs": ["h t t p s due punti slash slash w w w punto nvidia punto com slash a b c slash c i a o punto html"]}
-{"lang": "it", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.it/abc/12df/like.py", "outputs": ["h t t p s due punti slash slash w w w punto nvidia punto IT slash a b c slash uno due d f slash l i k e punto python"]}
-{"lang": "it", "source": "nemo", "class": "electronic", "input": "abc.def@23df.sd.IT", "outputs": ["a b c punto d e f chiocciola due tre d f punto s d punto I T"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com", "outputs": ["h t t p s due punti slash slash w w w punto nvidia punto com", "w w w punto nvidia punto com"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com/abc/ciao.html", "outputs": ["h t t p s due punti slash slash w w w punto nvidia punto com slash a b c slash c i a o punto html", "w w w punto nvidia punto com slash abc slash ciao punto html"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.it/abc/12df/like.py", "outputs": ["h t t p s due punti slash slash w w w punto nvidia punto IT slash a b c slash uno due d f slash l i k e punto python", "w w w punto nvidia punto it slash abc slash uno due df slash like punto py"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "abc.def@23df.sd.IT", "outputs": ["a b c punto d e f chiocciola due tre d f punto s d punto I T", "abc punto def chiocciola ventitré df punto sd punto it"]}
 {"lang": "it", "source": "nemo", "class": "electronic", "input": "abc.de!f@23d_f.sd.us", "outputs": ["a b c punto d e punto esclamativo f chiocciola due tre d trattino basso f punto s d punto US"]}
 {"lang": "it", "source": "nemo", "class": "electronic", "input": "www.nvidia.file&TN.com", "outputs": ["w w w punto nvidia punto f i l e e commerciale T N punto com"]}
 {"lang": "it", "source": "nemo", "class": "electronic", "input": "@jensen", "outputs": ["chiocciola j e n s e n"]}
 {"lang": "it", "source": "nemo", "class": "electronic", "input": "@jensen.me", "outputs": ["chiocciola j e n s e n punto m e"]}
-{"lang": "it", "source": "nemo", "class": "electronic", "input": "@wezyr1986", "outputs": ["chiocciola w e z y r uno nove otto sei"]}
-{"lang": "it", "source": "nemo", "class": "electronic", "input": "visitate il sito https://www.nvidia.com.", "outputs": ["visitate il sito h t t p s due punti slash slash w w w punto nvidia punto com ."]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "@wezyr1986", "outputs": ["chiocciola w e z y r uno nove otto sei", "chiocciola wezyr millenovecentottantasei"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "visitate il sito https://www.nvidia.com.", "outputs": ["visitate il sito h t t p s due punti slash slash w w w punto nvidia punto com .", "visitate il sito w w w punto nvidia punto com."]}
 {"lang": "it", "source": "nemo", "class": "measure", "input": "1 m", "outputs": ["un metro"]}
 {"lang": "it", "source": "nemo", "class": "measure", "input": "2 m", "outputs": ["due metri"]}
 {"lang": "it", "source": "nemo", "class": "measure", "input": "4,3 l", "outputs": ["quattro virgola tre litri"]}
-{"lang": "it", "source": "nemo", "class": "measure", "input": "5 km/s", "outputs": ["cinque chilometri per secondo"]}
+{"lang": "it", "source": "nemo", "class": "measure", "input": "5 km/s", "outputs": ["cinque chilometri per secondo", "cinque chilometri al secondo"]}
 {"lang": "it", "source": "nemo", "class": "measure", "input": "15 A", "outputs": ["quindici ampere"]}
 {"lang": "it", "source": "nemo", "class": "measure", "input": "155 d", "outputs": ["cento cinquantacinque giorni"]}
 {"lang": "it", "source": "nemo", "class": "measure", "input": "il 18% delle emissioni di carbonio", "outputs": ["il diciotto percento delle emissioni di carbonio"]}
-{"lang": "it", "source": "nemo", "class": "money", "input": "2,01 ₽", "outputs": ["due rubli un copeca"]}
-{"lang": "it", "source": "nemo", "class": "money", "input": "3,23€", "outputs": ["tre euro ventitre centesimi"]}
-{"lang": "it", "source": "nemo", "class": "money", "input": "4,2 £", "outputs": ["quattro sterline venti penny"]}
+{"lang": "it", "source": "nemo", "class": "money", "input": "2,01 ₽", "outputs": ["due rubli e un copeco", "due rubli un copeco", "due rubli e una copeca"]}
+{"lang": "it", "source": "nemo", "class": "money", "input": "3,23€", "outputs": ["tre euro ventitré centesimi", "tre euro e ventitré centesimi"]}
+{"lang": "it", "source": "nemo", "class": "money", "input": "4,2 £", "outputs": ["quattro sterline venti penny", "quattro virgola due sterline"]}
 {"lang": "it", "source": "nemo", "class": "money", "input": "1 eur", "outputs": ["un euro"]}
 {"lang": "it", "source": "nemo", "class": "money", "input": "1 eur per il caffè", "outputs": ["un euro per il caffè"]}
-{"lang": "it", "source": "nemo", "class": "time", "input": "12:30", "outputs": ["dodici e trenta minuti~dodici e mezza"]}
-{"lang": "it", "source": "nemo", "class": "time", "input": "05:15", "outputs": ["cinque e quindici minuti~cinque e un quarto"]}
-{"lang": "it", "source": "nemo", "class": "time", "input": "17:15:26", "outputs": ["diciassette e quindici minuti e ventisei secondi~diciassette e un quarto e ventisei secondi"]}
-{"lang": "it", "source": "nemo", "class": "time", "input": "23:45", "outputs": ["ventitre e quarantacinque minuti"]}
-{"lang": "it", "source": "nemo", "class": "time", "input": "03:38", "outputs": ["tre e trentotto minuti"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "12:30", "outputs": ["dodici e trenta minuti", "dodici e mezza", "dodici e trenta"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "05:15", "outputs": ["cinque e quindici minuti", "cinque e un quarto", "cinque e quindici"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "17:15:26", "outputs": ["diciassette e quindici minuti e ventisei secondi", "diciassette e un quarto e ventisei secondi"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "23:45", "outputs": ["ventitré e quarantacinque minuti", "ventitré e quarantacinque"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "03:38", "outputs": ["tre e trentotto minuti", "tre e trentotto"]}
 {"lang": "it", "source": "nemo", "class": "time", "input": "l'evento inizia alle 16:00", "outputs": ["l'evento inizia alle sedici"]}
 {"lang": "it", "source": "nemo", "class": "whitelist", "input": "avv.", "outputs": ["avvocato"]}
 {"lang": "it", "source": "nemo", "class": "whitelist", "input": "dip. di Fisica", "outputs": ["dipartimento di Fisica"]}
 {"lang": "it", "source": "nemo", "class": "whitelist", "input": "sig.na Sonia", "outputs": ["signorina Sonia"]}
 {"lang": "it", "source": "nemo", "class": "whitelist", "input": "p.za Grande", "outputs": ["piazza Grande"]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ha 1 figlio e 2 figlie.", "outputs": ["Ha un figlio e due figlie."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ho comprato 1 casa al mare.", "outputs": ["Ho comprato una casa al mare."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "C'è solo 1 studente in aula.", "outputs": ["C'è solo uno studente in aula."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Mi serve 1 ora per finire.", "outputs": ["Mi serve un'ora per finire."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Abbiamo vinto 1 a 0.", "outputs": ["Abbiamo vinto uno a zero."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Solo 1 su 3 ce l'ha fatta.", "outputs": ["Solo uno su tre ce l'ha fatta."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "L'articolo 1 della Costituzione è famoso.", "outputs": ["L'articolo uno della Costituzione è famoso."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Vedi la pagina 1 del documento.", "outputs": ["Vedi la pagina uno del documento."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ha segnato 1 gol nel primo tempo.", "outputs": ["Ha segnato un gol nel primo tempo."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ogni modulo è seguito da 1 tutor.", "outputs": ["Ogni modulo è seguito da un tutor."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Con 1 sola mossa ha vinto la partita.", "outputs": ["Con una sola mossa ha vinto la partita."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ci vuole 1 zaino a testa.", "outputs": ["Ci vuole uno zaino a testa."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Rimane 1 settimana alla fine.", "outputs": ["Rimane una settimana alla fine."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "In 1 anno è cambiato tutto.", "outputs": ["In un anno è cambiato tutto."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Il numero 1 al mondo è lui.", "outputs": ["Il numero uno al mondo è lui."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "7 giorni sono una settimana.", "outputs": ["Sette giorni sono una settimana."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ci sono 24 ore in un giorno.", "outputs": ["Ci sono ventiquattro ore in un giorno."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Il paese conta 3544 abitanti.", "outputs": ["Il paese conta tremilacinquecentoquarantaquattro abitanti."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Lo stadio ospita 80.000 spettatori.", "outputs": ["Lo stadio ospita ottantamila spettatori."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "La città ha 1.000.000 di abitanti.", "outputs": ["La città ha un milione di abitanti."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ha speso 1 milione di euro.", "outputs": ["Ha speso un milione di euro."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Sono stati venduti 2,5 milioni di biglietti.", "outputs": ["Sono stati venduti due virgola cinque milioni di biglietti."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Hanno votato 1.241.000 persone.", "outputs": ["Hanno votato un milione duecentoquarantunomila persone."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Il 2023 è stato un anno difficile.", "outputs": ["Il duemilaventitré è stato un anno difficile."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ha 33 anni e 103 follower.", "outputs": ["Ha trentatré anni e centotré follower."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Erano presenti 108 delegati.", "outputs": ["Erano presenti centotto delegati."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Il ponte è lungo 1080 metri.", "outputs": ["Il ponte è lungo milleottanta metri."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Mancano 1001 giorni.", "outputs": ["Mancano milleuno giorni."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ci sono 21 persone in coda.", "outputs": ["Ci sono ventuno persone in coda."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "La temperatura è di -3 gradi.", "outputs": ["La temperatura è di meno tre gradi."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Il risultato è 2 + 2 = 4.", "outputs": ["Il risultato è due più due uguale a quattro."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Il monitor ha una risoluzione di 1920x1080.", "outputs": ["Il monitor ha una risoluzione di millenovecentoventi per milleottanta."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Sono arrivati 1 dopo l'altro.", "outputs": ["Sono arrivati uno dopo l'altro."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "C'è 1 problema da risolvere.", "outputs": ["C'è un problema da risolvere."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ha 1 sorella e 1 fratello.", "outputs": ["Ha una sorella e un fratello."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ha comprato 1 pianta e 1 albero.", "outputs": ["Ha comprato una pianta e un albero."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Ci sono 11000 iscritti.", "outputs": ["Ci sono undicimila iscritti."]}
+{"lang": "it", "source": "verbalis", "class": "cardinal", "input": "Contiamo fino a 1000.", "outputs": ["Contiamo fino a mille."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Sono nato il 15/03/1990.", "outputs": ["Sono nato il quindici marzo millenovecentonovanta."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "La scadenza è il 31/12/2024.", "outputs": ["La scadenza è il trentuno dicembre duemilaventiquattro."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il contratto è stato firmato il 01/06/2021.", "outputs": ["Il contratto è stato firmato il primo giugno duemilaventuno."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "La legge è entrata in vigore il 1/1/2020.", "outputs": ["La legge è entrata in vigore il primo gennaio duemilaventi."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il documento porta la data 24.03.2022.", "outputs": ["Il documento porta la data ventiquattro marzo duemilaventidue."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Dati aggiornati al 31.08.2023.", "outputs": ["Dati aggiornati al trentuno agosto duemilaventitré."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "La riunione si è tenuta il 12-05-2019.", "outputs": ["La riunione si è tenuta il dodici maggio duemiladiciannove."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Giuseppe Rossi (Forlì, 05.02.1985) è un calciatore.", "outputs": ["Giuseppe Rossi (Forlì, cinque febbraio millenovecentottantacinque) è un calciatore."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il bando chiude il 30/09/24.", "outputs": ["Il bando chiude il trenta settembre duemilaventiquattro.", "Il bando chiude il trenta settembre ventiquattro."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Ci siamo sposati il 2 giugno 2018.", "outputs": ["Ci siamo sposati il due giugno duemiladiciotto."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il 1 maggio è la festa dei lavoratori.", "outputs": ["Il primo maggio è la festa dei lavoratori."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il 1° gennaio è festa nazionale.", "outputs": ["Il primo gennaio è festa nazionale."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "A partire dal 1° marzo cambiano gli orari.", "outputs": ["A partire dal primo marzo cambiano gli orari."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il 25 aprile si celebra la Liberazione.", "outputs": ["Il venticinque aprile si celebra la Liberazione."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "L'evento si terrà il 2024-05-12 a Milano.", "outputs": ["L'evento si terrà il dodici maggio duemilaventiquattro a Milano."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il negozio resterà chiuso dal 10 al 20 agosto.", "outputs": ["Il negozio resterà chiuso dal dieci al venti agosto."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Nel 1999 tutto è cambiato.", "outputs": ["Nel millenovecentonovantanove tutto è cambiato."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Siamo nel 2025.", "outputs": ["Siamo nel duemilaventicinque."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Era il 4 luglio 1776.", "outputs": ["Era il quattro luglio millesettecentosettantasei."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il 15 agosto è Ferragosto.", "outputs": ["Il quindici agosto è Ferragosto."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "La sentenza del 27.5.2002 ha cambiato tutto.", "outputs": ["La sentenza del ventisette maggio duemiladue ha cambiato tutto."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il pagamento è previsto per il 10/10/2025.", "outputs": ["Il pagamento è previsto per il dieci ottobre duemilaventicinque."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Gli anni '80 furono un decennio di cambiamento.", "outputs": ["Gli anni ottanta furono un decennio di cambiamento."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Negli anni '60 nacque il boom economico.", "outputs": ["Negli anni sessanta nacque il boom economico."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "La mostra resta aperta fino al 3/11/2024.", "outputs": ["La mostra resta aperta fino al tre novembre duemilaventiquattro."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "È stato costruito nel 711 d.C. dagli arabi.", "outputs": ["È stato costruito nel settecentoundici dopo Cristo dagli arabi."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Roma fu fondata nel 753 a.C. secondo la tradizione.", "outputs": ["Roma fu fondata nel settecentocinquantatré avanti Cristo secondo la tradizione."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Le iscrizioni aprono il 07/01/2026.", "outputs": ["Le iscrizioni aprono il sette gennaio duemilaventisei."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il 2 novembre si commemorano i defunti.", "outputs": ["Il due novembre si commemorano i defunti."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "L'ultimo aggiornamento è del 14.03.2023.", "outputs": ["L'ultimo aggiornamento è del quattordici marzo duemilaventitré."]}
+{"lang": "it", "source": "verbalis", "class": "date", "input": "Il convegno si è svolto dal 2018 al 2020.", "outputs": ["Il convegno si è svolto dal duemiladiciotto al duemilaventi."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il PIL è cresciuto dello 0,5 per cento.", "outputs": ["Il PIL è cresciuto dello zero virgola cinque per cento."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il valore di pi greco è circa 3,14.", "outputs": ["Il valore di pi greco è circa tre virgola quattordici."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "L'indice è salito a 1,25.", "outputs": ["L'indice è salito a uno virgola venticinque."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il tasso di disoccupazione è al 7,8%.", "outputs": ["Il tasso di disoccupazione è al sette virgola otto per cento."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "La share ha raggiunto il 5.9% ieri sera.", "outputs": ["La share ha raggiunto il cinque virgola nove per cento ieri sera."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il programma ha avuto il 21.71% di share.", "outputs": ["Il programma ha avuto il ventuno virgola settantuno per cento di share."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "L'inflazione è scesa all'1,2%.", "outputs": ["L'inflazione è scesa all'uno virgola due per cento."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "La media è di 27,5 punti a partita.", "outputs": ["La media è di ventisette virgola cinque punti a partita."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il tempo medio è 0,25 secondi.", "outputs": ["Il tempo medio è zero virgola venticinque secondi."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il rapporto è di 1,05 a 1.", "outputs": ["Il rapporto è di uno virgola zero cinque a uno."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "La dose è di 2,5 mg al giorno.", "outputs": ["La dose è di due virgola cinque milligrammi al giorno."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il voto medio è 8,75.", "outputs": ["Il voto medio è otto virgola settantacinque."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il titolo ha perso il 3,55%.", "outputs": ["Il titolo ha perso il tre virgola cinquantacinque per cento."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Sono stati stanziati 4,56 milioni.", "outputs": ["Sono stati stanziati quattro virgola cinquantasei milioni."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il debito supera i 3,55 miliardi.", "outputs": ["Il debito supera i tre virgola cinquantacinque miliardi."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il pianeta dista 1,5 milioni di chilometri.", "outputs": ["Il pianeta dista uno virgola cinque milioni di chilometri."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "L'aggiornamento alla versione 2.1 è gratuito.", "outputs": ["L'aggiornamento alla versione due punto uno è gratuito."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il protocollo USB 3.0 è più veloce.", "outputs": ["Il protocollo USB tre punto zero è più veloce."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Python 3.12 introduce nuove funzioni.", "outputs": ["Python tre punto dodici introduce nuove funzioni."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Leggi il paragrafo 4.2 del regolamento.", "outputs": ["Leggi il paragrafo quattro punto due del regolamento."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il terremoto è stato di magnitudo 4,3.", "outputs": ["Il terremoto è stato di magnitudo quattro virgola tre."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "La temperatura media è di 14,5 gradi.", "outputs": ["La temperatura media è di quattordici virgola cinque gradi."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Pesava 72,3 chili.", "outputs": ["Pesava settantadue virgola tre chili."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il tasso è dello 0,05 per cento.", "outputs": ["Il tasso è dello zero virgola zero cinque per cento."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "L'altezza è 1,82 m.", "outputs": ["L'altezza è uno virgola ottantadue metri."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il serbatoio contiene 4,3 l.", "outputs": ["Il serbatoio contiene quattro virgola tre litri."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "La pista misura 29.8 km.", "outputs": ["La pista misura ventinove virgola otto chilometri."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Fuori ci sono 29.8°C.", "outputs": ["Fuori ci sono ventinove virgola otto gradi."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Lo spread è salito di 0,3 punti.", "outputs": ["Lo spread è salito di zero virgola tre punti."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "La crescita è stata del 2,25 %.", "outputs": ["La crescita è stata del due virgola venticinque per cento."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il neonato pesava 3.2 chili.", "outputs": ["Il neonato pesava tre virgola due chili."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il fatturato è cresciuto di 2.5 volte.", "outputs": ["Il fatturato è cresciuto di due virgola cinque volte."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Lo spread è salito a 1.25 punti.", "outputs": ["Lo spread è salito a uno virgola venticinque punti."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Windows 3.1 rimane un ricordo.", "outputs": ["Windows tre punto uno rimane un ricordo."]}
+{"lang": "it", "source": "verbalis", "class": "decimal", "input": "Il 72.3 per cento degli italiani è d'accordo.", "outputs": ["Il settantadue virgola tre per cento degli italiani è d'accordo."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Visitate il sito www.comune.milano.it per i dettagli.", "outputs": ["Visitate il sito w w w punto comune punto milano punto it per i dettagli."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Scrivete a info@azienda.it.", "outputs": ["Scrivete a info chiocciola azienda punto it."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "La mia email è mario.rossi@gmail.com.", "outputs": ["La mia email è mario punto rossi chiocciola gmail punto com."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Trovate il bando su www.regione.lazio.it/bandi.", "outputs": ["Trovate il bando su w w w punto regione punto lazio punto it slash bandi."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il sito ufficiale è repubblica.it.", "outputs": ["Il sito ufficiale è repubblica punto it."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Leggete l'articolo su https://www.corriere.it/cronache.", "outputs": ["Leggete l'articolo su w w w punto corriere punto it slash cronache."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Scaricate l'app da apple.com.", "outputs": ["Scaricate l'app da apple punto com."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Per assistenza: supporto@poste.it", "outputs": ["Per assistenza: supporto chiocciola poste punto it"]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Seguiteci su @jensen.me", "outputs": ["Seguiteci su chiocciola jensen punto me"]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Trovateci su mail.nasa.mx.", "outputs": ["Trovateci su mail punto nasa punto mx."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il dominio è example.org.", "outputs": ["Il dominio è example punto org."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Iscriviti su www.coursera.org.", "outputs": ["Iscriviti su w w w punto coursera punto org."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il portale è www.agenziaentrate.gov.it.", "outputs": ["Il portale è w w w punto agenziaentrate punto gov punto it."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Contattate segreteria@unibo.it per l'iscrizione.", "outputs": ["Contattate segreteria chiocciola unibo punto it per l'iscrizione."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il codice è su github.com/verbalis.", "outputs": ["Il codice è su github punto com slash verbalis."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il sito russo è yandex.ru.", "outputs": ["Il sito russo è yandex punto ru."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "La pagina è www.museo.nl/collezione.", "outputs": ["La pagina è w w w punto museo punto nl slash collezione."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Scrivi a ufficio.stampa@comune.roma.it.", "outputs": ["Scrivi a ufficio punto stampa chiocciola comune punto roma punto it."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il blog è su medium.com.", "outputs": ["Il blog è su medium punto com."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il profilo è @wezyr1986.", "outputs": ["Il profilo è chiocciola wezyr millenovecentottantasei."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Ho corso 1 km stamattina.", "outputs": ["Ho corso un chilometro stamattina."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il sentiero è lungo 12 km.", "outputs": ["Il sentiero è lungo dodici chilometri."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La stanza misura 4,5 m di lunghezza.", "outputs": ["La stanza misura quattro virgola cinque metri di lunghezza."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il tavolo è largo 1 m.", "outputs": ["Il tavolo è largo un metro."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Ci vogliono 250 g di farina.", "outputs": ["Ci vogliono duecentocinquanta grammi di farina."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Aggiungere 1 g di sale.", "outputs": ["Aggiungere un grammo di sale."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il pacco pesa 1 kg.", "outputs": ["Il pacco pesa un chilo."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il bambino pesa 3,2 kg alla nascita.", "outputs": ["Il bambino pesa tre virgola due chili alla nascita."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il camion trasporta 1 t di merce.", "outputs": ["Il camion trasporta una tonnellata di merce."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La diga contiene 40 t di acqua.", "outputs": ["La diga contiene quaranta tonnellate di acqua."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Bevi almeno 2 l di acqua al giorno.", "outputs": ["Bevi almeno due litri di acqua al giorno."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Serve 1 l di latte.", "outputs": ["Serve un litro di latte."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Aggiungete 200 ml di panna.", "outputs": ["Aggiungete duecento millilitri di panna."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "L'appartamento è di 85 mq.", "outputs": ["L'appartamento è di ottantacinque metri quadri."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il terreno misura 1.200 m².", "outputs": ["Il terreno misura milleduecento metri quadri."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il limite in autostrada è 130 km/h.", "outputs": ["Il limite in autostrada è centotrenta chilometri orari."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Andava a 1 km/h, praticamente fermo.", "outputs": ["Andava a un chilometro orario, praticamente fermo."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il vento soffia a 15 m/s.", "outputs": ["Il vento soffia a quindici metri al secondo."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Oggi ci sono 30 °C a Roma.", "outputs": ["Oggi ci sono trenta gradi a Roma."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La temperatura è scesa a -5 °C.", "outputs": ["La temperatura è scesa a meno cinque gradi."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La febbre è salita a 38,5 °C.", "outputs": ["La febbre è salita a trentotto virgola cinque gradi."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "L'acqua bolle a 100°C.", "outputs": ["L'acqua bolle a cento gradi."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Ruotate la manopola di 90°.", "outputs": ["Ruotate la manopola di novanta gradi."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La lampadina consuma 60 W.", "outputs": ["La lampadina consuma sessanta watt."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La presa fornisce 230 V.", "outputs": ["La presa fornisce duecentotrenta volt."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il fusibile regge 16 A.", "outputs": ["Il fusibile regge sedici ampere."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La batteria ha 5000 mAh.", "outputs": ["La batteria ha cinquemila milliampereora."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il motore eroga 150 CV.", "outputs": ["Il motore eroga centocinquanta cavalli."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il processore va a 3,5 GHz.", "outputs": ["Il processore va a tre virgola cinque gigahertz."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il telefono ha 128 GB di memoria.", "outputs": ["Il telefono ha centoventotto giga di memoria."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La connessione arriva a 100 Mbps.", "outputs": ["La connessione arriva a cento megabit al secondo."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La cottura richiede 45 min.", "outputs": ["La cottura richiede quarantacinque minuti."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il volo dura 1 h.", "outputs": ["Il volo dura un'ora."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il negozio è aperto 24 h su 24.", "outputs": ["Il negozio è aperto ventiquattro ore su ventiquattro."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La consegna avviene in 3 gg lavorativi.", "outputs": ["La consegna avviene in tre giorni lavorativi."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "L'auto fa 18 km/l in città.", "outputs": ["L'auto fa diciotto chilometri al litro in città."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il rumore supera gli 80 dB.", "outputs": ["Il rumore supera gli ottanta decibel."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Una porzione contiene 250 kcal.", "outputs": ["Una porzione contiene duecentocinquanta chilocalorie."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il fiume è lungo 652 km.", "outputs": ["Il fiume è lungo seicentocinquantadue chilometri."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il tragitto è di 10-15 km.", "outputs": ["Il tragitto è di dieci-quindici chilometri."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il percorso misura 22.45 km.", "outputs": ["Il percorso misura ventidue virgola quarantacinque chilometri."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "La crescita è del 4.3% annuo.", "outputs": ["La crescita è del quattro virgola tre per cento annuo."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Il tasso è al 2,5%.", "outputs": ["Il tasso è al due virgola cinque per cento."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Ha ottenuto il 100% dei voti.", "outputs": ["Ha ottenuto il cento per cento dei voti."]}
+{"lang": "it", "source": "verbalis", "class": "measure", "input": "Lo sconto è del 30 %.", "outputs": ["Lo sconto è del trenta per cento."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il biglietto costa 12 €.", "outputs": ["Il biglietto costa dodici euro."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Un caffè al bar costa 1,20 €.", "outputs": ["Un caffè al bar costa un euro e venti centesimi."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Ho pagato 1 € per il parcheggio.", "outputs": ["Ho pagato un euro per il parcheggio."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "La spedizione costa 4,99 € in tutta Italia.", "outputs": ["La spedizione costa quattro euro e novantanove centesimi in tutta Italia."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il prezzo è sceso a 0,99 €.", "outputs": ["Il prezzo è sceso a novantanove centesimi."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Manca solo 0,01 € per arrivare alla cifra.", "outputs": ["Manca solo un centesimo per arrivare alla cifra."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il menù fisso costa 15,00 € a persona.", "outputs": ["Il menù fisso costa quindici euro a persona."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "L'affitto è di 750 € al mese.", "outputs": ["L'affitto è di settecentocinquanta euro al mese."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "La multa arriva a 1.200 €.", "outputs": ["La multa arriva a milleduecento euro."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il governo ha stanziato 3 mln € per le scuole.", "outputs": ["Il governo ha stanziato tre milioni di euro per le scuole."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Lo stipendio medio è di 1.500,50 € netti.", "outputs": ["Lo stipendio medio è di millecinquecento euro e cinquanta centesimi netti."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Ha vinto 21 € alla lotteria.", "outputs": ["Ha vinto ventuno euro alla lotteria."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Costa €5,99 al chilo.", "outputs": ["Costa cinque euro e novantanove centesimi al chilo."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il libro costa € 18.", "outputs": ["Il libro costa diciotto euro."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il volo costa $350 andata e ritorno.", "outputs": ["Il volo costa trecentocinquanta dollari andata e ritorno."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il prezzo di partenza è di $149,99.", "outputs": ["Il prezzo di partenza è di centoquarantanove dollari e novantanove centesimi."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il biglietto costa 1 $ in più.", "outputs": ["Il biglietto costa un dollaro in più."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il biglietto della metro di Londra costa 2,80 £.", "outputs": ["Il biglietto della metro di Londra costa due sterline e ottanta penny."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Ho cambiato 100 £ in aeroporto.", "outputs": ["Ho cambiato cento sterline in aeroporto."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il pranzo è costato 1 £ in più.", "outputs": ["Il pranzo è costato una sterlina in più."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il ramen costa 900 ¥ a Tokyo.", "outputs": ["Il ramen costa novecento yen a Tokyo."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "La quota d'iscrizione è di 50 CHF.", "outputs": ["La quota d'iscrizione è di cinquanta franchi svizzeri."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il contratto vale 2 mld $.", "outputs": ["Il contratto vale due miliardi di dollari."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "La società ha fatturato 10 mila € nel primo mese.", "outputs": ["La società ha fatturato diecimila euro nel primo mese."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il conto è di 10,50 €, mancia esclusa.", "outputs": ["Il conto è di dieci euro e cinquanta centesimi, mancia esclusa."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Le offerte vanno da 10-15 € a persona.", "outputs": ["Le offerte vanno da dieci-quindici euro a persona."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il bilancio prevede 2.500.000 € di investimenti.", "outputs": ["Il bilancio prevede due milioni cinquecentomila euro di investimenti."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Ho speso 1 eur per il caffè.", "outputs": ["Ho speso un euro per il caffè."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "L'abbonamento costa 30 EUR all'anno.", "outputs": ["L'abbonamento costa trenta euro all'anno."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il pedaggio costa 3.50 €.", "outputs": ["Il pedaggio costa tre euro e cinquanta centesimi."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il gelato costa 2,00 €.", "outputs": ["Il gelato costa due euro."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il caricabatterie costa 25 USD su Amazon.", "outputs": ["Il caricabatterie costa venticinque dollari su Amazon."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "Il rublo ha toccato i 100 ₽ per un dollaro.", "outputs": ["Il rublo ha toccato i cento rubli per un dollaro."]}
+{"lang": "it", "source": "verbalis", "class": "money", "input": "In totale fanno 101 €.", "outputs": ["In totale fanno centouno euro."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "È arrivato al 2° posto.", "outputs": ["È arrivato al secondo posto."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il 3° classificato riceve una medaglia.", "outputs": ["Il terzo classificato riceve una medaglia."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "La 3° edizione del festival è stata un successo.", "outputs": ["La terza edizione del festival è stata un successo."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Abito al 4° piano.", "outputs": ["Abito al quarto piano."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il gol è arrivato al 90° minuto.", "outputs": ["Il gol è arrivato al novantesimo minuto."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Si celebra il 60° anniversario della fondazione.", "outputs": ["Si celebra il sessantesimo anniversario della fondazione."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "È il 153° lancio dell'anno.", "outputs": ["È il centocinquantatreesimo lancio dell'anno."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Nel 1° trimestre le vendite sono cresciute.", "outputs": ["Nel primo trimestre le vendite sono cresciute."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Si è classificato al 18° posto.", "outputs": ["Si è classificato al diciottesimo posto."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il 1º premio va a Marco.", "outputs": ["Il primo premio va a Marco."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "La 2ª guerra mondiale finì nel 1945.", "outputs": ["La seconda guerra mondiale finì nel millenovecentoquarantacinque."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "È la 5ª volta che succede.", "outputs": ["È la quinta volta che succede."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il 21esimo secolo è iniziato nel 2001.", "outputs": ["Il ventunesimo secolo è iniziato nel duemilauno."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Festeggia il suo 33esimo compleanno.", "outputs": ["Festeggia il suo trentatreesimo compleanno."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il 10° giorno di cammino è stato il più duro.", "outputs": ["Il decimo giorno di cammino è stato il più duro."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "La sua 7ª sinfonia è la più famosa.", "outputs": ["La sua settima sinfonia è la più famosa."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il XX secolo fu segnato da due guerre.", "outputs": ["Il ventesimo secolo fu segnato da due guerre."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Papa Giovanni XXIII fu eletto nel 1958.", "outputs": ["Papa Giovanni ventitreesimo fu eletto nel millenovecentocinquantotto."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "La regina Elisabetta II regnò a lungo.", "outputs": ["La regina Elisabetta seconda regnò a lungo."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Leggete il capitolo IV per domani.", "outputs": ["Leggete il capitolo quarto per domani."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Vittorio Emanuele II fu il primo re d'Italia.", "outputs": ["Vittorio Emanuele secondo fu il primo re d'Italia."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il sec. XIX vide l'unità d'Italia.", "outputs": ["Il secolo diciannovesimo vide l'unità d'Italia."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "È salito sul 2° gradino del podio.", "outputs": ["È salito sul secondo gradino del podio."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "La 1ª classe del treno è più comoda.", "outputs": ["La prima classe del treno è più comoda."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Dal 2° anno in poi la retta aumenta.", "outputs": ["Dal secondo anno in poi la retta aumenta."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il 100° episodio va in onda stasera.", "outputs": ["Il centesimo episodio va in onda stasera."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Nella 2° parte del libro cambia tutto.", "outputs": ["Nella seconda parte del libro cambia tutto."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il 4° comandamento dice di onorare il padre e la madre.", "outputs": ["Il quarto comandamento dice di onorare il padre e la madre."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Il nostro 25° anniversario di matrimonio è a giugno.", "outputs": ["Il nostro venticinquesimo anniversario di matrimonio è a giugno."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "L'11° edizione si terrà a Torino.", "outputs": ["L'undicesima edizione si terrà a Torino."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Si gira la manopola di 180° per aprire.", "outputs": ["Si gira la manopola di centottanta gradi per aprire."]}
+{"lang": "it", "source": "verbalis", "class": "ordinal", "input": "Fuori ci sono 35° all'ombra.", "outputs": ["Fuori ci sono trentacinque gradi all'ombra."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Chiamate il 333 1234567 per informazioni.", "outputs": ["Chiamate il tre tre tre uno due tre quattro cinque sei sette per informazioni."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Il numero dell'ufficio è 06 1234 5678.", "outputs": ["Il numero dell'ufficio è zero sei uno due tre quattro cinque sei sette otto."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Telefono: 02 87654321.", "outputs": ["Telefono: zero due otto sette sei cinque quattro tre due uno."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Per prenotare chiamate lo 0522-286330.", "outputs": ["Per prenotare chiamate lo zero cinque due due due otto sei tre tre zero."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Il centralino risponde allo 081/8075411.", "outputs": ["Il centralino risponde allo zero otto uno otto zero sette cinque quattro uno uno."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Contattateci al +39 333 1234567.", "outputs": ["Contattateci al più tre nove tre tre tre uno due tre quattro cinque sei sette.", "Contattateci al più trentanove tre tre tre uno due tre quattro cinque sei sette."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Il fax è 0536/804069.", "outputs": ["Il fax è zero cinque tre sei otto zero quattro zero sei nove."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Info al numero 347 9876543.", "outputs": ["Info al numero tre quattro sette nove otto sette sei cinque quattro tre."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Tel. 0471 123456 per le prenotazioni.", "outputs": ["Telefono zero quattro sette uno uno due tre quattro cinque sei per le prenotazioni."]}
+{"lang": "it", "source": "verbalis", "class": "telephone", "input": "Il numero verde è 800 123456.", "outputs": ["Il numero verde è otto zero zero uno due tre quattro cinque sei."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "Aggiungete 1/2 litro di latte.", "outputs": ["Aggiungete mezzo litro di latte."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "Ho mangiato 1/2 pizza.", "outputs": ["Ho mangiato mezza pizza."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "Basta 1/4 di bicchiere.", "outputs": ["Basta un quarto di bicchiere."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "I 3/4 della popolazione sono favorevoli.", "outputs": ["I tre quarti della popolazione sono favorevoli."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "Ha bevuto 1/3 della bottiglia.", "outputs": ["Ha bevuto un terzo della bottiglia."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "I 2/3 dei voti sono andati al sindaco.", "outputs": ["I due terzi dei voti sono andati al sindaco."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "Solo 1/5 degli iscritti si è presentato.", "outputs": ["Solo un quinto degli iscritti si è presentato."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "La ricetta chiede 1/2 cucchiaino di sale.", "outputs": ["La ricetta chiede mezzo cucchiaino di sale."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "Manca 1/2 ora alla partenza.", "outputs": ["Manca mezz'ora alla partenza.", "Manca mezza ora alla partenza."]}
+{"lang": "it", "source": "verbalis", "class": "fraction", "input": "Il risultato è 1/2.", "outputs": ["Il risultato è un mezzo."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il treno parte alle 8:15.", "outputs": ["Il treno parte alle otto e quindici."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "La riunione è alle 14:30.", "outputs": ["La riunione è alle quattordici e trenta."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Ci vediamo alle 21.30 davanti al cinema.", "outputs": ["Ci vediamo alle ventuno e trenta davanti al cinema."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "L'evento inizia alle 16:00.", "outputs": ["L'evento inizia alle sedici."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il negozio apre alle 9.00 e chiude alle 19.30.", "outputs": ["Il negozio apre alle nove e chiude alle diciannove e trenta."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "La partita comincia alle 20:45.", "outputs": ["La partita comincia alle venti e quarantacinque."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Sono le 13:05.", "outputs": ["Sono le tredici e cinque."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "La sveglia suona alle 6:30.", "outputs": ["La sveglia suona alle sei e trenta."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il volo atterra alle 23:59.", "outputs": ["Il volo atterra alle ventitré e cinquantanove."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il servizio riprende alle 00:30.", "outputs": ["Il servizio riprende alle zero e trenta."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Arrivo verso le 18.30.", "outputs": ["Arrivo verso le diciotto e trenta."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "L'ufficio è aperto dalle 9:00 alle 13:00.", "outputs": ["L'ufficio è aperto dalle nove alle tredici."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il concerto inizia alle ore 21.", "outputs": ["Il concerto inizia alle ore ventuno."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "È successo all'1:20 di notte.", "outputs": ["È successo all'una e venti di notte."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "L'orario di ritiro è alle 10:10.", "outputs": ["L'orario di ritiro è alle dieci e dieci."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il lancio è avvenuto alle 12:00:50.", "outputs": ["Il lancio è avvenuto alle dodici e cinquanta secondi."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il messaggio è arrivato alle 16:34:57.", "outputs": ["Il messaggio è arrivato alle sedici e trentaquattro minuti e cinquantasette secondi."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "La scossa è stata registrata alle 03:12:01.", "outputs": ["La scossa è stata registrata alle tre e dodici minuti e un secondo."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Alle 7:01 il sole era già alto.", "outputs": ["Alle sette e uno il sole era già alto."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il bus passa alle 17.45, alle ore 18.15 e alle 18.45.", "outputs": ["Il bus passa alle diciassette e quarantacinque, alle ore diciotto e quindici e alle diciotto e quarantacinque."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Entro le 12:00 bisogna consegnare il modulo.", "outputs": ["Entro le dodici bisogna consegnare il modulo."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "La lezione va dalle 8:30 alle 10:30.", "outputs": ["La lezione va dalle otto e trenta alle dieci e trenta."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Ore 20:00: cena di gala.", "outputs": ["Ore venti: cena di gala."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il telegiornale va in onda alle 20.00.", "outputs": ["Il telegiornale va in onda alle venti."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Alle 15:15 è arrivata la notizia.", "outputs": ["Alle quindici e quindici è arrivata la notizia."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il ritrovo è fissato per le 7:45.", "outputs": ["Il ritrovo è fissato per le sette e quarantacinque."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il cronometro segnava 10:02:33 all'arrivo.", "outputs": ["Il cronometro segnava dieci e due minuti e trentatré secondi all'arrivo."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Messa alle 11:00 in duomo.", "outputs": ["Messa alle undici in duomo."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "La farmacia di turno chiude alle 22:30.", "outputs": ["La farmacia di turno chiude alle ventidue e trenta."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "Il check-in termina alle 14:20.", "outputs": ["Il check-in termina alle quattordici e venti."]}
+{"lang": "it", "source": "verbalis", "class": "time", "input": "La versione 2.15 è stata rilasciata ieri.", "outputs": ["La versione due punto quindici è stata rilasciata ieri."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Il Sig. Rossi è arrivato.", "outputs": ["Il signor Rossi è arrivato."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "La Sig.ra Bianchi la aspetta.", "outputs": ["La signora Bianchi la aspetta."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "La sig.na Verdi è in ufficio.", "outputs": ["La signorina Verdi è in ufficio."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Gentili Sigg. clienti, vi informiamo.", "outputs": ["Gentili signori clienti, vi informiamo."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Ha visitato il Dott. Neri.", "outputs": ["Ha visitato il dottor Neri."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "La Dott.ssa Ferri riceve il lunedì.", "outputs": ["La dottoressa Ferri riceve il lunedì."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Il Prof. Esposito tiene il corso.", "outputs": ["Il professor Esposito tiene il corso."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "La prof.ssa Conti è in malattia.", "outputs": ["La professoressa Conti è in malattia."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "L'Ing. Galli ha firmato il progetto.", "outputs": ["L'ingegner Galli ha firmato il progetto."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Si è rivolto all'avv. Romano.", "outputs": ["Si è rivolto all'avvocato Romano."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Il progetto è dell'arch. Piano.", "outputs": ["Il progetto è dell'architetto Piano."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "L'On. Marchi ha presentato una mozione.", "outputs": ["L'onorevole Marchi ha presentato una mozione."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Spett.le ditta, vi scriviamo per un preventivo.", "outputs": ["Spettabile ditta, vi scriviamo per un preventivo."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Gent.mo cliente, la ringraziamo.", "outputs": ["Gentilissimo cliente, la ringraziamo."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Egr. Direttore, le scrivo per segnalare un problema.", "outputs": ["Egregio Direttore, le scrivo per segnalare un problema."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Il negozio è in p.za Grande.", "outputs": ["Il negozio è in piazza Grande."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Abito in v.le Monza.", "outputs": ["Abito in viale Monza."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "L'ufficio è in C.so Italia.", "outputs": ["L'ufficio è in corso Italia."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Lavora al dip. di Fisica.", "outputs": ["Lavora al dipartimento di Fisica."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Porta penne, matite, quaderni ecc.", "outputs": ["Porta penne, matite, quaderni eccetera."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Ci sono molti frutti, ad es. mele e pere.", "outputs": ["Ci sono molti frutti, ad esempio mele e pere."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Alcuni animali (es. il gatto) dormono molto.", "outputs": ["Alcuni animali (esempio il gatto) dormono molto."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Cfr. il capitolo precedente.", "outputs": ["Confronta il capitolo precedente."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Per info chiamare il tel. 06 1234 5678.", "outputs": ["Per info chiamare il telefono zero sei uno due tre quattro cinque sei sette otto."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Il castello risale al sec. XII.", "outputs": ["Il castello risale al secolo dodicesimo."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Augusto morì nel 14 d.C. a Nola.", "outputs": ["Augusto morì nel quattordici dopo Cristo a Nola."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "N.B. Il modulo va firmato.", "outputs": ["Nota bene Il modulo va firmato."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Vedi pag. 45 per i dettagli.", "outputs": ["Vedi pagina quarantacinque per i dettagli."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Il testo è a pp. 23-45.", "outputs": ["Il testo è a pagine ventitré-quarantacinque."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Secondo l'art. 21 della Costituzione la stampa è libera.", "outputs": ["Secondo l'articolo ventuno della Costituzione la stampa è libera."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Il pacco n. 5 è arrivato.", "outputs": ["Il pacco numero cinque è arrivato."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Il risultato è nella fig. 3.", "outputs": ["Il risultato è nella figura tre."]}
+{"lang": "it", "source": "verbalis", "class": "whitelist", "input": "Ha scritto il Sig. Gallo ieri.", "outputs": ["Ha scritto il signor Gallo ieri."]}

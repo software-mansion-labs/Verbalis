@@ -103,14 +103,14 @@
 {"lang": "es", "source": "nemo", "class": "decimal", "input": "1000 millones", "outputs": ["mil millones"]}
 {"lang": "es", "source": "nemo", "class": "decimal", "input": "1.000 millones", "outputs": ["mil millones"]}
 {"lang": "es", "source": "nemo", "class": "decimal", "input": "2,33302 millones", "outputs": ["dos coma treinta y tres treinta dos millones"]}
-{"lang": "es", "source": "nemo", "class": "decimal", "input": "1,5332", "outputs": ["una coma cincuenta y tres treinta y dos~uno coma cincuenta y tres treinta y dos"]}
+{"lang": "es", "source": "nemo", "class": "decimal", "input": "1,5332", "outputs": ["una coma cincuenta y tres treinta y dos", "uno coma cincuenta y tres treinta y dos"]}
 {"lang": "es", "source": "nemo", "class": "decimal", "input": "1,53322 millones", "outputs": ["uno coma cincuenta y tres treinta y dos dos millones"]}
 {"lang": "es", "source": "nemo", "class": "decimal", "input": "1,53321 millones", "outputs": ["uno coma cincuenta y tres treinta y dos un millones"]}
 {"lang": "es", "source": "nemo", "class": "decimal", "input": "101,010101 millones", "outputs": ["ciento uno coma cero uno cero uno cero un millones"]}
 {"lang": "es", "source": "nemo", "class": "decimal", "input": "3,1415", "outputs": ["tres coma catorce quince"]}
 {"lang": "es", "source": "nemo", "class": "decimal", "input": "60,2400", "outputs": ["sesenta coma veinticuatro cero cero"]}
-{"lang": "es", "source": "nemo", "class": "decimal", "input": "1,002", "outputs": ["una coma cero cero dos~uno coma cero cero dos"]}
-{"lang": "es", "source": "nemo", "class": "decimal", "input": "1,25300", "outputs": ["una coma veinticinco treinta cero~uno coma veinticinco treinta cero"]}
+{"lang": "es", "source": "nemo", "class": "decimal", "input": "1,002", "outputs": ["una coma cero cero dos", "uno coma cero cero dos"]}
+{"lang": "es", "source": "nemo", "class": "decimal", "input": "1,25300", "outputs": ["una coma veinticinco treinta cero", "uno coma veinticinco treinta cero"]}
 {"lang": "es", "source": "nemo", "class": "decimal", "input": "1,253002", "outputs": ["uno coma veinticinco treinta cero dos"]}
 {"lang": "es", "source": "nemo", "class": "electronic", "input": "a.bc@gmail.com", "outputs": ["a punto b c arroba gmail punto com"]}
 {"lang": "es", "source": "nemo", "class": "electronic", "input": "cdf@abc.edu", "outputs": ["c d f arroba a b c punto e d u"]}
@@ -218,13 +218,13 @@
 {"lang": "es", "source": "nemo", "class": "measure", "input": "245 mph", "outputs": ["doscientas cuarenta y cinco millas por hora"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "200.045 mph", "outputs": ["doscientas mil cuarenta y cinco millas por hora"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "1,01 mph", "outputs": ["una coma cero una millas por hora"]}
-{"lang": "es", "source": "nemo", "class": "measure", "input": "1 1/2 mph", "outputs": ["una y media milla por hora"]}
-{"lang": "es", "source": "nemo", "class": "measure", "input": "1 1/2 m", "outputs": ["uno y medio metro"]}
+{"lang": "es", "source": "nemo", "class": "measure", "input": "1 1/2 mph", "outputs": ["una y media milla por hora", "una milla y media por hora"]}
+{"lang": "es", "source": "nemo", "class": "measure", "input": "1 1/2 m", "outputs": ["uno y medio metro", "un metro y medio"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "1 3/5 mph", "outputs": ["una y tres quintos de milla por hora"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "3/5 mph", "outputs": ["tres quintos de milla por hora"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "2 kg", "outputs": ["dos kilogramos"]}
-{"lang": "es", "source": "nemo", "class": "measure", "input": "60,2400 kg", "outputs": ["sesenta coma veinticuatro cero cero kilogramos~sesenta coma dos cuatro cero cero kilogramos"]}
-{"lang": "es", "source": "nemo", "class": "measure", "input": "-60,2400 kg", "outputs": ["menos sesenta coma veinticuatro cero cero kilogramos~menos sesenta coma dos cuatro cero cero kilogramos"]}
+{"lang": "es", "source": "nemo", "class": "measure", "input": "60,2400 kg", "outputs": ["sesenta coma veinticuatro cero cero kilogramos", "sesenta coma dos cuatro cero cero kilogramos"]}
+{"lang": "es", "source": "nemo", "class": "measure", "input": "-60,2400 kg", "outputs": ["menos sesenta coma veinticuatro cero cero kilogramos", "menos sesenta coma dos cuatro cero cero kilogramos"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "8,52 %", "outputs": ["ocho coma cincuenta y dos por ciento"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "-8,52 %", "outputs": ["menos ocho coma cincuenta y dos por ciento"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "1 %", "outputs": ["uno por ciento"]}
@@ -232,7 +232,7 @@
 {"lang": "es", "source": "nemo", "class": "measure", "input": "4 s", "outputs": ["cuatro segundos"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "5 l", "outputs": ["cinco litros"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "4,51/s", "outputs": ["cuatro coma cincuenta y uno por segundo"]}
-{"lang": "es", "source": "nemo", "class": "measure", "input": "0,0101 s", "outputs": ["cero coma cero uno cero un segundos"]}
+{"lang": "es", "source": "nemo", "class": "measure", "input": "0,0101 s", "outputs": ["cero coma cero uno cero un segundos", "cero coma cero uno cero uno segundos"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "9 m³", "outputs": ["nueve metros cúbicos"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "-2 km", "outputs": ["menos dos kilómetros"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "1/2 mm", "outputs": ["medio milímetro"]}
@@ -240,11 +240,11 @@
 {"lang": "es", "source": "nemo", "class": "measure", "input": "-8° c", "outputs": ["menos ocho grados centígrados"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "40 ° k", "outputs": ["cuarenta grados kelvin"]}
 {"lang": "es", "source": "nemo", "class": "measure", "input": "180 psi", "outputs": ["ciento ochenta p s i"]}
-{"lang": "es", "source": "nemo", "class": "measure", "input": "2 + 2 - 1 = 3", "outputs": ["dos más dos menos uno es igual a tres"]}
+{"lang": "es", "source": "nemo", "class": "measure", "input": "2 + 2 - 1 = 3", "outputs": ["dos más dos menos uno es igual a tres", "dos más dos menos uno igual a tres"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "$1", "outputs": ["un dólar"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "1 $", "outputs": ["un dólar"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "$1,50", "outputs": ["un dólar cincuenta centavos"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "1,50 $", "outputs": ["un dólar cincuenta centavos"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "$1,50", "outputs": ["un dólar cincuenta centavos", "un dólar con cincuenta"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "1,50 $", "outputs": ["un dólar cincuenta centavos", "un dólar con cincuenta"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "£200.000.001", "outputs": ["doscientos millones una libras"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "200.000.001 £", "outputs": ["doscientos millones una libras"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "2 billones de euros", "outputs": ["dos billones de euros"]}
@@ -252,19 +252,19 @@
 {"lang": "es", "source": "nemo", "class": "money", "input": "€ 2 billones", "outputs": ["dos billones de euros"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "€ 2,3 billones", "outputs": ["dos coma tres billones de euros"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "2,3 billones de euros", "outputs": ["dos coma tres billones de euros"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "€5,50", "outputs": ["cinco euros cincuenta céntimos"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "5,50 €", "outputs": ["cinco euros cincuenta céntimos"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "5,01 €", "outputs": ["cinco euros un céntimo"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "5,01 £", "outputs": ["cinco libras un penique"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "21 nio", "outputs": ["veintiuna córdobas"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "nio21", "outputs": ["veintiuna córdobas"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "€5,50", "outputs": ["cinco euros cincuenta céntimos", "cinco euros con cincuenta"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "5,50 €", "outputs": ["cinco euros cincuenta céntimos", "cinco euros con cincuenta"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "5,01 €", "outputs": ["cinco euros un céntimo", "cinco euros con un céntimo"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "5,01 £", "outputs": ["cinco libras un penique", "cinco libras con un penique"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "21 nio", "outputs": ["veintiún córdobas"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "nio21", "outputs": ["veintiún córdobas"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "nio21,1 millones", "outputs": ["veintiuno coma un millones de córdobas"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "pab 5,50 billones", "outputs": ["cinco coma cincuenta billones de balboas"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "rs 5,50 billones", "outputs": ["cinco coma cincuenta billones de rupias"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "pab5,50 billones", "outputs": ["cinco coma cincuenta billones de balboas"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "0,55 $", "outputs": ["cincuenta y cinco centavos"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "1,01 $", "outputs": ["un dólar un centavo"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "¥12,05", "outputs": ["doce yenes cinco centavos"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "1,01 $", "outputs": ["un dólar un centavo", "un dólar con un centavo"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "¥12,05", "outputs": ["doce coma cero cinco yenes"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "crc 2", "outputs": ["dos colones costarricenses"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "₡ 3", "outputs": ["tres colones"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "4 ttd", "outputs": ["cuatro dólares de trinidad y tobago"]}
@@ -291,24 +291,24 @@
 {"lang": "es", "source": "nemo", "class": "money", "input": "$ 0,10", "outputs": ["diez centavos"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "€ 0,01", "outputs": ["un céntimo"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "£ 0,01", "outputs": ["un penique"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "¥ 0,01", "outputs": ["un centavo"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "¥ 0,01", "outputs": ["cero coma cero un yenes"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "2 rs", "outputs": ["dos rupias"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "3 kr", "outputs": ["tres coronas"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "7 ₧", "outputs": ["siete pesetas"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "usd 2", "outputs": ["dos dólares estadounidenses"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "5 us$", "outputs": ["cinco dólares estadounidenses"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "5 us$", "outputs": ["cinco dólares estadounidenses", "cinco dólares"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "3 ₩", "outputs": ["tres wones"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "5 chf", "outputs": ["cinco francos suizos"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "6 fr", "outputs": ["seis francos"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "8 mk", "outputs": ["ocho marcos"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "10 ¥", "outputs": ["diez yenes"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "13hkd", "outputs": ["trece dólares de hong kong"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "5,02 £", "outputs": ["cinco libras dos peniques"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "5,02 £", "outputs": ["cinco libras dos peniques", "cinco libras con dos peniques"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "awg 1", "outputs": ["un florín arubeño"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "1 r$", "outputs": ["un real"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "brl 1", "outputs": ["un real brasileño"]}
 {"lang": "es", "source": "nemo", "class": "money", "input": "mex$100", "outputs": ["cien pesos mexicanos"]}
-{"lang": "es", "source": "nemo", "class": "money", "input": "q50,10", "outputs": ["cincuenta quetzales diez centavos"]}
+{"lang": "es", "source": "nemo", "class": "money", "input": "q50,10", "outputs": ["cincuenta quetzales diez centavos", "cincuenta quetzales con diez"]}
 {"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "1,0101", "outputs": ["uno coma cero uno cero un", "uno coma cero uno cero uno", "una coma cero una cero una"]}
 {"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "21", "outputs": ["veintiún", "veintiuno", "veintiuna"]}
 {"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "201", "outputs": ["doscientos un", "doscientos uno", "doscientas una", "doscientas un", "201"]}
@@ -332,7 +332,7 @@
 {"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "$5,50", "outputs": ["cinco dólares con cincuenta", "cinco dólares y cincuenta", "cinco dólares cincuenta", "cinco dólares con cincuenta centavos", "cinco dólares y cincuenta centavos", "cinco dólares cincuenta centavos"]}
 {"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "2.30 h", "outputs": ["dos y treinta", "dos y media", "tres menos treinta", "tres menos media", "treinta para las tres"]}
 {"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "cmxcix", "outputs": ["noningentésimo nonagésimo noveno", "noningentésima nonagésima novena"]}
-{"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "1/2", "outputs": ["medio", "media parte", "media"]}
+{"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "1/2", "outputs": ["medio", "media parte", "media", "un medio"]}
 {"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "1 1/2", "outputs": ["uno y medio", "una y media parte", "una y media"]}
 {"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "3/2", "outputs": ["tres medios", "tres medias", "tres medias partes"]}
 {"lang": "es", "source": "nemo", "class": "normalize_with_audio", "input": "12.30 a.m.", "outputs": ["doce y treinta de la medianoche", "doce y treinta de la noche", "doce y media de la medianoche", "doce y media de la noche", "una menos treinta de la mañana", "una menos media de la mañana", "treinta para la una de la mañana"]}
@@ -450,7 +450,7 @@
 {"lang": "es", "source": "nemo", "class": "ordinal", "input": "1er", "outputs": ["primer"]}
 {"lang": "es", "source": "nemo", "class": "ordinal", "input": "1ro", "outputs": ["primero"]}
 {"lang": "es", "source": "nemo", "class": "ordinal", "input": "1ra", "outputs": ["primera"]}
-{"lang": "es", "source": "nemo", "class": "ordinal", "input": "maría vii", "outputs": ["maría séptima~maría séptimo"]}
+{"lang": "es", "source": "nemo", "class": "ordinal", "input": "maría vii", "outputs": ["maría séptima", "maría séptimo"]}
 {"lang": "es", "source": "nemo", "class": "ordinal", "input": "todo mi reconocimiento", "outputs": ["todo mi reconocimiento"]}
 {"lang": "es", "source": "nemo", "class": "ordinal", "input": "V", "outputs": ["quinto"]}
 {"lang": "es", "source": "nemo", "class": "ordinal", "input": "El texto de Li Qin en este libro ahora está disponible en forma de libro electrónico.", "outputs": ["El texto de Li Qin en este libro ahora está disponible en forma de libro electrónico."]}
@@ -470,7 +470,7 @@
 {"lang": "es", "source": "nemo", "class": "telephone", "input": "+58 (123) 123-5678 ext. 12", "outputs": ["más cincuenta y ocho uno dos tres uno dos tres cinco seis siete ocho extensión uno dos"]}
 {"lang": "es", "source": "nemo", "class": "telephone", "input": "+58 (123) 123-5678-12", "outputs": ["más cincuenta y ocho uno dos tres uno dos tres cinco seis siete ocho extensión uno dos"]}
 {"lang": "es", "source": "nemo", "class": "telephone", "input": "+54 911 1234-5678", "outputs": ["más cincuenta y cuatro nueve uno uno uno dos tres cuatro cinco seis siete ocho"]}
-{"lang": "es", "source": "nemo", "class": "telephone", "input": "123.123.0.40", "outputs": ["doce tres punto uno dos tres punto cero punto cuatro cero~uno dos tres punto uno dos tres punto cero punto cuatro cero"]}
+{"lang": "es", "source": "nemo", "class": "telephone", "input": "123.123.0.40", "outputs": ["doce tres punto uno dos tres punto cero punto cuatro cero", "uno dos tres punto uno dos tres punto cero punto cuatro cero"]}
 {"lang": "es", "source": "nemo", "class": "time", "input": "1.00", "outputs": ["una"]}
 {"lang": "es", "source": "nemo", "class": "time", "input": "1:00", "outputs": ["una"]}
 {"lang": "es", "source": "nemo", "class": "time", "input": "01:00", "outputs": ["una"]}
@@ -560,3 +560,99 @@
 {"lang": "es", "source": "nemo", "class": "word", "input": "aamina", "outputs": ["aamina"]}
 {"lang": "es", "source": "nemo", "class": "word", "input": "aaminah", "outputs": ["aaminah"]}
 {"lang": "es", "source": "nemo", "class": "word", "input": "aamjiwnaang", "outputs": ["aamjiwnaang"]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "El café cuesta $1,50 en la esquina.", "outputs": ["El café cuesta un dólar con cincuenta en la esquina."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Pagué 3,99 € por el libro.", "outputs": ["Pagué tres euros con noventa y nueve por el libro."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "La entrada vale 12 €.", "outputs": ["La entrada vale doce euros."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Me devolvieron €0,05 de cambio.", "outputs": ["Me devolvieron cinco céntimos de cambio."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "El billete cuesta $0,75.", "outputs": ["El billete cuesta setenta y cinco centavos."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "La casa se vendió por $1.250.000.", "outputs": ["La casa se vendió por un millón doscientos cincuenta mil dólares."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Recaudaron US$5 millones el año pasado.", "outputs": ["Recaudaron cinco millones de dólares el año pasado."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "El salario mínimo es de $1.000.000 pesos.", "outputs": ["El salario mínimo es de un millón de pesos."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Cobra 25 USD por hora.", "outputs": ["Cobra veinticinco dólares estadounidenses por hora."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "El precio es de USD 1.200.", "outputs": ["El precio es de mil doscientos dólares estadounidenses."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Gastó £20 en la cena.", "outputs": ["Gastó veinte libras en la cena."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Ganó 1 £ en la apuesta.", "outputs": ["Ganó una libra en la apuesta."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "La multa fue de 300 CHF.", "outputs": ["La multa fue de trescientos francos suizos."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "El pasaje cuesta Q50,10 en Guatemala.", "outputs": ["El pasaje cuesta cincuenta quetzales con diez en Guatemala."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Las ventas del Q3 crecieron.", "outputs": ["Las ventas del Q tres crecieron."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Cambió 100 MXN en el aeropuerto.", "outputs": ["Cambió cien pesos mexicanos en el aeropuerto."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "El menú cuesta 15,5 €.", "outputs": ["El menú cuesta quince euros con cincuenta."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Recibió ₡3.300 de vuelto.", "outputs": ["Recibió tres mil trescientos colones de vuelto."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "La deuda asciende a US$3 billones.", "outputs": ["La deuda asciende a tres billones de dólares."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Costaba 1 peseta, o 1 pta.", "outputs": ["Costaba una peseta, o una peseta."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "El kilo de pan cuesta $1.200,50.", "outputs": ["El kilo de pan cuesta mil doscientos dólares con cincuenta."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Aumentó a $2.311,43 dólares.", "outputs": ["Aumentó a dos mil trescientos once con cuarenta y tres dólares."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Cuesta 21 € y 1 €.", "outputs": ["Cuesta veintiún euros y un euro."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "¿Tienes 5 €?", "outputs": ["¿Tienes cinco euros?"]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Son 100 $ en total.", "outputs": ["Son cien dólares en total."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Vale -5 €.", "outputs": ["Vale menos cinco euros."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Sobran 10.000 ¥ del viaje.", "outputs": ["Sobran diez mil yenes del viaje."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "El cupón descuenta $10,00.", "outputs": ["El cupón descuenta diez dólares."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Pagó 4,05 € por el pan.", "outputs": ["Pagó cuatro euros con cinco céntimos por el pan."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Compró acciones por 1.500 USD.", "outputs": ["Compró acciones por mil quinientos dólares estadounidenses."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Se cotiza a R$ 5,20.", "outputs": ["Se cotiza a cinco reales con veinte."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Son $3 millones de dólares.", "outputs": ["Son tres millones de dólares."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "La inversión fue de US$26,3mn.", "outputs": ["La inversión fue de veintiséis coma tres millones de dólares."]}
+{"lang": "es", "source": "verbalis", "class": "money", "input": "Un dólar equivale a 0,92 EUR.", "outputs": ["Un dólar equivale a noventa y dos céntimos."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Añade 1/2 taza de leche.", "outputs": ["Añade media taza de leche."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Usa 3/4 de la harina.", "outputs": ["Usa tres cuartos de la harina."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "El 1/3 de la población vota.", "outputs": ["El tercio de la población vota."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Solo 2/5 de los alumnos aprobaron.", "outputs": ["Solo dos quintos de los alumnos aprobaron."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Corta 1/4 de cebolla.", "outputs": ["Corta un cuarto de cebolla."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "La pantalla ocupa 2/3 del frente.", "outputs": ["La pantalla ocupa dos tercios del frente."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Recorrió 1/2 km a pie.", "outputs": ["Recorrió medio kilómetro a pie."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Una tubería de 3/4\" de diámetro.", "outputs": ["Una tubería de tres cuartos de pulgada de diámetro."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Bajó a -1/2 grado.", "outputs": ["Bajó a menos medio grado."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Le tocó 1/8 de la herencia.", "outputs": ["Le tocó un octavo de la herencia."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Es 1/10 del total.", "outputs": ["Es un décimo del total."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Solo 1/100 de los casos.", "outputs": ["Solo un centésimo de los casos."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Una probabilidad de 1/1.000.000.", "outputs": ["Una probabilidad de un millonésimo."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Faltan 5/6 partes.", "outputs": ["Faltan cinco sextas partes."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Es 1/3 parte del total.", "outputs": ["Es una tercera parte del total."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Cumplió 1/12 de la condena.", "outputs": ["Cumplió un doceavo de la condena."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Leyó 1/16 del libro.", "outputs": ["Leyó un dieciseisavo del libro."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Corrió 2 1/4 km.", "outputs": ["Corrió dos y un cuarto de kilómetro."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "La escala es 1/50.", "outputs": ["La escala es un cincuentavo."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Abierto 24/7 todo el año.", "outputs": ["Abierto veinticuatro siete todo el año."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "La Ley 2/2018 entró en vigor.", "outputs": ["La Ley dos de dos mil dieciocho entró en vigor."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Es 1/2 de lo que pedía.", "outputs": ["Es un medio de lo que pedía."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Un 1/4 de hora después llegó.", "outputs": ["Un cuarto de hora después llegó."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Añade ⅖ del agua.", "outputs": ["Añade dos quintos del agua."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Se comió 2/3 de la pizza.", "outputs": ["Se comió dos tercios de la pizza."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "La manguera es de 3/8\".", "outputs": ["La manguera es de tres octavos de pulgada."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "El resultado es -2 1/3.", "outputs": ["El resultado es menos dos y un tercio."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Midió 1 1/2 m de ancho.", "outputs": ["Midió un metro y medio de ancho."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Avanzó 3/4 km más.", "outputs": ["Avanzó tres cuartos de kilómetro más."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Gastó 1/5 del sueldo.", "outputs": ["Gastó un quinto del sueldo."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Solo cuenta 1/1000 del voto.", "outputs": ["Solo cuenta un milésimo del voto."]}
+{"lang": "es", "source": "verbalis", "class": "fraction", "input": "Nos vemos el 25/12.", "outputs": ["Nos vemos el veinticinco de diciembre."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "El tiempo récord fue de 9,58 s.", "outputs": ["El tiempo récord fue de nueve coma cincuenta y ocho segundos."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Corre a 120 kph por la autopista.", "outputs": ["Corre a ciento veinte kilómetros por hora por la autopista."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "La temperatura bajó a -8 °C anoche.", "outputs": ["La temperatura bajó a menos ocho grados Celsius anoche."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "El agua hierve a 100 °C.", "outputs": ["El agua hierve a cien grados Celsius."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "El cero absoluto es 0 K.", "outputs": ["El cero absoluto es cero kelvin."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Recorrió 42 km en 3 h.", "outputs": ["Recorrió cuarenta y dos kilómetros en tres horas."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Pesa 1 kg y mide 1 m.", "outputs": ["Pesa un kilogramo y mide un metro."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Compré 2 l de leche y 500 g de queso.", "outputs": ["Compré dos litros de leche y quinientos gramos de queso."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "La finca tiene 21 ha.", "outputs": ["La finca tiene veintiuna hectáreas."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Mide 1,5 m de alto.", "outputs": ["Mide uno coma cinco metros de alto."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "El disco tiene 1 TB y la memoria 16 GB.", "outputs": ["El disco tiene un terabyte y la memoria dieciséis gigabytes."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "La bombilla es de 60 W.", "outputs": ["La bombilla es de sesenta vatios."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Va a 300 km/h.", "outputs": ["Va a trescientos kilómetros por hora."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "La presión es de 32 psi.", "outputs": ["La presión es de treinta y dos psi."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "La pausa duró 15 min.", "outputs": ["La pausa duró quince minutos."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "La herida mide 3 cm.", "outputs": ["La herida mide tres centímetros."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Una dosis de 500 mg cada 8 h.", "outputs": ["Una dosis de quinientos miligramos cada ocho horas."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "El piso tiene 80 m² útiles.", "outputs": ["El piso tiene ochenta metros cuadrados útiles."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "El depósito es de 1.000 m³.", "outputs": ["El depósito es de mil metros cúbicos."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "La señal es de 2,4 GHz.", "outputs": ["La señal es de dos coma cuatro gigahercios."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Hacía 40 °F en Chicago.", "outputs": ["Hacía cuarenta grados Fahrenheit en Chicago."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Llovió 25 mm en una hora.", "outputs": ["Llovió veinticinco milímetros en una hora."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "El récord es de 10 s exactos.", "outputs": ["El récord es de diez segundos exactos."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Pesa 0,5 kg.", "outputs": ["Pesa cero coma cinco kilogramos."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "La tensión es de 230 V.", "outputs": ["La tensión es de doscientos treinta voltios."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Tiene 21 km de largo.", "outputs": ["Tiene veintiún kilómetros de largo."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "La puerta mide 2,10 m.", "outputs": ["La puerta mide dos coma diez metros."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Necesita 31 kg de cemento.", "outputs": ["Necesita treinta y un kilogramos de cemento."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Gira a 7.200 rpm.", "outputs": ["Gira a siete mil doscientas revoluciones por minuto."]}
+{"lang": "es", "source": "verbalis", "class": "measure", "input": "Fluye a 4,51/s.", "outputs": ["Fluye a cuatro coma cincuenta y uno por segundo."]}

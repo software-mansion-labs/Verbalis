@@ -13,20 +13,20 @@
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "2", "outputs": ["two"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "-2", "outputs": ["minus two"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "3", "outputs": ["three"]}
-{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "123", "outputs": ["one hundred and twenty three"]}
+{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "123", "outputs": ["one hundred and twenty three", "one hundred twenty-three"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "13,000", "outputs": ["thirteen thousand"]}
-{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "13000", "outputs": ["one three zero zero zero"]}
+{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "13000", "outputs": ["one three zero zero zero", "thirteen thousand"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "9000", "outputs": ["nine thousand"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "9,000", "outputs": ["nine thousand"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "123,000", "outputs": ["one hundred twenty three thousand"]}
-{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "123000", "outputs": ["one two three zero zero zero"]}
+{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "123000", "outputs": ["one two three zero zero zero", "one hundred twenty-three thousand"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "123,123,000", "outputs": ["one hundred twenty three million one hundred twenty three thousand"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "123,000,012", "outputs": ["one hundred twenty three million twelve"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "1,000,000", "outputs": ["one million"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "1234567890123124", "outputs": ["one two three four five six seven eight nine zero one two three one two four"]}
-{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "978-0", "outputs": ["nine hundred and seventy eight - zero"]}
+{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "978-0", "outputs": ["nine hundred and seventy eight - zero", "nine hundred seventy-eight-zero"]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "004", "outputs": ["zero zero four"]}
-{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "124,444,234,854,823,834,553", "outputs": ["one hundred twenty four quintillion four hundred forty four quadrillion two hundred thirty four trillion eight hundred fifty four billion eight hundred twenty three million eight hundred thirty four thousand five hundred and fifty three"]}
+{"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "124,444,234,854,823,834,553", "outputs": ["one hundred twenty four quintillion four hundred forty four quadrillion two hundred thirty four trillion eight hundred fifty four billion eight hundred twenty three million eight hundred thirty four thousand five hundred and fifty three", "one hundred twenty-four quintillion four hundred forty-four quadrillion two hundred thirty-four trillion eight hundred fifty-four billion eight hundred twenty-three million eight hundred thirty-four thousand five hundred fifty-three"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "july 25 2012", "outputs": ["july twenty fifth twenty twelve"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "jul 25 2012", "outputs": ["july twenty fifth twenty twelve"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "1980s", "outputs": ["nineteen eighties"]}
@@ -50,13 +50,13 @@
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "1973", "outputs": ["nineteen seventy three"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "1975", "outputs": ["nineteen seventy five"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "1155", "outputs": ["eleven fifty five"]}
-{"lang": "en-us", "source": "nemo", "class": "date", "input": "2006-08-05", "outputs": ["august fifth two thousand six"]}
+{"lang": "en-us", "source": "nemo", "class": "date", "input": "2006-08-05", "outputs": ["august fifth two thousand six", "the fifth of August two thousand six"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "august 23 2002", "outputs": ["august twenty third two thousand two"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "16 July 1943", "outputs": ["the sixteenth of july nineteen forty three"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "20 january", "outputs": ["the twentieth of january"]}
-{"lang": "en-us", "source": "nemo", "class": "date", "input": "2016-11-03", "outputs": ["november third twenty sixteen"]}
-{"lang": "en-us", "source": "nemo", "class": "date", "input": "2016/07/03", "outputs": ["july third twenty sixteen"]}
-{"lang": "en-us", "source": "nemo", "class": "date", "input": "01.10.2010", "outputs": ["january tenth twenty ten"]}
+{"lang": "en-us", "source": "nemo", "class": "date", "input": "2016-11-03", "outputs": ["november third twenty sixteen", "the third of November twenty sixteen"]}
+{"lang": "en-us", "source": "nemo", "class": "date", "input": "2016/07/03", "outputs": ["july third twenty sixteen", "the third of July twenty sixteen"]}
+{"lang": "en-us", "source": "nemo", "class": "date", "input": "01.10.2010", "outputs": ["january tenth twenty ten", "the first of October twenty ten"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "10/06/2005", "outputs": ["october sixth two thousand five"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "1910s", "outputs": ["nineteen tens"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "2000s", "outputs": ["two thousands"]}
@@ -69,7 +69,7 @@
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "jan. 15", "outputs": ["january fifteenth"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "JAN 15 2020", "outputs": ["january fifteenth twenty twenty"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "SEPTEMBER 15 twenty twenty", "outputs": ["september fifteenth twenty twenty"]}
-{"lang": "en-us", "source": "nemo", "class": "date", "input": "11/17/05", "outputs": ["november seventeenth zero five"]}
+{"lang": "en-us", "source": "nemo", "class": "date", "input": "11/17/05", "outputs": ["november seventeenth zero five", "November seventeenth oh five"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "01/07/98", "outputs": ["january seventh ninety eight"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "One should go to the store on the 26th May in the evening", "outputs": ["One should go to the store on the twenty sixth of may in the evening"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "'80s", "outputs": ["eighties"]}
@@ -78,10 +78,10 @@
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "15-01-2020", "outputs": ["the fifteenth of january twenty twenty"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "15.01.2020", "outputs": ["the fifteenth of january twenty twenty"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "340 A.D", "outputs": ["three forty AD"]}
-{"lang": "en-us", "source": "nemo", "class": "date", "input": "1998/2/30", "outputs": ["february thirtieth nineteen ninety eight"]}
+{"lang": "en-us", "source": "nemo", "class": "date", "input": "1998/2/30", "outputs": ["february thirtieth nineteen ninety eight", "the thirtieth of February nineteen ninety-eight"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "We have seen YoY growth in 2Q22", "outputs": ["We have seen YoY growth in the second quarter of twenty two"]}
 {"lang": "en-us", "source": "nemo", "class": "decimal", "input": ".1665", "outputs": ["point one six six five"]}
-{"lang": "en-us", "source": "nemo", "class": "decimal", "input": "2.0", "outputs": ["two point zero"]}
+{"lang": "en-us", "source": "nemo", "class": "decimal", "input": "2.0", "outputs": ["two point zero", "two point oh"]}
 {"lang": "en-us", "source": "nemo", "class": "decimal", "input": "2.00", "outputs": ["two point zero zero"]}
 {"lang": "en-us", "source": "nemo", "class": "decimal", "input": "2.050", "outputs": ["two point zero five zero"]}
 {"lang": "en-us", "source": "nemo", "class": "decimal", "input": "100 million", "outputs": ["one hundred million"]}
@@ -89,7 +89,7 @@
 {"lang": "en-us", "source": "nemo", "class": "decimal", "input": ".1 trillion", "outputs": ["point one trillion"]}
 {"lang": "en-us", "source": "nemo", "class": "decimal", "input": "-0.1", "outputs": ["minus zero point one"]}
 {"lang": "en-us", "source": "nemo", "class": "decimal", "input": "0.004", "outputs": ["zero point zero zero four"]}
-{"lang": "en-us", "source": "nemo", "class": "decimal", "input": "0.1 M", "outputs": ["zero point one M"]}
+{"lang": "en-us", "source": "nemo", "class": "decimal", "input": "0.1 M", "outputs": ["zero point one M", "zero point one million"]}
 {"lang": "en-us", "source": "nemo", "class": "decimal", "input": "0.1 B", "outputs": ["zero point one B"]}
 {"lang": "en-us", "source": "nemo", "class": "decimal", "input": "0.1 K", "outputs": ["zero point one K"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "a.bc@gmail.com", "outputs": ["a dot bc at gmail dot com"]}
@@ -165,7 +165,7 @@
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "3 mbps", "outputs": ["three megabits per second"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "3 cc/s", "outputs": ["three CC per S"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "100 million kg", "outputs": ["one hundred million kilograms"]}
-{"lang": "en-us", "source": "nemo", "class": "measure", "input": "a 123.2-millimeters long", "outputs": ["a one hundred and twenty three point two millimeters long"]}
+{"lang": "en-us", "source": "nemo", "class": "measure", "input": "a 123.2-millimeters long", "outputs": ["a one hundred and twenty three point two millimeters long", "a one hundred twenty-three point two-millimeters long"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "covid-19.5", "outputs": ["covid- nineteen point five"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "7.2-millimeter bullet", "outputs": ["seven point two millimeter bullet"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "4 1/2 lbs", "outputs": ["four and a half pounds"]}
@@ -173,9 +173,9 @@
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "80 s", "outputs": ["eighty S"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "2°C", "outputs": ["two degrees Celsius"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "1°C", "outputs": ["one degree Celsius"]}
-{"lang": "en-us", "source": "nemo", "class": "measure", "input": "1234-123kg", "outputs": ["one thousand two hundred and thirty four to one hundred and twenty three kilograms"]}
+{"lang": "en-us", "source": "nemo", "class": "measure", "input": "1234-123kg", "outputs": ["one thousand two hundred and thirty four to one hundred and twenty three kilograms", "one thousand two hundred thirty-four to one hundred twenty-three kilograms"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "45º&C", "outputs": ["forty five degree and C"]}
-{"lang": "en-us", "source": "nemo", "class": "measure", "input": "41,459.00 km³", "outputs": ["forty one thousand four hundred and fifty nine point zero zero cubic kilometers"]}
+{"lang": "en-us", "source": "nemo", "class": "measure", "input": "41,459.00 km³", "outputs": ["forty one thousand four hundred and fifty nine point zero zero cubic kilometers", "forty-one thousand four hundred fifty-nine point zero zero cubic kilometers"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "Nancy lived on 1428 Elm St.", "outputs": ["Nancy lived on fourteen twenty eight Elm Street"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "Nancy lived on 1428 Elm St. It was a strange place.", "outputs": ["Nancy lived on fourteen twenty eight Elm Street. It was a strange place."]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$2", "outputs": ["two dollars"]}
@@ -197,10 +197,10 @@
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$2.000", "outputs": ["two dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20", "outputs": ["twenty dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.506", "outputs": ["twenty point five zero six dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.50", "outputs": ["twenty dollars fifty cents"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.50", "outputs": ["twenty dollars fifty cents", "twenty dollars and fifty cents"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.500", "outputs": ["twenty dollars fifty cents"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.5", "outputs": ["twenty dollars fifty cents"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.01", "outputs": ["twenty dollars one cent"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.5", "outputs": ["twenty dollars fifty cents", "twenty dollars and fifty cents"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.01", "outputs": ["twenty dollars one cent", "twenty dollars and one cent"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.010", "outputs": ["twenty dollars one cent"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$0.010", "outputs": ["one cent"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$0.02", "outputs": ["two cents"]}
@@ -210,39 +210,39 @@
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$18", "outputs": ["eighteen dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$18925000", "outputs": ["eighteen million nine hundred twenty five thousand dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$18,925,000", "outputs": ["eighteen million nine hundred twenty five thousand dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18854", "outputs": ["eighteen thousand eight hundred and fifty four dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18801", "outputs": ["eighteen thousand eight hundred and one dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18875", "outputs": ["eighteen thousand eight hundred and seventy five dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18081", "outputs": ["eighteen thousand and eighty one dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18052", "outputs": ["eighteen thousand and fifty two dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18542", "outputs": ["eighteen thousand five hundred and forty two dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18519", "outputs": ["eighteen thousand five hundred and nineteen dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18570", "outputs": ["eighteen thousand five hundred and seventy dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18578", "outputs": ["eighteen thousand five hundred and seventy eight dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18516", "outputs": ["eighteen thousand five hundred and sixteen dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18482", "outputs": ["eighteen thousand four hundred and eighty two dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18478", "outputs": ["eighteen thousand four hundred and seventy eight dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18468", "outputs": ["eighteen thousand four hundred and sixty eight dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18903", "outputs": ["eighteen thousand nine hundred and three dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18929", "outputs": ["eighteen thousand nine hundred and twenty nine dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18095", "outputs": ["eighteen thousand and ninety five dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18117", "outputs": ["eighteen thousand one hundred and seventeen dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18128", "outputs": ["eighteen thousand one hundred and twenty eight dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18125", "outputs": ["eighteen thousand one hundred and twenty five dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18124", "outputs": ["eighteen thousand one hundred and twenty four dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18129", "outputs": ["eighteen thousand one hundred and twenty nine dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18854", "outputs": ["eighteen thousand eight hundred and fifty four dollars", "eighteen thousand eight hundred fifty-four dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18801", "outputs": ["eighteen thousand eight hundred and one dollars", "eighteen thousand eight hundred one dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18875", "outputs": ["eighteen thousand eight hundred and seventy five dollars", "eighteen thousand eight hundred seventy-five dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18081", "outputs": ["eighteen thousand and eighty one dollars", "eighteen thousand eighty-one dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18052", "outputs": ["eighteen thousand and fifty two dollars", "eighteen thousand fifty-two dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18542", "outputs": ["eighteen thousand five hundred and forty two dollars", "eighteen thousand five hundred forty-two dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18519", "outputs": ["eighteen thousand five hundred and nineteen dollars", "eighteen thousand five hundred nineteen dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18570", "outputs": ["eighteen thousand five hundred and seventy dollars", "eighteen thousand five hundred seventy dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18578", "outputs": ["eighteen thousand five hundred and seventy eight dollars", "eighteen thousand five hundred seventy-eight dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18516", "outputs": ["eighteen thousand five hundred and sixteen dollars", "eighteen thousand five hundred sixteen dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18482", "outputs": ["eighteen thousand four hundred and eighty two dollars", "eighteen thousand four hundred eighty-two dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18478", "outputs": ["eighteen thousand four hundred and seventy eight dollars", "eighteen thousand four hundred seventy-eight dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18468", "outputs": ["eighteen thousand four hundred and sixty eight dollars", "eighteen thousand four hundred sixty-eight dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18903", "outputs": ["eighteen thousand nine hundred and three dollars", "eighteen thousand nine hundred three dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18929", "outputs": ["eighteen thousand nine hundred and twenty nine dollars", "eighteen thousand nine hundred twenty-nine dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18095", "outputs": ["eighteen thousand and ninety five dollars", "eighteen thousand ninety-five dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18117", "outputs": ["eighteen thousand one hundred and seventeen dollars", "eighteen thousand one hundred seventeen dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18128", "outputs": ["eighteen thousand one hundred and twenty eight dollars", "eighteen thousand one hundred twenty-eight dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18125", "outputs": ["eighteen thousand one hundred and twenty five dollars", "eighteen thousand one hundred twenty-five dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18124", "outputs": ["eighteen thousand one hundred and twenty four dollars", "eighteen thousand one hundred twenty-four dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$18129", "outputs": ["eighteen thousand one hundred and twenty nine dollars", "eighteen thousand one hundred twenty-nine dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "£18000", "outputs": ["eighteen thousand pounds"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "£1.20", "outputs": ["one pound twenty pence"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "£1.20", "outputs": ["one pound twenty pence", "one pound and twenty pence"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "£1.111", "outputs": ["one point one one one pounds"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "£2.01", "outputs": ["two pounds one penny"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "£2.01", "outputs": ["two pounds one penny", "two pounds and one penny"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$50.00-$100.00", "outputs": ["fifty dollars to one hundred dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$1,925.21", "outputs": ["one thousand nine hundred and twenty five dollars twenty one cents"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$1,234.123", "outputs": ["one thousand two hundred and thirty four point one two three dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$1,925.21", "outputs": ["one thousand nine hundred and twenty five dollars twenty one cents", "one thousand nine hundred twenty-five dollars and twenty-one cents"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$1,234.123", "outputs": ["one thousand two hundred and thirty four point one two three dollars", "one thousand two hundred thirty-four point one two three dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "US $76.3 trillion", "outputs": ["US seventy six point three trillion dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "US$76.3 trillion", "outputs": ["seventy six point three trillion us dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "The price for each canned salmon is $5 , each bottle of peanut butter is $3", "outputs": ["The price for each canned salmon is five dollars , each bottle of peanut butter is three dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20/mo is what we are currently charging.", "outputs": ["twenty dollars per month is what we are currently charging."]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$350/yr is the fee.", "outputs": ["three hundred and fifty dollars per year is the fee."]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$350/yr is the fee.", "outputs": ["three hundred and fifty dollars per year is the fee.", "three hundred fifty dollars per year is the fee."]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "£10/wk sounds good to us.", "outputs": ["ten pounds per week sounds good to us."]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$1/d is the new subscription cost.", "outputs": ["one dollar per day is the new subscription cost."]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$0.5/hr is the total cost.", "outputs": ["fifty cents per hour is the total cost."]}
@@ -257,7 +257,7 @@
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "t-0t25d12-f", "outputs": ["t-oh t twenty five d one two-f", "t-oh t two five d one two-f", "t-zero t twenty five d twelve-f"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "133-A", "outputs": ["one hundred thirty three-A"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "B2A23C", "outputs": ["B two A twenty three C"]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "25d08A", "outputs": ["twenty five d zero eight A", "two five d zero eight A"]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "25d08A", "outputs": ["twenty five d zero eight A", "two five d zero eight A", "twenty-five d oh eight A"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "C24", "outputs": ["C twenty four"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "It seemed to her that the jacket Oswald wore was darker than Commission Exhibit No. 162.", "outputs": ["It seemed to her that the jacket Oswald wore was darker than Commission Exhibit number one hundred sixty two.", "It seemed to her that the jacket Oswald wore was darker than Commission Exhibit number one hundred and sixty two.", "It seemed to her that the jacket Oswald wore was darker than Commission Exhibit number one six two."]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "\"Father, let this cup pass.\" He prayed was heard. What cup was it that passed away from him? Sure not the death-cup, now filled to the brim! There was no quailing in the awful word; He still was king of kings, of lords the lord: He feared lest, in the suffering waste and grim, His faith might grow too faint and sickly dim.\"", "outputs": ["\"Father, let this cup pass.\" He prayed was heard. What cup was it that passed away from him? Sure not the death-cup, now filled to the brim! There was no quailing in the awful word; He still was king of kings, of lords the lord: He feared lest, in the suffering waste and grim, His faith might grow too faint and sickly dim.\""]}
@@ -279,7 +279,7 @@
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "0063", "outputs": ["zero zero six three", "oh oh sixty three"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "ABC", "outputs": ["ABC", "A B C"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "Test", "outputs": ["Test"]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2006-08-05", "outputs": ["august fifth two thousand six", "the fifth of august two thousand six"]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2006-08-05", "outputs": ["august fifth two thousand six", "the fifth of august two thousand six", "the fifth of August two thousand six"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2-5", "outputs": ["two to five", "two-five"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "627", "outputs": ["six hundred twenty seven", "six twenty seven", "six two seven"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "3/4", "outputs": ["the fourth of march", "march fourth", "three quarters", "three fourths"]}
@@ -311,24 +311,24 @@
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "1000000th", "outputs": ["one millionth"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "9,000,000th", "outputs": ["nine millionth"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "1st", "outputs": ["first"]}
-{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "1th", "outputs": ["one th"]}
+{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "1th", "outputs": ["one th", "first"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "2nd", "outputs": ["second"]}
-{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "2th", "outputs": ["two th"]}
+{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "2th", "outputs": ["two th", "second"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "3rd", "outputs": ["third"]}
-{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "3th", "outputs": ["three th"]}
+{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "3th", "outputs": ["three th", "third"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "4th", "outputs": ["fourth"]}
-{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "4rd", "outputs": ["four rd"]}
-{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "11st", "outputs": ["eleven st"]}
+{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "4rd", "outputs": ["four rd", "fourth"]}
+{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "11st", "outputs": ["eleven st", "eleventh"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "20th", "outputs": ["twentieth"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "12th", "outputs": ["twelfth"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "13th", "outputs": ["thirteenth"]}
-{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "12nd", "outputs": ["twelve nd"]}
-{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "13rd", "outputs": ["thirteen rd"]}
+{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "12nd", "outputs": ["twelve nd", "twelfth"]}
+{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "13rd", "outputs": ["thirteen rd", "thirteenth"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "21st", "outputs": ["twenty first"]}
-{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "21th", "outputs": ["twenty one th"]}
+{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "21th", "outputs": ["twenty one th", "twenty-first"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "121st", "outputs": ["one hundred twenty first"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "111th", "outputs": ["one hundred eleventh"]}
-{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "111st", "outputs": ["one one one st"]}
+{"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "111st", "outputs": ["one one one st", "one hundred eleventh"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a `quote` example", "outputs": ["a `quote` example"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a `25` example", "outputs": ["a `twenty five` example"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "single quote.'", "outputs": ["single quote.'"]}
@@ -370,7 +370,7 @@
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "80's", "outputs": ["eighty's"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "test .b@gmail.com", "outputs": ["test. b at gmail dot com"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "123,000012", "outputs": ["one hundred and twenty three, zero zero zero zero one two"]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "9000,000th", "outputs": ["nine thousand, zero zero zero th"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "9000,000th", "outputs": ["nine thousand, zero zero zero th", "nine thousand,oh oh oh th"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "16 July, 1943", "outputs": ["the sixteenth of july, nineteen forty three"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "august 23, 2002", "outputs": ["august twenty third, two thousand two"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "11:30EST", "outputs": ["eleven: thirty EST"]}
@@ -393,23 +393,23 @@
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "1980-1986", "outputs": ["nineteen eighty to nineteen eighty six"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "from 2-10", "outputs": ["from two - ten"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "2-5lb", "outputs": ["two to five pounds"]}
-{"lang": "en-us", "source": "nemo", "class": "range", "input": "2-5", "outputs": ["two - five"]}
+{"lang": "en-us", "source": "nemo", "class": "range", "input": "2-5", "outputs": ["two - five", "two to five"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "2x8 m2", "outputs": ["two by eight square meters"]}
-{"lang": "en-us", "source": "nemo", "class": "range", "input": "2x8", "outputs": ["two x eight"]}
+{"lang": "en-us", "source": "nemo", "class": "range", "input": "2x8", "outputs": ["two x eight", "two by eight"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "2+3", "outputs": ["two plus three"]}
-{"lang": "en-us", "source": "nemo", "class": "range", "input": "2+3 m2", "outputs": ["two plus three m two"]}
-{"lang": "en-us", "source": "nemo", "class": "range", "input": "170 - 45190", "outputs": ["one hundred and seventy - four five one nine zero"]}
-{"lang": "en-us", "source": "nemo", "class": "range", "input": "1980-1970 kg", "outputs": ["one thousand nine hundred and eighty to one thousand nine hundred and seventy kilograms"]}
+{"lang": "en-us", "source": "nemo", "class": "range", "input": "2+3 m2", "outputs": ["two plus three m two", "two plus three square meters"]}
+{"lang": "en-us", "source": "nemo", "class": "range", "input": "170 - 45190", "outputs": ["one hundred and seventy - four five one nine zero", "one hundred seventy to four five one nine zero"]}
+{"lang": "en-us", "source": "nemo", "class": "range", "input": "1980-1970 kg", "outputs": ["one thousand nine hundred and eighty to one thousand nine hundred and seventy kilograms", "one thousand nine hundred eighty to one thousand nine hundred seventy kilograms"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "5pm-7 pm", "outputs": ["five PM to seven PM"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "4:00 am - 8:12 pm", "outputs": ["four AM to eight twelve PM"]}
-{"lang": "en-us", "source": "nemo", "class": "range", "input": "978-0", "outputs": ["nine hundred and seventy eight - zero"]}
+{"lang": "en-us", "source": "nemo", "class": "range", "input": "978-0", "outputs": ["nine hundred and seventy eight - zero", "nine hundred seventy-eight-zero"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "1960s-80s", "outputs": ["nineteen sixties to eighties"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "1960s-1980s", "outputs": ["nineteen sixties to nineteen eighties"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "1960-80", "outputs": ["nineteen sixty to eighty"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "mid-1980s", "outputs": ["mid nineteen eighties"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "mid-80s", "outputs": ["mid eighties"]}
-{"lang": "en-us", "source": "nemo", "class": "range", "input": "$250-$300", "outputs": ["two hundred and fifty dollars to three hundred dollars"]}
-{"lang": "en-us", "source": "nemo", "class": "range", "input": "$150.25-$250.67", "outputs": ["one hundred and fifty dollars twenty five cents to two hundred and fifty dollars sixty seven cents"]}
+{"lang": "en-us", "source": "nemo", "class": "range", "input": "$250-$300", "outputs": ["two hundred and fifty dollars to three hundred dollars", "two hundred fifty dollars to three hundred dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "range", "input": "$150.25-$250.67", "outputs": ["one hundred and fifty dollars twenty five cents to two hundred and fifty dollars sixty seven cents", "one hundred fifty dollars and twenty-five cents to two hundred fifty dollars and sixty-seven cents"]}
 {"lang": "en-us", "source": "nemo", "class": "roman", "input": "Sam II", "outputs": ["Sam second"]}
 {"lang": "en-us", "source": "nemo", "class": "roman", "input": "Chapter IV", "outputs": ["Chapter four"]}
 {"lang": "en-us", "source": "nemo", "class": "roman", "input": "PART XL", "outputs": ["PART forty"]}
@@ -417,7 +417,7 @@
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "t-0t25d12-f", "outputs": ["t-zero t twenty five d twelve-f"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "133-ABC", "outputs": ["one hundred thirty three-ABC"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "B2A23C", "outputs": ["B two A twenty three C"]}
-{"lang": "en-us", "source": "nemo", "class": "serial", "input": "25d08A", "outputs": ["twenty five d zero eight A"]}
+{"lang": "en-us", "source": "nemo", "class": "serial", "input": "25d08A", "outputs": ["twenty five d zero eight A", "twenty-five d oh eight A"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "C24", "outputs": ["C twenty four"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "W2s", "outputs": ["W two s"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "1-413-te-b-1-5", "outputs": ["one-four hundred thirteen-te-b-one-five"]}
@@ -540,8 +540,8 @@
 {"lang": "en-us", "source": "nemo", "class": "word", "input": "/$€₩£BB¥#%AA and $€₩£¥#%", "outputs": ["slash dollar euro won pound BB yen hash percent AA and dollar euro won pound yen hash percent"]}
 {"lang": "en-us", "source": "nemo", "class": "word", "input": "love him while we may,", "outputs": ["love him while we may,"]}
 {"lang": "en-us", "source": "nemo", "class": "word", "input": "i saw (22) ducklings", "outputs": ["i saw (twenty two) ducklings"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "-23", "outputs": ["negative twenty three"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "-1", "outputs": ["negative one"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "-23", "outputs": ["negative twenty three", "minus twenty-three"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "-1", "outputs": ["negative one", "minus one"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "0", "outputs": ["zero"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1", "outputs": ["one"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "2", "outputs": ["two"]}
@@ -549,11 +549,11 @@
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "11", "outputs": ["eleven"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "20", "outputs": ["twenty"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "100", "outputs": ["one hundred"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "101", "outputs": ["one hundred and one"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "111", "outputs": ["one hundred and eleven"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "101", "outputs": ["one hundred and one", "one hundred one"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "111", "outputs": ["one hundred and eleven", "one hundred eleven"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "200", "outputs": ["two hundred"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1000", "outputs": ["thousand"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1001", "outputs": ["thousand and one"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1000", "outputs": ["thousand", "one thousand"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1001", "outputs": ["thousand and one", "one thousand one"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1011", "outputs": ["thousand and eleven"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1111", "outputs": ["thousand one hundred and eleven"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "2000", "outputs": ["two thousand"]}
@@ -573,15 +573,15 @@
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "2024 B.C", "outputs": ["twenty twenty four BC"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "1H23", "outputs": ["the first half of twenty three"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "3Q22", "outputs": ["the third quarter of twenty two"]}
-{"lang": "en-us", "source": "wetext", "class": "date", "input": "jan. 5, 2012", "outputs": ["the fifth of january, twenty twelve"]}
-{"lang": "en-us", "source": "wetext", "class": "date", "input": "jan. 5", "outputs": ["the fifth of january"]}
+{"lang": "en-us", "source": "wetext", "class": "date", "input": "jan. 5, 2012", "outputs": ["the fifth of january, twenty twelve", "January fifth, twenty twelve"]}
+{"lang": "en-us", "source": "wetext", "class": "date", "input": "jan. 5", "outputs": ["the fifth of january", "January fifth"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "5 january 2012", "outputs": ["the fifth of january twenty twelve"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "2012-01-05", "outputs": ["the fifth of january twenty twelve"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "2012.01.05", "outputs": ["the fifth of january twenty twelve"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "2012/01/05", "outputs": ["the fifth of january twenty twelve"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "2012", "outputs": ["twenty twelve"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "2024-05-06", "outputs": ["the sixth of may twenty twenty four"]}
-{"lang": "en-us", "source": "wetext", "class": "decimal", "input": "-12.5006 billion", "outputs": ["minus twelve point five oh oh six billion"]}
+{"lang": "en-us", "source": "wetext", "class": "decimal", "input": "-12.5006 billion", "outputs": ["minus twelve point five oh oh six billion", "minus twelve point five zero zero six billion"]}
 {"lang": "en-us", "source": "wetext", "class": "decimal", "input": "1 billion", "outputs": ["one billion"]}
 {"lang": "en-us", "source": "wetext", "class": "decimal", "input": "1.5 million", "outputs": ["one point five million"]}
 {"lang": "en-us", "source": "wetext", "class": "electronic", "input": "cdf1@abc.edu", "outputs": ["cdf one at abc dot edu"]}
@@ -592,7 +592,7 @@
 {"lang": "en-us", "source": "wetext", "class": "fraction", "input": "1/4", "outputs": ["one quarter"]}
 {"lang": "en-us", "source": "wetext", "class": "fraction", "input": "2/4", "outputs": ["two quarters"]}
 {"lang": "en-us", "source": "wetext", "class": "fraction", "input": "23/44", "outputs": ["twenty three forty fourths"]}
-{"lang": "en-us", "source": "wetext", "class": "measure", "input": "-12kg", "outputs": ["negative twelve kilograms"]}
+{"lang": "en-us", "source": "wetext", "class": "measure", "input": "-12kg", "outputs": ["negative twelve kilograms", "minus twelve kilograms"]}
 {"lang": "en-us", "source": "wetext", "class": "measure", "input": "1kg", "outputs": ["one kilogram"]}
 {"lang": "en-us", "source": "wetext", "class": "measure", "input": ".5kg", "outputs": ["point five kilograms"]}
 {"lang": "en-us", "source": "wetext", "class": "measure", "input": "3.5 cm²", "outputs": ["three point five square centimeters"]}

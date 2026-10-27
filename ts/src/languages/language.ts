@@ -1,7 +1,7 @@
 import { Kind, numeral, type Match, type Numeral } from "../numbers/match.ts";
 import type { Notation } from "../numbers/formats.ts";
 import { genericPatterns, type Pattern } from "../numbers/patterns.ts";
-import { codeParts } from "../numbers/scanning.ts";
+import { codeParts, fractionOf } from "../numbers/scanning.ts";
 import type { Characters } from "../steps/normalize.ts";
 import type { Terms } from "../steps/terms.ts";
 import { Context } from "../text/context.ts";
@@ -108,6 +108,16 @@ export abstract class PatternLanguage extends Language {
   // A run of digits in a code or a phone number: the 380 of A380
   protected abstract readCodeDigits(digits: string): string;
 
+  // The letters of a code (the MP of MP3), as written by default
+  protected readCodeLetters(letters: string): string {
+    return letters;
+  }
+
+  // The country code of an international phone number (the 48 of +48 600 123 456), as code digits by default
+  protected readCountryCode(digits: string): string {
+    return this.readCodeDigits(digits);
+  }
+
   // Readings of whole matches; by default their numbers one by one
   protected readDate(match: Match): string | undefined {
     return this.#readEach(match);
@@ -118,8 +128,9 @@ export abstract class PatternLanguage extends Language {
     return join(match.numbers.map((group) => this.readCodeDigits(group.integer)));
   }
 
+  // A fraction: its last two numbers (see fractionOf); the whole number of 3 1/2 is read before it
   protected readFraction(match: Match): string | undefined {
-    return this.#readEach(match);
+    return this.#readEach({ ...match, numbers: match.numbers.slice(-2) });
   }
 
   protected readTime(match: Match): string | undefined {
@@ -213,7 +224,7 @@ export abstract class PatternLanguage extends Language {
       case Kind.SCORE:
         return this.readJoiner(match);
       case Kind.FRACTION:
-        return this.readFraction(match);
+        return this.readMixedFraction(match);
       case Kind.TIME:
         return this.readTime(match);
       case Kind.MONEY:
@@ -258,6 +269,28 @@ export abstract class PatternLanguage extends Language {
     return `${this.readNumber(amount, match)} ${word}`;
   }
 
+  // A fraction, after its whole number if it has one (3 1/2), by the joiners
+  protected readMixedFraction(match: Match): string | undefined {
+    if (match.numbers.length === 2) {
+      return this.readFraction(match);
+    }
+    // 3 1/2: three and a half; 3 3/4: three and three quarters; -4 1/3: minus four and one third
+    let whole = this.readNumber(match.numbers[0], match);
+    if (match.text.startsWith("-")) {
+      whole = `${this.joiners().minus} ${whole}`;
+    }
+    const [a, b] = fractionOf(match);
+    const { fraction: joiner = "", half = "" } = this.joiners();
+    if (a === 1n && b === 2n && half !== "") {
+      return whole + half;
+    }
+    const fraction = this.readFraction(match);
+    if (fraction === undefined) {
+      return undefined;
+    }
+    return whole + (joiner === "" ? " " : joiner) + fraction;
+  }
+
   #readInternationalPhone(match: Match): string | undefined {
     // plus forty-eight, then the groups as the language reads a phone number
     const groups: Match = { ...match, numbers: match.numbers.slice(1) };
@@ -266,7 +299,7 @@ export abstract class PatternLanguage extends Language {
     if (words === undefined) {
       return undefined;
     }
-    return `${this.#joiners.plus} ${this.readCodeDigits(match.numbers[0].integer)} ${words}`;
+    return `${this.#joiners.plus} ${this.readCountryCode(match.numbers[0].integer)} ${words}`;
   }
 
   #readCode(match: Match): string {
@@ -299,7 +332,7 @@ export abstract class PatternLanguage extends Language {
       } else if (part === "s" && afterDigits && (plural = this.plural(out[out.length - 1])) !== undefined) {
         out[out.length - 1] = plural; // F-16s
       } else {
-        word = part;
+        word = this.readCodeLetters(part);
       }
 
       if (word !== undefined) {

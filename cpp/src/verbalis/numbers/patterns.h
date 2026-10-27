@@ -100,12 +100,16 @@ private:
   Keys units_;
 };
 
-// 3/4
+// 3/4, and 3 1/2: its numbers are then the whole number, the numerator, and the denominator.
 class FractionPattern : public Pattern {
 public:
   FractionPattern() : Pattern(Kind::FRACTION) {}
 
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
+
+private:
+  // A fraction without a whole number: 3/4
+  static std::optional<Match> simple(std::u32string_view text, size_t position);
 };
 
 // The minus of -5.
@@ -154,7 +158,8 @@ public:
 // $5, € 1,5 million: a currency symbol before an amount.
 class PrefixedMoneyPattern : public Pattern {
 public:
-  explicit PrefixedMoneyPattern(const Notation& notation);
+  // @param words currencies written as words which also precede an amount: USD 5
+  explicit PrefixedMoneyPattern(const Notation& notation, const Keys& words = {});
 
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
 

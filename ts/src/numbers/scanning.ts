@@ -28,15 +28,32 @@ export function numbersAt(text: Text, position: number, group: string, decimal: 
   // Integer parts: 1-3 digits followed by whole groups (1 000 000), then a plain run of digits
   const integers: Numeral[] = [];
   if (run <= 3) {
+    // Every group after the same separator: 1.000.000, but the 1.234 of 1.234,56
     let end = position + run;
-    while (end + 3 < text.length && contains(group, text[end]) && digitsEnd(text, end + 1) >= end + 4) {
+    const separator = text[end];
+    while (
+      end + 3 < text.length &&
+      text[end] === separator &&
+      contains(group, separator) &&
+      digitsEnd(text, end + 1) >= end + 4
+    ) {
       end += 4;
     }
-    // A group may not be followed by a digit, nor by a separator and a digit
+    // Indian groups: pairs before the last three digits (3,94,227, 12,34,56,789)
+    if (end === position + run && run <= 2) {
+      let pairs = end;
+      while (pairs + 3 < text.length && text[pairs] === "," && digitsEnd(text, pairs + 1) === pairs + 3) {
+        pairs += 3;
+      }
+      if (pairs > end && pairs + 3 < text.length && text[pairs] === "," && digitsEnd(text, pairs + 1) === pairs + 4) {
+        end = pairs + 4;
+      }
+    }
+    // A group may not be followed by a digit, nor by its separator and a digit
     const complete =
       end > position + run &&
       !isDigitAfter(text, end) &&
-      !(end < text.length && contains(group, text[end]) && isDigitAfter(text, end + 1));
+      !(end < text.length && text[end] === separator && isDigitAfter(text, end + 1));
     if (complete) {
       const digits = text.slice(position, end).filter(isDigit).join("");
       integers.push(numeral({ span: { begin: position, end }, integer: digits, grouped: true }));
@@ -105,8 +122,43 @@ export function fitsClock(time: Match): boolean {
 }
 
 // The words of a fraction with its own words (1/2: half), or undefined.
+// The numerator and denominator of a fraction: its last two numbers (3 1/2 has its whole number first).
+export function fractionOf(fraction: Match): [bigint, bigint] {
+  const n = fraction.numbers.length;
+  return [value(fraction.numbers[n - 2]), value(fraction.numbers[n - 1])];
+}
+
 export function namedFraction(fractions: Fractions, fraction: Match): string | undefined {
-  return fractions[`${value(fraction.numbers[0])}/${value(fraction.numbers[1])}`];
+  const [a, b] = fractionOf(fraction);
+  return fractions[`${a}/${b}`];
+}
+
+/**
+ * Whether a fraction is written as one: after a whole number (3 1/2), with a binary denominator before an inch mark
+ * (3/8"), or with a common denominator (to 10, 12, 16, 100, 1000) before one of a language's words (1/3 of). A bare
+ * 3/4 may be a date, a score, or a rating.
+ * @param words lowercase; a word with an apostrophe matches up to it (d', dell')
+ */
+export function isMarkedFraction(fraction: Match, words: ReadonlySet<string>): boolean {
+  if (fraction.numbers.length === 3) {
+    return true;
+  }
+  // An inch has binary fractions: 3/8"
+  const [, b] = fractionOf(fraction);
+  const tail = fraction.context.tail();
+  const inch = tail[0] === '"' || (tail[0] === "'" && tail[1] === "'") || tail[0] === "″";
+  if (inch && b <= 64n && b > 0n && (b & (b - 1n)) === 0n) {
+    return true;
+  }
+
+  // A common denominator, not a year or a number of a series: 1/3 of, but 40/2023 du, 18/20 da
+  let word = toLower(fraction.context.after());
+  const apostrophe = word.indexOf("'");
+  if (apostrophe !== -1) {
+    word = word.slice(0, apostrophe + 1);
+  }
+  const common = b <= 10n || b === 12n || b === 16n || b === 100n || b === 1000n;
+  return common && words.has(word);
 }
 
 // The suffix of a match with a space before it, to follow its reading; empty if the match has none.

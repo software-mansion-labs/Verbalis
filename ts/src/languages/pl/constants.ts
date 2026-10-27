@@ -1,7 +1,11 @@
 import { dateFormat, keysOf, notation, phoneFormat, suffixFormat } from "../../numbers/formats.ts";
+import type { Characters } from "../../steps/normalize.ts";
 import type { Terms } from "../../steps/terms.ts";
-import { beforeNumber, type Readings } from "../../text/readings.ts";
+import type { Context } from "../../text/context.ts";
+import { beforeName, beforeNumber, type Condition, type Reading, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
+import { toLower } from "../../text/strings.ts";
+import { isDigit } from "../../text/unicode.ts";
 import { Case, Gender, type Joiners } from "../grammar.ts";
 
 // A noun's forms after a number: singular, then plural, each in the order of Case.
@@ -140,8 +144,34 @@ export const SCALES: Readonly<Record<string, Noun>> = {
   "tys.": THOUSAND, "mln": MILLION, "mld": BILLION,
 };
 
+// A noun with an adjective after it, from the adjective's twelve forms: metr kwadratowy, metrów kwadratowych.
+export function qualified(base: Noun, adjective: string): Noun {
+  const forms = noun(adjective);
+  return {
+    singular: base.singular.map((form, c) => `${form} ${forms.singular[c]}`),
+    plural: base.plural.map((form, c) => `${form} ${forms.plural[c]}`),
+  };
+}
+
+export const SQUARE = "kwadratowy kwadratowego kwadratowemu kwadratowy kwadratowym kwadratowym kwadratowe kwadratowych kwadratowym kwadratowe kwadratowymi kwadratowych";
+export const CUBIC = "sześcienny sześciennego sześciennemu sześcienny sześciennym sześciennym sześcienne sześciennych sześciennym sześcienne sześciennymi sześciennych";
+export const METRE = masculine("metr", "metrze");
+export const KILOMETRE = masculine("kilometr", "kilometrze");
+export const CENTIMETRE = masculine("centymetr", "centymetrze");
+export const POINT = noun("punkt punktu punktowi punkt punktem punkcie punkty punktów punktom punkty punktami punktach");
+
 export const UNITS: Readonly<Record<string, Noun>> = {
-  "km": masculine("kilometr", "kilometrze"),   "m": masculine("metr", "metrze"),
+  "km": KILOMETRE,   "m": METRE,
+  "m²": qualified(METRE, SQUARE),           "m2": qualified(METRE, SQUARE),
+  "km²": qualified(KILOMETRE, SQUARE),      "km2": qualified(KILOMETRE, SQUARE),
+  "cm²": qualified(CENTIMETRE, SQUARE),     "m³": qualified(METRE, CUBIC),
+  "m3": qualified(METRE, CUBIC),            "cm³": qualified(CENTIMETRE, CUBIC),
+  "km/h": qualified(KILOMETRE, "na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę"),
+  "pkt": POINT,   "pkt.": POINT,
+  "pkt. proc.": qualified(POINT, "procentowy procentowego procentowemu procentowy procentowym procentowym procentowe procentowych procentowym procentowe procentowymi procentowych"),
+  "pkt proc.": qualified(POINT, "procentowy procentowego procentowemu procentowy procentowym procentowym procentowe procentowych procentowym procentowe procentowymi procentowych"),
+  "proc.": noun("procent procent procentowi procent procentem procencie procent procent procentom procent procentami procentach"),
+  "‰": noun("promil promila promilowi promil promilem promilu promile promili promilom promile promilami promilach"),
   "cm": masculine("centymetr", "centymetrze"), "mm": masculine("milimetr", "milimetrze"),
   "nm": masculine("nanometr", "nanometrze"),   "kg": masculine("kilogram", "kilogramie"),
   "g": masculine("gram", "gramie"),            "mg": masculine("miligram", "miligramie"),
@@ -154,7 +184,6 @@ export const UNITS: Readonly<Record<string, Noun>> = {
   "Hz": noun("herc herca hercowi herc hercem hercu herce herców hercom herce hercami hercach"),
   "°C": noun("stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza"),
   "°": noun(DEGREE),
-  "m²": noun("metr kwadratowy|metra kwadratowego|metrowi kwadratowemu|metr kwadratowy|metrem kwadratowym|metrze kwadratowym|metry kwadratowe|metrów kwadratowych|metrom kwadratowym|metry kwadratowe|metrami kwadratowymi|metrach kwadratowych"),
   "t": noun("tona tony tonie tonę toną tonie tony ton tonom tony tonami tonach"),
   "h": noun("godzina godziny godzinie godzinę godziną godzinie godziny godzin godzinom godziny godzinami godzinach"),
   "min": noun("minuta minuty minucie minutę minutą minucie minuty minut minutom minuty minutami minutach"),
@@ -254,6 +283,15 @@ export const FEMININE_PLURALS = [
 // Words before a time with a dot, which make it a time: o 18.30
 export const TIME_WORDS: ReadonlySet<string> = new Set([
   "o", "godzinie", "godz", "od", "do", "około", "koło", "po", "przed", "na", "między", "za",
+]);
+
+// Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
+export const TIME_UNITS: ReadonlySet<string> = new Set(["h", "min", "s", "ms", "godz.", "sek."]);
+
+// The forms of "godzina", with the case of the hour after them: o godzinie 15 (piętnastej), do godziny 16 (szesnastej)
+export const HOUR_WORDS: ReadonlyMap<string, Case> = new Map<string, Case>([
+  ["godzina", Case.NOMINATIVE], ["godziny", Case.GENITIVE], ["godzinie", Case.LOCATIVE],
+  ["godzinę", Case.ACCUSATIVE], ["godziną", Case.INSTRUMENTAL],
 ]);
 
 // Stems of headings: Punkt 3., w punkcie 5.; the ones of ORDINAL_HEADINGS read as ordinals even without a dot
@@ -360,11 +398,132 @@ export const PHONE_WORDS: ReadonlySet<string> = new Set([
 export const YEAR_SUFFIXES: Keys = ["r."];
 export const YEAR_FORMAT = suffixFormat({ space: true, sentenceDot: true });
 
+// Echo's classes, and Polish letters read as Latin-1 from Windows-1250 or ISO 8859-2: zupe³nie -> zupełnie
+export const CHARACTERS: Characters = [
+  { characters: "…", canonical: "..." }, // Ellipsis
+  { characters: "«»„“”‟˝", canonical: '"' }, // Quotes
+  { characters: "‘’‚‛´`ʼ", canonical: "'" }, // Apostrophes
+  { characters: "​‌‍﻿", canonical: "" }, // Invisible: zero-width space, non-joiner, joiner, BOM
+  { characters: "³", canonical: "ł", letter: true },   { characters: "£", canonical: "Ł", letter: true },
+  { characters: "¹±", canonical: "ą", letter: true },  { characters: "¥¡", canonical: "Ą", letter: true },
+  { characters: "œ¶\u009c", canonical: "ś", letter: true }, { characters: "Œ¦\u008c", canonical: "Ś", letter: true },
+  { characters: "¿", canonical: "ż", letter: true },   { characters: "¯", canonical: "Ż", letter: true },
+  { characters: "Ÿ¼\u009f", canonical: "ź", letter: true }, { characters: "\u008f¬", canonical: "Ź", letter: true },
+  { characters: "ê", canonical: "ę", letter: true },   { characters: "Ê", canonical: "Ę", letter: true },
+  { characters: "æ", canonical: "ć", letter: true },   { characters: "Æ", canonical: "Ć", letter: true },
+  { characters: "ñ", canonical: "ń", letter: true },   { characters: "Ñ", canonical: "Ń", letter: true },
+];
+
 export const SYMBOLS: Readings = {
-  "&": ["and"],        "+": ["plus"],           "=": ["równa się"], "%": ["procent"],  "°": ["stopni"],
+  "&": ["end"],        "+": ["plus"],           "=": ["równa się"], "%": ["procent"],  "°": ["stopni"],
   "#": [""],           "/": [""],               "²": ["do kwadratu"], "³": ["do sześcianu"],
   "π": ["pi"],         "×": ["razy"],           "€": ["euro"],     "$": ["dolarów"],   "@": ["małpa"],
+  "±": ["plus minus"], "‰": ["promili"],        "§": ["paragraf"],
 };
+
+// Prepositions before an inflected abbreviation, by the case they give it: przy ul. Długiej, od ul. Długiej
+export const LOCATIVE_WORDS: ReadonlySet<string> = new Set(["w", "we", "na", "o", "po", "przy"]);
+export const GENITIVE_WORDS: ReadonlySet<string> = new Set([
+  "od", "do", "z", "ze", "u", "obok", "koło", "około", "ok", "wzdłuż", "dla", "spod", "sprzed", "zza",
+  "naprzeciwko", "blisko", "niedaleko", "wokół", "bez", "róg", "rogu", "okolicach", "okolice",
+  // A title after the name of a street or a patron: ul. ks. Popiełuszki, im. prof. Nowaka
+  "ul", "al", "pl", "os", "ulica", "ulicy", "aleja", "alei", "plac", "placu", "im", "imienia", "pw",
+]);
+export const INSTRUMENTAL_WORDS: ReadonlySet<string> = new Set(["pod", "nad", "przed", "między", "pomiędzy"]);
+
+/**
+ * The case of an abbreviated noun: from the preposition before it, or the ending of the word after it.
+ * skręć w ul. Długą (accusative), idź ul. Długą (instrumental), przy ul. Długiej (locative), z prof. Nowakiem
+ * (instrumental), do dyr. Kowalskiego (genitive). A comma or a bracket right before it ends the phrase of the word
+ * before: Camping Plus sp. z o. o., ul. Kuropatwia
+ */
+export function abbreviationCase(context: Context): Case {
+  const head = context.head();
+  let last = head.length - 1;
+  while (last >= 0 && (head[last] === " " || head[last] === " ")) {
+    last--;
+  }
+  const clause = last >= 0 && ',;:()[]"'.includes(head[last]);
+  const before = clause ? "" : context.before();
+  const next = toLower(context.after());
+  if (next.endsWith("ą")) {
+    return before === "w" || before === "we" || before === "na" ? Case.ACCUSATIVE : Case.INSTRUMENTAL;
+  }
+  if (LOCATIVE_WORDS.has(before)) {
+    return Case.LOCATIVE;
+  }
+  const along = before === "z" && context.before(2) === "zgodnie"; // zgodnie z art. 5
+  if (along || INSTRUMENTAL_WORDS.has(before) || next.endsWith("em") || next.endsWith("im") || next.endsWith("ym")) {
+    return Case.INSTRUMENTAL;
+  }
+  if (next.endsWith("owi") || next.endsWith("emu")) {
+    return Case.DATIVE;
+  }
+  if (GENITIVE_WORDS.has(before) || next.endsWith("ego") || next.endsWith("ej")) {
+    return Case.GENITIVE;
+  }
+  return Case.NOMINATIVE;
+}
+
+// The readings of an abbreviated noun from its six forms (in the order of Case), separated by "|"; each one only when
+// a condition holds, if any
+export function declined(forms: string, when?: Condition): Reading[] {
+  const parts = forms.split("|");
+  const readings: Reading[] = [];
+  for (let c = 1; c < 6; ++c) {
+    readings.push({ words: parts[c], when: (context) => (!when || when(context)) && abbreviationCase(context) === c });
+  }
+  readings.push(when ? { words: parts[0], when } : parts[0]);
+  return readings;
+}
+
+// The readings of an abbreviation which mostly ends a sentence, with its dot when a capitalized word follows: itd. Potem
+export function closing(words: string): Reading[] {
+  return [{ words: `${words}.`, when: beforeName }, words];
+}
+
+// Between numbers: the "m." of mieszkanie in ul. Mickiewicza 3 m. 4
+export function afterNumberBeforeNumber(context: Context): boolean {
+  const before = context.before();
+  return beforeNumber(context) && before !== "" && isDigit(before[before.length - 1]);
+}
+
+// The word after it ends with one of given endings (lowercase): św. Anny
+export function beforeEnding(endings: readonly string[]): Condition {
+  return (context) => {
+    const next = toLower(context.after());
+    return endings.some((ending) => next.endsWith(ending));
+  };
+}
+
+// The word before it is one of given words (lowercase): Msza św.
+export function afterWord(words: readonly string[]): Condition {
+  const set = new Set(words);
+  return (context) => set.has(context.before());
+}
+
+// Saints whose names end with -a in the nominative (św. Anna), unlike the genitive of the others (św. Jana)
+export const FEMALE_SAINTS: ReadonlySet<string> = new Set([
+  "anna", "maria", "barbara", "teresa", "katarzyna", "jadwiga", "faustyna", "małgorzata", "elżbieta",
+  "zofia", "agnieszka", "kinga", "łucja", "monika", "cecylia", "helena", "weronika", "rozalia", "klara",
+  "joanna", "magdalena", "urszula", "marta", "brygida", "apolonia", "genowefa",
+]);
+
+// św. after a noun it describes (Msza św.), then before the name of a saint, by its ending
+export const SAINT: readonly Reading[] = [
+  { words: "święta", when: afterWord(["msza"]) },
+  { words: "świętej", when: afterWord(["mszy"]) },
+  { words: "świętą", when: afterWord(["mszę", "mszą"]) },
+  { words: "święte", when: afterWord(["pismo"]) },
+  { words: "świętego", when: afterWord(["pisma"]) },
+  { words: "świętej", when: beforeEnding(["y", "i"]) },
+  { words: "święta", when: (context) => FEMALE_SAINTS.has(toLower(context.after())) },
+  { words: "świętego", when: beforeEnding(["a", "ego"]) },
+  { words: "świętą", when: beforeEnding(["ą", "ę"]) },
+  { words: "świętym", when: beforeEnding(["em", "im", "ym"]) },
+  { words: "świętemu", when: beforeEnding(["owi", "emu"]) },
+  "święty",
+];
 
 export const TERMS: Terms = {
   abbreviations: {
@@ -374,18 +533,90 @@ export const TERMS: Terms = {
     "nr.": [{ words: "numer", when: beforeNumber }],
     "ust.": [{ words: "ustęp", when: beforeNumber }],
     "pkt": [{ words: "punkt", when: beforeNumber }],
-    "art.": [{ words: "artykuł", when: beforeNumber }],
-    "str.": [{ words: "strona", when: beforeNumber }],
+    "pkt.": [{ words: "punkt", when: beforeNumber }],
+    "art.": declined("artykuł|artykułu|artykułowi|artykuł|artykułem|artykule", beforeNumber),
+    "str.": declined("strona|strony|stronie|stronę|stroną|stronie", beforeNumber),
     "poz.": [{ words: "pozycja", when: beforeNumber }],
     "ok.": [{ words: "około", when: beforeNumber }],
+    "Ok.": [{ words: "Około", when: beforeNumber }],
+    "lok.": [{ words: "lokal", when: beforeNumber }],
+    "m.": [{ words: "mieszkanie", when: afterNumberBeforeNumber }], // ul. Mickiewicza 3 m. 4
+    "#": [{ words: "numer", when: beforeNumber }],
+    "§": declined("paragraf|paragrafu|paragrafowi|paragraf|paragrafem|paragrafie", beforeNumber),
+    // Inflected nouns: przy ul. Długiej, z prof. Nowakiem
+    "ul.": declined("ulica|ulicy|ulicy|ulicę|ulicą|ulicy"),
+    "Ul.": declined("Ulica|Ulicy|Ulicy|Ulicę|Ulicą|Ulicy"),
+    "al.": declined("aleja|alei|alei|aleję|aleją|alei", beforeName),
+    "Al.": declined("Aleje|Alej|Alejom|Aleje|Alejami|Alejach", beforeName),
+    "pl.": declined("plac|placu|placowi|plac|placem|placu", beforeName),
+    "os.": declined("osiedle|osiedla|osiedlu|osiedle|osiedlem|osiedlu", beforeName),
+    "godz.": declined("godzina|godziny|godzinie|godzinę|godziną|godzinie"),
+    "Godz.": declined("Godzina|Godziny|Godzinie|Godzinę|Godziną|Godzinie"),
+    "w godz.": ["w godzinach"], // w godz. 8-16
+    "W godz.": ["W godzinach"],
+    "tel.": declined("telefon|telefonu|telefonowi|telefon|telefonem|telefonie"),
+    "Tel.": declined("Telefon|Telefonu|Telefonowi|Telefon|Telefonem|Telefonie"),
+    "dr": declined("doktor|doktora|doktorowi|doktora|doktorem|doktorze"),
+    "dr.": declined("doktor|doktora|doktorowi|doktora|doktorem|doktorze"),
+    "prof.": declined("profesor|profesora|profesorowi|profesora|profesorem|profesorze"),
+    "Prof.": declined("Profesor|Profesora|Profesorowi|Profesora|Profesorem|Profesorze"),
+    "Dr": declined("Doktor|Doktora|Doktorowi|Doktora|Doktorem|Doktorze"),
+    "Ks.": declined("Ksiądz|Księdza|Księdzu|Księdza|Księdzem|Księdzu"),
+    "Gen.": declined("Generał|Generała|Generałowi|Generała|Generałem|Generale"),
+    "mgr": declined("magister|magistra|magistrowi|magistra|magistrem|magistrze"),
+    "inż.": declined("inżynier|inżyniera|inżynierowi|inżyniera|inżynierem|inżynierze"),
+    "dyr.": declined("dyrektor|dyrektora|dyrektorowi|dyrektora|dyrektorem|dyrektorze"),
+    "gen.": declined("generał|generała|generałowi|generała|generałem|generale"),
+    "płk": declined("pułkownik|pułkownika|pułkownikowi|pułkownika|pułkownikiem|pułkowniku"),
+    "ks.": declined("ksiądz|księdza|księdzu|księdza|księdzem|księdzu"),
+    "św.": SAINT,
+    "hab.": ["habilitowany"],
+    // tzw. by the ending of the noun after it; -ie is mostly the dative or locative of a feminine noun (strefie)
+    "tzw.": [
+      { words: "tak zwana", when: beforeEnding(["a"]) }, { words: "tak zwaną", when: beforeEnding(["ą"]) },
+      { words: "tak zwanego", when: beforeEnding(["ego", "u"]) }, { words: "tak zwanej", when: beforeEnding(["ej", "ie"]) },
+      { words: "tak zwanych", when: beforeEnding(["ych", "ów"]) }, { words: "tak zwanym", when: beforeEnding(["ym"]) },
+      { words: "tak zwane", when: beforeEnding(["e", "o"]) }, "tak zwany",
+    ],
     // Anywhere
     "np.": ["na przykład"],
-    "itd.": ["i tak dalej"],
-    "itp.": ["i tym podobne"],
+    "Np.": ["Na przykład"],
+    "itd.": closing("i tak dalej"),
+    "itp.": closing("i tym podobne"),
     "tzn.": ["to znaczy"],
     "tj.": ["to jest"],
     "m.in.": ["między innymi"],
+    "M.in.": ["Między innymi"],
     "wg": ["według"],
+    "Wg": ["Według"],
+    "wg.": ["według"],
+    "Wg.": ["Według"],
+    "ds.": ["do spraw"],
+    "im.": [{ words: "imienia", when: beforeName }],
+    "pt.": [{ words: "pod tytułem", when: beforeName }],
+    "nt.": ["na temat"],
+    "ws.": ["w sprawie"],
+    "pw.": ["pod wezwaniem"],
+    "zob.": ["zobacz"],
+    "Zob.": ["Zobacz"],
+    "dn.": ["dnia"],
+    "br.": closing("bieżącego roku"),
+    "ub.r.": closing("ubiegłego roku"),
+    "ub. r.": closing("ubiegłego roku"),
+    "p.n.e.": closing("przed naszą erą"),
+    "n.e.": closing("naszej ery"),
+    "nr tel.": ["numer telefonu"],
+    "Nr tel.": ["Numer telefonu"],
+    "tel. kom.": ["telefon komórkowy"],
+    "Tel. kom.": ["Telefon komórkowy"],
+    "sp. z o.o.": closing("spółka z ograniczoną odpowiedzialnością"),
+    "Sp. z o.o.": closing("Spółka z ograniczoną odpowiedzialnością"),
+    "sp. z o. o.": closing("spółka z ograniczoną odpowiedzialnością"),
+    "Sp. z o. o.": closing("Spółka z ograniczoną odpowiedzialnością"),
+    "z o.o.": closing("z ograniczoną odpowiedzialnością"),
+    "S.A.": closing("Spółka Akcyjna"),
   },
-  web: { dot: "kropka", at: "małpa", slash: "ukośnik" },
+  web: { dot: "kropka", at: "małpa", slash: "ukośnik", hyphen: "myślnik", underscore: "podkreślnik",
+    digits: ["zero", "jeden", "dwa", "trzy", "cztery", "pięć", "sześć", "siedem", "osiem", "dziewięć"],
+  },
 };

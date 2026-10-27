@@ -1,7 +1,7 @@
 import { Context, PUNCTUATION } from "../text/context.ts";
 import type { Document, Span } from "../text/document.ts";
 import { read, type Readings } from "../text/readings.ts";
-import { isClearAfter, isClearBefore, isSentenceEnd, keysAt, type Keys } from "../text/scan.ts";
+import { isClearAfter, isClearBefore, isSentenceEnd, join, keysAt, type Keys } from "../text/scan.ts";
 import { contains, size, startsWith, str, toLower, type Text } from "../text/strings.ts";
 import { isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
 
@@ -10,6 +10,12 @@ export interface WebWords {
   readonly dot: string; // example dot com
   readonly at: string; // jan at example dot com
   readonly slash: string; // example dot com slash news
+  readonly hyphen?: string; // my hyphen site dot com; the hyphen stays as written if empty
+  readonly underscore?: string; // jan underscore nowak at example dot com; stays as written if empty
+  // C colon backslash Users: paths (/home/desktop, C:\Users) and file names (report.pdf) stay as written if empty
+  readonly backslash?: string;
+  readonly colon?: string;
+  readonly digits?: readonly string[]; // The names of the digits 0-9, read one by one: covid one nine dot gov
 }
 
 // The terms of a language: written forms which are not said as written.
@@ -29,11 +35,34 @@ interface Term {
 const DOMAINS = new Set([
   "com", "org", "net", "edu", "gov", "io", "pl", "de", "fr", "es",
   "it", "pt", "uk", "eu", "at", "ch", "info", "tv", "co", "br",
+  "me", "mx", "us", "ru", "nl",
 ]);
 
-// Whether a host label is a top-level domain, which makes a bare host an address: example.com
-function isDomain(label: string): boolean {
-  return DOMAINS.has(toLower(label));
+// India's only under its second-level domains: rbi.org.in, but not the Polish m.in.
+const INDIAN_DOMAINS = new Set(["gov", "nic", "org", "co", "ac", "edu", "net"]);
+
+// Whether the labels of a host end with a top-level domain, which makes a bare host an address: example.com, gov.in
+function isDomain(labels: readonly string[]): boolean {
+  const n = labels.length;
+  const last = toLower(labels[n - 1]);
+  return n >= 2 && (DOMAINS.has(last) || (n >= 3 && last === "in" && INDIAN_DOMAINS.has(toLower(labels[n - 2]))));
+}
+
+// prettier-ignore
+const EXTENSIONS = new Set([
+  "pdf", "jpg", "jpeg", "png", "gif", "csv", "txt", "doc", "docx", "xls", "xlsx", "ppt", "pptx",
+  "zip", "mp3", "mp4", "html", "htm", "php", "js", "py", "exe", "json", "xml",
+]);
+
+// Whether a part of a path is a file name, by its extension: report.pdf
+function isFile(part: string): boolean {
+  const dot = part.lastIndexOf(".");
+  return dot > 0 && EXTENSIONS.has(toLower(part.slice(dot + 1)));
+}
+
+// A character of a part of a path: Users, report.pdf, my_file-2
+function isPath(c: string | undefined): boolean {
+  return isLatin(c) || isDigit(c) || c === "." || c === "-" || c === "_";
 }
 
 // A character of the user name of an email: jan.kowalski+news
@@ -46,11 +75,24 @@ function isLabel(c: string | undefined): boolean {
   return isWord(c) || c === "-";
 }
 
-// A part of an address with its dots read: jan.kowalski -> jan dot kowalski
-function dotted(part: string, dot: string): string {
+// A part of an address with its dots (and hyphens, if the language reads them) read: jan.kowalski -> jan dot kowalski
+// A part of an address with its separators read, and its digits apart, to be read one by one: a1 -> a 1
+function dotted(part: string, web: WebWords): string {
+  const chars = [...part];
   let words = "";
-  for (const c of part) {
-    words += c === "." ? ` ${dot} ` : c;
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i];
+    const word = c === "." ? web.dot : c === "-" ? (web.hyphen ?? "") : c === "_" ? (web.underscore ?? "") : "";
+    if (word !== "") {
+      words += ` ${word} `;
+    } else if (isDigit(c)) {
+      const apart = words !== "" && !words.endsWith(" ");
+      const next = i + 1 < chars.length && chars[i + 1] !== "." && chars[i + 1] !== "-" && chars[i + 1] !== "_";
+      const digit = web.digits?.length === 10 ? web.digits[Number(c)] : c;
+      words += (apart ? " " : "") + digit + (next ? " " : "");
+    } else {
+      words += c;
+    }
   }
   return words;
 }
@@ -75,7 +117,8 @@ export class TermReader {
       // Terms start at word boundaries, but not after a dot: e.g. is not g.
       let term: Term | undefined;
       if (isClearBefore(text, position, ".")) {
-        term = this.#readAddress(text, position) ?? this.#readAbbreviation(text, position);
+        term =
+          this.#readAddress(text, position) ?? this.#readPath(text, position) ?? this.#readAbbreviation(text, position);
       }
 
       if (!term) {
@@ -133,7 +176,7 @@ export class TermReader {
 
     // A bare host needs a known top-level domain: example.com, but not file.txt or e.g
     const www = labels.length > 0 && toLower(labels[0]) === "www";
-    const domain = labels.length >= 2 && isDomain(labels[labels.length - 1]);
+    const domain = labels.length > 0 && isDomain(labels);
     if (labels.length < 2 || !(scheme || www || domain || user !== "")) {
       return undefined;
     }
@@ -150,19 +193,69 @@ export class TermReader {
     }
 
     // 5. The words: jan at example dot com, w w w dot example dot com slash news
-    let words = user === "" ? "" : `${dotted(user, web.dot)} ${web.at} `;
+    let words = user === "" ? "" : `${dotted(user, web)} ${web.at} `;
     labels.forEach((label, i) => {
       const spelled = i === 0 && www;
-      words += (i > 0 ? ` ${web.dot} ` : "") + (spelled ? "w w w" : label);
+      words += (i > 0 ? ` ${web.dot} ` : "") + (spelled ? "w w w" : dotted(label, web));
     });
     let path = text.slice(end, pathEnd);
     while (path.length > 0) {
       const slash = path.indexOf("/", 1);
       const segment = str(path, 1, slash === -1 ? path.length : slash);
-      words += ` ${web.slash}` + (segment === "" ? "" : ` ${dotted(segment, web.dot)}`);
+      words += ` ${web.slash}` + (segment === "" ? "" : ` ${dotted(segment, web)}`);
       path = slash === -1 ? [] : path.slice(slash);
     }
     return { span: { begin: position, end: pathEnd }, words };
+  }
+
+  // /home/desktop, C:\Users\HP, home/desktop, report.pdf: a path or a file name, with its separators read
+  #readPath(text: Text, position: number): Term | undefined {
+    const web = this.#terms.web;
+    if (!web.backslash) {
+      return undefined;
+    }
+
+    // 1. The token, without the punctuation closing it: (see /etc/apache).
+    let end = position;
+    while (end < text.length && !isSpace(text[end])) {
+      end++;
+    }
+    while (end > position && (contains(PUNCTUATION, text[end - 1]) || text[end - 1] === "।")) {
+      end--;
+    }
+    let token = str(text, position, end);
+
+    // 2. An optional drive, then the parts between the separators: C:\Users\HP
+    const words: string[] = [];
+    let separator = "/";
+    if (token.length > 3 && isLatin(token[0]) && token[1] === ":" && token[2] === "\\") {
+      words.push(token[0], web.colon ?? "");
+      token = token.slice(2);
+      separator = "\\";
+    }
+    const parts = token.split(separator);
+
+    // 3. A path from the root (/etc/apache), a drive, or from a folder of lowercase words (home/desktop, but not
+    // PCB/PCM or km/h); or a file name
+    const rooted = parts[0] === "" || words.length > 0;
+    const valid = parts.every((part) => [...part].every(isPath));
+    const named = (part: string) => part.length >= 3 && [...part].every((c) => c >= "a" && c <= "z");
+    const namedParts = parts.filter((part) => part !== "").length;
+    const path = rooted ? namedParts >= 2 : parts.length >= 2 && parts.every(named);
+    const file = parts.length === 1 && isFile(parts[0]) && isLatin(parts[0][0]);
+    if (!valid || !(path || file)) {
+      return undefined;
+    }
+
+    // 4. The words: फॉरवर्ड स्लैश etc फॉरवर्ड स्लैश apache, report डॉट pdf
+    const slash = separator === "/" ? web.slash : web.backslash;
+    parts.forEach((part, i) => {
+      if (i > 0) {
+        words.push(slash);
+      }
+      words.push(dotted(part, web));
+    });
+    return { span: { begin: position, end }, words: join(words) };
   }
 
   // The longest abbreviation at a position with a reading in its context

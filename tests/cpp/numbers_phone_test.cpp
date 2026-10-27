@@ -34,7 +34,7 @@ REGISTER_TEST(numbers_phone_test) {
       U"Llame al seis cero cero uno dos tres cuatro cinco seis o al más treinta y cuatro nueve uno dos tres cuatro "
       U"cinco seis siete ocho.",
       verbalize("es", U"Llame al 600 123 456 o al +34 912 345 678.", only(&Options::numbers)));
-  ASSERT_EQUALS(U"Son seiscientos ciento veintitrés cuatrocientos cincuenta y seis euros.",
+  ASSERT_EQUALS(U"Son seiscientos millones ciento veintitrés mil cuatrocientos cincuenta y seis euros.",
                 verbalize("es", U"Son 600 123 456 euros.", only(&Options::numbers)));
 
   ASSERT_EQUALS(

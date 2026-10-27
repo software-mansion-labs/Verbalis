@@ -26,8 +26,8 @@ enum class Kind {
   SUM,        // the "+" of 2 + 2 and 90+6
   RANGE,      // the "-" of 10-15 and 2020-2022
   DIMENSION,  // the "x" of 1920x1080 and 3 m x 4 m
+  SIGN,       // the minus of -5: before FRACTION, which reads its digits (-1/3)
   FRACTION,   // 3/4
-  SIGN,       // the minus of -5
   TIME,       // 18:30, 7pm, 18 Uhr, 21h30
   SCORE,      // the ":" of 2:1
 

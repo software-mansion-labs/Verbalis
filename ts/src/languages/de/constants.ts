@@ -1,5 +1,6 @@
 import { dateFormat, keysOf, notation, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
+import type { Keys } from "../../text/scan.ts";
 import { afterAny, beforeNumber, type Readings } from "../../text/readings.ts";
 import { Gender, type Forms, type Joiners } from "../grammar.ts";
 
@@ -20,9 +21,23 @@ export const ORDINAL_STEMS: Readonly<Record<string, string>> = {
   eins: "ers", drei: "drit", sieben: "sieb", acht: "ach",
 };
 
+// Currencies, and prices per unit (12 €/m²): their reading after "pro" follows the whole price
 export const CURRENCIES: Readonly<Record<string, string>> = {
   "€": "Euro", "Euro": "Euro", "$": "Dollar", "Dollar": "Dollar", "£": "Pfund",
   "CHF": "Franken",
+  "€/m²": "Euro pro Quadratmeter",
+  "€/qm": "Euro pro Quadratmeter",
+  "€/kWh": "Euro pro Kilowattstunde",
+  "€/l": "Euro pro Liter",
+  "€/kg": "Euro pro Kilogramm",
+  "€/Monat": "Euro pro Monat",
+  "€/Jahr": "Euro pro Jahr",
+  "€/Tag": "Euro pro Tag",
+  "€/Std.": "Euro pro Stunde",
+  "€/h": "Euro pro Stunde",
+  "€/Stunde": "Euro pro Stunde",
+  "€/Nacht": "Euro pro Nacht",
+  "€/Person": "Euro pro Person",
 };
 
 export const SCALES: Readonly<Record<string, Forms>> = {
@@ -30,6 +45,9 @@ export const SCALES: Readonly<Record<string, Forms>> = {
   "Millionen": { one: "Million", many: "Millionen" },   "Mrd.": { one: "Milliarde", many: "Milliarden" },
   "Milliarde": { one: "Milliarde", many: "Milliarden" }, "Milliarden": { one: "Milliarde", many: "Milliarden" },
   "Tsd.": { one: "tausend", many: "tausend" },          "k": { one: "tausend", many: "tausend" },
+  // Lowercase, as also written: 2,2 millionen €
+  "million": { one: "Million", many: "Millionen" },     "millionen": { one: "Million", many: "Millionen" },
+  "milliarde": { one: "Milliarde", many: "Milliarden" }, "milliarden": { one: "Milliarde", many: "Milliarden" },
 };
 
 export const UNITS: Readonly<Record<string, Forms>> = {
@@ -52,12 +70,34 @@ export const UNITS: Readonly<Record<string, Forms>> = {
   "Min.": { one: "Minute", many: "Minuten" },          "s": { one: "Sekunde", many: "Sekunden" },
   "Sek.": { one: "Sekunde", many: "Sekunden" },        "ct": { one: "Cent", many: "Cent" },
   "PS": { one: "PS", many: "PS" },
+  "kwh": { one: "Kilowattstunde", many: "Kilowattstunden" }, "mv": { one: "Millivolt", many: "Millivolt" },
+  "MW": { one: "Megawatt", many: "Megawatt" },         "GW": { one: "Gigawatt", many: "Gigawatt" },
+  "MWh": { one: "Megawattstunde", many: "Megawattstunden" }, "GWh": { one: "Gigawattstunde", many: "Gigawattstunden" },
+  "TWh": { one: "Terawattstunde", many: "Terawattstunden" },
+  // Per unit: 42259/m², 56,3 /km²
+  "/m²": { one: "pro Quadratmeter", many: "pro Quadratmeter" }, "/km²": { one: "pro Quadratkilometer", many: "pro Quadratkilometer" },
+  "/m³": { one: "pro Kubikmeter", many: "pro Kubikmeter" },
+  "µm": { one: "Mikrometer", many: "Mikrometer" },
+  "μm": { one: "Mikrometer", many: "Mikrometer" },
+  "µg": { one: "Mikrogramm", many: "Mikrogramm" },
+  "μg": { one: "Mikrogramm", many: "Mikrogramm" },
+  "cm²": { one: "Quadratzentimeter", many: "Quadratzentimeter" },
+  "mm²": { one: "Quadratmillimeter", many: "Quadratmillimeter" },
+  "cm³": { one: "Kubikzentimeter", many: "Kubikzentimeter" },
+  "ft": { one: "Fuß", many: "Fuß" },
+  "mV": { one: "Millivolt", many: "Millivolt" },
+  "kV": { one: "Kilovolt", many: "Kilovolt" },
+  "mA": { one: "Milliampere", many: "Milliampere" },
+  "°F": { one: "Grad Fahrenheit", many: "Grad Fahrenheit" },
 };
 
 export const FRACTIONS: Fractions = {
   "1/2": "ein halb", "1/3": "ein Drittel", "2/3": "zwei Drittel", "1/4": "ein Viertel",
   "3/4": "drei Viertel",
 };
+
+// Words after a fraction which mark it as one: 2/3 der
+export const FRACTION_WORDS: ReadonlySet<string> = new Set(["der", "des", "eines", "einer", "aller"]);
 
 // Determiners after which an ordinal takes a weak ending: am dritten, der dritte (nominative)
 export const WEAK: ReadonlySet<string> = new Set([
@@ -74,6 +114,13 @@ export const WEAK_NOMINATIVE: ReadonlySet<string> = new Set([
 // ein-words, after which an ordinal takes a mixed ending: ein zweiter, ein drittes
 export const MIXED: ReadonlySet<string> = new Set([
   "ein", "kein", "mein", "dein", "sein", "ihr", "unser", "euer",
+]);
+
+// Words after which an amount stays in the nominative: ist 1 Euro, als 1 Euro, aber 1 Euro ist
+export const NOMINATIVE_WORDS: ReadonlySet<string> = new Set([
+  "ist", "sind", "war", "waren", "wird", "werden", "wurde", "wurden", "bleibt", "blieb", "sei", "seien",
+  "wäre", "als", "wie", "und", "oder", "pro", "je", "mal", "aber", "denn", "sondern", "doch", "dass",
+  "weil", "wenn", "ob", "obwohl", "da", "damit", "sodass",
 ]);
 
 // Prepositions by the case they govern
@@ -144,6 +191,9 @@ export const FEMININE_NAMES: ReadonlySet<string> = new Set([
 ]);
 
 // --- Notation: how numbers are written ---
+// Words after hours, minutes, and seconds, which the reading says: 02:02:23 Uhr, 13:46:36 Stunden
+export const SECONDS_SUFFIXES: Keys = ["Uhr", "Stunden", "Std.", "h"];
+
 export const NOTATION = notation({
   groupSeparators: ".   ", decimalSeparators: ",.", timeSeparators: ":.", timeSuffixes: ["Uhr"],
   currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
@@ -152,6 +202,7 @@ export const NOTATION = notation({
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 export const JOINERS: Joiners = {
   point: "Komma", dot: "Punkt", range: " bis ", by: "mal", score: " zu ", minus: "minus", plus: "plus",
+  fraction: " ",
 };
 
 // 1.5.2024, 1.5., 12. 3.: the year is optional, a dot closes the month
@@ -161,6 +212,9 @@ export const DATE_FORMAT = dateFormat({
 
 // 90er, 90ern, 90ers
 export const DECADE_SUFFIXES = ["er", "ern", "ers"];
+
+// Ordinal endings written after the digits: am 3ten, zum 20sten, dem 121tem
+export const ORDINAL_SUFFIXES: Keys = ["te", "ten", "tem", "ter", "tes", "ste", "sten", "stem", "ster", "stes"];
 export const DECADE_FORMAT = suffixFormat({ boundaries: ".,-" });
 
 // Words before "§" which take its plural: im § 5 (in dem Paragrafen)
@@ -175,6 +229,9 @@ export const SYMBOLS: Readings = {
   "½": ["ein halb"],  "§§": ["Paragrafen"], "§": [{ words: "Paragrafen", when: afterAny([...PARAGRAPH_PLURALS]) }, "Paragraf"],
 };
 
+// Days of a month, the word before a month abbreviation in a date: 2. Jan. 2003
+export const DAYS: readonly string[] = Array.from({ length: 31 }, (_, i) => [String(i + 1), String(i + 1).padStart(2, "0")]).flat();
+
 export const TERMS: Terms = {
   abbreviations: {
     // Before a number only: Abs. 5
@@ -183,8 +240,58 @@ export const TERMS: Terms = {
     "S.": [{ words: "Seite", when: beforeNumber }],
     "Art.": [{ words: "Artikel", when: beforeNumber }],
     "Kap.": [{ words: "Kapitel", when: beforeNumber }],
-    "ca.": [{ words: "circa", when: beforeNumber }],
     "Bd.": [{ words: "Band", when: beforeNumber }],
+    // After a day: 2. Jan. 2003
+    "Jan.": [{ words: "Januar", when: afterAny(DAYS) }],
+    "Feb.": [{ words: "Februar", when: afterAny(DAYS) }],
+    "Mär.": [{ words: "März", when: afterAny(DAYS) }],
+    "Apr.": [{ words: "April", when: afterAny(DAYS) }],
+    "Jun.": [{ words: "Juni", when: afterAny(DAYS) }],
+    "Jul.": [{ words: "Juli", when: afterAny(DAYS) }],
+    "Aug.": [{ words: "August", when: afterAny(DAYS) }],
+    "Sep.": [{ words: "September", when: afterAny(DAYS) }],
+    "Sept.": [{ words: "September", when: afterAny(DAYS) }],
+    "Okt.": [{ words: "Oktober", when: afterAny(DAYS) }],
+    "Nov.": [{ words: "November", when: afterAny(DAYS) }],
+    "Dez.": [{ words: "Dezember", when: afterAny(DAYS) }],
+    "jan.": [{ words: "Januar", when: afterAny(DAYS) }],
+    "feb.": [{ words: "Februar", when: afterAny(DAYS) }],
+    "mär.": [{ words: "März", when: afterAny(DAYS) }],
+    "apr.": [{ words: "April", when: afterAny(DAYS) }],
+    "jun.": [{ words: "Juni", when: afterAny(DAYS) }],
+    "jul.": [{ words: "Juli", when: afterAny(DAYS) }],
+    "aug.": [{ words: "August", when: afterAny(DAYS) }],
+    "sep.": [{ words: "September", when: afterAny(DAYS) }],
+    "sept.": [{ words: "September", when: afterAny(DAYS) }],
+    "okt.": [{ words: "Oktober", when: afterAny(DAYS) }],
+    "nov.": [{ words: "November", when: afterAny(DAYS) }],
+    "dez.": [{ words: "Dezember", when: afterAny(DAYS) }],
+    // Anywhere
+    "ca.": ["circa"],
+    "z.B.": ["zum Beispiel"],
+    "z. B.": ["zum Beispiel"],
+    "d.h.": ["das heißt"],
+    "d. h.": ["das heißt"],
+    "bzw.": ["beziehungsweise"],
+    "usw.": ["und so weiter"],
+    "u.a.": ["unter anderem"],
+    "u. a.": ["unter anderem"],
+    "z.T.": ["zum Teil"],
+    "z. T.": ["zum Teil"],
+    "ggf.": ["gegebenenfalls"],
+    "evtl.": ["eventuell"],
+    "inkl.": ["inklusive"],
+    "vgl.": ["vergleiche"],
+    "etc.": ["et cetera"],
+    "Dr.": ["Doktor"],
+    "Prof.": ["Professor"],
+    "Mr.": ["Mister"],
+    "Mrs.": ["Misses"],
+    "Ms.": ["Miss"],
+    "MwSt.": ["Mehrwertsteuer"],
+    "Mwst.": ["Mehrwertsteuer"],
   },
-  web: { dot: "Punkt", at: "at", slash: "Schrägstrich" },
+  web: { dot: "Punkt", at: "at", slash: "Schrägstrich", hyphen: "Bindestrich", underscore: "Unterstrich",
+    digits: ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun"],
+  },
 };

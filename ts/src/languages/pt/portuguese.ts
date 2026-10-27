@@ -1,11 +1,14 @@
 import type { Context } from "../../text/context.ts";
-import { DatePattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
-import { Kind, numeral, type Match, type Numeral } from "../../numbers/match.ts";
+import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
+import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
+  digitsAt,
   fitsClock,
   isOne,
   isSpokenDigits,
+  fractionOf,
+  isMarkedFraction,
   namedFraction,
   parseValue,
   spacedSuffix,
@@ -13,17 +16,24 @@ import {
   romanRole,
   RomanRole,
 } from "../../numbers/scanning.ts";
-import { join } from "../../text/scan.ts";
-import { size, toLower } from "../../text/strings.ts";
-import { isAlpha, isLower } from "../../text/unicode.ts";
+import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
+import { contains, size, startsWith, str, toLower, type Text } from "../../text/strings.ts";
+import { isAlpha, isDigit, isLower } from "../../text/unicode.ts";
 import { Gender } from "../grammar.ts";
 import { PatternLanguage } from "../language.ts";
 import {
   CURRENCIES,
   DATE_FORMAT,
+  DOT_DATE_FORMAT,
+  DATE_WORDS,
+  DECADE_FORMAT,
+  DECADE_SUFFIXES,
+  YEAR_WORDS,
+  LAW_WORDS,
   DAY_PARTS,
   FEMININE_ENDINGS,
   FEMININE_NOUNS,
+  FRACTION_WORDS,
   FRACTIONS,
   HEADINGS,
   HOUR_WORDS,
@@ -197,7 +207,7 @@ function scaled(number: Numeral, scale: string, gender: Gender): string {
   if (forms.one === "mil") {
     return `${numberWith(number, gender)} mil`;
   }
-  return `${numberWith(number, Gender.MASCULINE)} ${value(number) < 2n ? forms.one : forms.many}`;
+  return `${numberWith(number, Gender.MASCULINE)} ${value(number) === 1n ? forms.one : forms.many}`;
 }
 
 // -------------------
@@ -250,6 +260,111 @@ function lettered(range: Match, context: Context): boolean {
   return (before > 0 && isAsciiLetter(head[before - 1])) || (after < tail.length && isAsciiLetter(tail[after]));
 }
 
+// A proper fraction with a small denominator, read as one without a word after it: 3/8, 5/13, 1/100
+function smallFraction(a: bigint, b: bigint): boolean {
+  return a < b && (b < 20n || b === 100n || b === 1000n);
+}
+
+// The numbers of a slashed pair which a text starts with (6/2), or ends with if fromEnd; undefined if none
+function slashed(text: Text, fromEnd: boolean): [bigint, bigint] | undefined {
+  let start = 0;
+  if (fromEnd) {
+    const end = text.length;
+    start = end;
+    while (start > 0 && isDigit(text[start - 1])) {
+      start--;
+    }
+    if (start === end || start < 2 || text[start - 1] !== "/" || !isDigit(text[start - 2])) {
+      return undefined;
+    }
+    start -= 2;
+    while (start > 0 && isDigit(text[start - 1])) {
+      start--;
+    }
+  }
+  const slash = digitsEnd(text, start);
+  const end = digitsEnd(text, slash + 1);
+  if (slash === start || slash >= text.length || text[slash] !== "/" || end === slash + 1) {
+    return undefined;
+  }
+  const a = parseValue(str(text, start, slash));
+  const b = parseValue(str(text, slash + 1, end));
+  if (a === undefined || b === undefined) {
+    return undefined;
+  }
+  return [a, b];
+}
+
+// A phone number written with spaces only: after a word for one (ligue para 213 456 789), or nine digits that start
+// as a Portuguese number does (2, 3, 7, 8, 9) and count nothing after them (através do 707 246 707 (dias úteis)), but
+// not 213 456 789 pessoas or 300 000 000 €
+function spacedPhone(phone: Match): boolean {
+  const context = phone.context;
+  if (PHONE_WORDS.has(context.before())) {
+    return true;
+  }
+  const tail = context.tail();
+  const next = tail[0] === " " ? 1 : 0;
+  const word = toLower(context.after());
+  const counts = next < tail.length && tail[next] !== "(" && word !== "" && !STOP_WORDS.has(word);
+  const numbers = phone.numbers;
+  const national = numbers.length === 3 && contains("23789", numbers[0].integer[0]);
+  return national && numbers[numbers.length - 1].integer !== "000" && !counts;
+}
+
+// A round number before "s" which is a decade: anos 90s, década de 80s, '80s, 1980s
+function isDecade(match: Match): boolean {
+  const number = match.numbers[match.numbers.length - 1];
+  const n = value(number);
+  const word = match.context.before();
+  const head = match.context.head();
+  const marked =
+    word === "anos" ||
+    word === "década" ||
+    (word === "de" && match.context.before(2) === "década") ||
+    match.text.startsWith("'") ||
+    head[head.length - 1] === "'";
+  return (
+    n % 10n === 0n &&
+    ((number.integer.length === 2 && marked) || (number.integer.length === 4 && n >= 1000n && n <= 2100n))
+  );
+}
+
+// A day and a month marked as a date by the word before them, or by parentheses: dia 15/9, quinta-feira (16/3);
+// after "de" if they are no fraction: de 31/12, but de 1/3
+function dated(date: Match): boolean {
+  const word = date.context.before();
+  const head = date.context.head();
+  const tail = date.context.tail();
+  const parenthesized = head[head.length - 1] === "(" && tail[0] === ")";
+  const afterDe = word === "de" && !smallFraction(value(date.numbers[0]), value(date.numbers[1]));
+  return DATE_WORDS.has(word) || word.endsWith("-feira") || parenthesized || afterDe;
+}
+
+// A fraction without a word after it: 3/8, 5/13, 1/100. Not a law number (Lei 15/98), a grade (18/20), or a score in
+// a list of them (3/6, 6/2 e 7/6; 22/24 e 12/15).
+function bareFraction(fraction: Match): boolean {
+  const numbers = fraction.numbers;
+  const leadingZero = numbers[0].integer[0] === "0" || numbers[numbers.length - 1].integer[0] === "0";
+  const [a, b] = fractionOf(fraction);
+  if (numbers.length !== 2 || leadingZero || !smallFraction(a, b) || LAW_WORDS.has(fraction.context.before())) {
+    return false;
+  }
+  const head = fraction.context.head();
+  const tail = fraction.context.tail();
+  for (const joiner of [", ", " e "]) {
+    const before = head.length - joiner.length;
+    const next = startsWith(tail, 0, joiner) ? slashed(tail.slice(joiner.length), false) : undefined;
+    const previous = before >= 0 && startsWith(head, before, joiner) ? slashed(head.slice(0, before), true) : undefined;
+    for (const pair of [next, previous]) {
+      if (pair !== undefined && !smallFraction(pair[0], pair[1])) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 function cuesOf(match: Match): Cues {
   const context = match.context;
   const cues: Cues = {
@@ -272,6 +387,86 @@ function cuesOf(match: Match): Cues {
   return cues;
 }
 
+// ---------------------
+// ----- Patterns -----
+// ---------------------
+
+// 2024/03/15, 2024.03.15, 03/15/2024: a date written year first, or month first where the day can't be a month.
+// Its numbers are ordered as day, month, year.
+class ReorderedDatePattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const firstEnd = digitsEnd(text, position);
+    if (!isClearBefore(text, position, ".,/-") || firstEnd === position || firstEnd >= text.length) {
+      return undefined;
+    }
+    const parts = [digitsAt(text, position)];
+    const separator = text[firstEnd];
+    if (separator !== "/" && separator !== ".") {
+      return undefined;
+    }
+    for (let end = parts[0].span.end; parts.length < 3; end = parts[parts.length - 1].span.end) {
+      if (end + 1 >= text.length || text[end] !== separator || !isDigit(text[end + 1])) {
+        return undefined;
+      }
+      parts.push(digitsAt(text, end + 1));
+    }
+    const end = parts[2].span.end;
+    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,/-")) {
+      return undefined;
+    }
+
+    const fits = (i: number, low: bigint, high: bigint) =>
+      parts[i].integer.length <= 2 && value(parts[i]) >= low && value(parts[i]) <= high;
+    const date = match({ kind: Kind.DATE, span: { begin: position, end }, separator });
+    if (parts[0].integer.length === 4 && fits(1, 1n, 12n) && fits(2, 1n, 31n)) {
+      date.numbers = [parts[2], parts[1], parts[0]];
+    } else if (separator === "/" && fits(0, 1n, 12n) && fits(1, 13n, 31n) && parts[2].integer.length === 4) {
+      date.numbers = [parts[1], parts[0], parts[2]];
+    } else {
+      return undefined;
+    }
+    return date;
+  }
+}
+
+// 14:30:05: a time with seconds
+class SecondsPattern extends Pattern {
+  constructor() {
+    super(Kind.TIME);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,")) {
+      return undefined;
+    }
+    const time = match({ kind: Kind.TIME, separator: ":" });
+    let end = position;
+    for (let i = 0; i < 3; ++i) {
+      if (i > 0) {
+        if (end >= text.length || text[end] !== ":") {
+          return undefined;
+        }
+        end++;
+      }
+      const length = digitsEnd(text, end) - end;
+      if (length < (i === 0 ? 1 : 2) || length > 2) {
+        return undefined;
+      }
+      time.numbers.push(digitsAt(text, end));
+      end += length;
+    }
+    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:") || value(time.numbers[2]) > 59n) {
+      return undefined;
+    }
+    time.span = { begin: position, end };
+    return time;
+  }
+}
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -280,10 +475,14 @@ class Portuguese extends PatternLanguage {
   constructor() {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
+    this.addPattern(new DatePattern(DOT_DATE_FORMAT));
+    this.addPattern(new ReorderedDatePattern());
+    this.addPattern(new SecondsPattern());
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SIGNS, ORDINAL_SIGN_FORMAT));
+    this.addPattern(new SuffixPattern(Kind.DECADE, DECADE_SUFFIXES, DECADE_FORMAT));
     this.addPattern(new RomanPattern(false, ROMAN_MARKERS));
   }
 
@@ -292,7 +491,14 @@ class Portuguese extends PatternLanguage {
     if (number.fraction === "" && cues.day && number.integer === "1") {
       return "primeiro";
     }
-    return numberWith(number, number.fraction === "" ? cues.gender : Gender.MASCULINE);
+    // Em 2020 havia: a year counts nothing after it
+    const year =
+      YEAR_WORDS.has(match.context.before()) &&
+      number.integer.length === 4 &&
+      !number.grouped &&
+      value(number) >= 1000n &&
+      value(number) <= 2100n;
+    return numberWith(number, number.fraction === "" && !year ? cues.gender : Gender.MASCULINE);
   }
 
   protected override readCodeDigits(text: string): string {
@@ -302,19 +508,29 @@ class Portuguese extends PatternLanguage {
 
   protected override readDate(match: Match): string | undefined {
     const day = value(match.numbers[0]);
-    return (
-      (day === 1n ? "primeiro" : cardinal(day)) +
-      ` de ${MONTHS[Number(value(match.numbers[1]) - 1n)]} de ${cardinal(value(match.numbers[2]))}`
-    );
+    const words = `${day === 1n ? "primeiro" : cardinal(day)} de ${MONTHS[Number(value(match.numbers[1]) - 1n)]}`;
+    if (match.numbers.length === 3) {
+      return `${words} de ${cardinal(value(match.numbers[2]))}`;
+    }
+
+    // Without a year, a zero-padded or marked date: 03/04, dia 15/9, quinta-feira (16/3); but 1/4 do salário, 3/4
+    const padded = match.numbers[0].integer[0] === "0" || match.numbers[1].integer[0] === "0";
+    if (match.separator !== "/" || (!padded && (isMarkedFraction(match, FRACTION_WORDS) || !dated(match)))) {
+      return undefined;
+    }
+    return words;
   }
 
   protected override readPhone(match: Match): string | undefined {
-    // 2021-2022: a range of years; 213 456 789 is a count, unless a word says it is a phone number
+    // 2021-2022, 20 2021-2022: a range of years; 500-1000: a range of round numbers; 213 456 789 pessoas: a count
     if (match.kind === Kind.PHONE) {
-      const years = match.numbers.every(
-        (group) => group.integer.length === 4 && value(group) >= 1900n && value(group) <= 2100n,
-      );
-      if (years || (match.separator === " " && !PHONE_WORDS.has(match.context.before()))) {
+      const year = (group: Numeral) => group.integer.length === 4 && value(group) >= 1900n && value(group) <= 2100n;
+      const numbers = match.numbers;
+      const n = numbers.length;
+      const years = year(numbers[n - 2]) && year(numbers[n - 1]);
+      const round = n === 2 && numbers[0].integer.endsWith("0") && numbers[1].integer.endsWith("0");
+      const spaced = match.separator === " " && !match.text.includes("-");
+      if (years || round || (spaced && !spacedPhone(match))) {
         return undefined;
       }
     }
@@ -324,19 +540,48 @@ class Portuguese extends PatternLanguage {
   }
 
   protected override readFraction(match: Match): string | undefined {
-    return namedFraction(FRACTIONS, match);
+    // 1/2 litro: meio litro; 1/2 xícara, 1 1/2 xícara: meia xícara, uma e meia xícara
+    const words = namedFraction(FRACTIONS, match);
+    if (words !== undefined) {
+      return words === "meio" && cuesOf(match).gender === Gender.FEMININE ? "meia" : words;
+    }
+    const [a, b] = fractionOf(match);
+    if (b < 2n || a >= b || !(isMarkedFraction(match, FRACTION_WORDS) || bareFraction(match))) {
+      return undefined;
+    }
+    // um quinto, dois terços, um centésimo, três onze avos
+    if (b > 10n && b !== 100n && b !== 1000n) {
+      return `${cardinal(a)} ${cardinal(b)} avos`;
+    }
+    const denominator = b === 2n ? "meio" : b === 3n ? "terço" : ordinal(b, false);
+    return `${cardinal(a)} ${denominator}${a === 1n ? "" : "s"}`;
   }
 
   protected override readTime(match: Match): string | undefined {
-    if (!fitsClock(match)) {
+    // A dot makes a time only after an hour word or before "h": às 21.30, 21.30h, but 1.71
+    const decimal = match.separator === "." && match.suffix === "" && !HOUR_WORDS.has(match.context.before());
+    if (!fitsClock(match) || decimal) {
       return undefined;
     }
 
-    // 14h30: catorze e trinta; 21h: vinte e uma horas
-    const hours = value(match.numbers[0]);
+    // 15h da tarde: três horas da tarde; 21h da noite: nove horas da noite
+    let hours = value(match.numbers[0]);
+    const part = match.context.after() === "da" ? toLower(match.context.after(2)) : "";
+    if ((part === "tarde" && hours >= 13n && hours <= 18n) || (part === "noite" && hours >= 19n && hours <= 23n)) {
+      hours -= 12n;
+    }
+
+    // 14h30: catorze horas e trinta; 14:30:05: catorze horas e trinta minutos e cinco segundos
+    const words = cardinal(hours, Gender.FEMININE) + (hours === 1n ? " hora" : " horas");
     const minutes = match.numbers.length > 1 ? value(match.numbers[1]) : 0n;
-    const hour = cardinal(hours, Gender.FEMININE);
-    return minutes !== 0n ? `${hour} e ${cardinal(minutes)}` : hour + (hours === 1n ? " hora" : " horas");
+    if (match.numbers.length === 3) {
+      const seconds = value(match.numbers[2]);
+      return (
+        `${words} e ${cardinal(minutes)}${minutes === 1n ? " minuto e " : " minutos e "}${cardinal(seconds)}` +
+        (seconds === 1n ? " segundo" : " segundos")
+      );
+    }
+    return minutes !== 0n ? `${words} e ${cardinal(minutes)}` : words;
   }
 
   protected override readRoman(match: Match): string | undefined {
@@ -367,6 +612,14 @@ class Portuguese extends PatternLanguage {
     return n >= 10n && cuesOf(match).heading ? cardinal(n) : ordinal(n, match.suffix === "ª");
   }
 
+  // anos 90s: anos noventa; anos 1980s: anos mil novecentos e oitenta
+  protected override readDecade(match: Match): string | undefined {
+    if (!isDecade(match)) {
+      return undefined;
+    }
+    return cardinal(value(match.numbers[0]));
+  }
+
   protected override readCompound(match: Match): string | undefined {
     return `${numberWith(match.numbers[0], Gender.MASCULINE)}-${match.suffix}`;
   }
@@ -388,6 +641,8 @@ class Portuguese extends PatternLanguage {
         integer: number.integer + number.fraction,
       });
     }
+    // R$ 1811605: an amount, however long, is not a code
+    amount = { ...amount, grouped: amount.grouped || !amount.integer.startsWith("0") };
 
     if (cuesOf(match).named) {
       return match.scale === "" ? numberWith(amount, gender) : scaled(amount, match.scale, gender);
@@ -431,10 +686,14 @@ class Portuguese extends PatternLanguage {
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
+    // 45 s, 30s, but anos 90s
+    if (match.unit === "s" && !match.text.endsWith(" s") && isDecade(match)) {
+      return undefined;
+    }
     const unit = UNITS[match.unit];
     const firstWord = unit.one.split(" ")[0];
     const gender = feminine(firstWord) ? Gender.FEMININE : Gender.MASCULINE;
-    return `${numberWith(number, gender)} ${value(number) < 2n ? unit.one : unit.many}`;
+    return `${numberWith(number, gender)} ${value(number) === 1n ? unit.one : unit.many}`;
   }
 
   protected override readRange(from: Numeral, to: Numeral, match: Match): string {

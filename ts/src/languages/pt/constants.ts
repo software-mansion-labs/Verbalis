@@ -68,19 +68,34 @@ export const UNITS: Readonly<Record<string, Forms>> = {
   "GHz":  { one: "gigahertz", many: "gigahertz" },           "W":    { one: "watt", many: "watts" },
   "kW":   { one: "quilowatt", many: "quilowatts" },          "kWh":  { one: "quilowatt-hora", many: "quilowatts-hora" },
   "V":    { one: "volt", many: "volts" },                    "km/h": { one: "quilômetro por hora", many: "quilômetros por hora" },
-  "mph":  { one: "milha por hora", many: "milhas por hora" }, "°C":  { one: "grau Celsius", many: "graus Celsius" },
-  "°":    { one: "grau", many: "graus" },
+  "mph":  { one: "milha por hora", many: "milhas por hora" }, "°C":  { one: "grau Celsius", many: "graus Celsius" }, "°F": { one: "grau Fahrenheit", many: "graus Fahrenheit" },
+  "°":    { one: "grau", many: "graus" },                    "min":  { one: "minuto", many: "minutos" },
+  "s":    { one: "segundo", many: "segundos" },
 };
 
 export const FRACTIONS: Fractions = {
   "1/2": "meio", "1/3": "um terço", "2/3": "dois terços", "1/4": "um quarto", "3/4": "três quartos",
 };
 
+// Words after a fraction which mark it as one: 1/3 da
+export const FRACTION_WORDS: ReadonlySet<string> = new Set(["de", "do", "da", "dos", "das"]);
+
+// Words before a day and a month without a year which make them a date: dia 15/9, quinta-feira (16/3)
+export const DATE_WORDS: ReadonlySet<string> = new Set([
+  "dia", "dias", "em", "até", "desde", "hoje", "ontem", "amanhã", "data", "sábado", "domingo",
+]);
+
+// Words before a number and a year after a slash, which is not a fraction: Lei 15/98, nº 913/2010
+export const LAW_WORDS: ReadonlySet<string> = new Set([
+  "lei", "decreto", "decreto-lei", "portaria", "processo", "proc", "resolução", "despacho", "emenda",
+  "parecer", "acórdão", "número", "nº", "n.º",
+]);
+
 // Scale words which take "de" before a currency: um milhão de reais, but dez mil reais
 export const SCALE_WORDS = ["milhão", "milhões", "bilhão", "bilhões", "trilhão", "trilhões"] as const;
 
 // Words before an hour, which make it feminine: às duas, das dez
-export const HOUR_WORDS: ReadonlySet<string> = new Set(["às", "à", "das", "pelas"]);
+export const HOUR_WORDS: ReadonlySet<string> = new Set(["às", "à", "as", "das", "pelas"]);
 
 // Parts of the day after "da": duas da tarde
 export const DAY_PARTS: ReadonlySet<string> = new Set(["manhã", "tarde", "noite", "madrugada"]);
@@ -93,15 +108,18 @@ export const MASCULINE_IN_A: ReadonlySet<string> = new Set([
   "dia", "mapa", "problema", "sistema", "programa", "tema", "idioma", "clima", "planeta", "poema",
   "cometa", "drama", "esquema", "sofá", "diagrama", "teorema", "telefonema", "cinema", "prisma",
   "pijama", "aroma", "dilema", "fantasma", "panorama", "enigma", "dogma", "carisma", "atleta", "guia",
-  "pila",
+  "pila", "grama", "quilograma", "miligrama", "micrograma",
 ]);
 export const FEMININE_NOUNS: ReadonlySet<string> = new Set([
   "vez", "mão", "foto", "moto", "mulher", "flor", "noite", "tarde", "parte", "gente", "lei", "luz",
   "voz", "paz", "rede", "sede", "fase", "base", "frase", "classe", "chave", "fonte", "mente", "morte",
   "sorte", "ponte", "árvore", "nuvem", "ordem", "série", "espécie", "superfície", "cor", "dor", "mãe",
-  "pele", "neve", "febre", "carne", "torre", "hora", "semana", "polegada", "lição",
+  "pele", "neve", "febre", "carne", "torre", "hora", "semana", "polegada", "lição", "colher",
 ]);
-export const FEMININE_ENDINGS = ["a", "ção", "são", "dade", "tude", "gem", "ise", "ite", "ez"] as const;
+export const FEMININE_ENDINGS = ["a", "ã", "ção", "são", "dade", "tude", "gem", "ise", "ite", "ez"] as const;
+
+// Words before a year, which agrees with no noun after it: em 2020 havia
+export const YEAR_WORDS: ReadonlySet<string> = new Set(["em", "de", "desde", "até", "ano"]);
 
 // Words after a number which are not the noun it counts
 export const STOP_WORDS: ReadonlySet<string> = new Set([
@@ -111,6 +129,7 @@ export const STOP_WORDS: ReadonlySet<string> = new Set([
   "este", "esta", "estes", "estas", "esse", "essa", "esses", "essas", "isso", "isto", "já", "agora",
   "quando", "onde", "muito", "também", "se", "lhe", "me", "te", "ao", "à", "aos", "às", "pelo",
   "pela", "pelos", "pelas", "não", "sim", "meu", "minha", "seu", "sua",
+  "nada", "ainda", "apenas", "embora", "fora",
 ]);
 
 // D. João Iº: an ordinal marker on a Roman numeral
@@ -148,23 +167,29 @@ export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
 
 // --- Notation: how numbers are written ---
 export const NOTATION = notation({
-  groupSeparators: ".", decimalSeparators: ",.", timeSeparators: ":h", timeSuffixes: ["h"],
+  groupSeparators: ". \u00a0\u202f", decimalSeparators: ",.", timeSeparators: ":hH.", timeSuffixes: ["h", "hs"],
   currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
 });
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 export const JOINERS: Joiners = {
   point: "ponto", dot: "ponto", range: " a ", by: "por", score: " a ", minus: "menos", plus: "mais",
+  fraction: " e ",
 };
 
 // 24/03/2022, 07-11-2018
-export const DATE_FORMAT = dateFormat({ separators: "/-", boundaries: ".,/-" });
+export const DATE_FORMAT = dateFormat({ separators: "/-", boundaries: ".,/-", yearRequired: false });
+
+// 15.03.2024: with dots, only with a full year
+export const DOT_DATE_FORMAT = dateFormat({ separators: ".", boundaries: ".,/-", shortYear: false });
 
 // (11) 98765-4321, 0800-123456, 3456-7890, 213 456 789 (after a word of PHONE_WORDS): the longest first
 export const PHONE_FORMATS = [
   phoneFormat({ groups: [[2, 2], [4, 5], [4, 4]], parenthesized: true, closing: "-" }),
-  phoneFormat({ groups: [[4, 5], [4, 6]], separators: "-", boundaries: ".,-", closing: "-" }),
+  phoneFormat({ groups: [[2, 2], [4, 5], [4, 4]], separators: " -", boundaries: ".,-", closing: "-" }),
+  phoneFormat({ groups: [[4, 5], [4, 7]], separators: "-", boundaries: ".,-", closing: "-" }),
   phoneFormat({ groups: [[3, 3], [3, 3], [3, 3]], separators: " ", boundaries: ".,-", closing: "-" }),
+  phoneFormat({ groups: [[3, 3], [4, 4]], separators: "-", boundaries: ".,-", closing: "-" }),
 ];
 
 // Words before a phone number written with spaces, which else reads as numbers: ligue para 213 456 789
@@ -174,6 +199,10 @@ export const PHONE_WORDS: ReadonlySet<string> = new Set([
 
 // 1º, 2 ª: a sign, possibly after a space
 export const ORDINAL_SIGNS: Keys = ["º", "ª"];
+// anos 90s, década de 80s, '80s, 1980s; but 30s alone is thirty seconds
+export const DECADE_SUFFIXES: Keys = ["s"];
+export const DECADE_FORMAT = suffixFormat({ apostrophes: true, boundaries: ".,-" });
+
 export const ORDINAL_SIGN_FORMAT = suffixFormat({
   space: true,
   wordEnd: false,
@@ -197,6 +226,9 @@ export const TERMS: Terms = {
     "Art.": [{ words: "artigo", when: beforeNumber }],
     "pág.": [{ words: "página", when: beforeNumber }],
     "§": [{ words: "parágrafo", when: beforeNumber }],
+    "ext.": [{ words: "extensão", when: beforeNumber }],
   },
-  web: { dot: "ponto", at: "arroba", slash: "barra" },
+  web: { dot: "ponto", at: "arroba", slash: "barra", hyphen: "hífen", underscore: "sublinhado",
+    digits: ["zero", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"],
+  },
 };

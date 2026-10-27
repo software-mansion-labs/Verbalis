@@ -7,6 +7,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace verbalis::steps {
 
@@ -17,9 +18,15 @@ using text::Span;
 
 // The words between the parts of a web address.
 struct WebWords {
-  std::u32string dot;   // example dot com
-  std::u32string at;    // jan at example dot com
-  std::u32string slash; // example dot com slash news
+  std::u32string dot;        // example dot com
+  std::u32string at;         // jan at example dot com
+  std::u32string slash;      // example dot com slash news
+  std::u32string hyphen;     // my hyphen site dot com; the hyphen stays as written if empty
+  std::u32string underscore; // jan underscore nowak at example dot com; stays as written if empty
+  // C colon backslash Users: paths (/home/desktop, C:\Users) and file names (report.pdf) stay as written if empty
+  std::u32string backslash;
+  std::u32string colon;
+  std::vector<std::u32string> digits; // The names of the digits 0-9, read one by one: covid one nine dot gov
 };
 
 // The terms of a language: written forms which are not said as written.
@@ -49,6 +56,9 @@ private:
 
   // https://www.example.com/news, jan.kowalski@example.pl: its parts joined with the words of the separators
   std::optional<Term> read_address(std::u32string_view text, size_t position) const;
+
+  // /home/desktop, C:\Users\HP, home/desktop, report.pdf: a path or a file name, with its separators read
+  std::optional<Term> read_path(std::u32string_view text, size_t position) const;
 
   // The longest abbreviation at a position with a reading in its context
   std::optional<Term> read_abbreviation(std::u32string_view text, size_t position) const;

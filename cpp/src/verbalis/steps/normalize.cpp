@@ -25,12 +25,63 @@ size_t dash_end(std::u32string_view text, size_t position) {
   }
   return end - position >= 2 ? end : position;
 }
+
+// Whether an ordinal sign at a position is a degree: 18ºC, 12 ºF
+bool is_degree(std::u32string_view text, size_t position) {
+  size_t before = position;
+  while (before > 0 && unicode::isspace(text[before - 1])) {
+    before--;
+  }
+  size_t unit = position + 1;
+  return text[position] == U'º' && before > 0 && unicode::isdigit(text[before - 1]) && unit < text.size() &&
+         (text[unit] == U'C' || text[unit] == U'F') && (unit + 1 == text.size() || !unicode::isword(text[unit + 1]));
+}
+
+// The characters of the Windows-1252 bytes 0x80 to 0x9F; an undefined byte reads as the control character of its value
+constexpr std::u32string_view kWindows1252 = U"€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008dŽ\u008f\u0090‘’“”•–—˜™š›œ\u009džŸ";
+
+// The Windows-1252 byte a character was read from, or -1 for none
+int byte_of(char32_t c) {
+  if (c >= 0x80 && c <= 0xff) {
+    return static_cast<int>(c);
+  }
+  size_t i = kWindows1252.find(c);
+  return i == std::u32string_view::npos ? -1 : static_cast<int>(0x80 + i);
+}
+
+// A character of UTF-8 read as Windows-1252 at a position (Ä™ -> ę), or nullopt
+std::optional<Document::Edit> read_utf8(std::u32string_view text, size_t position) {
+  int lead = byte_of(text[position]);
+  size_t length = lead >= 0xc2 && lead <= 0xdf ? 2 :
+                  lead >= 0xe0 && lead <= 0xef ? 3 :
+                  lead >= 0xf0 && lead <= 0xf4 ? 4 :
+                                                 0;
+  if (length == 0 || position + length > text.size()) {
+    return std::nullopt;
+  }
+  char32_t c = lead & (0x7f >> length);
+  for (size_t k = 1; k < length; ++k) {
+    int byte = byte_of(text[position + k]);
+    if (byte < 0x80 || byte > 0xbf) {
+      return std::nullopt;
+    }
+    c = (c << 6) | (byte & 0x3f);
+  }
+  if ((length == 3 && c < 0x800) || (length == 4 && (c < 0x10000 || c > 0x10ffff))) {
+    return std::nullopt;
+  }
+  return Document::Edit{.span = {position, position + length}, .text = std::u32string(1, c)};
+}
 } // namespace
 
 Normalizer::Normalizer(const Characters& characters) {
-  for (const auto& [members, canonical] : characters) {
+  for (const auto& [members, canonical, letter] : characters) {
     for (char32_t c : members) {
       canonical_[c] = canonical;
+      if (letter) {
+        letters_.insert(c);
+        utf8_ = true;
+      }
     }
   }
 }
@@ -39,16 +90,36 @@ void Normalizer::apply(Document& document) const {
   std::u32string_view text = document.text();
 
   for (size_t i = 0; i < text.size();) {
-    if (auto dash = read_dash(text, i)) {
-      document.replace(dash->span, std::move(dash->text));
-      i = dash->span.end;
+    auto edit = utf8_ ? read_utf8(text, i) : std::nullopt;
+    if (!edit) {
+      edit = read_dash(text, i);
+    }
+    if (edit) {
+      document.replace(edit->span, std::move(edit->text));
+      i = edit->span.end;
       continue;
     }
-    if (auto it = canonical_.find(text[i]); it != canonical_.end()) {
+    if (is_degree(text, i)) {
+      document.replace({i, i + 1}, U"°");
+    } else if (auto it = canonical_.find(text[i]);
+               it != canonical_.end() && (!letters_.contains(text[i]) || is_letter(text, i))) {
       document.replace({i, i + 1}, it->second);
     }
     i++;
   }
+}
+
+bool Normalizer::is_letter(std::u32string_view text, size_t position) const {
+  auto letter = [&](size_t i) { return unicode::isalpha(text[i]) || letters_.contains(text[i]); };
+  if (position + 1 < text.size() && letter(position + 1)) {
+    return true;
+  }
+  size_t start = position;
+  while (start > 0 && letter(start - 1)) {
+    start--;
+  }
+  std::u32string_view word = text.substr(start, position - start);
+  return !word.empty() && word != U"m" && word != U"cm" && word != U"dm" && word != U"km" && word != U"mm";
 }
 
 std::optional<Document::Edit> Normalizer::read_dash(std::u32string_view text, size_t position) const {

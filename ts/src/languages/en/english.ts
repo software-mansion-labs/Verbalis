@@ -1,8 +1,12 @@
-import { DatePattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
-import { Kind, numeral, type Match, type Numeral } from "../../numbers/match.ts";
+import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
+import { Kind, match as matchOf, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
+  digitsAt,
+  numbersAt,
   fitsClock,
   isSpokenDigits,
+  fractionOf,
+  isMarkedFraction,
   namedFraction,
   parseValue,
   spacedSuffix,
@@ -10,22 +14,30 @@ import {
   romanRole,
   RomanRole,
 } from "../../numbers/scanning.ts";
-import { join } from "../../text/scan.ts";
-import { contains, size, toLower } from "../../text/strings.ts";
-import { isAlpha, isUpper } from "../../text/unicode.ts";
+import { PUNCTUATION, stripped, wordsOf } from "../../text/context.ts";
+import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join, keysAt, skipSpace } from "../../text/scan.ts";
+import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
+import { isAlpha, isDigit, isUpper } from "../../text/unicode.ts";
 import { PatternLanguage } from "../language.ts";
 import {
+  CENTS,
   CURRENCIES,
+  CURRENCY_KEYS,
   DATE_FORMAT,
   DECADE_FORMAT,
   DECADE_SUFFIXES,
+  ERAS,
+  FRACTION_WORDS,
   FRACTIONS,
+  GROUP_SCALES,
   IRREGULAR_ORDINALS,
   IRREGULAR_PLURALS,
   JOINERS,
   MONTH_WORDS,
   MONTHS,
   NOTATION,
+  PER,
+  PER_KEYS,
   ONES,
   ORDINAL_SUFFIXES,
   PHONE_FORMATS,
@@ -63,6 +75,27 @@ function cardinal(n: bigint): string {
   return "";
 }
 
+// A long grouped number by its groups of three digits: one hundred twenty-four quintillion ...
+function groups(text: string): string {
+  const words: string[] = [];
+  const first = text.length % 3 !== 0 ? text.length % 3 : 3;
+  let index = (text.length - first) / 3;
+  for (let start = 0; start < text.length; index--) {
+    const length = start === 0 ? first : 3;
+    const group = parseValue(text.slice(start, start + length)) ?? 0n;
+    if (group !== 0n) {
+      words.push(cardinal(group) + (index !== 0 ? ` ${GROUP_SCALES[index - 1]}` : ""));
+    }
+    start += length;
+  }
+  return join(words);
+}
+
+// A day before its month: the twenty-fifth of
+function dayOf(day: bigint, afterThe: boolean): string {
+  return `${afterThe ? "" : "the "}${ordinal(day)} of`;
+}
+
 function ordinal(n: bigint): string {
   // Only the last word changes: twenty-first, one hundred and twelfth
   const words = cardinal(n);
@@ -94,6 +127,13 @@ function digits(text: string): string {
   return join([...text].map((c) => ONES[Number(c)]));
 }
 
+// An amount of money: a cardinal, unless written with a leading zero
+function amount(number: Numeral): string {
+  const n = parseValue(number.integer);
+  const zero = number.integer.length > 1 && number.integer[0] === "0";
+  return n !== undefined && !zero ? cardinal(n) : digits(number.integer);
+}
+
 // a.m. and p.m. as their lowercase abbreviations are said; AM and PM stay as written
 function ampm(suffix: string): string {
   const base = toLower(suffix.replace(/\.+$/, ""));
@@ -108,7 +148,12 @@ function ampm(suffix: string): string {
 interface Cues {
   afterMonth: boolean; // March 3: a day of the month, read as an ordinal
   counted: boolean; // 1999 people: a count rather than a year
-  attributive: boolean; // a $5 bill: before a noun, the unit stays singular
+  attributive: boolean; // a $5 bill: before a noun (not a verb in -ed or -ing), the unit stays singular
+  beforeMonth: boolean; // 25 July 2012: a day before the name of its month
+  afterThe: boolean; // the 25th, 24/25 May: no article before it
+  year: boolean; // in 1999: a year is expected
+  era: boolean; // 340 AD: an era follows
+  amount: boolean; // $2019, 1980 kg: an amount, never read as a year
 }
 
 function cuesOf(match: Match): Cues {
@@ -120,14 +165,435 @@ function cuesOf(match: Match): Cues {
   const pluralNoun =
     IRREGULAR_PLURALS.has(nextLower) ||
     (size(nextLower) > 3 && nextLower.endsWith("s") && !nextLower.endsWith("ss") && !STOP_WORDS.has(nextLower));
-  const yearCue = YEAR_CUES.has(previous) || MONTH_WORDS.has(previous);
+  // March 3, august 23, but "it may 3 times", "in May, 24 people": a month right before the number, capitalized
+  // if it is also a common word
+  const words = wordsOf(match.context.head());
+  const written = words.length > 0 ? words[words.length - 1] : [];
+  const common = previous === "may" || previous === "march" || previous === "mar";
+  const afterMonth =
+    MONTH_WORDS.has(previous) &&
+    !contains(PUNCTUATION, written[written.length - 1]) &&
+    (!common || isUpper(stripped(written)[0]));
+  const yearCue = YEAR_CUES.has(previous) || afterMonth;
+
+  // 25 July, 26th May 2012, but Top 10 March Madness picks, Quarter 1 (Jan
+  const tail = match.context.tail();
+  const after = wordsOf(tail);
+  const closed = after.length > 0 && contains(PUNCTUATION, after[0][after[0].length - 1]); // May, Jan: no word follows
+  const following = match.context.after(2);
+  // A lowercase month counts too, unless it is a common word (may, march) without a year after it: 17 may 2010
+  const commonMonth = nextLower === "may" || nextLower === "march" || nextLower === "mar";
+  const lowercaseMonth = !commonMonth || (following !== "" && isDigit(following[0]));
+  const month =
+    tail.length > 1 &&
+    tail[0] === " " &&
+    isAlpha(tail[1]) &&
+    (isUpper(tail[1]) || lowercaseMonth) &&
+    MONTH_WORDS.has(nextLower) &&
+    (closed || following === "" || !isUpper(following[0]));
+  // 24/25 May, 23-24 June: the article goes before the first day
+  const head = match.context.head();
+  const inRange = head.length > 0 && (head[head.length - 1] === "/" || head[head.length - 1] === "-");
 
   return {
-    afterMonth: MONTH_WORDS.has(previous),
+    afterMonth,
     counted: pluralNoun && !yearCue,
     attributive:
-      next !== "" && isAlpha(String.fromCodePoint(next.codePointAt(0) as number)) && !STOP_WORDS.has(nextLower),
+      next !== "" &&
+      isAlpha(String.fromCodePoint(next.codePointAt(0) as number)) &&
+      !STOP_WORDS.has(nextLower) &&
+      !(tail[0] === " " && tail[1] === "(") &&
+      !nextLower.endsWith("ed") &&
+      !nextLower.endsWith("ing"),
+    beforeMonth: month,
+    afterThe: previous === "the" || inRange,
+    year: yearCue,
+    era: ERAS.has(nextLower),
+    amount:
+      match.kind === Kind.MONEY || match.kind === Kind.SCALE || match.kind === Kind.PERCENT || match.kind === Kind.UNIT,
   };
+}
+
+// --------------------
+// ----- Patterns -----
+// --------------------
+
+// 10/06/2005, 11/17/05: a date with slashes and a year, month first unless the first number can't be a month
+// (25/12/2020). Its numbers are as written.
+class SlashDatePattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,/-")) {
+      return undefined;
+    }
+    const parts: Numeral[] = [];
+    let end = position;
+    for (let i = 0; i < 3; i++) {
+      if (i > 0 && (end >= text.length || text[end] !== "/")) {
+        return undefined;
+      }
+      const start = i === 0 ? end : end + 1;
+      end = digitsEnd(text, start);
+      const length = end - start;
+      if (length === 0 || (i < 2 ? length > 2 : length !== 2 && length !== 4)) {
+        return undefined;
+      }
+      parts.push(digitsAt(text, start));
+    }
+    if (!isClearAfter(text, end, "/") || isDigitAfter(text, end, ".,/")) {
+      return undefined;
+    }
+    const a = value(parts[0]);
+    const b = value(parts[1]);
+    const month = a <= 12n ? a : b;
+    const day = a <= 12n ? b : a;
+    if (month < 1n || month > 12n || day < 1n || day > 31n) {
+      return undefined;
+    }
+    return matchOf({ kind: Kind.DATE, span: { begin: position, end }, numbers: parts, separator: "/" });
+  }
+}
+
+// 2016/07/03, 1998/2/30, 2012.01.05: a date with its year first. Its numbers are the day, the month, and the year,
+// as an ISO date's.
+class YearFirstDatePattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const yearEnd = digitsEnd(text, position);
+    if (
+      !isClearBefore(text, position, ".,/-") ||
+      yearEnd !== position + 4 ||
+      yearEnd >= text.length ||
+      (text[yearEnd] !== "/" && text[yearEnd] !== ".")
+    ) {
+      return undefined;
+    }
+    const separator = text[yearEnd];
+    const month = yearEnd + 1;
+    const monthEnd = digitsEnd(text, month);
+    if (monthEnd === month || monthEnd > month + 2 || monthEnd >= text.length || text[monthEnd] !== separator) {
+      return undefined;
+    }
+    const day = monthEnd + 1;
+    const dayEnd = digitsEnd(text, day);
+    // With dots, two digits each (2012.01.05), which a version number seldom has
+    const shortest = separator === "." ? 2 : 1;
+    if (
+      dayEnd < day + shortest ||
+      dayEnd > day + 2 ||
+      monthEnd < month + shortest ||
+      !isClearAfter(text, dayEnd, "/") ||
+      isDigitAfter(text, dayEnd, ".,/")
+    ) {
+      return undefined;
+    }
+    const y = digitsAt(text, position);
+    const m = digitsAt(text, month);
+    const d = digitsAt(text, day);
+    if (value(m) < 1n || value(m) > 12n || value(d) < 1n || value(d) > 31n) {
+      return undefined;
+    }
+    return matchOf({ kind: Kind.DATE, span: { begin: position, end: dayEnd }, numbers: [d, m, y], separator: "-" });
+  }
+}
+
+// 2Q22, 3Q2022, 1H23: a quarter or a half of a year. Its numbers are the quarter or half and the year.
+class QuarterPattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position) || position + 3 >= text.length) {
+      return undefined;
+    }
+    const part = text[position];
+    const letter = text[position + 1];
+    const quarter = letter === "Q" && part >= "1" && part <= "4";
+    const half = letter === "H" && (part === "1" || part === "2");
+    const end = digitsEnd(text, position + 2);
+    if (!(quarter || half) || (end !== position + 4 && end !== position + 6) || !isClearAfter(text, end)) {
+      return undefined;
+    }
+    return matchOf({
+      kind: Kind.DATE,
+      span: { begin: position, end },
+      numbers: [digitsAt(text, position), digitsAt(text, position + 2)],
+      separator: letter,
+    });
+  }
+}
+
+// 1,000th, 9,000,000th: an ordinal of a grouped number
+class GroupedOrdinalPattern extends Pattern {
+  constructor() {
+    super(Kind.ORDINAL);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,")) {
+      return undefined;
+    }
+    for (const number of numbersAt(text, position, ",", "")) {
+      if (!number.grouped) {
+        continue;
+      }
+      for (const key of keysAt(text, number.span.end, ORDINAL_SUFFIXES)) {
+        if (isClearAfter(text, number.span.end + size(key))) {
+          return matchOf({
+            kind: Kind.ORDINAL,
+            span: { begin: position, end: number.span.end + size(key) },
+            numbers: [number],
+            suffix: key,
+          });
+        }
+      }
+    }
+    return undefined;
+  }
+}
+
+// 1/4th, 1/3RD, 23 4/5th: a fraction marked by the suffix of its denominator. Its numbers are as a FractionPattern's.
+class SuffixedFractionPattern extends Pattern {
+  constructor() {
+    super(Kind.FRACTION);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, "./")) {
+      return undefined;
+    }
+    const numbers: Numeral[] = [];
+    let start = position;
+    const wholeEnd = digitsEnd(text, position);
+    if (wholeEnd > position && wholeEnd + 1 < text.length && text[wholeEnd] === " ") {
+      numbers.push(digitsAt(text, position));
+      start = wholeEnd + 1;
+    }
+    const slash = digitsEnd(text, start);
+    if (slash === start || slash >= text.length || text[slash] !== "/") {
+      return undefined;
+    }
+    const end = digitsEnd(text, slash + 1);
+    const suffix = toLower(str(text, end, Math.min(end + 2, text.length)));
+    if (
+      end === slash + 1 ||
+      (suffix !== "st" && suffix !== "nd" && suffix !== "rd" && suffix !== "th") ||
+      !isClearAfter(text, end + 2)
+    ) {
+      return undefined;
+    }
+    numbers.push(digitsAt(text, start));
+    numbers.push(digitsAt(text, slash + 1));
+    return matchOf({
+      kind: Kind.FRACTION,
+      span: { begin: position, end: end + 2 },
+      numbers,
+      suffix: str(text, end, end + 2),
+      separator: "/",
+    });
+  }
+}
+
+// 1960s-80s, 1960s-1980s: a range of decades. Its numbers are the first and the last decade.
+class DecadeRangePattern extends Pattern {
+  constructor() {
+    super(Kind.DECADE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const first = digitsEnd(text, position);
+    if (
+      !isClearBefore(text, position, ".,-") ||
+      first !== position + 4 ||
+      first + 2 >= text.length ||
+      text[first] !== "s" ||
+      text[first + 1] !== "-"
+    ) {
+      return undefined;
+    }
+    const last = first + 2;
+    const lastEnd = digitsEnd(text, last);
+    if (
+      (lastEnd !== last + 2 && lastEnd !== last + 4) ||
+      lastEnd >= text.length ||
+      text[lastEnd] !== "s" ||
+      !isClearAfter(text, lastEnd + 1)
+    ) {
+      return undefined;
+    }
+    return matchOf({
+      kind: Kind.DECADE,
+      span: { begin: position, end: lastEnd + 1 },
+      numbers: [digitsAt(text, position), digitsAt(text, last)],
+      suffix: "s",
+    });
+  }
+}
+
+// 21:51:31, 2:08:29: hours, minutes, and seconds. Its numbers are the three parts.
+class SecondsPattern extends Pattern {
+  constructor() {
+    super(Kind.TIME);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,:")) {
+      return undefined;
+    }
+    const parts: Numeral[] = [];
+    let end = position;
+    for (let i = 0; i < 3; i++) {
+      if (i > 0 && (end >= text.length || text[end] !== ":")) {
+        return undefined;
+      }
+      const start = i === 0 ? end : end + 1;
+      end = digitsEnd(text, start);
+      const length = end - start;
+      if (length === 0 || length > 2 || (i > 0 && (length !== 2 || text[start] > "5"))) {
+        return undefined;
+      }
+      parts.push(digitsAt(text, start));
+    }
+    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:")) {
+      return undefined;
+    }
+    return matchOf({ kind: Kind.TIME, span: { begin: position, end }, numbers: parts, separator: ":" });
+  }
+}
+
+// $.01, $20/mo, £10/wk, $12/kg: an amount after its currency, with no units (.01) or followed by what it is counted by.
+// The suffix is the key of PER.
+class PricePattern extends Pattern {
+  constructor() {
+    super(Kind.MONEY);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position)) {
+      return undefined;
+    }
+    for (const currency of keysAt(text, position, CURRENCY_KEYS)) {
+      const start = skipSpace(text, position + size(currency));
+      let amount: Numeral;
+      if (start + 1 < text.length && text[start] === "." && isDigit(text[start + 1])) {
+        const end = digitsEnd(text, start + 1);
+        amount = numeral({ span: { begin: start, end }, fraction: str(text, start + 1, end), decimalMark: "." });
+      } else {
+        const numbers = numbersAt(text, start, ",", ".");
+        if (numbers.length === 0) {
+          continue;
+        }
+        amount = numbers[0];
+      }
+
+      const money = matchOf({
+        kind: Kind.MONEY,
+        span: { begin: position, end: amount.span.end },
+        numbers: [amount],
+        unit: currency,
+      });
+      const slash = amount.span.end;
+      if (slash < text.length && text[slash] === "/") {
+        for (const key of keysAt(text, slash + 1, PER_KEYS)) {
+          if (isClearAfter(text, slash + 1 + size(key))) {
+            return { ...money, span: { begin: position, end: slash + 1 + size(key) }, suffix: key };
+          }
+        }
+      }
+      if (amount.integer === "" && isClearAfter(text, amount.span.end) && !isDigitAfter(text, amount.span.end)) {
+        return money;
+      }
+    }
+    return undefined;
+  }
+}
+
+// 2pm-5pm, 5%-10%, $250-$300, 4:00 am - 8:12 pm: the hyphen of a range whose ends are marked as amounts or times.
+// It has no numbers; the generic RangePattern takes the ranges of bare numbers.
+class MarkedRangePattern extends Pattern {
+  constructor() {
+    super(Kind.RANGE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const span = { begin: position, end: position + 1 };
+    if (text[position] === " " && text[position + 1] === "-" && text[position + 2] === " ") {
+      span.end = position + 3;
+    } else if (text[position] !== "-") {
+      return undefined;
+    }
+    const head = toLower(str(text, 0, span.begin));
+    const tail = text.slice(span.end);
+
+    // The end before it: a percentage or a time with am or pm; or any amount before a currency
+    let mark = head;
+    while (mark !== "" && (mark.endsWith(".") || isAlpha(mark[mark.length - 1]))) {
+      mark = mark.slice(0, -1);
+    }
+    const suffix = head.slice(mark.length);
+    mark = mark.replace(/ +$/, "");
+    const time =
+      (suffix === "am" || suffix === "pm" || suffix === "a.m." || suffix === "p.m.") &&
+      mark !== "" &&
+      isDigit(mark[mark.length - 1]);
+    const percent = head.length > 1 && head.endsWith("%") && isDigit(head[head.length - 2]);
+    const amount = head !== "" && isDigit(head[head.length - 1]);
+
+    // The end after it: a number, or an amount after its currency
+    const currency = keysAt(tail, 0, CURRENCY_KEYS).some(
+      (key) => isDigitAfter(tail, size(key)) || isDigitAfter(tail, skipSpace(tail, size(key))),
+    );
+    const number = tail.length > 0 && isDigit(tail[0]);
+    if (((time || percent) && (number || currency)) || (amount && currency)) {
+      return matchOf({ kind: Kind.RANGE, span, separator: "-" });
+    }
+    return undefined;
+  }
+}
+
+// 2*8, 2 * 10: the times of a product, between numbers
+class ProductPattern extends Pattern {
+  constructor() {
+    super(Kind.DIMENSION);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const star = skipSpace(text, position);
+    if (position === 0 || !isDigit(text[position - 1]) || star >= text.length || text[star] !== "*") {
+      return undefined;
+    }
+    const end = skipSpace(text, star + 1);
+    if (end >= text.length || !isDigit(text[end])) {
+      return undefined;
+    }
+    return matchOf({ kind: Kind.DIMENSION, span: { begin: position, end }, separator: "*" });
+  }
+}
+
+// 1-2=5, 1- 2 = 5: the minus of an equation
+class EquationMinusPattern extends Pattern {
+  constructor() {
+    super(Kind.DIFFERENCE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (position === 0 || text[position] !== "-" || !isDigit(text[position - 1])) {
+      return undefined;
+    }
+    const number = skipSpace(text, position + 1);
+    const end = digitsEnd(text, number);
+    if (end === number || skipSpace(text, end) >= text.length || text[skipSpace(text, end)] !== "=") {
+      return undefined;
+    }
+    return matchOf({ kind: Kind.DIFFERENCE, span: { begin: position, end: number }, separator: "-" });
+  }
 }
 
 // --------------------
@@ -137,11 +603,22 @@ function cuesOf(match: Match): Cues {
 class English extends PatternLanguage {
   constructor() {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
+    this.addPattern(new SlashDatePattern());
+    this.addPattern(new YearFirstDatePattern());
+    this.addPattern(new QuarterPattern());
     this.addPattern(new DatePattern(DATE_FORMAT));
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
+    this.addPattern(new EquationMinusPattern());
+    this.addPattern(new MarkedRangePattern());
+    this.addPattern(new ProductPattern());
+    this.addPattern(new SecondsPattern());
+    this.addPattern(new PricePattern());
+    this.addPattern(new SuffixedFractionPattern());
+    this.addPattern(new GroupedOrdinalPattern());
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
+    this.addPattern(new DecadeRangePattern());
     this.addPattern(new SuffixPattern(Kind.DECADE, DECADE_SUFFIXES, DECADE_FORMAT));
     this.addPattern(new RomanPattern());
   }
@@ -168,12 +645,31 @@ class English extends PatternLanguage {
   }
 
   protected override readDate(match: Match): string | undefined {
-    const words = `${ordinal(value(match.numbers[0]))} ${MONTHS[Number(value(match.numbers[1])) - 1]}`;
+    // 2Q22: the second quarter of twenty-two; 1H23: the first half of twenty-three
+    if (match.separator === "Q" || match.separator === "H") {
+      const year = match.numbers[1];
+      return (
+        `the ${ordinal(value(match.numbers[0]))}${match.separator === "Q" ? " quarter of " : " half of "}` +
+        (year.integer.length === 4 ? pairs(value(year)) : cardinal(value(year)))
+      );
+    }
+    // 10/06/2005: October sixth (25/12/2020 has its day first); 15.01.2020: the fifteenth of January
+    let day = value(match.numbers[0]);
+    let month = value(match.numbers[1]);
+    const monthFirst = match.separator === "/" && day <= 12n;
+    if (monthFirst) {
+      [day, month] = [month, day];
+    }
+    const name = MONTHS[Number(month) - 1];
+    const words = monthFirst ? `${name} ${ordinal(day)}` : `${dayOf(day, match.context.before() === "the")} ${name}`;
     if (match.numbers.length < 3) {
       return words;
     }
+    // 1998: nineteen ninety-eight; 05: oh five
     const year = match.numbers[2];
-    return `${words} ` + (year.integer.length === 4 ? pairs(value(year)) : cardinal(value(year)));
+    const y = value(year);
+    const yearWords = year.integer.length === 4 ? pairs(y) : y < 10n ? `oh ${cardinal(y)}` : cardinal(y);
+    return `${words} ${yearWords}`;
   }
 
   protected override readPhone(match: Match): string | undefined {
@@ -186,12 +682,44 @@ class English extends PatternLanguage {
   }
 
   protected override readFraction(match: Match): string | undefined {
-    return namedFraction(FRACTIONS, match);
+    const words = namedFraction(FRACTIONS, match);
+    if (words !== undefined) {
+      return words;
+    }
+    // one fifth, two thirds, three quarters, one hundredth
+    const [a, b] = fractionOf(match);
+    const suffixed = match.suffix !== ""; // 1/4th
+    if (b < 2n || a >= b || !(suffixed || isMarkedFraction(match, FRACTION_WORDS))) {
+      return undefined;
+    }
+    let denominator = b === 2n ? "half" : b === 4n ? "quarter" : ordinal(b);
+    if (a !== 1n) {
+      denominator = b === 2n ? "halves" : `${denominator}s`;
+    }
+    return `${cardinal(a)} ${denominator}`;
   }
 
   protected override readTime(match: Match): string | undefined {
     const hours = value(match.numbers[0]);
     const suffix = ampm(match.suffix);
+
+    // 2:08:29: two hours eight minutes and twenty-nine seconds, without the parts that are zero
+    if (match.numbers.length === 3) {
+      const parts: string[] = [];
+      for (const [number, one, many] of [
+        [hours, "hour", "hours"],
+        [value(match.numbers[1]), "minute", "minutes"],
+        [value(match.numbers[2]), "second", "seconds"],
+      ] as const) {
+        if (number !== 0n) {
+          parts.push(`${cardinal(number)} ${number === 1n ? one : many}`);
+        }
+      }
+      if (parts.length > 1) {
+        parts[parts.length - 1] = `and ${parts[parts.length - 1]}`;
+      }
+      return parts.length === 0 ? "zero seconds" : join(parts);
+    }
 
     // 7pm: an hour alone needs am or pm
     if (match.numbers.length === 1) {
@@ -221,7 +749,10 @@ class English extends PatternLanguage {
   }
 
   protected override readOrdinal(match: Match): string | undefined {
-    return ordinal(value(match.numbers[0]));
+    // the 26th May: the twenty-sixth of May
+    const n = value(match.numbers[0]);
+    const cues = cuesOf(match);
+    return cues.beforeMonth && n >= 1n && n <= 31n ? dayOf(n, cues.afterThe) : ordinal(n);
   }
 
   protected override readRoman(match: Match): string | undefined {
@@ -239,35 +770,57 @@ class English extends PatternLanguage {
   }
 
   protected override readDecade(match: Match): string | undefined {
-    return this.plural(this.readNumber(match.numbers[0], match));
+    // 1960s-80s: nineteen sixties to eighties
+    let words = this.plural(this.readNumber(match.numbers[0], match)) ?? "";
+    if (match.numbers.length === 2) {
+      const to = match.numbers[1];
+      words += ` to ${this.plural(to.integer.length === 4 ? pairs(value(to)) : cardinal(value(to)))}`;
+    }
+    return words;
   }
 
   protected override readMoney(number: Numeral, match: Match): string | undefined {
     const currency = CURRENCIES[match.unit];
     const cues = cuesOf(match);
 
-    // A price: four ninety-nine, ninety-nine cents
-    if (number.fraction.length === 2 && match.scale === "") {
-      const centsValue = parseValue(number.fraction) ?? 0n;
-      if (value(number) === 0n) {
-        return `${cardinal(centsValue)} cents`;
+    // $20/mo: twenty dollars per month
+    const per = match.suffix === "" ? "" : ` per ${PER[match.suffix]}`;
+
+    // A price: four dollars and ninety-nine cents, two dollars, fifty cents; $20.5 twenty dollars and fifty cents
+    // (a range of a larger amount, $2.5-$3 billion, or a glued abbreviation, £10.8bn2)
+    const after = str(match.context.tail());
+    const range =
+      after.startsWith("-") ||
+      after.startsWith(" -") ||
+      after.startsWith(" to ") ||
+      (after !== "" && isAlpha(after[0]));
+    const places = number.fraction.length;
+    if ((places === 2 || (places === 1 && !range)) && match.scale === "" && Object.hasOwn(CENTS, match.unit)) {
+      const cents = CENTS[match.unit];
+      const whole = value(number);
+      const n = (parseValue(number.fraction) ?? 0n) * (places === 1 ? 10n : 1n);
+      const centWords = `${cardinal(n)} ${n === 1n ? cents.one : cents.many}`;
+      if (whole === 0n && n !== 0n) {
+        return centWords + per;
       }
-      const cents = number.fraction[0] === "0" ? `oh ${ONES[Number(centsValue)]}` : cardinal(centsValue);
-      const whole = numeral({ span: { begin: 0, end: 0 }, integer: number.integer, grouped: number.grouped });
-      return `${this.#integer(whole, cues)} ${cents}`;
+      const one = whole === 1n || (n === 0n && cues.attributive && per === ""); // a $69.00 target: a sixty-nine dollar target
+      const words = `${amount(number)} ${one ? currency.one : currency.many}`;
+      return (n !== 0n ? `${words} and ${centWords}` : words) + per;
     }
 
-    let words = this.readNumber(number, match);
+    // $18854, $2019: an amount, never digits by default nor a year
+    let words = number.fraction === "" ? amount(number) : this.readNumber(number, match);
     if (match.scale !== "") {
       words += ` ${SCALES[match.scale]}`;
     }
     const one = number.integer === "1" && number.fraction === "" && match.scale === "";
-    return `${words} ` + (one || cues.attributive ? currency.one : currency.many);
+    return `${words} ` + (one || (cues.attributive && per === "") ? currency.one : currency.many) + per;
   }
 
   protected override readScale(number: Numeral, match: Match): string | undefined {
-    if (match.scale === "K") {
-      return undefined; // 4K: a resolution
+    // 4K: a resolution; 5b, 3 m: a letter or a unit, a scale only after a currency
+    if (match.scale === "K" || match.scale === "b" || match.scale === "B" || match.scale === "m") {
+      return undefined;
     }
     return `${this.readNumber(number, match)} ${SCALES[match.scale]}`;
   }
@@ -282,16 +835,45 @@ class English extends PatternLanguage {
     return `${this.readNumber(number, match)} ` + (one || cuesOf(match).attributive ? unit.one : unit.many);
   }
 
-  protected override readRange(from: Numeral, to: Numeral, _match: Match): string {
+  protected override readJoiner(match: Match): string | undefined {
+    // A marked range has no numbers: 2pm-5pm; a product: 2*8
+    if (match.kind === Kind.RANGE && match.numbers.length === 0) {
+      return this.joiners().range;
+    }
+    if (match.kind === Kind.DIMENSION && match.separator === "*") {
+      return " times ";
+    }
+    // 10 - 30 seconds, 2025 - 2027: a range; 5 - 3 = 2: a minus; 2017 - 1:00pm: a pause before a time
+    if (match.kind === Kind.DIFFERENCE && match.text === " - ") {
+      const tail = match.context.tail();
+      const numberEnd = digitsEnd(tail, 0);
+      const end = skipSpace(tail, numberEnd);
+      if (numberEnd < tail.length && tail[numberEnd] === ":") {
+        return " - ";
+      }
+      const equation = tail[end] === "=" || str(tail, end, end + 6) === "equals";
+      return equation ? ` ${this.joiners().minus} ` : this.joiners().range;
+    }
+    return super.readJoiner(match);
+  }
+
+  protected override readRange(from: Numeral, to: Numeral, match: Match): string {
     if (from.fraction !== "" || to.fraction !== "") {
       return this.joiners().range;
     }
 
-    // 10-15 is "ten to fifteen"; but scores and abbreviated seasons keep "-": 51-44, 2016-17, 21-22
+    // A range of amounts: 1980-1970 kg, 10-15%
+    if (match.kind === Kind.MONEY || match.kind === Kind.PERCENT || match.kind === Kind.UNIT) {
+      return this.joiners().range;
+    }
+
+    // 10-15 is "ten to fifteen", 1960-80 "nineteen sixty to eighty"; but scores and abbreviated seasons keep "-":
+    // 51-44, 2016-17, 21-22
     const a = value(from);
     const b = value(to);
-    const season = from.integer.length === 2 && b === a + 1n;
-    return from.integer.length === to.integer.length && b > a && !season ? this.joiners().range : "-";
+    const season = (from.integer.length === 2 || from.integer.length === 4) && b === (a % 100n) + 1n;
+    const decades = from.integer.length === 4 && to.integer.length === 2 && b > a % 100n;
+    return ((from.integer.length === to.integer.length && b > a) || decades) && !season ? this.joiners().range : "-";
   }
 
   protected override plural(words: string): string | undefined {
@@ -304,13 +886,32 @@ class English extends PatternLanguage {
   // An integer as a year, a day of a month or a count, digit by digit if it is a code
   #integer(number: Numeral, cues: Cues): string {
     const n = parseValue(number.integer);
-    if (n === undefined || isSpokenDigits(number, 5)) {
+    // 124,444,234,854,823,834,553: too long to hold, read by its groups
+    if (
+      n === undefined &&
+      number.grouped &&
+      number.integer[0] !== "0" &&
+      number.integer.length <= 3 * (GROUP_SCALES.length + 1)
+    ) {
+      return groups(number.integer);
+    }
+    // 12345: digit by digit, as a code; but 10111 residents, 12345 km
+    const spoken = isSpokenDigits(number, 5) && !(number.integer[0] !== "0" && (cues.counted || cues.amount));
+    if (n === undefined || spoken) {
       return digits(number.integer);
     }
     if (cues.afterMonth && n >= 1n && n <= 31n) {
       return ordinal(n);
     }
-    if (number.integer.length === 4 && !number.grouped) {
+    if (cues.beforeMonth && n >= 1n && n <= 31n && !number.grouped) {
+      return dayOf(n, cues.afterThe);
+    }
+    // 340 AD: a year of three digits
+    if (cues.era && number.integer.length === 3 && !number.grouped && !cues.amount) {
+      return pairs(n);
+    }
+    // Four digits in pairs, as a year, an address, or a model (1999, 2788 San Tomas, GTX 1080), unless they count
+    if (number.integer.length === 4 && !number.grouped && !cues.amount) {
       return cues.counted ? cardinal(n) : pairs(n);
     }
     return cardinal(n);

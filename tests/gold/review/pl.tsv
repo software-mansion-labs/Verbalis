@@ -1,0 +1,631 @@
+priority	line	class	input	verbalis	accepted readings	ok (y/n)	correct reading
+1	510	address	Biuro: ul. Marszałkowska 10/12.	Biuro: ulica Marszałkowska dziesięć dwanaście.	Biuro: ulica Marszałkowska dziesięć łamane przez dwanaście. | Biuro: ulica Marszałkowska dziesięć przez dwanaście.		
+1	511	address	Adres: ul. Piękna 24, 00-549 Warszawa.	Adres: ulica Piękna dwadzieścia cztery, zero zero-pięćset czterdzieści dziewięć Warszawa.	Adres: ulica Piękna dwadzieścia cztery, zero zero pięćset czterdzieści dziewięć Warszawa. | Adres: ulica Piękna dwadzieścia cztery, zero zero pięć cztery dziewięć Warszawa.		
+1	518	address	Kod 31-123 Kraków.	Kod trzydzieści jeden-stu dwudziestu trzech Kraków.	Kod trzydzieści jeden sto dwadzieścia trzy Kraków. | Kod trzy jeden jeden dwa trzy Kraków.		
+1	519	address	Sejm, ul. Wiejska 4/6/8.	Sejm, ulica Wiejska cztery sześć osiem.	Sejm, ulica Wiejska cztery łamane przez sześć łamane przez osiem. | Sejm, ulica Wiejska cztery przez sześć przez osiem.		
+1	525	address	Kawiarnia, ul. Nowy Świat 15/17.	Kawiarnia, ulica Nowy Świat piętnaście siedemnaście.	Kawiarnia, ulica Nowy Świat piętnaście łamane przez siedemnaście. | Kawiarnia, ulica Nowy Świat piętnaście przez siedemnaście.		
+1	529	address	Galeria, ul. Grunwaldzka 472B.	Galeria, ulica Grunwaldzka czterysta siedemdziesiąt dwa B.	Galeria, ulica Grunwaldzka czterysta siedemdziesiąt dwa B. | Galeria, ulica Grunwaldzka czterysta siedemdziesiąt dwa be.		
+1	530	address	Poczta 80-001 Gdańsk.	Poczta osiemdziesiąt-zero zero jeden Gdańsk.	Poczta osiemdziesiąt zero zero jeden Gdańsk. | Poczta osiem zero zero zero jeden Gdańsk.		
+1	533	address	Przy ul. Wspólnej 2/4 jest bank.	Przy ulicy Wspólnej dwa cztery jest bank.	Przy ulicy Wspólnej dwa łamane przez cztery jest bank. | Przy ulicy Wspólnej dwa przez cztery jest bank.		
+1	540	address	Muzeum, ul. Podwale 3/5.	Muzeum, ulica Podwale trzy pięć.	Muzeum, ulica Podwale trzy łamane przez pięć. | Muzeum, ulica Podwale trzy przez pięć.		
+1	542	address	Adres: ul. Leśna 7, 05-500 Piaseczno.	Adres: ulica Leśna siedem, zero pięć-pięćset Piaseczno.	Adres: ulica Leśna siedem, zero pięć pięćset Piaseczno. | Adres: ulica Leśna siedem, zero pięć pięć zero zero Piaseczno.		
+1	545	address	Mieszkam przy ul. Słowackiego 7/9.	Mieszkam przy ulicy Słowackiego siedem dziewięć.	Mieszkam przy ulicy Słowackiego siedem łamane przez dziewięć. | Mieszkam przy ulicy Słowackiego siedem przez dziewięć.		
+1	572	abbreviation	Zgodnie z art. 5 ust. 2 ustawy.	Zgodnie z artykułem pięć ustęp dwa ustawy.	Zgodnie z artykułem piątym ustęp drugi ustawy. | Zgodnie z artykułem pięć ustęp dwa ustawy. | Zgodnie z artykułem piątym ustępem drugim ustawy.		
+1	573	abbreviation	Zobacz na str. 12.	Zobacz na stronie dwanaście.	Zobacz na stronie dwunastej. | Zobacz na stronie dwanaście.		
+1	580	abbreviation	Spółka Orlen S.A. ogłosiła wyniki.	Spółka Orlen Spółka Akcyjna ogłosiła wyniki.	Spółka Orlen Spółka Akcyjna ogłosiła wyniki. | Spółka Orlen es a ogłosiła wyniki.		
+1	581	abbreviation	Dyrektor, dr hab. Anna Nowak.	Dyrektor, doktor habilitowany Anna Nowak.	Dyrektor, doktor habilitowany Anna Nowak. | Dyrektor, doktor habilitowana Anna Nowak.		
+1	175	time	Pociąg odjeżdża o 7:05.	Pociąg odjeżdża o siódmej zero pięć.	Pociąg odjeżdża o siódmej zero pięć. | Pociąg odjeżdża o siódmej pięć.		
+1	261	measure	Do sklepu jest 1 km.	Do sklepu jest jeden kilometr.	Do sklepu jest jeden kilometr. | Do sklepu jest kilometr.		
+1	263	measure	Ważę 2,5 kg.	Ważę dwa i pół kilograma.	Ważę dwa i pół kilograma. | Ważę dwa przecinek pięć kilograma.		
+1	279	measure	Działka ma 1 ha.	Działka ma jeden hektar.	Działka ma jeden hektar. | Działka ma hektar.		
+1	293	measure	Rower waży 9,5 kg.	Rower waży dziewięć i pół kilograma.	Rower waży dziewięć i pół kilograma. | Rower waży dziewięć przecinek pięć kilograma.		
+1	302	measure	Bateria ma 3,5 kWh.	Bateria ma trzy i pół kilowatogodziny.	Bateria ma trzy i pół kilowatogodziny. | Bateria ma trzy przecinek pięć kilowatogodziny.		
+1	141	date	Wydarzenie odbędzie się 7.09.2025.	Wydarzenie odbędzie się siódmego września dwa tysiące dwudziestego piątego.	Wydarzenie odbędzie się siódmego września dwa tysiące dwudziestego piątego. | Wydarzenie odbędzie się siódmego września dwa tysiące dwudziestego piątego roku.		
+1	149	date	W maju 2019 otwarto most.	W maju dwa tysiące dziewiętnaście otwarto most.	W maju dwa tysiące dziewiętnastego otwarto most. | W maju dwa tysiące dziewiętnastego roku otwarto most.		
+1	216	money	Kosztuje 12,99 zł.	Kosztuje dwanaście złotych dziewięćdziesiąt dziewięć groszy.	Kosztuje dwanaście złotych dziewięćdziesiąt dziewięć groszy. | Kosztuje dwanaście dziewięćdziesiąt dziewięć.		
+1	220	money	Kosztuje 1 zł.	Kosztuje jeden złoty.	Kosztuje jeden złoty. | Kosztuje złotówkę.		
+1	235	money	Bułka kosztuje 2,50 zł.	Bułka kosztuje dwa złote pięćdziesiąt groszy.	Bułka kosztuje dwa złote pięćdziesiąt groszy. | Bułka kosztuje dwa pięćdziesiąt.		
+1	240	money	Dotacja to 2,3 mln zł.	Dotacja to dwa przecinek trzy miliona złotych.	Dotacja to dwa przecinek trzy miliona złotych. | Dotacja to dwa i trzy dziesiąte miliona złotych.		
+1	245	money	Wygrał 1 000 000 zł.	Wygrał milion złotych.	Wygrał milion złotych. | Wygrał jeden milion złotych.		
+1	249	money	Akcja kosztuje 45,20 zł.	Akcja kosztuje czterdzieści pięć złotych dwadzieścia groszy.	Akcja kosztuje czterdzieści pięć złotych dwadzieścia groszy. | Akcja kosztuje czterdzieści pięć dwadzieścia.		
+1	251	money	Kurs euro wynosi 4,35 zł.	Kurs euro wynosi cztery złote trzydzieści pięć groszy.	Kurs euro wynosi cztery złote trzydzieści pięć groszy. | Kurs euro wynosi cztery trzydzieści pięć.		
+1	252	money	Kawa kosztuje 3,50 €.	Kawa kosztuje trzy przecinek pięćdziesiąt euro.	Kawa kosztuje trzy euro pięćdziesiąt centów. | Kawa kosztuje trzy i pół euro. | Kawa kosztuje trzy przecinek pięć euro.		
+1	253	money	Kontrakt na 2,5 mln USD.	Kontrakt na dwa i pół miliona dolarów.	Kontrakt na dwa i pół miliona dolarów. | Kontrakt na dwa przecinek pięć miliona dolarów.		
+1	306	percent	Stopa wynosi 1,5%.	Stopa wynosi półtora procent.	Stopa wynosi półtora procent. | Stopa wynosi jeden przecinek pięć procent. | Stopa wynosi jeden i pół procent. | Stopa wynosi półtora procenta. | Stopa wynosi jeden przecinek pięć procenta.		
+1	307	percent	Spadek o 0,2%.	Spadek o zero przecinek dwa procent.	Spadek o zero przecinek dwa procent. | Spadek o zero przecinek dwa procenta.		
+1	311	percent	Sprzedaż wzrosła o 2,5 proc.	Sprzedaż wzrosła o dwa i pół procent.	Sprzedaż wzrosła o dwa i pół procent. | Sprzedaż wzrosła o dwa przecinek pięć procent. | Sprzedaż wzrosła o dwa przecinek pięć procenta.		
+1	312	percent	Bezrobocie wynosi 4,9%.	Bezrobocie wynosi cztery przecinek dziewięć procent.	Bezrobocie wynosi cztery przecinek dziewięć procent. | Bezrobocie wynosi cztery przecinek dziewięć procenta.		
+1	319	percent	Frekwencja wyniosła 61,74%.	Frekwencja wyniosła sześćdziesiąt jeden przecinek siedemdziesiąt cztery procent.	Frekwencja wyniosła sześćdziesiąt jeden przecinek siedemdziesiąt cztery procent. | Frekwencja wyniosła sześćdziesiąt jeden przecinek siedemdziesiąt cztery procenta.		
+1	321	percent	W 90% przypadków to działa.	W dziewięćdziesięciu procentach przypadków to działa.	W dziewięćdziesięciu procentach przypadków to działa. | W dziewięćdziesięciu procent przypadków to działa.		
+1	324	percent	Odsetki wynoszą 0,5%.	Odsetki wynoszą zero i pół procent.	Odsetki wynoszą zero przecinek pięć procent. | Odsetki wynoszą zero przecinek pięć procenta. | Odsetki wynoszą pół procent. | Odsetki wynoszą pół procenta.		
+1	326	percent	Oprocentowanie 6,75%.	Oprocentowanie sześć przecinek siedemdziesiąt pięć procent.	Oprocentowanie sześć przecinek siedemdziesiąt pięć procent. | Oprocentowanie sześć przecinek siedemdziesiąt pięć procenta.		
+1	333	percent	PKB wzrósł o 0,7 proc.	PKB wzrósł o zero przecinek siedem procent.	PKB wzrósł o zero przecinek siedem procent. | PKB wzrósł o zero przecinek siedem procenta.		
+1	337	percent	Wynik to 33,3%.	Wynik to trzydzieści trzy przecinek trzy procent.	Wynik to trzydzieści trzy przecinek trzy procent. | Wynik to trzydzieści trzy przecinek trzy procenta.		
+1	428	fraction	Dodaj 1/2 szklanki mleka.	Dodaj jeden dwie szklanki mleka.	Dodaj pół szklanki mleka. | Dodaj jedną drugą szklanki mleka.		
+1	432	fraction	W 1/4 finału zagra Polska.	W jeden cztery finału zagra Polska.	W jednej czwartej finału zagra Polska. | W ćwierćfinale zagra Polska.		
+1	434	fraction	Kup ½ kg sera.	Kup ½ kg sera.	Kup pół kilograma sera. | Kup pół kilo sera.		
+1	445	fraction	Wypił 1/4 butelki.	Wypił jeden cztery butelki.	Wypił ćwierć butelki. | Wypił jedną czwartą butelki.		
+1	449	fraction	Dodaj ⅓ litra wody.	Dodaj ⅓ litra wody.	Dodaj jedną trzecią litra wody. | Dodaj trzecią część litra wody.		
+1	460	fraction	Ponad 1/3 Polaków nie czyta.	Ponad jeden trzech Polaków nie czyta.	Ponad jedna trzecia Polaków nie czyta. | Ponad jedną trzecią Polaków nie czyta.		
+1	464	fraction	Dodaj 1/4 łyżeczki soli.	Dodaj jeden cztery łyżeczki soli.	Dodaj ćwierć łyżeczki soli. | Dodaj jedną czwartą łyżeczki soli.		
+1	466	fraction	Mapa w skali 1/50 000.	Mapa w skali jeden pięćdziesiąt tysięcy.	Mapa w skali jeden do pięćdziesięciu tysięcy. | Mapa w skali jeden przez pięćdziesiąt tysięcy.		
+1	468	range	Wzrost o 1,5%-3%.	Wzrost o półtora procent minus trzy procent.	Wzrost o półtora do trzech procent. | Wzrost o półtora-trzy procent. | Wzrost o jeden przecinek pięć do trzech procent.		
+1	469	range	Przyszło 10-15 osób.	Przyszło dziesięć-piętnaście osób.	Przyszło dziesięć-piętnaście osób. | Przyszło dziesięć do piętnastu osób. | Przyszło od dziesięciu do piętnastu osób.		
+1	470	range	W latach 2010-2015 rosło.	W latach dwa tysiące dziesięć-dwa tysiące piętnaście rosło.	W latach dwa tysiące dziesięć-dwa tysiące piętnaście rosło. | W latach od dwa tysiące dziesiątego do dwa tysiące piętnastego rosło.		
+1	471	range	Temperatura 20-25°C.	Temperatura dwudziestu-dwudziestu pięciu stopni Celsjusza.	Temperatura dwudziestu-dwudziestu pięciu stopni Celsjusza. | Temperatura dwadzieścia-dwadzieścia pięć stopni Celsjusza. | Temperatura dwadzieścia do dwudziestu pięciu stopni Celsjusza. | Temperatura od dwudziestu do dwudziestu pięciu stopni Celsjusza.		
+1	472	range	Cena 10-12 zł.	Cena dziesięciu-dwunastu złotych.	Cena dziesięciu-dwunastu złotych. | Cena dziesięć-dwanaście złotych. | Cena dziesięć do dwunastu złotych. | Cena od dziesięciu do dwunastu złotych.		
+1	473	range	Przeczytaj strony 15-20.	Przeczytaj strony piętnaście-dwadzieścia.	Przeczytaj strony piętnaście-dwadzieścia. | Przeczytaj strony od piętnastej do dwudziestej. | Przeczytaj strony piętnaście do dwudziestu.		
+1	474	range	Dostawa w 1-2 dni.	Dostawa w jeden-dwóch dni.	Dostawa w jeden-dwa dni. | Dostawa w jeden do dwóch dni.		
+1	475	range	Ćwicz 2-3 razy w tygodniu.	Ćwicz dwóch-trzech razy w tygodniu.	Ćwicz dwa-trzy razy w tygodniu. | Ćwicz dwa do trzech razy w tygodniu. | Ćwicz od dwóch do trzech razy w tygodniu.		
+1	476	range	Lek bierz przez 2-3 tygodnie.	Lek bierz przez dwa-trzy tygodnie.	Lek bierz przez dwa-trzy tygodnie. | Lek bierz przez dwa do trzech tygodni.		
+1	477	range	Gotuj 5-10 minut.	Gotuj pięć-dziesięć minut.	Gotuj pięć-dziesięć minut. | Gotuj pięć do dziesięciu minut. | Gotuj od pięciu do dziesięciu minut.		
+1	478	range	Zajęcia dla dzieci w wieku 3-6 lat.	Zajęcia dla dzieci w wieku trzech-sześciu lat.	Zajęcia dla dzieci w wieku trzech-sześciu lat. | Zajęcia dla dzieci w wieku od trzech do sześciu lat. | Zajęcia dla dzieci w wieku trzech do sześciu lat.		
+1	479	range	Wojna trwała w latach 1939-1945.	Wojna trwała w latach tysiąc dziewięćset trzydzieści dziewięć-tysiąc dziewięćset czterdzieści pięć.	Wojna trwała w latach tysiąc dziewięćset trzydzieści dziewięć-tysiąc dziewięćset czterdzieści pięć. | Wojna trwała w latach od tysiąc dziewięćset trzydziestego dziewiątego do tysiąc dziewięćset czterdziestego piątego.		
+1	480	range	Kopiec ma 100-200 m.	Kopiec ma sto-dwieście metrów.	Kopiec ma sto-dwieście metrów. | Kopiec ma sto do dwustu metrów. | Kopiec ma od stu do dwustu metrów.		
+1	481	range	Zarobki 30-40 tys. zł.	Zarobki trzydzieści-czterdzieści tysięcy złotych.	Zarobki trzydzieści-czterdzieści tysięcy złotych. | Zarobki trzydzieści do czterdziestu tysięcy złotych. | Zarobki od trzydziestu do czterdziestu tysięcy złotych.		
+1	482	range	Pokój dla 3-4 osób.	Pokój dla trzech-czterech osób.	Pokój dla trzech-czterech osób. | Pokój dla trzech do czterech osób.		
+1	483	range	Obejrzałem odcinki 1-10.	Obejrzałem odcinki jeden-dziesięć.	Obejrzałem odcinki jeden-dziesięć. | Obejrzałem odcinki od pierwszego do dziesiątego. | Obejrzałem odcinki jeden do dziesięciu.		
+1	484	range	Osoby w wieku 18-25 lat.	Osoby w wieku osiemnastu-dwudziestu pięciu lat.	Osoby w wieku osiemnastu-dwudziestu pięciu lat. | Osoby w wieku od osiemnastu do dwudziestu pięciu lat. | Osoby w wieku osiemnastu do dwudziestu pięciu lat.		
+1	485	range	Czynne 9:00-17:00.	Czynne dziewiąta-siedemnasta.	Czynne dziewiąta-siedemnasta. | Czynne od dziewiątej do siedemnastej.		
+1	486	range	Ceny: 50-100 €.	Ceny: pięćdziesiąt-sto euro.	Ceny: pięćdziesiąt-sto euro. | Ceny: pięćdziesiąt do stu euro. | Ceny: od pięćdziesięciu do stu euro.		
+1	487	range	Stopy wzrosną o 2-3%.	Stopy wzrosną o dwa-trzy procent.	Stopy wzrosną o dwa-trzy procent. | Stopy wzrosną o dwa do trzech procent.		
+1	488	range	Na spotkanie przyszło 20–30 osób.	Na spotkanie przyszło dwadzieścia-trzydzieści osób.	Na spotkanie przyszło dwadzieścia-trzydzieści osób. | Na spotkanie przyszło dwadzieścia do trzydziestu osób. | Na spotkanie przyszło od dwudziestu do trzydziestu osób.		
+1	489	range	Jazda trwa 4-5 godzin.	Jazda trwa czterech-pięć godzin.	Jazda trwa cztery-pięć godzin. | Jazda trwa cztery do pięciu godzin. | Jazda trwa od czterech do pięciu godzin.		
+1	490	range	Pensja 5000-7000 zł.	Pensja pięciu tysięcy-siedmiu tysięcy złotych.	Pensja pięciu tysięcy-siedmiu tysięcy złotych. | Pensja pięć tysięcy-siedem tysięcy złotych. | Pensja pięć tysięcy do siedmiu tysięcy złotych. | Pensja od pięciu tysięcy do siedmiu tysięcy złotych.		
+1	491	range	Targi odbędą się w dniach 12-14 maja.	Targi odbędą się w dniach dwunastego-czternastego maja.	Targi odbędą się w dniach dwunastego-czternastego maja. | Targi odbędą się w dniach od dwunastego do czternastego maja.		
+1	492	range	Gra dla 2-4 graczy.	Gra dla dwóch-czterech graczy.	Gra dla dwóch-czterech graczy. | Gra dla dwóch do czterech graczy.		
+1	493	range	Prognoza: 15-20 stopni.	Prognoza: piętnaście-dwadzieścia stopni.	Prognoza: piętnaście-dwadzieścia stopni. | Prognoza: piętnaście do dwudziestu stopni. | Prognoza: od piętnastu do dwudziestu stopni.		
+1	494	range	Dziecko ma 2-3 lata.	Dziecko ma dwa-trzy lata.	Dziecko ma dwa-trzy lata. | Dziecko ma dwa do trzech lat.		
+1	495	range	Bilety dla dzieci w wieku 7-10 lat.	Bilety dla dzieci w wieku siedmiu-dziesięciu lat.	Bilety dla dzieci w wieku siedmiu-dziesięciu lat. | Bilety dla dzieci w wieku od siedmiu do dziesięciu lat. | Bilety dla dzieci w wieku siedmiu do dziesięciu lat.		
+1	496	range	Czeka się 10-20 min.	Czeka się dziesięć-dwadzieścia minut.	Czeka się dziesięć-dwadzieścia minut. | Czeka się dziesięć do dwudziestu minut. | Czeka się od dziesięciu do dwudziestu minut.		
+1	497	range	Przeczytaj rozdziały 3-5.	Przeczytaj rozdziały trzy-pięć.	Przeczytaj rozdziały trzy-pięć. | Przeczytaj rozdziały od trzeciego do piątego. | Przeczytaj rozdziały trzy do pięciu.		
+1	498	range	W latach 2020-2022 trwała pandemia.	W latach dwa tysiące dwadzieścia-dwa tysiące dwadzieścia dwa trwała pandemia.	W latach dwa tysiące dwadzieścia-dwa tysiące dwadzieścia dwa trwała pandemia. | W latach od dwa tysiące dwudziestego do dwa tysiące dwudziestego drugiego trwała pandemia.		
+1	499	range	Spadnie 10-15 cm śniegu.	Spadnie dziesięć-piętnaście centymetrów śniegu.	Spadnie dziesięć-piętnaście centymetrów śniegu. | Spadnie dziesięć do piętnastu centymetrów śniegu. | Spadnie od dziesięciu do piętnastu centymetrów śniegu.		
+1	500	range	Rośnie do 2-3 m.	Rośnie do dwóch-trzech metrów.	Rośnie do dwóch-trzech metrów. | Rośnie do dwóch do trzech metrów.		
+1	501	range	Waży 3-4 kg.	Waży trzy-cztery kilogramy.	Waży trzy-cztery kilogramy. | Waży trzy do czterech kilogramów. | Waży od trzech do czterech kilogramów.		
+1	502	range	Inflacja wyniesie 4-5 proc.	Inflacja wyniesie cztery-pięć procent.	Inflacja wyniesie cztery-pięć procent. | Inflacja wyniesie cztery do pięciu procent. | Inflacja wyniesie od czterech do pięciu procent.		
+1	503	range	Mecz zakończył się wynikiem 1-0.	Mecz zakończył się wynikiem jeden-zero.	Mecz zakończył się wynikiem jeden-zero. | Mecz zakończył się wynikiem jeden do zera.		
+1	504	range	Polska wygrała 2-1.	Polska wygrała dwa-jeden.	Polska wygrała dwa-jeden. | Polska wygrała dwa do jednego.		
+1	505	range	Kurs na lata 2024-2026.	Kurs na lata dwa tysiące dwadzieścia cztery-dwa tysiące dwadzieścia sześć.	Kurs na lata dwa tysiące dwadzieścia cztery-dwa tysiące dwadzieścia sześć. | Kurs na lata od dwa tysiące dwudziestego czwartego do dwa tysiące dwudziestego szóstego.		
+1	506	range	Odległość 5-7 km.	Odległość pięciu-siedmiu kilometrów.	Odległość pięciu-siedmiu kilometrów. | Odległość pięć-siedem kilometrów. | Odległość pięć do siedmiu kilometrów. | Odległość od pięciu do siedmiu kilometrów.		
+1	507	range	Wypij 6-8 szklanek wody.	Wypij sześć-osiem szklanek wody.	Wypij sześć-osiem szklanek wody. | Wypij sześć do ośmiu szklanek wody. | Wypij od sześciu do ośmiu szklanek wody.		
+1	508	range	Czeka około 40-50 osób.	Czeka około czterdziestu-pięćdziesięciu osób.	Czeka około czterdziestu-pięćdziesięciu osób. | Czeka około czterdziestu do pięćdziesięciu osób.		
+1	12	cardinal	Zebrano 1 000 000 podpisów.	Zebrano milion podpisów.	Zebrano milion podpisów. | Zebrano jeden milion podpisów.		
+1	46	cardinal	Na 1 234 567 głosów oddano ważnych 1 200 000.	Na milion dwieście trzydzieści cztery tysiące pięćset sześćdziesiąt siedem głosów oddano ważnych milion dwieście tysięcy.	Na milion dwieście trzydzieści cztery tysiące pięćset sześćdziesiąt siedem głosów oddano ważnych milion dwieście tysięcy. | Na jeden milion dwieście trzydzieści cztery tysiące pięćset sześćdziesiąt siedem głosów oddano ważnych jeden milion dwieście tysięcy.		
+1	50	decimal	Liczba pi to w przybliżeniu 3,1416.	Liczba pi to w przybliżeniu trzy przecinek tysiąc czterysta szesnaście.	Liczba pi to w przybliżeniu trzy przecinek jeden cztery jeden sześć. | Liczba pi to w przybliżeniu trzy przecinek tysiąc czterysta szesnaście.		
+1	51	decimal	Ocena 4,5 to dobry wynik.	Ocena cztery i pół to dobry wynik.	Ocena cztery i pół to dobry wynik. | Ocena cztery przecinek pięć to dobry wynik.		
+1	56	decimal	Zmierzono 12,345.	Zmierzono dwanaście przecinek trzysta czterdzieści pięć.	Zmierzono dwanaście przecinek trzysta czterdzieści pięć. | Zmierzono dwanaście przecinek trzy cztery pięć.		
+1	58	decimal	Różnica wynosi 10,5.	Różnica wynosi dziesięć i pół.	Różnica wynosi dziesięć i pół. | Różnica wynosi dziesięć przecinek pięć.		
+1	61	decimal	Pomnóż wynik przez 2,5.	Pomnóż wynik przez dwa i pół.	Pomnóż wynik przez dwa i pół. | Pomnóż wynik przez dwa przecinek pięć.		
+1	64	decimal	Dziecko ma 2,5 roku.	Dziecko ma dwóch i pół roku.	Dziecko ma dwa i pół roku. | Dziecko ma dwa przecinek pięć roku.		
+1	71	decimal	Dostał ocenę 5,5 na 6.	Dostał ocenę pięć i pół na sześć.	Dostał ocenę pięć i pół na sześć. | Dostał ocenę pięć przecinek pięć na sześć.		
+1	74	decimal	Miasto ma 3,5 mln mieszkańców.	Miasto ma trzy i pół miliona mieszkańców.	Miasto ma trzy i pół miliona mieszkańców. | Miasto ma trzy przecinek pięć miliona mieszkańców.		
+1	75	decimal	Przybyło 12,5 tys. wiernych.	Przybyło dwanaście i pół tysiąca wiernych.	Przybyło dwanaście i pół tysiąca wiernych. | Przybyło dwanaście przecinek pięć tysiąca wiernych.		
+1	349	telephone	Numer alarmowy to 112.	Numer alarmowy to sto dwanaście.	Numer alarmowy to sto dwanaście. | Numer alarmowy to jeden jeden dwa.		
+1	354	telephone	Fax 22 621 33 44	Fax dwadzieścia dwa sześćset dwadzieścia jeden trzydzieści trzy czterdzieści cztery	Fax dwadzieścia dwa sześćset dwadzieścia jeden trzydzieści trzy czterdzieści cztery | Faks dwadzieścia dwa sześćset dwadzieścia jeden trzydzieści trzy czterdzieści cztery		
+1	357	telephone	Tel. 601 020 304	Telefon sześćset jeden dwadzieścia trzysta cztery	Telefon sześćset jeden zero dwadzieścia trzysta cztery | Telefon sześćset jeden zero dwa zero trzysta cztery		
+1	358	telephone	Numer 997 to policja.	Numer dziewięćset dziewięćdziesiąt siedem to policja.	Numer dziewięćset dziewięćdziesiąt siedem to policja. | Numer dziewięć dziewięć siedem to policja.		
+1	363	telephone	Zadzwoń pod 112.	Zadzwoń pod stoma dwunastoma.	Zadzwoń pod sto dwanaście. | Zadzwoń pod jeden jeden dwa.		
+1	373	telephone	Pogotowie: 999.	Pogotowie: dziewięćset dziewięćdziesiąt dziewięć.	Pogotowie: dziewięćset dziewięćdziesiąt dziewięć. | Pogotowie: dziewięć dziewięć dziewięć.		
+1	374	telephone	Straż pożarna: 998.	Straż pożarna: dziewięćset dziewięćdziesiąt osiem.	Straż pożarna: dziewięćset dziewięćdziesiąt osiem. | Straż pożarna: dziewięć dziewięć osiem.		
+1	376	telephone	Zgłoszenia pod tel. 42 631 20 00.	Zgłoszenia pod telefonem czterdzieści dwa sześćset trzydzieści jeden dwadzieścia zero.	Zgłoszenia pod telefonem czterdzieści dwa sześćset trzydzieści jeden dwadzieścia zero zero. | Zgłoszenia pod telefon czterdzieści dwa sześćset trzydzieści jeden dwadzieścia zero zero.		
+1	383	telephone	Wyślij SMS pod numer 7155.	Wyślij SMS pod numer siedem tysięcy sto pięćdziesiąt pięć.	Wyślij SMS pod numer siedem tysięcy sto pięćdziesiąt pięć. | Wyślij SMS pod numer siedemdziesiąt jeden pięćdziesiąt pięć. | Wyślij SMS pod numer siedem jeden pięć pięć.		
+1	592	symbols	Kancelaria Kowalski & Nowak.	Kancelaria Kowalski end Nowak.	Kancelaria Kowalski i Nowak. | Kancelaria Kowalski end Nowak.		
+1	595	symbols	Zgodnie z § 5 regulaminu.	Zgodnie z paragrafem piątym regulaminu.	Zgodnie z paragrafem piątym regulaminu. | Zgodnie z paragrafem pięć regulaminu.		
+1	621	symbols	Kurs: 1 € = 4,30 zł.	Kurs: jedno euro równa się cztery złote trzydzieści groszy.	Kurs: jedno euro równa się cztery złote trzydzieści groszy. | Kurs: jedno euro równa się cztery trzydzieści.		
+1	625	symbols	Liczba π to około 3,14.	Liczba pi to około trzech przecinek czternastu.	Liczba pi to około trzy przecinek czternaście. | Liczba pi to około trzech przecinek czternastu.		
+1	629	symbols	Szukaj nas na www.gov.pl.	Szukaj nas na w w w kropka gov kropka pl.	Szukaj nas na www kropka gov kropka pl. | Szukaj nas na wu wu wu kropka gov kropka pl.		
+1	630	symbols	Polecamy firmę Smith & Wesson.	Polecamy firmę Smith end Wesson.	Polecamy firmę Smith and Wesson. | Polecamy firmę Smith end Wesson. | Polecamy firmę Smith i Wesson.		
+2	509	address	Mieszkam przy ul. Długiej 5.	Mieszkam przy ulicy Długiej pięć.	Mieszkam przy ulicy Długiej pięć.		
+2	512	address	Urząd mieści się przy al. Niepodległości 18.	Urząd mieści się przy alei Niepodległości osiemnaście.	Urząd mieści się przy alei Niepodległości osiemnaście.		
+2	513	address	Spotkanie na pl. Defilad 1.	Spotkanie na placu Defilad jeden.	Spotkanie na placu Defilad jeden.		
+2	514	address	Mieszka na os. Tysiąclecia 15.	Mieszka na osiedlu Tysiąclecia piętnaście.	Mieszka na osiedlu Tysiąclecia piętnaście.		
+2	515	address	Adres: ul. Mickiewicza 3 m. 4.	Adres: ulica Mickiewicza trzy mieszkanie cztery.	Adres: ulica Mickiewicza trzy mieszkanie cztery.		
+2	516	address	Sklep na ul. Kościuszki 7.	Sklep na ulicy Kościuszki siedem.	Sklep na ulicy Kościuszki siedem.		
+2	517	address	Idź do ul. Polnej.	Idź do ulicy Polnej.	Idź do ulicy Polnej.		
+2	520	address	Firma, ul. Złota 59 lok. 12.	Firma, ulica Złota pięćdziesiąt dziewięć lokal dwanaście.	Firma, ulica Złota pięćdziesiąt dziewięć lokal dwanaście.		
+2	521	address	Mieszkam przy ul. 3 Maja 5.	Mieszkam przy ulicy trzeciego Maja pięć.	Mieszkam przy ulicy Trzeciego Maja pięć.		
+2	522	address	Szkoła, ul. 11 Listopada 20.	Szkoła, ulica jedenastego Listopada dwadzieścia.	Szkoła, ulica Jedenastego Listopada dwadzieścia.		
+2	523	address	Kościół przy ul. Jana Pawła II 25.	Kościół przy ulicy Jana Pawła drugiego dwadzieścia pięć.	Kościół przy ulicy Jana Pawła drugiego dwadzieścia pięć.		
+2	524	address	Adres: ul. Długa 5a.	Adres: ulica Długa pięć a.	Adres: ulica Długa pięć a.		
+2	526	address	Spotkajmy się przy pl. Zbawiciela.	Spotkajmy się przy placu Zbawiciela.	Spotkajmy się przy placu Zbawiciela.		
+2	527	address	Adres: ul. Polna 1, 00-001 Warszawa.	Adres: ulica Polna jeden, zero zero-zero zero jeden Warszawa.	Adres: ulica Polna jeden, zero zero zero zero jeden Warszawa.		
+2	528	address	Kraków, ul. Floriańska 3.	Kraków, ulica Floriańska trzy.	Kraków, ulica Floriańska trzy.		
+2	531	address	Łódź, ul. Piotrkowska 104 m. 15.	Łódź, ulica Piotrkowska sto cztery mieszkanie piętnaście.	Łódź, ulica Piotrkowska sto cztery mieszkanie piętnaście.		
+2	532	address	Wyszedł z ul. Długiej 10.	Wyszedł z ulicy Długiej dziesięć.	Wyszedł z ulicy Długiej dziesięć.		
+2	534	address	Ulica Długa 5 to mój adres.	Ulica Długa pięć to mój adres.	Ulica Długa pięć to mój adres.		
+2	535	address	Szpital przy ul. gen. Andersa 5.	Szpital przy ulicy generała Andersa pięć.	Szpital przy ulicy generała Andersa pięć.		
+2	536	address	Parafia przy ul. ks. Popiełuszki 8.	Parafia przy ulicy księdza Popiełuszki osiem.	Parafia przy ulicy księdza Popiełuszki osiem.		
+2	537	address	Kamienica, ul. św. Marcina 12.	Kamienica, ulica świętego Marcina dwanaście.	Kamienica, ulica świętego Marcina dwanaście.		
+2	538	address	Instytut, ul. prof. Szafera 3.	Instytut, ulica profesora Szafera trzy.	Instytut, ulica profesora Szafera trzy.		
+2	539	address	Biuro, ul. Długa 5 lok. 2.	Biuro, ulica Długa pięć lokal dwa.	Biuro, ulica Długa pięć lokal dwa.		
+2	541	address	To dom nr 15.	To dom numer piętnaście.	To dom numer piętnaście.		
+2	543	address	Przychodnia przy ul. Kopernika 15A.	Przychodnia przy ulicy Kopernika piętnaście A.	Przychodnia przy ulicy Kopernika piętnaście A.		
+2	544	address	Skręć w ul. Długą.	Skręć w ulicę Długą.	Skręć w ulicę Długą.		
+2	546	address	Idź ul. Długą do końca.	Idź ulicą Długą do końca.	Idź ulicą Długą do końca.		
+2	547	address	Hotel przy ul. Sienkiewicza 40.	Hotel przy ulicy Sienkiewicza czterdzieści.	Hotel przy ulicy Sienkiewicza czterdzieści.		
+2	548	address	Wjazd od ul. Leśnej 2.	Wjazd od ulicy Leśnej dwa.	Wjazd od ulicy Leśnej dwa.		
+2	549	abbreviation	Kupiłem owoce, np. jabłka.	Kupiłem owoce, na przykład jabłka.	Kupiłem owoce, na przykład jabłka.		
+2	550	abbreviation	Mamy rośliny, zwierzęta itd.	Mamy rośliny, zwierzęta i tak dalej.	Mamy rośliny, zwierzęta i tak dalej.		
+2	551	abbreviation	Owoce, warzywa itp. są zdrowe.	Owoce, warzywa i tym podobne są zdrowe.	Owoce, warzywa i tym podobne są zdrowe.		
+2	552	abbreviation	Wzięli w niej udział m.in. Polacy.	Wzięli w niej udział między innymi Polacy.	Wzięli w niej udział między innymi Polacy.		
+2	553	abbreviation	Jutro, tzn. w sobotę.	Jutro, to znaczy w sobotę.	Jutro, to znaczy w sobotę.		
+2	554	abbreviation	W stolicy, tj. w Warszawie.	W stolicy, to jest w Warszawie.	W stolicy, to jest w Warszawie.		
+2	555	abbreviation	Przyszło ok. 200 osób.	Przyszło około dwustu osób.	Przyszło około dwustu osób.		
+2	556	abbreviation	Wg mnie to błąd.	Według mnie to błąd.	Według mnie to błąd.		
+2	557	abbreviation	Przyjmuje dr Kowalski.	Przyjmuje doktor Kowalski.	Przyjmuje doktor Kowalski.		
+2	558	abbreviation	Wykład wygłosi prof. Nowak.	Wykład wygłosi profesor Nowak.	Wykład wygłosi profesor Nowak.		
+2	559	abbreviation	Projekt podpisał mgr inż. Jan Kowalski.	Projekt podpisał magister inżynier Jan Kowalski.	Projekt podpisał magister inżynier Jan Kowalski.		
+2	560	abbreviation	Figura przedstawia św. Jana.	Figura przedstawia świętego Jana.	Figura przedstawia świętego Jana.		
+2	561	abbreviation	Cezar zginął w 44 r. p.n.e.	Cezar zginął w czterdziestym czwartym roku przed naszą erą.	Cezar zginął w czterdziestym czwartym roku przed naszą erą.		
+2	562	abbreviation	Miasto założono w I w. n.e.	Miasto założono w pierwszym wieku naszej ery.	Miasto założono w pierwszym wieku naszej ery.		
+2	563	abbreviation	To pełnomocnik ds. równości.	To pełnomocnik do spraw równości.	To pełnomocnik do spraw równości.		
+2	564	abbreviation	Szkoła im. Adama Mickiewicza.	Szkoła imienia Adama Mickiewicza.	Szkoła imienia Adama Mickiewicza.		
+2	565	abbreviation	Obejrzałem film pt. Wesele.	Obejrzałem film pod tytułem Wesele.	Obejrzałem film pod tytułem Wesele.		
+2	566	abbreviation	Rozmowa nt. budżetu.	Rozmowa na temat budżetu.	Rozmowa na temat budżetu.		
+2	567	abbreviation	Decyzja ws. podatków zapadła.	Decyzja w sprawie podatków zapadła.	Decyzja w sprawie podatków zapadła.		
+2	568	abbreviation	Rozkaz wydał płk Nowak.	Rozkaz wydał pułkownik Nowak.	Rozkaz wydał pułkownik Nowak.		
+2	569	abbreviation	Dowodził gen. Anders.	Dowodził generał Anders.	Dowodził generał Anders.		
+2	570	abbreviation	Mszę odprawił ks. Jan.	Mszę odprawił ksiądz Jan.	Mszę odprawił ksiądz Jan.		
+2	571	abbreviation	Czekam w pokoju nr 5.	Czekam w pokoju numer pięć.	Czekam w pokoju numer pięć.		
+2	574	abbreviation	Zob. także rozdział drugi.	Zobacz także rozdział drugi.	Zobacz także rozdział drugi.		
+2	575	abbreviation	W marcu br. ceny wzrosły.	W marcu bieżącego roku ceny wzrosły.	W marcu bieżącego roku ceny wzrosły.		
+2	576	abbreviation	W maju ub.r. ceny spadły.	W maju ubiegłego roku ceny spadły.	W maju ubiegłego roku ceny spadły.		
+2	577	abbreviation	Np. jutro przyjdę.	Na przykład jutro przyjdę.	Na przykład jutro przyjdę.		
+2	578	abbreviation	To tzw. Brexit.	To tak zwany Brexit.	To tak zwany Brexit.		
+2	579	abbreviation	Pracuje w firmie ABC sp. z o.o.	Pracuje w firmie ABC spółka z ograniczoną odpowiedzialnością.	Pracuje w firmie ABC spółka z ograniczoną odpowiedzialnością.		
+2	582	abbreviation	Zgłoś się do dyr. Kowalskiego.	Zgłoś się do dyrektora Kowalskiego.	Zgłoś się do dyrektora Kowalskiego.		
+2	583	abbreviation	Projekt wykonał inż. Nowak.	Projekt wykonał inżynier Nowak.	Projekt wykonał inżynier Nowak.		
+2	584	abbreviation	Pismo z dn. 5.05.2020 r.	Pismo z dnia piątego maja dwa tysiące dwudziestego roku.	Pismo z dnia piątego maja dwa tysiące dwudziestego roku.		
+2	585	abbreviation	Zarabia 5 tys. miesięcznie.	Zarabia pięć tysięcy miesięcznie.	Zarabia pięć tysięcy miesięcznie.		
+2	586	abbreviation	Sprzedali 2 mln egzemplarzy.	Sprzedali dwa miliony egzemplarzy.	Sprzedali dwa miliony egzemplarzy.		
+2	587	abbreviation	Rozmawiałem z prof. Nowakiem.	Rozmawiałem z profesorem Nowakiem.	Rozmawiałem z profesorem Nowakiem.		
+2	588	abbreviation	Prowadzi go dr Anna Kowalska.	Prowadzi go doktor Anna Kowalska.	Prowadzi go doktor Anna Kowalska.		
+2	589	abbreviation	Kościół pw. św. Anny.	Kościół pod wezwaniem świętej Anny.	Kościół pod wezwaniem świętej Anny.		
+2	590	abbreviation	Ulica ks. Skorupki.	Ulica księdza Skorupki.	Ulica księdza Skorupki.		
+2	88	ordinal	W 3. rundzie wygrał.	W trzecim rundzie wygrał.	W trzeciej rundzie wygrał.		
+2	89	ordinal	Zajął 2. miejsce.	Zajął drugie miejsce.	Zajął drugie miejsce.		
+2	90	ordinal	To była 29. sesja rady.	To była dwudziesta dziewiąta sesja rady.	To była dwudziesta dziewiąta sesja rady.		
+2	91	ordinal	Obrady 29. sesji rady trwały długo.	Obrady dwudziestej dziewiątej sesji rady trwały długo.	Obrady dwudziestej dziewiątej sesji rady trwały długo.		
+2	92	ordinal	Gol padł w 45. minucie.	Gol padł w czterdziestym piątym minucie.	Gol padł w czterdziestej piątej minucie.		
+2	93	ordinal	Mieszkam na 3. piętrze.	Mieszkam na trzecie piętrze.	Mieszkam na trzecim piętrze.		
+2	94	ordinal	Obchodzimy 100. rocznicę.	Obchodzimy setną rocznicę.	Obchodzimy setną rocznicę.		
+2	95	ordinal	To jego 18. urodziny.	To jego osiemnastej urodziny.	To jego osiemnaste urodziny.		
+2	96	ordinal	W latach 90. było inaczej.	W latach dziewięćdziesiątych było inaczej.	W latach dziewięćdziesiątych było inaczej.		
+2	97	ordinal	Muzyka lat 80. wraca.	Muzyka lat osiemdziesiątych wraca.	Muzyka lat osiemdziesiątych wraca.		
+2	98	ordinal	Lata 70. to czas zmian.	Lata siedemdziesiąte to czas zmian.	Lata siedemdziesiąte to czas zmian.		
+2	99	ordinal	Chodzi do 5. klasy.	Chodzi do piątej klasy.	Chodzi do piątej klasy.		
+2	100	ordinal	W 1. połowie meczu nie padł gol.	W pierwszym połowie meczu nie padł gol.	W pierwszej połowie meczu nie padł gol.		
+2	101	ordinal	Rusza 15. edycja festiwalu.	Rusza piętnasta edycja festiwalu.	Rusza piętnasta edycja festiwalu.		
+2	102	ordinal	Po 2. turze wyborów.	Po drugie turze wyborów.	Po drugiej turze wyborów.		
+2	103	ordinal	Skończył na 10. pozycji.	Skończył na dziesiątej pozycji.	Skończył na dziesiątej pozycji.		
+2	104	ordinal	To mój 2-gi raz.	To mój drugi raz.	To mój drugi raz.		
+2	105	ordinal	Lata 60-te były barwne.	Lata sześćdziesiąte były barwne.	Lata sześćdziesiąte były barwne.		
+2	106	ordinal	W 3-cim kwartale zysk wzrósł.	W trzycim kwartale zysk wzrósł.	W trzecim kwartale zysk wzrósł.		
+2	107	ordinal	Moda z lat 50-tych wraca.	Moda z lat pięćdziesiątych wraca.	Moda z lat pięćdziesiątych wraca.		
+2	108	ordinal	Zajęli 4. lokatę.	Zajęli czwartą lokatę.	Zajęli czwartą lokatę.		
+2	109	ordinal	Spadł z 1. miejsca.	Spadł z pierwsza miejsca.	Spadł z pierwszego miejsca.		
+2	110	ordinal	To już 7. dzień protestu.	To już siódmy dzień protestu.	To już siódmy dzień protestu.		
+2	111	ordinal	Jest w 12. tygodniu ciąży.	Jest w dwunastym tygodniu ciąży.	Jest w dwunastym tygodniu ciąży.		
+2	112	ordinal	Zakończył sezon na 5. miejscu.	Zakończył sezon na piątym miejscu.	Zakończył sezon na piątym miejscu.		
+2	113	ordinal	W 2. kwartale sprzedaż spadła.	W drugie kwartale sprzedaż spadła.	W drugim kwartale sprzedaż spadła.		
+2	114	ordinal	Obchodził 50. urodziny.	Obchodził pięćdziesiątej urodziny.	Obchodził pięćdziesiąte urodziny.		
+2	115	ordinal	Skoczył z 30. piętra.	Skoczył z trzydziesta piętra.	Skoczył z trzydziestego piętra.		
+2	116	ordinal	W 100. odcinku serialu.	W setnym odcinku serialu.	W setnym odcinku serialu.		
+2	117	ordinal	Mija 25. rok jego pracy.	Mija dwudziesty piąty rok jego pracy.	Mija dwudziesty piąty rok jego pracy.		
+2	118	ordinal	Na 2. stronie gazety.	Na drugim stronie gazety.	Na drugiej stronie gazety.		
+2	119	ordinal	To 3. wygrana z rzędu.	To trzecia wygrana z rzędu.	To trzecia wygrana z rzędu.		
+2	120	ordinal	Po 90. minucie sędzia doliczył czas.	Po dziewięćdziesiątym minucie sędzia doliczył czas.	Po dziewięćdziesiątej minucie sędzia doliczył czas.		
+2	121	ordinal	W 8. etapie wyścigu.	W ósmym etapie wyścigu.	W ósmym etapie wyścigu.		
+2	122	ordinal	Odbyła się 40. gala.	Odbyła się czterdziesta gala.	Odbyła się czterdziesta gala.		
+2	123	ordinal	W 11. rundzie znokautował rywala.	W jedenastym rundzie znokautował rywala.	W jedenastej rundzie znokautował rywala.		
+2	124	ordinal	To jego 2. żona.	To jego druga żona.	To jego druga żona.		
+2	125	ordinal	Jest studentem 4. roku.	Jest studentem czwartego roku.	Jest studentem czwartego roku.		
+2	126	ordinal	Żyjemy w 21. wieku.	Żyjemy w dwudziestym pierwszym wieku.	Żyjemy w dwudziestym pierwszym wieku.		
+2	127	ordinal	Zdobył 3. medal w karierze.	Zdobył trzeci medal w karierze.	Zdobył trzeci medal w karierze.		
+2	128	ordinal	W 6. tygodniu szkolenia.	W szóstym tygodniu szkolenia.	W szóstym tygodniu szkolenia.		
+2	129	ordinal	Ukończył 21. maraton.	Ukończył dwudziesty pierwszy maraton.	Ukończył dwudziesty pierwszy maraton.		
+2	130	ordinal	Na 1. roku studiów.	Na pierwszym roku studiów.	Na pierwszym roku studiów.		
+2	174	time	Przyjdź o 18:30.	Przyjdź o osiemnastej trzydzieści.	Przyjdź o osiemnastej trzydzieści.		
+2	176	time	Sklep jest czynny od 9:00 do 17:00.	Sklep jest czynny od dziewiątej do siedemnastej.	Sklep jest czynny od dziewiątej do siedemnastej.		
+2	177	time	Jest 13:45.	Jest trzynasta czterdzieści pięć.	Jest trzynasta czterdzieści pięć.		
+2	178	time	Spotkanie o godz. 12:00.	Spotkanie o godzinie dwunastej.	Spotkanie o godzinie dwunastej.		
+2	179	time	Mecz zaczyna się o 20.45.	Mecz zaczyna się o dwudziestej czterdzieści pięć.	Mecz zaczyna się o dwudziestej czterdzieści pięć.		
+2	180	time	Od 22:00 obowiązuje cisza nocna.	Od dwudziestej drugiej obowiązuje cisza nocna.	Od dwudziestej drugiej obowiązuje cisza nocna.		
+2	181	time	Przed 8:00 nie dzwoń.	Przed ósmą nie dzwoń.	Przed ósmą nie dzwoń.		
+2	182	time	Po 23:00 jest ciszej.	Po dwudziestej trzeciej jest ciszej.	Po dwudziestej trzeciej jest ciszej.		
+2	183	time	Około 6:30 wstałem.	Około szóstej trzydzieści wstałem.	Około szóstej trzydzieści wstałem.		
+2	184	time	Wróć na 14:00.	Wróć na czternastą.	Wróć na czternastą.		
+2	185	time	Między 10:00 a 12:00 nie ma prądu.	Między dziesiątą a dwunastą nie ma prądu.	Między dziesiątą a dwunastą nie ma prądu.		
+2	186	time	Pobudka o 5:15.	Pobudka o piątej piętnaście.	Pobudka o piątej piętnaście.		
+2	187	time	Samolot ląduje o 16:50.	Samolot ląduje o szesnastej pięćdziesiąt.	Samolot ląduje o szesnastej pięćdziesiąt.		
+2	188	time	Spotkanie o godz. 15.	Spotkanie o godzinie piętnastej.	Spotkanie o godzinie piętnastej.		
+2	189	time	Transmisja o 21:37.	Transmisja o dwudziestej pierwszej trzydzieści siedem.	Transmisja o dwudziestej pierwszej trzydzieści siedem.		
+2	190	time	Zgłoszenia przyjmujemy do 18:00.	Zgłoszenia przyjmujemy do osiemnastej.	Zgłoszenia przyjmujemy do osiemnastej.		
+2	191	time	Jest 12:00.	Jest dwunasta.	Jest dwunasta.		
+2	192	time	Obudził się o 1:00 w nocy.	Obudził się o pierwszej w nocy.	Obudził się o pierwszej w nocy.		
+2	193	time	Wyszedł o 3:20 nad ranem.	Wyszedł o trzeciej dwadzieścia nad ranem.	Wyszedł o trzeciej dwadzieścia nad ranem.		
+2	194	time	O 19:00 zaczyna się film.	O dziewiętnastej zaczyna się film.	O dziewiętnastej zaczyna się film.		
+2	195	time	Najpóźniej o 23:59.	Najpóźniej o dwudziestej trzeciej pięćdziesiąt dziewięć.	Najpóźniej o dwudziestej trzeciej pięćdziesiąt dziewięć.		
+2	196	time	Pomiędzy 7:00 a 9:00 są korki.	Pomiędzy siódmą a dziewiątą są korki.	Pomiędzy siódmą a dziewiątą są korki.		
+2	197	time	Pracuję od 7.30 do 15.30.	Pracuję od siódmej trzydzieści do piętnastej trzydzieści.	Pracuję od siódmej trzydzieści do piętnastej trzydzieści.		
+2	198	time	Obiad jest o 12.15.	Obiad jest o dwunastej piętnaście.	Obiad jest o dwunastej piętnaście.		
+2	199	time	Kolacja o 19:30.	Kolacja o dziewiętnastej trzydzieści.	Kolacja o dziewiętnastej trzydzieści.		
+2	200	time	Rozpoczęcie: 10:00.	Rozpoczęcie: dziesiąta.	Rozpoczęcie: dziesiąta.		
+2	201	time	Wybuch nastąpił o 4:47.	Wybuch nastąpił o czwartej czterdzieści siedem.	Wybuch nastąpił o czwartej czterdzieści siedem.		
+2	202	time	O 24:00 kończy się doba.	O dwudziestej czwartej kończy się doba.	O dwudziestej czwartej kończy się doba.		
+2	203	time	Do 13:00 trwa przerwa.	Do trzynastej trwa przerwa.	Do trzynastej trwa przerwa.		
+2	204	time	Zamykamy o 21:00.	Zamykamy o dwudziestej pierwszej.	Zamykamy o dwudziestej pierwszej.		
+2	205	time	Wyjazd o 6:00 rano.	Wyjazd o szóstej rano.	Wyjazd o szóstej rano.		
+2	206	time	Spotkajmy się koło 17:30.	Spotkajmy się koło siedemnastej trzydzieści.	Spotkajmy się koło siedemnastej trzydzieści.		
+2	207	time	Wrócił przed 2:00.	Wrócił przed drugą.	Wrócił przed drugą.		
+2	208	time	Budzik zadzwonił o 6:45.	Budzik zadzwonił o szóstej czterdzieści pięć.	Budzik zadzwonił o szóstej czterdzieści pięć.		
+2	209	time	Godzina 8:20 to dobra pora.	Godzina ósma dwadzieścia to dobra pora.	Godzina ósma dwadzieścia to dobra pora.		
+2	210	time	Lekcja trwa od 8:00 do 8:45.	Lekcja trwa od ósmej do ósmej czterdzieści pięć.	Lekcja trwa od ósmej do ósmej czterdzieści pięć.		
+2	211	time	Msza zaczyna się o 18:00.	Msza zaczyna się o osiemnastej.	Msza zaczyna się o osiemnastej.		
+2	212	time	Autobus przyjedzie o 9:10.	Autobus przyjedzie o dziewiątej dziesięć.	Autobus przyjedzie o dziewiątej dziesięć.		
+2	213	time	Start zaplanowano na 11:30.	Start zaplanowano na jedenastą trzydzieści.	Start zaplanowano na jedenastą trzydzieści.		
+2	214	time	Biuro czynne do 16:00.	Biuro czynne do szesnastej.	Biuro czynne do szesnastej.		
+2	215	time	Spotkajmy się po 20:00.	Spotkajmy się po dwudziestej.	Spotkajmy się po dwudziestej.		
+2	259	measure	Przebiegł 5 km.	Przebiegł pięć kilometrów.	Przebiegł pięć kilometrów.		
+2	260	measure	To tylko 2 km.	To tylko dwa kilometry.	To tylko dwa kilometry.		
+2	262	measure	Wieża ma 100 m.	Wieża ma sto metrów.	Wieża ma sto metrów.		
+2	264	measure	Dodaj 500 g mąki.	Dodaj pięćset gramów mąki.	Dodaj pięćset gramów mąki.		
+2	265	measure	Wypij 1,5 l wody.	Wypij półtora litra wody.	Wypij półtora litra wody.		
+2	266	measure	Wlej 200 ml mleka.	Wlej dwieście mililitrów mleka.	Wlej dwieście mililitrów mleka.		
+2	267	measure	Na zewnątrz jest 30 °C.	Na zewnątrz jest trzydzieści stopni Celsjusza.	Na zewnątrz jest trzydzieści stopni Celsjusza.		
+2	268	measure	Temperatura spadła do -5°C.	Temperatura spadła do minus pięć stopni Celsjusza.	Temperatura spadła do minus pięciu stopni Celsjusza.		
+2	269	measure	Jechał 120 km/h.	Jechał sto dwadzieścia kilometrów na godzinę.	Jechał sto dwadzieścia kilometrów na godzinę.		
+2	270	measure	Mieszkanie ma 50 m².	Mieszkanie ma pięćdziesiąt metrów kwadratowych.	Mieszkanie ma pięćdziesiąt metrów kwadratowych.		
+2	271	measure	Ciężarówka waży 3 t.	Ciężarówka waży trzy tony.	Ciężarówka waży trzy tony.		
+2	272	measure	Lot trwa 2 h.	Lot trwa dwie godziny.	Lot trwa dwie godziny.		
+2	273	measure	Czekałem 15 min.	Czekałem piętnaście minut.	Czekałem piętnaście minut.		
+2	274	measure	Bieg trwał 10 s.	Bieg trwał dziesięć sekund.	Bieg trwał dziesięć sekund.		
+2	275	measure	Ma 180 cm wzrostu.	Ma sto osiemdziesiąt centymetrów wzrostu.	Ma sto osiemdziesiąt centymetrów wzrostu.		
+2	276	measure	Płyta ma 4 mm.	Płyta ma cztery milimetry.	Płyta ma cztery milimetry.		
+2	277	measure	Silnik ma 100 kW.	Silnik ma sto kilowatów.	Silnik ma sto kilowatów.		
+2	278	measure	Napięcie wynosi 230 V.	Napięcie wynosi dwieście trzydzieści woltów.	Napięcie wynosi dwieście trzydzieści woltów.		
+2	280	measure	Dysk ma 500 GB.	Dysk ma pięćset gigabajtów.	Dysk ma pięćset gigabajtów.		
+2	281	measure	Waży 60 kg.	Waży sześćdziesiąt kilogramów.	Waży sześćdziesiąt kilogramów.		
+2	282	measure	Ma 2 m wysokości.	Ma dwa metry wysokości.	Ma dwa metry wysokości.		
+2	283	measure	Zbiornik ma 10 m³.	Zbiornik ma dziesięć metrów sześciennych.	Zbiornik ma dziesięć metrów sześciennych.		
+2	284	measure	Kraj ma 1000 km².	Kraj ma tysiąc kilometrów kwadratowych.	Kraj ma tysiąc kilometrów kwadratowych.		
+2	285	measure	Przyjmij 5 mg leku.	Przyjmij pięć miligramów leku.	Przyjmij pięć miligramów leku.		
+2	286	measure	Kupiłem 3 l soku.	Kupiłem trzy litry soku.	Kupiłem trzy litry soku.		
+2	287	measure	Ma 22 m długości.	Ma dwadzieścia dwa metry długości.	Ma dwadzieścia dwa metry długości.		
+2	288	measure	Waży 12 kg.	Waży dwanaście kilogramów.	Waży dwanaście kilogramów.		
+2	289	measure	Urósł o 5 cm.	Urósł o pięć centymetrów.	Urósł o pięć centymetrów.		
+2	290	measure	Schudł z 80 kg do 75 kg.	Schudł z osiemdziesięcioma kilogramami do siedemdziesięciu pięciu kilogramów.	Schudł z osiemdziesięciu kilogramów do siedemdziesięciu pięciu kilogramów.		
+2	291	measure	Obowiązuje ograniczenie do 90 km/h.	Obowiązuje ograniczenie do dziewięćdziesięciu kilometrów na godzinę.	Obowiązuje ograniczenie do dziewięćdziesięciu kilometrów na godzinę.		
+2	292	measure	Grzałka ma moc 1,5 kW.	Grzałka ma moc półtora kilowata.	Grzałka ma moc półtora kilowata.		
+2	294	measure	Spadło 15 mm deszczu.	Spadło piętnaście milimetrów deszczu.	Spadło piętnaście milimetrów deszczu.		
+2	295	measure	Przepłynął 400 m.	Przepłynął czterysta metrów.	Przepłynął czterysta metrów.		
+2	296	measure	Wieś leży w odległości 3 km.	Wieś leży w odległości trzech kilometrów.	Wieś leży w odległości trzech kilometrów.		
+2	297	measure	Auto pali 6 l na 100 km.	Auto pali sześć litrów na sto kilometrów.	Auto pali sześć litrów na sto kilometrów.		
+2	298	measure	Częstotliwość sieci to 50 Hz.	Częstotliwość sieci to pięćdziesiąt herców.	Częstotliwość sieci to pięćdziesiąt herców.		
+2	299	measure	Korek ciągnie się na 2 km.	Korek ciągnie się na dwa kilometry.	Korek ciągnie się na dwa kilometry.		
+2	300	measure	Kąt prosty ma 90°.	Kąt prosty ma dziewięćdziesiąt stopni.	Kąt prosty ma dziewięćdziesiąt stopni.		
+2	301	measure	Pokój ma 12 m2.	Pokój ma dwanaście metrów kwadratowych.	Pokój ma dwanaście metrów kwadratowych.		
+2	131	date	Urodził się 15.08.2020 r.	Urodził się piętnastego sierpnia dwa tysiące dwudziestego roku.	Urodził się piętnastego sierpnia dwa tysiące dwudziestego roku.		
+2	132	date	Spotkamy się 5 maja.	Spotkamy się piątego maja.	Spotkamy się piątego maja.		
+2	133	date	Dziś jest 3 maja.	Dziś jest trzeci maja.	Dziś jest trzeci maja.		
+2	134	date	Termin mija 31 grudnia.	Termin mija trzydziestego pierwszego grudnia.	Termin mija trzydziestego pierwszego grudnia.		
+2	135	date	Wniosek złóż do 30 czerwca 2024 r.	Wniosek złóż do trzydziestego czerwca dwa tysiące dwudziestego czwartego roku.	Wniosek złóż do trzydziestego czerwca dwa tysiące dwudziestego czwartego roku.		
+2	136	date	W 2020 r. wybuchła pandemia.	W dwa tysiące dwudziestym roku wybuchła pandemia.	W dwa tysiące dwudziestym roku wybuchła pandemia.		
+2	137	date	W 1989 roku upadł komunizm.	W tysiąc dziewięćset osiemdziesiątym dziewiątym roku upadł komunizm.	W tysiąc dziewięćset osiemdziesiątym dziewiątym roku upadł komunizm.		
+2	138	date	Festiwal trwa od 1 do 5 lipca.	Festiwal trwa od jednego do piątego lipca.	Festiwal trwa od pierwszego do piątego lipca.		
+2	139	date	11 listopada to Święto Niepodległości.	jedenastego listopada to Święto Niepodległości.	Jedenasty listopada to Święto Niepodległości.		
+2	140	date	Umowa z dnia 12.03.2019 r.	Umowa z dnia dwunastego marca dwa tysiące dziewiętnastego roku.	Umowa z dnia dwunastego marca dwa tysiące dziewiętnastego roku.		
+2	142	date	Pracował tam od 2015 do 2020 roku.	Pracował tam od dwa tysiące piętnastego do dwa tysiące dwudziestego roku.	Pracował tam od dwa tysiące piętnastego do dwa tysiące dwudziestego roku.		
+2	143	date	Przed 2000 rokiem było inaczej.	Przed dwutysięcznym rokiem było inaczej.	Przed dwutysięcznym rokiem było inaczej.		
+2	144	date	Wojna wybuchła 1 września 1939 r.	Wojna wybuchła pierwszego września tysiąc dziewięćset trzydziestego dziewiątego roku.	Wojna wybuchła pierwszego września tysiąc dziewięćset trzydziestego dziewiątego roku.		
+2	145	date	Zmarł 2 kwietnia 2005 roku.	Zmarł drugiego kwietnia dwa tysiące piątego roku.	Zmarł drugiego kwietnia dwa tysiące piątego roku.		
+2	146	date	Ustawa z 20 maja 2021 r.	Ustawa z dwudziestego maja dwa tysiące dwudziestego pierwszego roku.	Ustawa z dwudziestego maja dwa tysiące dwudziestego pierwszego roku.		
+2	147	date	Sezon trwa od 15 marca do 15 października.	Sezon trwa od piętnastego marca do piętnastego października.	Sezon trwa od piętnastego marca do piętnastego października.		
+2	148	date	W styczniu 2021 r. spadł śnieg.	W styczniu dwa tysiące dwudziestego pierwszego roku spadł śnieg.	W styczniu dwa tysiące dwudziestego pierwszego roku spadł śnieg.		
+2	150	date	Plan sięga do 2030 r.	Plan sięga do dwa tysiące trzydziestego roku.	Plan sięga do dwa tysiące trzydziestego roku.		
+2	151	date	Budżet na 2025 rok jest gotowy.	Budżet na dwa tysiące dwudziesty piąty rok jest gotowy.	Budżet na dwa tysiące dwudziesty piąty rok jest gotowy.		
+2	152	date	Rok 2024 był rekordowy.	Rok dwa tysiące dwudziesty czwarty był rekordowy.	Rok dwa tysiące dwudziesty czwarty był rekordowy.		
+2	153	date	Przepis obowiązuje od 1.01.2024 r.	Przepis obowiązuje od pierwszego stycznia dwa tysiące dwudziestego czwartego roku.	Przepis obowiązuje od pierwszego stycznia dwa tysiące dwudziestego czwartego roku.		
+2	154	date	Dnia 5.06.2023 r. podpisano umowę.	Dnia piątego czerwca dwa tysiące dwudziestego trzeciego roku podpisano umowę.	Dnia piątego czerwca dwa tysiące dwudziestego trzeciego roku podpisano umowę.		
+2	155	date	Urodziła się 29 lutego.	Urodziła się dwudziestego dziewiątego lutego.	Urodziła się dwudziestego dziewiątego lutego.		
+2	156	date	Działa od 2019 r.	Działa od dwa tysiące dziewiętnastego roku.	Działa od dwa tysiące dziewiętnastego roku.		
+2	157	date	Ostatni raz był tu w 1995.	Ostatni raz był tu w tysiąc dziewięćset dziewięćdziesiątym piątym.	Ostatni raz był tu w tysiąc dziewięćset dziewięćdziesiątym piątym.		
+2	158	date	Jutro jest 14 lutego.	Jutro jest czternasty lutego.	Jutro jest czternasty lutego.		
+2	159	date	W dniu 3.05.2022 r. odbyła się parada.	W dniu trzeciego maja dwa tysiące dwudziestego drugiego roku odbyła się parada.	W dniu trzeciego maja dwa tysiące dwudziestego drugiego roku odbyła się parada.		
+2	160	date	Po 1 maja ceny wzrosną.	Po pierwszego maja ceny wzrosną.	Po pierwszym maja ceny wzrosną.		
+2	161	date	Prezenty kupię przed 24 grudnia.	Prezenty kupię przed dwudziestego czwartego grudnia.	Prezenty kupię przed dwudziestym czwartym grudnia.		
+2	162	date	Od 1 stycznia 2025 r. obowiązuje nowe prawo.	Od pierwszego stycznia dwa tysiące dwudziestego piątego roku obowiązuje nowe prawo.	Od pierwszego stycznia dwa tysiące dwudziestego piątego roku obowiązuje nowe prawo.		
+2	163	date	Spotkanie przełożono na 6 grudnia.	Spotkanie przełożono na szóstego grudnia.	Spotkanie przełożono na szósty grudnia.		
+2	164	date	13 grudnia 1981 r. wprowadzono stan wojenny.	trzynastego grudnia tysiąc dziewięćset osiemdziesiątego pierwszego roku wprowadzono stan wojenny.	Trzynastego grudnia tysiąc dziewięćset osiemdziesiątego pierwszego roku wprowadzono stan wojenny.		
+2	165	date	W 2001 r. powstała Wikipedia.	W dwa tysiące pierwszym roku powstała Wikipedia.	W dwa tysiące pierwszym roku powstała Wikipedia.		
+2	166	date	W 2000 r. zmieniło się tysiąclecie.	W dwutysięcznym roku zmieniło się tysiąclecie.	W dwutysięcznym roku zmieniło się tysiąclecie.		
+2	167	date	Wyniki ogłoszono 1.06.2024 r.	Wyniki ogłoszono pierwszego czerwca dwa tysiące dwudziestego czwartego roku.	Wyniki ogłoszono pierwszego czerwca dwa tysiące dwudziestego czwartego roku.		
+2	168	date	Szkoła powstała w 1918 roku.	Szkoła powstała w tysiąc dziewięćset osiemnastym roku.	Szkoła powstała w tysiąc dziewięćset osiemnastym roku.		
+2	169	date	Zgłoszenia do 15 maja 2025 r.	Zgłoszenia do piętnastego maja dwa tysiące dwudziestego piątego roku.	Zgłoszenia do piętnastego maja dwa tysiące dwudziestego piątego roku.		
+2	170	date	Koncert odbędzie się 21 czerwca.	Koncert odbędzie się dwudziestego pierwszego czerwca.	Koncert odbędzie się dwudziestego pierwszego czerwca.		
+2	171	date	Raport za 2023 rok jest gotowy.	Raport za dwa tysiące dwudziesty trzeci rok jest gotowy.	Raport za dwa tysiące dwudziesty trzeci rok jest gotowy.		
+2	172	date	Na początku 2022 roku ceny wzrosły.	Na początku dwa tysiące dwudziestego drugiego roku ceny wzrosły.	Na początku dwa tysiące dwudziestego drugiego roku ceny wzrosły.		
+2	173	date	Pod koniec 1999 r.	Pod koniec tysiąc dziewięćset dziewięćdziesiątego dziewiątego roku.	Pod koniec tysiąc dziewięćset dziewięćdziesiątego dziewiątego roku.		
+2	217	money	Budżet to 5 mln zł.	Budżet to pięć milionów złotych.	Budżet to pięć milionów złotych.		
+2	218	money	Bilet kosztuje 5 zł.	Bilet kosztuje pięć złotych.	Bilet kosztuje pięć złotych.		
+2	219	money	Zapłaciłem 2 zł.	Zapłaciłem dwa złote.	Zapłaciłem dwa złote.		
+2	221	money	Dostał 100 zł.	Dostał sto złotych.	Dostał sto złotych.		
+2	222	money	Zarabia 4 500 zł.	Zarabia cztery tysiące pięćset złotych.	Zarabia cztery tysiące pięćset złotych.		
+2	223	money	Kupiłem to za 20 zł.	Kupiłem to za dwadzieścia złotych.	Kupiłem to za dwadzieścia złotych.		
+2	224	money	Ceny od 15 zł.	Ceny od piętnastu złotych.	Ceny od piętnastu złotych.		
+2	225	money	Cena wzrosła o 3 zł.	Cena wzrosła o trzy złote.	Cena wzrosła o trzy złote.		
+2	226	money	Inwestycja za 1,5 mld zł.	Inwestycja za półtora miliarda złotych.	Inwestycja za półtora miliarda złotych.		
+2	227	money	Nagroda wynosi 10 tys. zł.	Nagroda wynosi dziesięć tysięcy złotych.	Nagroda wynosi dziesięć tysięcy złotych.		
+2	228	money	Kosztuje $100.	Kosztuje sto dolarów.	Kosztuje sto dolarów.		
+2	229	money	Bilet kosztuje 50 €.	Bilet kosztuje pięćdziesiąt euro.	Bilet kosztuje pięćdziesiąt euro.		
+2	230	money	Zapłaciłem €20.	Zapłaciłem dwadzieścia euro.	Zapłaciłem dwadzieścia euro.		
+2	231	money	To kosztuje 25 USD.	To kosztuje dwadzieścia pięć dolarów.	To kosztuje dwadzieścia pięć dolarów.		
+2	232	money	Wydał £5.	Wydał pięć funtów.	Wydał pięć funtów.		
+2	233	money	Opłata wynosi 300 PLN.	Opłata wynosi trzysta złotych.	Opłata wynosi trzysta złotych.		
+2	234	money	Guma kosztuje 50 gr.	Guma kosztuje pięćdziesiąt groszy.	Guma kosztuje pięćdziesiąt groszy.		
+2	236	money	Cena: 0,99 zł.	Cena: zero złotych dziewięćdziesiąt dziewięć groszy.	Cena: dziewięćdziesiąt dziewięć groszy.		
+2	237	money	Kosztowało 1,01 zł.	Kosztowało jeden złoty jeden grosz.	Kosztowało jeden złoty jeden grosz.		
+2	238	money	Kosztuje 22 zł.	Kosztuje dwadzieścia dwa złote.	Kosztuje dwadzieścia dwa złote.		
+2	239	money	Kosztuje 12 zł.	Kosztuje dwanaście złotych.	Kosztuje dwanaście złotych.		
+2	241	money	Grozi mu kara do 5 tys. zł.	Grozi mu kara do pięciu tysięcy złotych.	Grozi mu kara do pięciu tysięcy złotych.		
+2	242	money	Cena wzrosła z 40 zł do 50 zł.	Cena wzrosła z czterdziestoma złotymi do pięćdziesięciu złotych.	Cena wzrosła z czterdziestu złotych do pięćdziesięciu złotych.		
+2	243	money	Zapłacisz ok. 200 zł.	Zapłacisz około dwustu złotych.	Zapłacisz około dwustu złotych.		
+2	244	money	Kosztuje 5,00 zł.	Kosztuje pięć złotych zero groszy.	Kosztuje pięć złotych.		
+2	246	money	Dostał mandat w wysokości 500 zł.	Dostał mandat w wysokości pięciuset złotych.	Dostał mandat w wysokości pięciuset złotych.		
+2	247	money	Zebrano ponad 2 mln zł.	Zebrano ponad dwa miliony złotych.	Zebrano ponad dwa miliony złotych.		
+2	248	money	Telefon kosztował 1999 zł.	Telefon kosztował tysiąc dziewięćset dziewięćdziesiąt dziewięć złotych.	Telefon kosztował tysiąc dziewięćset dziewięćdziesiąt dziewięć złotych.		
+2	250	money	Wstęp kosztuje 10 EUR.	Wstęp kosztuje dziesięć euro.	Wstęp kosztuje dziesięć euro.		
+2	254	money	Brakuje mi 5 zł.	Brakuje mi pięciu złotych.	Brakuje mi pięciu złotych.		
+2	255	money	Obiad kosztuje 21 zł.	Obiad kosztuje dwadzieścia jeden złotych.	Obiad kosztuje dwadzieścia jeden złotych.		
+2	256	money	Wpłacił 250 tys. zł.	Wpłacił dwieście pięćdziesiąt tysięcy złotych.	Wpłacił dwieście pięćdziesiąt tysięcy złotych.		
+2	257	money	Dług wynosi 3 mld zł.	Dług wynosi trzy miliardy złotych.	Dług wynosi trzy miliardy złotych.		
+2	258	money	Pensja wzrośnie do 7 000 zł.	Pensja wzrośnie do siedmiu tysięcy złotych.	Pensja wzrośnie do siedmiu tysięcy złotych.		
+2	303	percent	Inflacja wyniosła 5%.	Inflacja wyniosła pięć procent.	Inflacja wyniosła pięć procent.		
+2	304	percent	Ceny wzrosły o 3%.	Ceny wzrosły o trzy procent.	Ceny wzrosły o trzy procent.		
+2	305	percent	Poparcie wynosi 21%.	Poparcie wynosi dwadzieścia jeden procent.	Poparcie wynosi dwadzieścia jeden procent.		
+2	308	percent	Udział wzrósł z 5% do 7%.	Udział wzrósł z pięcioma procentami do siedmiu procent.	Udział wzrósł z pięciu procent do siedmiu procent.		
+2	309	percent	Jestem pewien na 100%.	Jestem pewien na sto procent.	Jestem pewien na sto procent.		
+2	310	percent	PKB wzrósł o 5 proc.	PKB wzrósł o pięć procent.	PKB wzrósł o pięć procent.		
+2	313	percent	Zniżka 50% na wszystko.	Zniżka pięćdziesiąt procent na wszystko.	Zniżka pięćdziesiąt procent na wszystko.		
+2	314	percent	Ponad 60% Polaków to popiera.	Ponad sześćdziesiąt procent Polaków to popiera.	Ponad sześćdziesiąt procent Polaków to popiera.		
+2	315	percent	Około 30% osób nie głosowało.	Około trzydziestu procent osób nie głosowało.	Około trzydziestu procent osób nie głosowało.		
+2	316	percent	Rabaty do 20%.	Rabaty do dwudziestu procent.	Rabaty do dwudziestu procent.		
+2	317	percent	Przy 80% wilgotności.	Przy osiemdziesięciu procentach wilgotności.	Przy osiemdziesięciu procentach wilgotności.		
+2	318	percent	Stawka VAT to 23%.	Stawka VAT to dwadzieścia trzy procent.	Stawka VAT to dwadzieścia trzy procent.		
+2	320	percent	Ceny spadły o 10%.	Ceny spadły o dziesięć procent.	Ceny spadły o dziesięć procent.		
+2	322	percent	Zysk wzrósł o 12%.	Zysk wzrósł o dwanaście procent.	Zysk wzrósł o dwanaście procent.		
+2	323	percent	Rabat 15 % na buty.	Rabat piętnaście procent na buty.	Rabat piętnaście procent na buty.		
+2	325	percent	Podwyżka od 3% do 5%.	Podwyżka od trzech procent do pięciu procent.	Podwyżka od trzech procent do pięciu procent.		
+2	327	percent	Zdobył prawie 40% głosów.	Zdobył prawie czterdzieści procent głosów.	Zdobył prawie czterdzieści procent głosów.		
+2	328	percent	Aż 99% badanych się zgadza.	Aż dziewięćdziesiąt dziewięć procent badanych się zgadza.	Aż dziewięćdziesiąt dziewięć procent badanych się zgadza.		
+2	329	percent	Udział wynosi 2%.	Udział wynosi dwa procent.	Udział wynosi dwa procent.		
+2	330	percent	Kurs spadł nawet o 1%.	Kurs spadł nawet o jeden procent.	Kurs spadł nawet o jeden procent.		
+2	331	percent	Wykonał plan w 100 proc.	Wykonał plan w stu procentach.	Wykonał plan w stu procentach.		
+2	332	percent	Kredyt na 8%.	Kredyt na osiem procent.	Kredyt na osiem procent.		
+2	334	percent	Spadek z 30 proc. do 25 proc.	Spadek z trzydziestoma procentami do dwudziestu pięciu procent.	Spadek z trzydziestu procent do dwudziestu pięciu procent.		
+2	335	percent	Inflacja spadła poniżej 5%.	Inflacja spadła poniżej pięciu procent.	Inflacja spadła poniżej pięciu procent.		
+2	336	percent	Stanowią 12% ludności.	Stanowią dwanaście procent ludności.	Stanowią dwanaście procent ludności.		
+2	338	percent	Zwiększył udział do 45 %.	Zwiększył udział do czterdziestu pięciu procent.	Zwiększył udział do czterdziestu pięciu procent.		
+2	339	percent	Zapłacisz 20% mniej.	Zapłacisz dwadzieścia procent mniej.	Zapłacisz dwadzieścia procent mniej.		
+2	340	percent	Wzrost o 100 procent.	Wzrost o sto procent.	Wzrost o sto procent.		
+2	341	percent	Akcje zyskały 7%.	Akcje zyskały siedem procent.	Akcje zyskały siedem procent.		
+2	342	percent	Tylko 4% firm eksportuje.	Tylko cztery procent firm eksportuje.	Tylko cztery procent firm eksportuje.		
+2	343	percent	Ma 25% udziałów.	Ma dwadzieścia pięć procent udziałów.	Ma dwadzieścia pięć procent udziałów.		
+2	344	percent	Rośnie o 1% rocznie.	Rośnie o jeden procent rocznie.	Rośnie o jeden procent rocznie.		
+2	345	percent	Stopy wzrosły o 5 pkt proc.	Stopy wzrosły o pięć punktów procentowych.	Stopy wzrosły o pięć punktów procentowych.		
+2	429	fraction	3/4 Polaków to popiera.	trzy czterech Polaków to popiera.	Trzy czwarte Polaków to popiera.		
+2	430	fraction	Kandydat zdobył 2/3 głosów.	Kandydat zdobył dwa trzech głosów.	Kandydat zdobył dwie trzecie głosów.		
+2	431	fraction	Na obronę idzie 1/3 budżetu.	Na obronę idzie jeden trzy budżetu.	Na obronę idzie jedna trzecia budżetu.		
+2	433	fraction	W 1/8 finału odpadli faworyci.	W jeden osiem finału odpadli faworyci.	W jednej ósmej finału odpadli faworyci.		
+2	435	fraction	Dodaj ¾ szklanki cukru.	Dodaj ¾ szklanki cukru.	Dodaj trzy czwarte szklanki cukru.		
+2	436	fraction	To 1/10 sekundy.	To jeden dziesięć sekundy.	To jedna dziesiąta sekundy.		
+2	437	fraction	Śruba ma 5/8 cala.	Śruba ma pięć osiem cala.	Śruba ma pięć ósmych cala.		
+2	438	fraction	Około 1/5 mieszkańców wyjechało.	Około jednego pięć mieszkańców wyjechało.	Około jednej piątej mieszkańców wyjechało.		
+2	439	fraction	Ułamek 1/2 jest prosty.	Ułamek jeden dwa jest prosty.	Ułamek jedna druga jest prosty.		
+2	440	fraction	Ułamek 3/5 jest właściwy.	Ułamek trzy pięć jest właściwy.	Ułamek trzy piąte jest właściwy.		
+2	441	fraction	Wynik to 7/10.	Wynik to siedem dziesięć.	Wynik to siedem dziesiątych.		
+2	442	fraction	To tylko 1/100 kosztów.	To tylko jeden sto kosztów.	To tylko jedna setna kosztów.		
+2	443	fraction	To tylko 1/1000 sekundy.	To tylko jeden tysiąc sekundy.	To tylko jedna tysięczna sekundy.		
+2	444	fraction	Aż 9/10 respondentów się zgadza.	Aż dziewięć dziesięć respondentów się zgadza.	Aż dziewięć dziesiątych respondentów się zgadza.		
+2	446	fraction	Ułamek 4/7 jest mniejszy od jedności.	Ułamek cztery siedem jest mniejszy od jedności.	Ułamek cztery siódme jest mniejszy od jedności.		
+2	447	fraction	Lasy zajmują 2/5 powierzchni.	Lasy zajmują dwa pięć powierzchni.	Lasy zajmują dwie piąte powierzchni.		
+2	448	fraction	Ułamek 11/12 jest bliski jedności.	Ułamek jedenaście dwanaście jest bliski jedności.	Ułamek jedenaście dwunastych jest bliski jedności.		
+2	450	fraction	Poparło go ⅔ wyborców.	Poparło go ⅔ wyborców.	Poparło go dwie trzecie wyborców.		
+2	451	fraction	Zjadł 1/6 tortu.	Zjadł jeden sześć tortu.	Zjadł jedną szóstą tortu.		
+2	452	fraction	Wynik to 3/8.	Wynik to trzy osiem.	Wynik to trzy ósme.		
+2	453	fraction	Ułamek 21/100 to dwadzieścia jeden setnych.	Ułamek dwadzieścia jeden sto to dwadzieścia jeden setnych.	Ułamek dwadzieścia jeden setnych to dwadzieścia jeden setnych.		
+2	454	fraction	To 1/20 całości.	To jeden dwadzieścia całości.	To jedna dwudziesta całości.		
+2	455	fraction	Kup 1/2 l mleka.	Kup jedna dwa litry mleka.	Kup pół litra mleka.		
+2	456	fraction	Odeszło 4/5 składu.	Odeszło cztery pięć składu.	Odeszło cztery piąte składu.		
+2	457	fraction	Około 2/3 ankietowanych było za.	Około dwóch trzech ankietowanych było za.	Około dwóch trzecich ankietowanych było za.		
+2	458	fraction	Biegł 3 3/4 mili.	Biegł trzy trzy cztery mili.	Biegł trzy i trzy czwarte mili.		
+2	459	fraction	Pracuje na 1/2 etatu.	Pracuje na jeden dwa etatu.	Pracuje na pół etatu.		
+2	461	fraction	Ok. 1/4 ludności mieszka na wsi.	Około jednego cztery ludności mieszka na wsi.	Około jednej czwartej ludności mieszka na wsi.		
+2	462	fraction	Czekał 1 1/2 godziny.	Czekał jeden jeden dwie godziny.	Czekał półtorej godziny.		
+2	463	fraction	Ma 2 1/2 roku.	Ma dwa jeden drugiego roku.	Ma dwa i pół roku.		
+2	465	fraction	Ułamek 5/6 jest większy niż 1/2.	Ułamek pięć sześć jest większy niż jeden dwa.	Ułamek pięć szóstych jest większy niż jedna druga.		
+2	467	fraction	Prawie 3/4 uczniów zdało.	Prawie trzy czterech uczniów zdało.	Prawie trzy czwarte uczniów zdało.		
+3	1	cardinal	Mam 5 kotów.	Mam pięć kotów.	Mam pięć kotów.		
+3	2	cardinal	W klasie jest 28 uczniów.	W klasie jest dwadzieścia osiem uczniów.	W klasie jest dwudziestu ośmiu uczniów.		
+3	3	cardinal	Przyszły 2 kobiety.	Przyszły dwie kobiety.	Przyszły dwie kobiety.		
+3	4	cardinal	Kupiłem 3 książki.	Kupiłem trzy książki.	Kupiłem trzy książki.		
+3	5	cardinal	Na sali były 22 dziewczyny.	Na sali były dwadzieścia dwa dziewczyny.	Na sali były dwadzieścia dwie dziewczyny.		
+3	6	cardinal	Spotkałem się z 5 kolegami.	Spotkałem się z pięcioma kolegami.	Spotkałem się z pięcioma kolegami.		
+3	7	cardinal	Pomogliśmy 4 rodzinom.	Pomogliśmy cztery rodzinom.	Pomogliśmy czterem rodzinom.		
+3	8	cardinal	Zabrakło 3 osób.	Zabrakło trzech osób.	Zabrakło trzech osób.		
+3	9	cardinal	Dla 2 osób przygotuj obiad.	Dla dwóch osób przygotuj obiad.	Dla dwóch osób przygotuj obiad.		
+3	10	cardinal	Rozmawialiśmy o 2 sprawach.	Rozmawialiśmy o dwóch sprawach.	Rozmawialiśmy o dwóch sprawach.		
+3	11	cardinal	Miasto liczy 120 000 mieszkańców.	Miasto liczy sto dwadzieścia tysięcy mieszkańców.	Miasto liczy sto dwadzieścia tysięcy mieszkańców.		
+3	13	cardinal	Kraj ma 38 000 000 mieszkańców.	Kraj ma trzydzieści osiem milionów mieszkańców.	Kraj ma trzydzieści osiem milionów mieszkańców.		
+3	14	cardinal	Stadion ma 2 500 miejsc.	Stadion ma dwa tysiące pięćset miejsc.	Stadion ma dwa tysiące pięćset miejsc.		
+3	15	cardinal	Rok ma 365 dni.	Rok ma trzysta sześćdziesiąt pięć dni.	Rok ma trzysta sześćdziesiąt pięć dni.		
+3	16	cardinal	Do mety zostało 7 kilometrów.	Do mety zostało siedem kilometrów.	Do mety zostało siedem kilometrów.		
+3	17	cardinal	Odpowiedź to 42.	Odpowiedź to czterdzieści dwa.	Odpowiedź to czterdzieści dwa.		
+3	18	cardinal	Temperatura spadła do -7 stopni.	Temperatura spadła do minus siedem stopni.	Temperatura spadła do minus siedmiu stopni.		
+3	19	cardinal	Saldo wyniosło -15.	Saldo wyniosło minus piętnaście.	Saldo wyniosło minus piętnaście.		
+3	20	cardinal	Kod pokoju to 007.	Kod pokoju to zero zero siedem.	Kod pokoju to zero zero siedem.		
+3	21	cardinal	Czekaliśmy 11 dni.	Czekaliśmy jedenaście dni.	Czekaliśmy jedenaście dni.		
+3	22	cardinal	W wypadku zginęło 13 osób.	W wypadku zginęło trzynaście osób.	W wypadku zginęło trzynaście osób.		
+3	23	cardinal	Zatrudniamy 15 pracowników.	Zatrudniamy piętnaście pracowników.	Zatrudniamy piętnastu pracowników.		
+3	24	cardinal	Do finału awansowało 3 zawodników.	Do finału awansowało trzech zawodników.	Do finału awansowało trzech zawodników.		
+3	25	cardinal	Ma 2 psy i 3 koty.	Ma dwa psy i trzy koty.	Ma dwa psy i trzy koty.		
+3	26	cardinal	Budynek ma 12 pięter.	Budynek ma dwanaście pięter.	Budynek ma dwanaście pięter.		
+3	27	cardinal	Zrobiłem to 3 razy.	Zrobiłem to trzech razy.	Zrobiłem to trzy razy.		
+3	28	cardinal	Przeczytałem 100 stron.	Przeczytałem sto stron.	Przeczytałem sto stron.		
+3	29	cardinal	Zapisało się 1500 osób.	Zapisało się tysiąc pięćset osób.	Zapisało się tysiąc pięćset osób.		
+3	30	cardinal	Pociąg ma 8 wagonów.	Pociąg ma osiem wagonów.	Pociąg ma osiem wagonów.		
+3	31	cardinal	Liczba 7 jest szczęśliwa.	Liczba siedmiu jest szczęśliwa.	Liczba siedem jest szczęśliwa.		
+3	32	cardinal	Mamy 0 punktów.	Mamy zero punktów.	Mamy zero punktów.		
+3	33	cardinal	Dzieli nas 1000 kilometrów.	Dzieli nas tysiąc kilometrów.	Dzieli nas tysiąc kilometrów.		
+3	34	cardinal	W 2 tygodnie zbudowali dom.	W dwa tygodnie zbudowali dom.	W dwa tygodnie zbudowali dom.		
+3	35	cardinal	Po 3 latach wrócił do kraju.	Po trzech latach wrócił do kraju.	Po trzech latach wrócił do kraju.		
+3	36	cardinal	Czekałem ponad 20 minut.	Czekałem ponad dwadzieścia minut.	Czekałem ponad dwadzieścia minut.		
+3	37	cardinal	Około 300 osób protestowało.	Około trzystu osób protestowało.	Około trzystu osób protestowało.		
+3	38	cardinal	Z 10 kandydatów wybrano jednego.	Z dziesięcioma kandydatów wybrano jednego.	Z dziesięciu kandydatów wybrano jednego.		
+3	39	cardinal	Spośród 12 drużyn awansowały 4.	Spośród dwunastu drużyn awansowały cztery.	Spośród dwunastu drużyn awansowały cztery.		
+3	40	cardinal	Mieszka tu 1 osoba.	Mieszka tu jedna osoba.	Mieszka tu jedna osoba.		
+3	41	cardinal	Ma 21 lat.	Ma dwadzieścia jeden lat.	Ma dwadzieścia jeden lat.		
+3	42	cardinal	Odpowiemy w ciągu 2 dni.	Odpowiemy w ciągu dwóch dni.	Odpowiemy w ciągu dwóch dni.		
+3	43	cardinal	Liczba ofiar wzrosła do 45.	Liczba ofiar wzrosła do czterdziestu pięciu.	Liczba ofiar wzrosła do czterdziestu pięciu.		
+3	44	cardinal	Dzwoniłem do niego 5 razy.	Dzwoniłem do niego pięć razy.	Dzwoniłem do niego pięć razy.		
+3	45	cardinal	Słyszałem to od 2 osób.	Słyszałem to od dwóch osób.	Słyszałem to od dwóch osób.		
+3	47	decimal	Wynik to 3,14.	Wynik to trzy przecinek czternaście.	Wynik to trzy przecinek czternaście.		
+3	48	decimal	Średnia ocen to 4,75.	Średnia ocen to cztery przecinek siedemdziesiąt pięć.	Średnia ocen to cztery przecinek siedemdziesiąt pięć.		
+3	49	decimal	Współczynnik wynosi 0,5.	Współczynnik wynosi zero i pół.	Współczynnik wynosi zero przecinek pięć.		
+3	52	decimal	Mam 1,5 roku doświadczenia.	Mam półtora roku doświadczenia.	Mam półtora roku doświadczenia.		
+3	53	decimal	Kurs dolara to 3,98.	Kurs dolara to trzy przecinek dziewięćdziesiąt osiem.	Kurs dolara to trzy przecinek dziewięćdziesiąt osiem.		
+3	54	decimal	Wskaźnik wyniósł 0,05.	Wskaźnik wyniósł zero przecinek zero pięć.	Wskaźnik wyniósł zero przecinek zero pięć.		
+3	55	decimal	Współczynnik R wynosi 1,05.	Współczynnik R wynosi jeden przecinek zero pięć.	Współczynnik R wynosi jeden przecinek zero pięć.		
+3	57	decimal	Średnio 2,3 dziecka na rodzinę.	Średnio dwa przecinek trzy dziecka na rodzinę.	Średnio dwa przecinek trzy dziecka na rodzinę.		
+3	59	decimal	Zmiana wyniosła -0,4.	Zmiana wyniosła minus zero przecinek cztery.	Zmiana wyniosła minus zero przecinek cztery.		
+3	60	decimal	Współczynnik Giniego to 0,32.	Współczynnik Giniego to zero przecinek trzydzieści dwa.	Współczynnik Giniego to zero przecinek trzydzieści dwa.		
+3	62	decimal	Średnia wyniosła 3,0.	Średnia wyniosła trzy przecinek zero.	Średnia wyniosła trzy przecinek zero.		
+3	63	decimal	Na 1,5 etatu.	Na półtora etatu.	Na półtora etatu.		
+3	65	decimal	Pokonał dystans w 9,58 sekundy.	Pokonał dystans w dziewięć przecinek pięćdziesiąt osiem sekundy.	Pokonał dystans w dziewięć przecinek pięćdziesiąt osiem sekundy.		
+3	66	decimal	Zajęło to 0,7 sekundy.	Zajęło to zero przecinek siedem sekundy.	Zajęło to zero przecinek siedem sekundy.		
+3	67	decimal	pH krwi wynosi 7,4.	pH krwi wynosi siedem przecinek cztery.	pH krwi wynosi siedem przecinek cztery.		
+3	68	decimal	Liczba e wynosi 2,71828.	Liczba e wynosi dwa przecinek siedemdziesiąt jeden tysięcy osiemset dwadzieścia osiem.	Liczba e wynosi dwa przecinek siedem jeden osiem dwa osiem.		
+3	69	decimal	Rekord wynosi 8,95 metra.	Rekord wynosi osiem przecinek dziewięćdziesiąt pięć metra.	Rekord wynosi osiem przecinek dziewięćdziesiąt pięć metra.		
+3	70	decimal	Indeks wzrósł o 0,8 punktu.	Indeks wzrósł o zero przecinek osiem punktu.	Indeks wzrósł o zero przecinek osiem punktu.		
+3	72	decimal	Prawdopodobieństwo to 0,001.	Prawdopodobieństwo to zero przecinek zero zero jeden.	Prawdopodobieństwo to zero przecinek zero zero jeden.		
+3	73	decimal	Współczynnik wyniósł 1,25.	Współczynnik wyniósł jeden przecinek dwadzieścia pięć.	Współczynnik wyniósł jeden przecinek dwadzieścia pięć.		
+3	76	decimal	Odchylenie wynosi 0,0.	Odchylenie wynosi zero przecinek zero.	Odchylenie wynosi zero przecinek zero.		
+3	77	decimal	Opony mają 2,2 bara.	Opony mają dwa przecinek dwa bara.	Opony mają dwa przecinek dwa bara.		
+3	78	decimal	Cząsteczka ma 0,3 nanometra.	Cząsteczka ma zero przecinek trzy nanometra.	Cząsteczka ma zero przecinek trzy nanometra.		
+3	79	decimal	Przeciętna rodzina ma 1,8 dziecka.	Przeciętna rodzina ma jeden przecinek osiem dziecka.	Przeciętna rodzina ma jeden przecinek osiem dziecka.		
+3	80	decimal	Kurs akcji wynosi 105,40.	Kurs akcji wynosi sto pięć przecinek czterdzieści.	Kurs akcji wynosi sto pięć przecinek czterdzieści.		
+3	81	decimal	Ta wartość to 99,9.	Ta wartość to dziewięćdziesiąt dziewięć przecinek dziewięć.	Ta wartość to dziewięćdziesiąt dziewięć przecinek dziewięć.		
+3	82	decimal	Ułamek 0,25 to jedna czwarta.	Ułamek zero przecinek dwadzieścia pięć to jedna czwarta.	Ułamek zero przecinek dwadzieścia pięć to jedna czwarta.		
+3	83	decimal	Ocena końcowa: 4,0.	Ocena końcowa: cztery przecinek zero.	Ocena końcowa: cztery przecinek zero.		
+3	84	decimal	Wartość 7,25 jest za wysoka.	Wartość siedem przecinek dwadzieścia pięć jest za wysoka.	Wartość siedem przecinek dwadzieścia pięć jest za wysoka.		
+3	85	decimal	Inflacja bazowa to 6,1.	Inflacja bazowa to sześć przecinek jeden.	Inflacja bazowa to sześć przecinek jeden.		
+3	86	decimal	Jeden funt to 0,45 kilograma.	Jeden funt to zero przecinek czterdzieści pięć kilograma.	Jeden funt to zero przecinek czterdzieści pięć kilograma.		
+3	87	decimal	Mnożnik wynosi 1,15.	Mnożnik wynosi jeden przecinek piętnaście.	Mnożnik wynosi jeden przecinek piętnaście.		
+3	346	telephone	Zadzwoń pod numer 600 123 456.	Zadzwoń pod numer sześćset sto dwadzieścia trzy czterysta pięćdziesiąt sześć.	Zadzwoń pod numer sześćset sto dwadzieścia trzy czterysta pięćdziesiąt sześć.		
+3	347	telephone	Tel. 600 123 456	Telefon sześćset sto dwadzieścia trzy czterysta pięćdziesiąt sześć	Telefon sześćset sto dwadzieścia trzy czterysta pięćdziesiąt sześć		
+3	348	telephone	Mój numer: +48 600 123 456.	Mój numer: plus czterdzieści osiem sześćset sto dwadzieścia trzy czterysta pięćdziesiąt sześć.	Mój numer: plus czterdzieści osiem sześćset sto dwadzieścia trzy czterysta pięćdziesiąt sześć.		
+3	350	telephone	Infolinia 801 234 567 działa całą dobę.	Infolinia osiemset jeden dwieście trzydzieści cztery pięćset sześćdziesiąt siedem działa całą dobę.	Infolinia osiemset jeden dwieście trzydzieści cztery pięćset sześćdziesiąt siedem działa całą dobę.		
+3	351	telephone	Tel. 22 123 45 67	Telefon dwadzieścia dwa sto dwadzieścia trzy czterdzieści pięć sześćdziesiąt siedem	Telefon dwadzieścia dwa sto dwadzieścia trzy czterdzieści pięć sześćdziesiąt siedem		
+3	352	telephone	Kontakt: 600-123-456.	Kontakt: sześćset sto dwadzieścia trzy czterysta pięćdziesiąt sześć.	Kontakt: sześćset sto dwadzieścia trzy czterysta pięćdziesiąt sześć.		
+3	353	telephone	Dzwoń na 503 222 111.	Dzwoń na pięćset trzy miliony dwieście dwadzieścia dwa tysiące sto jedenaście.	Dzwoń na pięćset trzy dwieście dwadzieścia dwa sto jedenaście.		
+3	355	telephone	Numer telefonu: 512 345 678.	Numer telefonu: pięćset dwanaście trzysta czterdzieści pięć sześćset siedemdziesiąt osiem.	Numer telefonu: pięćset dwanaście trzysta czterdzieści pięć sześćset siedemdziesiąt osiem.		
+3	356	telephone	Zadzwoń: +48 22 123 45 67.	Zadzwoń: plus czterdzieści osiem dwadzieścia dwa sto dwadzieścia trzy czterdzieści pięć sześćdziesiąt siedem.	Zadzwoń: plus czterdzieści osiem dwadzieścia dwa sto dwadzieścia trzy czterdzieści pięć sześćdziesiąt siedem.		
+3	359	telephone	Tel.: 58 340 50 00	Telefon: pięćdziesiąt osiem trzysta czterdzieści pięćdziesiąt zero	Telefon: pięćdziesiąt osiem trzysta czterdzieści pięćdziesiąt zero zero		
+3	360	telephone	Komórka: 600 100 200	Komórka: sześćset milionów sto tysięcy dwieście	Komórka: sześćset sto dwieście		
+3	361	telephone	Biuro: tel. 12 422 33 44	Biuro: telefon dwanaście czterysta dwadzieścia dwa trzydzieści trzy czterdzieści cztery	Biuro: telefon dwanaście czterysta dwadzieścia dwa trzydzieści trzy czterdzieści cztery		
+3	362	telephone	Zadzwoń pod nr 600 700 800.	Zadzwoń pod numer sześćset siedemset osiemset.	Zadzwoń pod numer sześćset siedemset osiemset.		
+3	364	telephone	Numer 22 628 00 00	Numer dwadzieścia dwa sześćset dwadzieścia osiem zero zero	Numer dwadzieścia dwa sześćset dwadzieścia osiem zero zero zero zero		
+3	365	telephone	Pod numerem 800 100 100 udzielamy porad.	Pod numerem osiemset sto sto udzielamy porad.	Pod numerem osiemset sto sto udzielamy porad.		
+3	366	telephone	Telefon: 691 000 123	Telefon: sześćset dziewięćdziesiąt jeden zero sto dwadzieścia trzy	Telefon: sześćset dziewięćdziesiąt jeden zero zero zero sto dwadzieścia trzy		
+3	367	telephone	Napisz SMS na numer 500 600 700.	Napisz SMS na numer pięćset sześćset siedemset.	Napisz SMS na numer pięćset sześćset siedemset.		
+3	368	telephone	Tel. kom. 604 555 666	Telefon komórkowy sześćset cztery miliony pięćset pięćdziesiąt pięć tysięcy sześćset sześćdziesiąt sześć	Telefon komórkowy sześćset cztery pięćset pięćdziesiąt pięć sześćset sześćdziesiąt sześć		
+3	369	telephone	Zadzwoń do nas: 71 344 22 11.	Zadzwoń do nas: siedemdziesiąt jeden trzysta czterdzieści cztery dwadzieścia dwa jedenaście.	Zadzwoń do nas: siedemdziesiąt jeden trzysta czterdzieści cztery dwadzieścia dwa jedenaście.		
+3	370	telephone	Numer: 785-432-109	Numer: siedemset osiemdziesiąt pięć czterysta trzydzieści dwa sto dziewięć	Numer: siedemset osiemdziesiąt pięć czterysta trzydzieści dwa sto dziewięć		
+3	371	telephone	Telefon 32-251-46-78	Telefon trzydzieści dwa dwieście pięćdziesiąt jeden czterdzieści sześć siedemdziesiąt osiem	Telefon trzydzieści dwa dwieście pięćdziesiąt jeden czterdzieści sześć siedemdziesiąt osiem		
+3	372	telephone	Tel. +48 61 852 33 10	Telefon plus czterdzieści osiem sześćdziesiąt jeden osiemset pięćdziesiąt dwa trzydzieści trzy dziesięć	Telefon plus czterdzieści osiem sześćdziesiąt jeden osiemset pięćdziesiąt dwa trzydzieści trzy dziesięć		
+3	375	telephone	Numer kontaktowy 698 111 222.	Numer kontaktowy sześćset dziewięćdziesiąt osiem milionów sto jedenaście tysięcy dwieście dwadzieścia dwa.	Numer kontaktowy sześćset dziewięćdziesiąt osiem sto jedenaście dwieście dwadzieścia dwa.		
+3	377	telephone	Dzwoń pod 604 123 987.	Dzwoń pod sześciuset czterema milionami stoma dwudziestoma trzema tysiącami dziewięciuset osiemdziesięcioma siedmioma.	Dzwoń pod sześćset cztery sto dwadzieścia trzy dziewięćset osiemdziesiąt siedem.		
+3	378	telephone	Infolinia: 801 100 200.	Infolinia: osiemset jeden sto dwieście.	Infolinia: osiemset jeden sto dwieście.		
+3	379	telephone	Recepcja: 22 555 11 22.	Recepcja: dwadzieścia dwa pięćset pięćdziesiąt pięć jedenaście dwadzieścia dwa.	Recepcja: dwadzieścia dwa pięćset pięćdziesiąt pięć jedenaście dwadzieścia dwa.		
+3	380	telephone	Sekretariat, tel. 81 537 50 00.	Sekretariat, telefon osiemdziesiąt jeden pięćset trzydzieści siedem pięćdziesiąt zero.	Sekretariat, telefon osiemdziesiąt jeden pięćset trzydzieści siedem pięćdziesiąt zero zero.		
+3	381	telephone	Telefon zaufania: 116 123.	Telefon zaufania: sto szesnaście tysięcy sto dwadzieścia trzy.	Telefon zaufania: sto szesnaście sto dwadzieścia trzy.		
+3	382	telephone	Numer 0 800 120 120 jest bezpłatny.	Numer zero osiem zero zero jeden dwa zero jeden dwa zero jest bezpłatny.	Numer zero osiemset sto dwadzieścia sto dwadzieścia jest bezpłatny.		
+3	384	telephone	Tel. 608 900 900	Telefon sześćset osiem dziewięćset dziewięćset	Telefon sześćset osiem dziewięćset dziewięćset		
+3	385	telephone	Nr tel. 500 400 300	Numer telefonu pięćset czterysta trzysta	Numer telefonu pięćset czterysta trzysta		
+3	386	roman	To był XIX wiek.	To był dziewiętnasty wiek.	To był dziewiętnasty wiek.		
+3	387	roman	Żył w XIX wieku.	Żył w dziewiętnastym wieku.	Żył w dziewiętnastym wieku.		
+3	388	roman	Zamek z XV w.	Zamek z piętnastego wieku.	Zamek z piętnastego wieku.		
+3	389	roman	Jan Paweł II odwiedził Polskę.	Jan Paweł drugi odwiedził Polskę.	Jan Paweł drugi odwiedził Polskę.		
+3	390	roman	Pomnik Jana Pawła II stoi w parku.	Pomnik Jana Pawła drugiego stoi w parku.	Pomnik Jana Pawła drugiego stoi w parku.		
+3	391	roman	II wojna światowa trwała sześć lat.	druga wojna światowa trwała sześć lat.	Druga wojna światowa trwała sześć lat.		
+3	392	roman	Po II wojnie światowej odbudowano miasto.	Po drugiej wojnie światowej odbudowano miasto.	Po drugiej wojnie światowej odbudowano miasto.		
+3	393	roman	Henryk VIII miał sześć żon.	Henryk ósmy miał sześć żon.	Henryk ósmy miał sześć żon.		
+3	394	roman	Przeczytaj rozdział IV.	Przeczytaj rozdział czwarty.	Przeczytaj rozdział czwarty.		
+3	395	roman	W II połowie meczu padły gole.	W drugiej połowie meczu padły gole.	W drugiej połowie meczu padły gole.		
+3	396	roman	Grają w I lidze.	Grają w pierwszej lidze.	Grają w pierwszej lidze.		
+3	397	roman	Ludwik XIV był królem Francji.	Ludwik czternasty był królem Francji.	Ludwik czternasty był królem Francji.		
+3	398	roman	Elżbieta II zmarła w wieku 96 lat.	Elżbieta druga zmarła w wieku dziewięćdziesięciu sześciu lat.	Elżbieta druga zmarła w wieku dziewięćdziesięciu sześciu lat.		
+3	399	roman	Za panowania Elżbiety II.	Za panowania Elżbiety drugiej.	Za panowania Elżbiety drugiej.		
+3	400	roman	Kazimierz III Wielki założył uniwersytet.	Kazimierz trzeci Wielki założył uniwersytet.	Kazimierz trzeci Wielki założył uniwersytet.		
+3	401	roman	I wojna światowa wybuchła w 1914 roku.	pierwsza wojna światowa wybuchła w tysiąc dziewięćset czternastym roku.	Pierwsza wojna światowa wybuchła w tysiąc dziewięćset czternastym roku.		
+3	402	roman	Żyjemy w XXI wieku.	Żyjemy w dwudziestym pierwszym wieku.	Żyjemy w dwudziestym pierwszym wieku.		
+3	403	roman	W I kwartale sprzedaż wzrosła.	W I kwartale sprzedaż wzrosła.	W pierwszym kwartale sprzedaż wzrosła.		
+3	404	roman	Mieszko I przyjął chrzest.	Mieszko pierwszy przyjął chrzest.	Mieszko pierwszy przyjął chrzest.		
+3	405	roman	Pius XII był papieżem.	Pius dwunasty był papieżem.	Pius dwunasty był papieżem.		
+3	406	roman	Benedykt XVI abdykował.	Benedykt szesnasty abdykował.	Benedykt szesnasty abdykował.		
+3	407	roman	II tura wyborów odbędzie się w niedzielę.	druga tura wyborów odbędzie się w niedzielę.	Druga tura wyborów odbędzie się w niedzielę.		
+3	408	roman	W II turze wygrał kandydat opozycji.	W drugiej turze wygrał kandydat opozycji.	W drugiej turze wygrał kandydat opozycji.		
+3	409	roman	Zajął I miejsce.	Zajął pierwsze miejsce.	Zajął pierwsze miejsce.		
+3	410	roman	Biuro jest na II piętrze.	Biuro jest na drugim piętrze.	Biuro jest na drugim piętrze.		
+3	411	roman	Sztuka XX wieku.	Sztuka dwudziestego wieku.	Sztuka dwudziestego wieku.		
+3	412	roman	Na przełomie XIX i XX wieku.	Na przełomie XIX i dwudziestego wieku.	Na przełomie dziewiętnastego i dwudziestego wieku.		
+3	413	roman	Bolesław III Krzywousty podzielił kraj.	Bolesław trzeci Krzywousty podzielił kraj.	Bolesław trzeci Krzywousty podzielił kraj.		
+3	414	roman	Władysław II Jagiełło wygrał pod Grunwaldem.	Władysław drugi Jagiełło wygrał pod Grunwaldem.	Władysław drugi Jagiełło wygrał pod Grunwaldem.		
+3	415	roman	Zygmunt III Waza przeniósł stolicę.	Zygmunt trzeci Waza przeniósł stolicę.	Zygmunt trzeci Waza przeniósł stolicę.		
+3	416	roman	W III kwartale 2023 r.	W III kwartale dwa tysiące dwudziestego trzeciego roku.	W trzecim kwartale dwa tysiące dwudziestego trzeciego roku.		
+3	417	roman	W XVI wieku rozkwitła kultura.	W szesnastym wieku rozkwitła kultura.	W szesnastym wieku rozkwitła kultura.		
+3	418	roman	To była II Rzeczpospolita.	To była druga Rzeczpospolita.	To była Druga Rzeczpospolita.		
+3	419	roman	W czasach II Rzeczypospolitej.	W czasach drugiej Rzeczypospolitej.	W czasach Drugiej Rzeczypospolitej.		
+3	420	roman	Zdobył II nagrodę.	Zdobył II nagrodę.	Zdobył drugą nagrodę.		
+3	421	roman	To dzieło z XVIII w.	To dzieło z osiemnastego wieku.	To dzieło z osiemnastego wieku.		
+3	422	roman	Rozdział XII opisuje bitwę.	Rozdział dwunasty opisuje bitwę.	Rozdział dwunasty opisuje bitwę.		
+3	423	roman	W tomie III znajdziesz mapy.	W tomie trzecim znajdziesz mapy.	W tomie trzecim znajdziesz mapy.		
+3	424	roman	Grał w II lidze.	Grał w drugiej lidze.	Grał w drugiej lidze.		
+3	425	roman	Uczeń klasy III.	Uczeń klasy trzeciej.	Uczeń klasy trzeciej.		
+3	426	roman	Ludwik XVI został stracony.	Ludwik szesnasty został stracony.	Ludwik szesnasty został stracony.		
+3	427	roman	Zygmunt II August był ostatnim Jagiellonem.	Zygmunt drugi August był ostatnim Jagiellonem.	Zygmunt drugi August był ostatnim Jagiellonem.		
+3	591	symbols	Wynik: 2 + 2 = 4.	Wynik: dwa plus dwa równa się cztery.	Wynik: dwa plus dwa równa się cztery.		
+3	593	symbols	Pisz na jan@firma.pl.	Pisz na jan małpa firma kropka pl.	Pisz na jan małpa firma kropka pl.		
+3	594	symbols	Oblicz 5 × 3.	Oblicz pięć na trzy.	Oblicz pięć razy trzy.		
+3	596	symbols	Tolerancja ±5 mm.	Tolerancja plus minus pięć milimetrów.	Tolerancja plus minus pięć milimetrów.		
+3	597	symbols	Wzór E = mc² zna każdy.	Wzór E równa się mc do kwadratu zna każdy.	Wzór E równa się mc do kwadratu zna każdy.		
+3	598	symbols	Brat dozna³ uścisku.	Brat doznał uścisku.	Brat doznał uścisku.		
+3	599	symbols	Stra¿ Graniczna zatrzyma³a przemytnika.	Straż Graniczna zatrzymała przemytnika.	Straż Graniczna zatrzymała przemytnika.		
+3	600	symbols	Chcia³bym wiêcej czasu.	Chciałbym więcej czasu.	Chciałbym więcej czasu.		
+3	601	symbols	Ho³ownia i Trzaskowski zmierz± siê w wyborach.	Hołownia i Trzaskowski zmierzą się w wyborach.	Hołownia i Trzaskowski zmierzą się w wyborach.		
+3	602	symbols	Pojawiæ siê na terenie ca³ego kraju.	Pojawić się na terenie całego kraju.	Pojawić się na terenie całego kraju.		
+3	603	symbols	Prezydent wygl±da zupe³nie inaczej ni¿ wczeœniej.	Prezydent wygląda zupełnie inaczej niż wcześniej.	Prezydent wygląda zupełnie inaczej niż wcześniej.		
+3	604	symbols	Ma³gorzata pyszni¹c siê wesz³a.	Małgorzata pyszniąc się weszła.	Małgorzata pyszniąc się weszła.		
+3	605	symbols	Jak siÄ™ okazaÅ‚o, chodziÅ‚o o piwo.	Jak się okazało, chodziło o piwo.	Jak się okazało, chodziło o piwo.		
+3	606	symbols	Kiedy biaÅ‚ko jest Å›ciÄ™te, przewracamy.	Kiedy białko jest ścięte, przewracamy.	Kiedy białko jest ścięte, przewracamy.		
+3	607	symbols	Do sprzedaÅ¼y poÅ‚owa domu.	Do sprzedaży połowa domu.	Do sprzedaży połowa domu.		
+3	608	symbols	KsiÄ…Å¼ka leÅ¼y na stole.	Książka leży na stole.	Książka leży na stole.		
+3	609	symbols	Zbiornik ma 5 m³ pojemności.	Zbiornik ma pięć metrów sześciennych pojemności.	Zbiornik ma pięć metrów sześciennych pojemności.		
+3	610	symbols	Ceny w €.	Ceny w euro.	Ceny w euro.		
+3	611	symbols	Ekran 1920x1080.	Ekran tysiąc dziewięćset dwadzieścia na tysiąc osiemdziesiąt.	Ekran tysiąc dziewięćset dwadzieścia na tysiąc osiemdziesiąt.		
+3	612	symbols	Pokój 3 x 4 m.	Pokój trzy na cztery metry.	Pokój trzy na cztery metry.		
+3	613	symbols	Wynik meczu to 3:1.	Wynik meczu to trzy do jednego.	Wynik meczu to trzy do jednego.		
+3	614	symbols	Skończyło się 5:0.	Skończyło się pięć do zera.	Skończyło się pięć do zera.		
+3	615	symbols	Stosunek 3:2 jest korzystny.	Stosunek trzy do dwóch jest korzystny.	Stosunek trzy do dwóch jest korzystny.		
+3	616	symbols	Mapa w skali 1:100 000.	Mapa w skali jeden do stu tysięcy.	Mapa w skali jeden do stu tysięcy.		
+3	617	symbols	Kierowca miał 1,2‰ alkoholu.	Kierowca miał jeden przecinek dwa promila alkoholu.	Kierowca miał jeden przecinek dwa promila alkoholu.		
+3	618	symbols	Miał 2‰ we krwi.	Miał dwa promile we krwi.	Miał dwa promile we krwi.		
+3	619	symbols	Identyfikator 3f2504e0-4f89-11d3-9a0c-0305e82c3301 jest unikalny.	Identyfikator trzy f dwa tysiące pięćset cztery e zero cztery f osiemdziesiąt dziewięć jedenaście d trzy dziewięć a zero c zero trzy zero pięć e osiemdziesiąt dwa c trzy tysiące trzysta jeden jest unikalny.	Identyfikator trzy f dwa pięć zero cztery e zero cztery f osiem dziewięć jeden jeden d trzy dziewięć a zero c zero trzy zero pięć e osiem dwa c trzy trzy zero jeden jest unikalny.		
+3	620	symbols	Klucz: 550e8400-e29b-41d4-a716-446655440000.	Klucz: pięćset pięćdziesiąt e osiem tysięcy czterysta e dwadzieścia dziewięć b czterdzieści jeden d cztery a siedemset szesnaście cztery cztery sześć sześć pięć pięć cztery cztery zero zero zero zero.	Klucz: pięć pięć zero e osiem cztery zero zero e dwa dziewięć b cztery jeden d cztery a siedem jeden sześć cztery cztery sześć sześć pięć pięć cztery cztery zero zero zero zero.		
+3	622	symbols	Woda wrze w 100 °C.	Woda wrze w stu stopniach Celsjusza.	Woda wrze w stu stopniach Celsjusza.		
+3	623	symbols	Cena: 100 zł/m².	Cena: sto złotych m do kwadratu.	Cena: sto złotych za metr kwadratowy.		
+3	624	symbols	Zamówienie #123 jest gotowe.	Zamówienie numer sto dwadzieścia trzy jest gotowe.	Zamówienie numer sto dwadzieścia trzy jest gotowe.		
+3	626	symbols	Wartość x² rośnie.	Wartość x do kwadratu rośnie.	Wartość x do kwadratu rośnie.		
+3	627	symbols	Kraków – Warszawa to 300 km.	Kraków - Warszawa to trzysta kilometrów.	Kraków - Warszawa to trzysta kilometrów.		
+3	628	symbols	Napisz na kontakt@sklep.com.pl.	Napisz na kontakt małpa sklep kropka com kropka pl.	Napisz na kontakt małpa sklep kropka com kropka pl.		

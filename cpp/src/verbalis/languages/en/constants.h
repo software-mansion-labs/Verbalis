@@ -3,7 +3,10 @@
 #include <verbalis/languages/grammar.h>
 #include <verbalis/numbers/formats.h>
 #include <verbalis/steps/terms.h>
+#include <verbalis/text/context.h>
 #include <verbalis/text/readings.h>
+#include <verbalis/text/strings.h>
+#include <verbalis/text/unicode.h>
 
 #include <array>
 #include <cstdint>
@@ -35,7 +38,13 @@ inline constexpr std::array<std::u32string_view, 10> kTens = {
 
 // Scale words, largest first
 inline const std::vector<std::pair<uint64_t, std::u32string>> kScaleWords = {
-  {1000000000000ULL, U"trillion"}, {1000000000ULL, U"billion"}, {1000000ULL, U"million"}, {1000ULL, U"thousand"}
+  {1000000000000000000ULL, U"quintillion"}, {1000000000000000ULL, U"quadrillion"}, {1000000000000ULL, U"trillion"},
+  {1000000000ULL, U"billion"}, {1000000ULL, U"million"}, {1000ULL, U"thousand"}
+};
+
+// The scales of groups of three digits, from the thousands: 124,444,234,854,823,834,553
+inline const std::vector<std::u32string> kGroupScales = {
+  U"thousand", U"million", U"billion", U"trillion", U"quadrillion", U"quintillion", U"sextillion", U"septillion"
 };
 
 // Ordinals which are not formed with "th": cardinal word -> ordinal word
@@ -50,12 +59,38 @@ inline const std::vector<std::u32string> kMonths = {
 };
 
 inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
-  {U"$", {U"dollar", U"dollars"}}, {U"€", {U"euro", U"euros"}}, {U"£", {U"pound", U"pounds"}}, {U"¥", {U"yen", U"yen"}}
+  {U"$", {U"dollar", U"dollars"}}, {U"€", {U"euro", U"euros"}}, {U"£", {U"pound", U"pounds"}}, {U"¥", {U"yen", U"yen"}},
+  {U"₩", {U"won", U"won"}},        {U"US$", {U"US dollar", U"US dollars"}}, {U"$US", {U"US dollar", U"US dollars"}},
+  {U"C$", {U"Canadian dollar", U"Canadian dollars"}}, {U"A$", {U"Australian dollar", U"Australian dollars"}},
+  {U"AU$", {U"Australian dollar", U"Australian dollars"}}, {U"NZ$", {U"New Zealand dollar", U"New Zealand dollars"}},
+  {U"S$", {U"Singapore dollar", U"Singapore dollars"}}, {U"HK$", {U"Hong Kong dollar", U"Hong Kong dollars"}}
+};
+inline const Keys kCurrencyKeys = keys_of(kCurrencies);
+
+// What an amount is counted by after a slash: $20/mo, twenty dollars per month; $12/kg
+inline const std::unordered_map<std::u32string, std::u32string> kPer = {
+  {U"mo", U"month"}, {U"month", U"month"}, {U"yr", U"year"}, {U"year", U"year"}, {U"wk", U"week"},
+  {U"week", U"week"}, {U"d", U"day"},     {U"day", U"day"},   {U"hr", U"hour"},  {U"h", U"hour"},
+  {U"hour", U"hour"}, {U"min", U"minute"}, {U"kg", U"kilogram"}, {U"lb", U"pound"}, {U"g", U"gram"},
+  {U"person", U"person"}, {U"night", U"night"}, {U"share", U"share"}, {U"barrel", U"barrel"}, {U"bbl", U"barrel"},
+  {U"oz", U"ounce"}, {U"ton", U"ton"}, {U"tonne", U"tonne"}, {U"gallon", U"gallon"}, {U"kWh", U"kilowatt-hour"},
+  {U"MWh", U"megawatt-hour"}
+};
+inline const Keys kPerKeys = keys_of(kPer);
+
+// The hundredth of a currency: $4.99, four dollars and ninety-nine cents
+inline const std::unordered_map<std::u32string, Forms> kCents = {
+  {U"$", {U"cent", U"cents"}}, {U"€", {U"cent", U"cents"}}, {U"£", {U"penny", U"pence"}}, {U"US$", {U"cent", U"cents"}},
+  {U"$US", {U"cent", U"cents"}}, {U"C$", {U"cent", U"cents"}},  {U"A$", {U"cent", U"cents"}},
+  {U"AU$", {U"cent", U"cents"}}, {U"NZ$", {U"cent", U"cents"}}, {U"S$", {U"cent", U"cents"}}, {U"HK$", {U"cent", U"cents"}}
 };
 
 inline const std::unordered_map<std::u32string, std::u32string> kScales = {
   {U"thousand", U"thousand"}, {U"million", U"million"}, {U"billion", U"billion"}, {U"trillion", U"trillion"},
-  {U"k", U"thousand"},        {U"K", U"thousand"},      {U"M", U"million"},       {U"bn", U"billion"}
+  {U"k", U"thousand"},        {U"K", U"thousand"},      {U"M", U"million"},       {U"bn", U"billion"},
+  {U"Million", U"million"},   {U"Billion", U"billion"}, {U"Trillion", U"trillion"},
+  // Only after a currency: $30b, £7.45m
+  {U"b", U"billion"},         {U"B", U"billion"},       {U"m", U"million"}
 };
 
 inline const std::unordered_map<std::u32string, Forms> kUnits = {
@@ -77,7 +112,16 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"kWh",  {U"kilowatt-hour", U"kilowatt-hours"}},   {U"V",    {U"volt", U"volts"}},
   {U"mph",  {U"mile per hour", U"miles per hour"}},   {U"km/h", {U"kilometer per hour", U"kilometers per hour"}},
   {U"°C",   {U"degree Celsius", U"degrees Celsius"}}, {U"°F",   {U"degree Fahrenheit", U"degrees Fahrenheit"}},
-  {U"°",    {U"degree", U"degrees"}}
+  {U"°",    {U"degree", U"degrees"}},
+  {U"m2",   {U"square meter", U"square meters"}},     {U"km2",  {U"square kilometer", U"square kilometers"}},
+  {U"cm2",  {U"square centimeter", U"square centimeters"}}, {U"cm²", {U"square centimeter", U"square centimeters"}},
+  {U"mm²",  {U"square millimeter", U"square millimeters"}}, {U"m3", {U"cubic meter", U"cubic meters"}},
+  {U"cm3",  {U"cubic centimeter", U"cubic centimeters"}}, {U"cm³", {U"cubic centimeter", U"cubic centimeters"}},
+  {U"km³",  {U"cubic kilometer", U"cubic kilometers"}}, {U"cc",   {U"cubic centimeter", U"cubic centimeters"}},
+  {U"μm",   {U"micrometer", U"micrometers"}},         {U"µm",   {U"micrometer", U"micrometers"}},
+  {U"Mbps", {U"megabit per second", U"megabits per second"}}, {U"mbps", {U"megabit per second", U"megabits per second"}},
+  {U"Gbps", {U"gigabit per second", U"gigabits per second"}}, {U"kbps", {U"kilobit per second", U"kilobits per second"}},
+  {U"KG",   {U"kilogram", U"kilograms"}},             {U"Kg",   {U"kilogram", U"kilograms"}}
 };
 
 inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions = {
@@ -85,13 +129,22 @@ inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions 
   {{3, 4}, U"three quarters"}
 };
 
-inline const Keys kTimeSuffixes = {U"a.m.", U"p.m.", U"am.", U"pm.", U"am", U"pm", U"AM", U"PM"};
+// Words after a fraction which mark it as one: 1/3 of
+inline const std::unordered_set<std::u32string> kFractionWords = {U"of"};
+
+inline const Keys kTimeSuffixes = {U"a.m.", U"p.m.", U"a.m", U"p.m", U"am.", U"pm.", U"am", U"pm", U"AM", U"PM",
+                                   U"EST", U"EDT", U"CST", U"CDT", U"MST", U"MDT", U"PST", U"PDT", U"GMT", U"UTC"};
 
 // Months, also abbreviated (lowercase)
 inline const std::unordered_set<std::u32string> kMonthWords = {
   U"january", U"february", U"march", U"april", U"may", U"june", U"july", U"august", U"september", U"october",
   U"november", U"december", U"jan", U"feb", U"mar", U"apr", U"jun", U"jul", U"aug", U"sep", U"sept", U"oct",
   U"nov", U"dec"
+};
+
+// Words after a number which make it a year: 340 AD, 44 BC
+inline const std::unordered_set<std::u32string> kEras = {
+  U"ad", U"a.d", U"a.d.", U"bc", U"b.c", U"b.c.", U"bce", U"b.c.e", U"b.c.e.", U"ce", U"c.e", U"c.e."
 };
 
 // Words before a 4-digit number which make it a year: in 1999, since 1999 (and months)
@@ -122,7 +175,7 @@ inline const std::unordered_set<std::u32string> kStopWords = {
   U"all", U"both", U"while", U"because", U"since", U"until", U"though", U"although", U"unless", U"has", U"have",
   U"had", U"do", U"does", U"did", U"get", U"got", U"instead", U"worth", U"today", U"tomorrow", U"tonight",
   U"outside", U"inside", U"apart", U"ahead", U"behind", U"above", U"below", U"long", U"wide", U"high", U"tall",
-  U"deep", U"old", U"later", U"earlier", U"overall"
+  U"deep", U"old", U"later", U"earlier", U"overall", U"last", U"next", U"this"
 };
 
 // Henry VIII (the Eighth), Chapter IV (four), the XXI century (twenty-first)
@@ -149,7 +202,8 @@ inline const Notation kNotation = {
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
-  .point = U"point", .dot = U"dot", .range = U" to ", .by = U"by", .score = U" to ", .minus = U"minus", .plus = U"plus"
+  .point = U"point", .dot = U"dot", .range = U" to ", .by = U"by", .score = U" to ", .minus = U"minus", .plus = U"plus",
+  .fraction = U" and ", .half = U" and a half"
 };
 
 // 27.03.2026, 27-03-2026: the year has four digits (3.8.10 is a version)
@@ -161,7 +215,8 @@ inline const std::vector<PhoneFormat> kPhoneFormats = {
   {.groups = {{3, 3}, {3, 3}, {4, 4}}, .parenthesized = true},
   {.groups = {{3, 3}, {3, 3}, {4, 4}}, .separators = U"."},
   {.groups = {{3, 3}, {3, 3}, {4, 4}}, .separators = U" "},
-  {.groups = {{3, 3}, {4, 4}}}
+  {.groups = {{3, 3}, {4, 4}}},
+  {.groups = {{3, 3}, {2, 2}, {4, 4}}} // A Social Security number: 123-45-6789
 };
 
 // 21st, 2nd, 3rd, 4th
@@ -175,17 +230,52 @@ using ::verbalis::text::Readings;
 
 inline const Readings kSymbols = {
   {U"&", {U"and"}},      {U"+", {U"plus"}},    {U"=", {U"equals"}},  {U"@", {U"at"}},      {U"%", {U"percent"}},
-  {U"°", {U"degrees"}},  {U"#", {U"number"}},  {U"²", {U"squared"}}, {U"³", {U"cubed"}},   {U"π", {U"pi"}},
-  {U"×", {U"times"}},    {U"±", {U"plus or minus"}}, {U"½", {U"one half"}}
+  {U"°", {U"degrees"}},  {U"#", {U"hash"}},    {U"²", {U"squared"}}, {U"³", {U"cubed"}},   {U"π", {U"pi"}},
+  {U"×", {U"times"}},    {U"±", {U"plus or minus"}}, {U"½", {U"one half"}},
+  {U"§", {U"section"}}
 };
 
 using ::verbalis::text::before_name;
 using ::verbalis::text::before_number;
 using ::verbalis::steps::Terms;
 
-inline const Terms kTerms = {
+// After the name of a street: 1428 Elm St., on 5th St.; on Main St. unless a name follows (Ascension St. Joseph),
+// and not at the start of a sentence (Visit St. Louis)
+inline bool after_street(const ::verbalis::text::Context& context) {
+  namespace unicode = ::verbalis::text::unicode;
+  auto words = ::verbalis::text::words_of(context.head());
+  if (words.size() < 2) {
+    return false;
+  }
+  std::u32string_view name = words.back(), before = words[words.size() - 2];
+  bool ordinal = name.size() > 2 && unicode::isdigit(name[0]) &&
+                 (name.ends_with(U"st") || name.ends_with(U"nd") || name.ends_with(U"rd") || name.ends_with(U"th"));
+  bool numbered = unicode::isdigit(before.back()) && unicode::isupper(name[0]);
+  bool named = unicode::isupper(name[0]) && !::verbalis::text::strings::contains(std::u32string_view(U".!?"), before.back()) &&
+               !::verbalis::text::before_name(context);
+  return ordinal || numbered || named;
+}
+
+// A digit right before, possibly before a space: 25 Sept., 25 jul 2012
+inline bool after_number(const ::verbalis::text::Context& context) {
+  std::u32string_view head = context.head();
+  if (!head.empty() && head.back() == U' ') {
+    head.remove_suffix(1);
+  }
+  return !head.empty() && ::verbalis::text::unicode::isdigit(head.back());
+}
+
+// Month abbreviations and their names
+inline const std::vector<std::pair<std::u32string, std::u32string>> kMonthAbbreviations = {
+  {U"Jan", U"January"}, {U"Feb", U"February"}, {U"Mar", U"March"},    {U"Apr", U"April"},
+  {U"Jun", U"June"},    {U"Jul", U"July"},     {U"Aug", U"August"},   {U"Sep", U"September"},
+  {U"Sept", U"September"}, {U"Oct", U"October"}, {U"Nov", U"November"}, {U"Dec", U"December"}
+};
+
+inline const Terms kTermsBase = {
   .abbreviations = {
-    // Before a number only: No. 5
+    // Before a number only: No. 5, #5
+    {U"#", {{U"number", before_number}}},
     {U"No.", {{U"number", before_number}}},
     {U"no.", {{U"number", before_number}}},
     {U"Nos.", {{U"numbers", before_number}}},
@@ -198,6 +288,7 @@ inline const Terms kTerms = {
     {U"fig.", {{U"figure", before_number}}},
     {U"Fig.", {{U"figure", before_number}}},
     // Anywhere
+    {U"401(k)", {U"four oh one k"}},
     {U"e.g.", {U"for example"}},
     {U"i.e.", {U"that is"}},
     {U"etc.", {U"et cetera"}},
@@ -205,9 +296,33 @@ inline const Terms kTerms = {
     {U"Mr.", {U"Mister"}},
     {U"Mrs.", {U"Missus"}},
     {U"Dr.", {{U"Doctor", before_name}}},
-    {U"St.", {{U"Saint", before_name}, U"Street"}},
+    {U"St.", {{U"Street", after_street}, {U"Saint", before_name}, U"Street"}},
   },
-  .web = {.dot = U"dot", .at = U"at", .slash = U"slash"}
+  .web = {.dot = U"dot", .at = U"at", .slash = U"slash", .hyphen = U"dash", .underscore = U"underscore",
+          .digits = {U"zero", U"one", U"two", U"three", U"four", U"five", U"six", U"seven", U"eight", U"nine"}}
 };
+
+// With the month abbreviations around a number: Jan 15, jan. 15, JAN 15 2020, Jan-15; 25 Sept., 25 jul 2012 (but not
+// "mar", a verb, in lowercase)
+inline const Terms kTerms = [] {
+  Terms terms = kTermsBase;
+  for (const auto& [abbreviation, name] : kMonthAbbreviations) {
+    std::u32string lower = ::verbalis::text::strings::to_lower(abbreviation);
+    std::u32string upper;
+    for (char32_t c : abbreviation) {
+      upper += ::verbalis::text::unicode::toupper(c);
+    }
+    for (const auto& form : {abbreviation, lower, upper}) {
+      if (form == U"mar") {
+        continue;
+      }
+      for (const auto& key : {form, form + U"."}) {
+        terms.abbreviations[key] = {{name, before_number}, {name, after_number}};
+      }
+      terms.abbreviations[form + U"-"] = {{name, before_number}};
+    }
+  }
+  return terms;
+}();
 
 } // namespace verbalis::languages::en

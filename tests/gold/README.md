@@ -2,7 +2,8 @@
 
 Unlike the parity baseline (`tests/parity/`), which records what the C++ core does, every reading here was written by
 a person: the gold set measures whether Verbalis reads text right, not whether it changed. 3,197 cases in de, en-us,
-es, fr, hi, it, pt, and zh (none in pl yet).
+es, fr, hi, it, pt, and zh from NeMo and WeTextProcessing, and cases written for Verbalis (`"source": "verbalis"`),
+the only ones in pl. `notes/<lang>.md` records edited readings and unreachable cases.
 
 ## Files
 
@@ -11,6 +12,11 @@ es, fr, hi, it, pt, and zh (none in pl yet).
 ```json
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "$123", "outputs": ["one hundred twenty three dollars", "one hundred and twenty three dollars"]}
 ```
+
+Cases with `"source": "verbalis"` were written for Verbalis by the same model that wrote its readings, so a mistake
+can sit in both and pass ("mieszkania" for "mieszkanie" did). `score.py` reports them apart from the independent
+NeMo and WeTextProcessing cases ("own" and "independent"); count them as evidence only once a person has checked
+them (`review/`).
 
 `scores.json` lists the cases Verbalis passes. `score.py` reports accuracy per language (and `--classes`), shows the
 failing cases (`--show <lang>`), and exits 1 if a recorded case no longer passes: a change may fix gold cases but not

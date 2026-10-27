@@ -74,10 +74,10 @@ std::vector<std::unique_ptr<Pattern>> generic_patterns(const Notation& notation)
   patterns.push_back(std::make_unique<SumPattern>());
   patterns.push_back(std::make_unique<RangePattern>());
   patterns.push_back(std::make_unique<DimensionPattern>(notation));
+  patterns.push_back(std::make_unique<SignPattern>());
   if (notation.fractions) {
     patterns.push_back(std::make_unique<FractionPattern>());
   }
-  patterns.push_back(std::make_unique<SignPattern>());
   patterns.push_back(std::make_unique<TimePattern>(notation));
   if (!notation.time_suffixes.empty()) {
     patterns.push_back(std::make_unique<HourPattern>(notation));
@@ -235,8 +235,28 @@ std::optional<Match> DimensionPattern::match(std::u32string_view text, size_t po
 }
 
 std::optional<Match> FractionPattern::match(std::u32string_view text, size_t position) const {
+  if (!is_clear_before(text, position, U"./")) {
+    return std::nullopt;
+  }
+
+  // 3 1/2, -4 1/3: a whole number of up to three digits, possibly signed, a space, and a proper fraction
+  size_t whole = text[position] == U'-' ? position + 1 : position;
+  size_t whole_end = digits_end(text, whole);
+  if (whole_end > whole && whole_end <= whole + 3 && text[whole] != U'0' && is_clear_before(text, position, U"./-:,") &&
+      whole_end + 1 < text.size() && text[whole_end] == U' ') {
+    if (auto fraction = simple(text, whole_end + 1); fraction && fraction->numbers[0].integer[0] != U'0' &&
+                                                     value(fraction->numbers[0]) < value(fraction->numbers[1])) {
+      fraction->span.begin = position;
+      fraction->numbers.insert(fraction->numbers.begin(), digits_at(text, whole));
+      return fraction;
+    }
+  }
+  return simple(text, position);
+}
+
+std::optional<Match> FractionPattern::simple(std::u32string_view text, size_t position) {
   size_t slash = digits_end(text, position);
-  if (!is_clear_before(text, position, U"./") || slash == position || slash >= text.size() || text[slash] != U'/') {
+  if (slash == position || slash >= text.size() || text[slash] != U'/') {
     return std::nullopt;
   }
 
@@ -350,7 +370,8 @@ std::optional<Match> ScorePattern::match(std::u32string_view text, size_t positi
   return Match{.kind = Kind::SCORE, .span = {position, position + 1}, .separator = U':'};
 }
 
-PrefixedMoneyPattern::PrefixedMoneyPattern(const Notation& notation) : Pattern(Kind::MONEY), notation_(notation) {
+PrefixedMoneyPattern::PrefixedMoneyPattern(const Notation& notation, const Keys& words)
+    : Pattern(Kind::MONEY), notation_(notation), currencies_(words) {
   std::ranges::copy_if(notation.currencies, std::back_inserter(currencies_), [](const auto& currency) {
     return !std::ranges::all_of(currency, [](char32_t c) { return text::unicode::isalpha(c); });
   });

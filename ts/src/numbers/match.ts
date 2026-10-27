@@ -14,8 +14,8 @@ export const Kind = {
   SUM: 5, // the "+" of 2 + 2 and 90+6
   RANGE: 6, // the "-" of 10-15 and 2020-2022
   DIMENSION: 7, // the "x" of 1920x1080 and 3 m x 4 m
-  FRACTION: 8, // 3/4
-  SIGN: 9, // the minus of -5
+  SIGN: 8, // the minus of -5: before FRACTION, which reads its digits (-1/3)
+  FRACTION: 9, // 3/4
   TIME: 10, // 18:30, 7pm, 18 Uhr, 21h30
   SCORE: 11, // the ":" of 2:1
   // Numbers with what they count

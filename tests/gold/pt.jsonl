@@ -210,7 +210,7 @@
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "https://www.amazon.com.br", "outputs": ["h t t p s dois pontos barra barra w w w ponto amazon ponto com ponto br"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "u.s.e.r@facebook.com", "outputs": ["u ponto s ponto e ponto r arroba facebook ponto com"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "api.netflix.com", "outputs": ["a p i ponto netflix ponto com"]}
-{"lang": "pt", "source": "nemo", "class": "fraction", "input": "1/2", "outputs": ["um meio"]}
+{"lang": "pt", "source": "nemo", "class": "fraction", "input": "1/2", "outputs": ["um meio", "meio"]}
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "1/3", "outputs": ["um terço"]}
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "1/4", "outputs": ["um quarto"]}
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "2/3", "outputs": ["dois terços"]}
@@ -228,13 +228,13 @@
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "5/13", "outputs": ["cinco treze avos"]}
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "1/100", "outputs": ["um centésimo"]}
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "1/1000", "outputs": ["um milésimo"]}
-{"lang": "pt", "source": "nemo", "class": "fraction", "input": "1 1/2", "outputs": ["um e um meio"]}
+{"lang": "pt", "source": "nemo", "class": "fraction", "input": "1 1/2", "outputs": ["um e um meio", "um e meio"]}
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "2 1/4", "outputs": ["dois e um quarto"]}
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "3 2/3", "outputs": ["três e dois terços"]}
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "47701/913", "outputs": ["quarenta e sete mil setecentos e um novecentos e treze avos"]}
 {"lang": "pt", "source": "nemo", "class": "measure", "input": "200 g", "outputs": ["duzentos gramas"]}
-{"lang": "pt", "source": "nemo", "class": "measure", "input": "1 kg", "outputs": ["um quilo~um quilograma"]}
-{"lang": "pt", "source": "nemo", "class": "measure", "input": "5 kg", "outputs": ["cinco quilos~cinco quilogramas"]}
+{"lang": "pt", "source": "nemo", "class": "measure", "input": "1 kg", "outputs": ["um quilo", "um quilograma"]}
+{"lang": "pt", "source": "nemo", "class": "measure", "input": "5 kg", "outputs": ["cinco quilos", "cinco quilogramas"]}
 {"lang": "pt", "source": "nemo", "class": "measure", "input": "200 m", "outputs": ["duzentos metros"]}
 {"lang": "pt", "source": "nemo", "class": "measure", "input": "1 km", "outputs": ["um quilômetro"]}
 {"lang": "pt", "source": "nemo", "class": "measure", "input": "5 km", "outputs": ["cinco quilômetros"]}
@@ -264,7 +264,7 @@
 {"lang": "pt", "source": "nemo", "class": "money", "input": "$ 12", "outputs": ["doze dólares"]}
 {"lang": "pt", "source": "nemo", "class": "money", "input": "$ 12,05", "outputs": ["doze dólares e cinco centavos"]}
 {"lang": "pt", "source": "nemo", "class": "money", "input": "$ 29,50", "outputs": ["vinte e nove dólares e cinquenta centavos"]}
-{"lang": "pt", "source": "nemo", "class": "money", "input": "$ 75,63", "outputs": ["setenta e cinco dólares e sessenta e três centavos~setenta e cinco dólares com sessenta e três centavos"]}
+{"lang": "pt", "source": "nemo", "class": "money", "input": "$ 75,63", "outputs": ["setenta e cinco dólares e sessenta e três centavos", "setenta e cinco dólares com sessenta e três centavos"]}
 {"lang": "pt", "source": "nemo", "class": "money", "input": "€ 1", "outputs": ["um euro"]}
 {"lang": "pt", "source": "nemo", "class": "money", "input": "€ 12", "outputs": ["doze euros"]}
 {"lang": "pt", "source": "nemo", "class": "money", "input": "€ 12,05", "outputs": ["doze euros e cinco centavos"]}
@@ -318,9 +318,9 @@
 {"lang": "pt", "source": "nemo", "class": "telephone", "input": "11 3333-4444", "outputs": ["um um três três três três quatro quatro quatro quatro"]}
 {"lang": "pt", "source": "nemo", "class": "telephone", "input": "555-1234", "outputs": ["cinco cinco cinco um dois três quatro"]}
 {"lang": "pt", "source": "nemo", "class": "telephone", "input": "99999-1234", "outputs": ["nove nove nove nove nove um dois três quatro"]}
-{"lang": "pt", "source": "nemo", "class": "telephone", "input": "+55 (11) 3333-4444", "outputs": ["mais cinco cinco um um três três três três quatro quatro quatro quatro"]}
-{"lang": "pt", "source": "nemo", "class": "telephone", "input": "192.168.1.1", "outputs": ["um nove dois ponto um seis oito ponto um ponto um"]}
-{"lang": "pt", "source": "nemo", "class": "telephone", "input": "(11) 3333-4444 ext. 12", "outputs": ["um um três três três três quatro quatro quatro quatro extensão um dois"]}
+{"lang": "pt", "source": "nemo", "class": "telephone", "input": "+55 (11) 3333-4444", "outputs": ["mais cinco cinco um um três três três três quatro quatro quatro quatro", "mais cinquenta e cinco um um três três três três quatro quatro quatro quatro"]}
+{"lang": "pt", "source": "nemo", "class": "telephone", "input": "192.168.1.1", "outputs": ["um nove dois ponto um seis oito ponto um ponto um", "cento e noventa e dois ponto cento e sessenta e oito ponto um ponto um"]}
+{"lang": "pt", "source": "nemo", "class": "telephone", "input": "(11) 3333-4444 ext. 12", "outputs": ["um um três três três três quatro quatro quatro quatro extensão um dois", "um um três três três três quatro quatro quatro quatro extensão doze"]}
 {"lang": "pt", "source": "nemo", "class": "time", "input": "14:30", "outputs": ["catorze horas e trinta"]}
 {"lang": "pt", "source": "nemo", "class": "time", "input": "14h30", "outputs": ["catorze horas e trinta"]}
 {"lang": "pt", "source": "nemo", "class": "time", "input": "14h", "outputs": ["catorze horas"]}
@@ -351,3 +351,226 @@
 {"lang": "pt", "source": "nemo", "class": "time", "input": "21:18:14 da manhã", "outputs": ["vinte e uma horas e dezoito minutos e catorze segundos da manhã"]}
 {"lang": "pt", "source": "nemo", "class": "time", "input": "23:18 da tarde", "outputs": ["vinte e três horas e dezoito da tarde"]}
 {"lang": "pt", "source": "nemo", "class": "time", "input": "22h09 da tarde", "outputs": ["vinte e duas horas e nove da tarde"]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O jogo começa às 16h30.", "outputs": ["O jogo começa às dezesseis horas e trinta."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "A reunião foi marcada para as 9h15 de amanhã.", "outputs": ["A reunião foi marcada para as nove horas e quinze de amanhã."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Às 14:30 o voo decolou.", "outputs": ["Às catorze horas e trinta o voo decolou."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O acidente ocorreu às 13h46, no centro.", "outputs": ["O acidente ocorreu às treze horas e quarenta e seis, no centro."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O comércio abre das 8h às 18h.", "outputs": ["O comércio abre das oito horas às dezoito horas."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "A loja fecha às 22:00.", "outputs": ["A loja fecha às vinte e duas horas."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O alarme tocou à 1h05 da madrugada.", "outputs": ["O alarme tocou à uma hora e cinco da madrugada."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O ônibus passa às 00:15.", "outputs": ["O ônibus passa às zero horas e quinze."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Ele chegou às 2h da tarde?", "outputs": ["Ele chegou às duas horas da tarde?"]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O show começa às 21h da noite.", "outputs": ["O show começa às nove horas da noite."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O filme estreia às 15h da tarde.", "outputs": ["O filme estreia às três horas da tarde."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Liguei às 16:00 da tarde e ninguém atendeu.", "outputs": ["Liguei às quatro horas da tarde e ninguém atendeu."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "A sessão das 10h30 foi cancelada.", "outputs": ["A sessão das dez horas e trinta foi cancelada."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Fica a menos de 1h30 da capital.", "outputs": ["Fica a menos de uma hora e trinta da capital."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O recorde foi batido às 14:30:05.", "outputs": ["O recorde foi batido às catorze horas e trinta minutos e cinco segundos."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "A transmissão começou às 09:00:31 em ponto.", "outputs": ["A transmissão começou às nove horas e zero minutos e trinta e um segundos em ponto."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Terminou a prova com o tempo de 2:04:24.", "outputs": ["Terminou a prova com o tempo de duas horas e quatro minutos e vinte e quatro segundos."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O sinal foi registrado às 23:59:01.", "outputs": ["O sinal foi registrado às vinte e três horas e cinquenta e nove minutos e um segundo."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Pelas 21.30h, na igreja matriz, haverá um concerto.", "outputs": ["Pelas vinte e uma horas e trinta, na igreja matriz, haverá um concerto."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O encontro está marcado para as 21.30, no largo.", "outputs": ["O encontro está marcado para as vinte e uma horas e trinta, no largo."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "A bola rola hoje às 20:30 hs.", "outputs": ["A bola rola hoje às vinte horas e trinta."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O metrô funciona entre 4h30 e 22h30.", "outputs": ["O metrô funciona entre quatro horas e trinta e vinte e duas horas e trinta."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Às 07:05 o despertador tocou.", "outputs": ["Às sete horas e cinco o despertador tocou."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O treino é às 6h05.", "outputs": ["O treino é às seis horas e cinco."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O voo chega às 12h30 de Lisboa.", "outputs": ["O voo chega às doze horas e trinta de Lisboa."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O resultado sai às 18H45.", "outputs": ["O resultado sai às dezoito horas e quarenta e cinco."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Abrimos às 9h.", "outputs": ["Abrimos às nove horas."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Às 23:18 houve um apagão.", "outputs": ["Às vinte e três horas e dezoito houve um apagão."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O bebê nasceu à 1:01.", "outputs": ["O bebê nasceu à uma hora e um."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "A sessão vai das 13h às 13h45.", "outputs": ["A sessão vai das treze horas às treze horas e quarenta e cinco."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "O índice subiu 1.71 pontos.", "outputs": ["O índice subiu um ponto setenta e um pontos."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Às 3:30 da tarde ele saiu.", "outputs": ["Às três horas e trinta da tarde ele saiu."]}
+{"lang": "pt", "source": "verbalis", "class": "time", "input": "Às 22h09 a polícia chegou.", "outputs": ["Às vinte e duas horas e nove a polícia chegou."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Misture 1/3 da farinha com o leite.", "outputs": ["Misture um terço da farinha com o leite."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Cerca de 2/5 dos eleitores não votaram.", "outputs": ["Cerca de dois quintos dos eleitores não votaram."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "A renda chega a 1/4 do salário mínimo.", "outputs": ["A renda chega a um quarto do salário mínimo."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Apenas 1/10 da população tem acesso.", "outputs": ["Apenas um décimo da população tem acesso."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "A aprovação exige 2/3 dos membros.", "outputs": ["A aprovação exige dois terços dos membros."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Use uma broca de 3/8 de polegada.", "outputs": ["Use uma broca de três oitavos de polegada."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "O tubo tem 3/4 de polegada.", "outputs": ["O tubo tem três quartos de polegada."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Ele percorreu 7/8 do trajeto.", "outputs": ["Ele percorreu sete oitavos do trajeto."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "A resposta correta é 5/6.", "outputs": ["A resposta correta é cinco sextos."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "O resultado da conta foi 3/11.", "outputs": ["O resultado da conta foi três onze avos."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Some 1/5 e 2/5 para obter 3/5.", "outputs": ["Some um quinto e dois quintos para obter três quintos."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "A chance é de 1/100 por tentativa.", "outputs": ["A chance é de um centésimo por tentativa."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "O erro ficou abaixo de 1/1000.", "outputs": ["O erro ficou abaixo de um milésimo."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "A receita leva 1 1/2 xícara de açúcar.", "outputs": ["A receita leva uma e meia xícara de açúcar."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Acrescente 1/2 xícara de leite.", "outputs": ["Acrescente meia xícara de leite."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Beba 1/2 litro de água.", "outputs": ["Beba meio litro de água."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Foram 2 3/4 de hora de espera.", "outputs": ["Foram dois e três quartos de hora de espera."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Cada fatia corresponde a 1/8 da pizza.", "outputs": ["Cada fatia corresponde a um oitavo da pizza."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "A fração 4/9 não pode ser simplificada.", "outputs": ["A fração quatro nonos não pode ser simplificada."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "O valor de 7/12 é maior que a metade.", "outputs": ["O valor de sete doze avos é maior que a metade."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Cerca de 1/3 dos alunos faltou.", "outputs": ["Cerca de um terço dos alunos faltou."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "O tanque estava com 1/4 de combustível.", "outputs": ["O tanque estava com um quarto de combustível."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Recebeu 3/10 dos votos válidos.", "outputs": ["Recebeu três décimos dos votos válidos."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "A dose é de 1/6 do comprimido.", "outputs": ["A dose é de um sexto do comprimido."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Já 9/10 dos ingressos foram vendidos.", "outputs": ["Já nove décimos dos ingressos foram vendidos."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Corte 2/3 da massa e reserve o resto.", "outputs": ["Corte dois terços da massa e reserve o resto."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Ele correu 3 1/2 quilômetros.", "outputs": ["Ele correu três e meio quilômetros."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "O bolo leva 2 1/2 colheres de manteiga.", "outputs": ["O bolo leva duas e meia colheres de manteiga."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "A probabilidade é 1/6.", "outputs": ["A probabilidade é um sexto."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "As partes medem 5/8 e 3/8 do terreno.", "outputs": ["As partes medem cinco oitavos e três oitavos do terreno."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "Só 1/5 das vagas foi preenchido.", "outputs": ["Só um quinto das vagas foi preenchido."]}
+{"lang": "pt", "source": "verbalis", "class": "fraction", "input": "A distância é de 3/4 de milha.", "outputs": ["A distância é de três quartos de milha."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O sorteio será no dia 15/09, às 11h.", "outputs": ["O sorteio será no dia quinze de setembro, às onze horas."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "Nesta quinta-feira (16/03), um homem foi preso.", "outputs": ["Nesta quinta-feira (dezesseis de março), um homem foi preso."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A palestra foi ontem (16/5) no teatro.", "outputs": ["A palestra foi ontem (dezesseis de maio) no teatro."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A reunião ocorreu na quarta-feira (1/3).", "outputs": ["A reunião ocorreu na quarta-feira (primeiro de março)."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O prazo vai até 30/06.", "outputs": ["O prazo vai até trinta de junho."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "Os lances vão até os dias 23/03, 03/04 e 04/04.", "outputs": ["Os lances vão até os dias vinte e três de março, três de abril e quatro de abril."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "Resumo do capítulo de hoje, 16/01: Marta sai do hospital.", "outputs": ["Resumo do capítulo de hoje, dezesseis de janeiro: Marta sai do hospital."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "Horóscopo do dia 02/03: confira as previsões.", "outputs": ["Horóscopo do dia dois de março: confira as previsões."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A promoção vale de 01/03 a 30/06.", "outputs": ["A promoção vale de primeiro de março a trinta de junho."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O jogo será no sábado (04/02), às 17h30.", "outputs": ["O jogo será no sábado (quatro de fevereiro), às dezessete horas e trinta."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "Vamos conversar sobre isso no dia 15/11.", "outputs": ["Vamos conversar sobre isso no dia quinze de novembro."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O evento acontece em 7/7.", "outputs": ["O evento acontece em sete de julho."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "Ele nasceu em 15.03.2024.", "outputs": ["Ele nasceu em quinze de março de dois mil e vinte e quatro."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A assembleia de 30.09.2013 aprovou as contas.", "outputs": ["A assembleia de trinta de setembro de dois mil e treze aprovou as contas."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O acórdão foi julgado em 18.08.2015.", "outputs": ["O acórdão foi julgado em dezoito de agosto de dois mil e quinze."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A lei entrou em vigor no dia 01.05.2020.", "outputs": ["A lei entrou em vigor no dia primeiro de maio de dois mil e vinte."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O relatório de 2024/03/15 já saiu.", "outputs": ["O relatório de quinze de março de dois mil e vinte e quatro já saiu."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A edição de 2011/10/26 esgotou.", "outputs": ["A edição de vinte e seis de outubro de dois mil e onze esgotou."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O arquivo foi gerado em 2024.03.15.", "outputs": ["O arquivo foi gerado em quinze de março de dois mil e vinte e quatro."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O formulário americano diz 03/15/2024.", "outputs": ["O formulário americano diz quinze de março de dois mil e vinte e quatro."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O pagamento vence em 12/31/2025.", "outputs": ["O pagamento vence em trinta e um de dezembro de dois mil e vinte e cinco."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A explosão em 4/8/2020 deixou 220 mortos.", "outputs": ["A explosão em quatro de agosto de dois mil e vinte deixou duzentos e vinte mortos."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "No dia 11/09/2023, foi realizado o concurso.", "outputs": ["No dia onze de setembro de dois mil e vinte e três, foi realizado o concurso."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O prazo terminou em 31/12/2022.", "outputs": ["O prazo terminou em trinta e um de dezembro de dois mil e vinte e dois."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A prefeitura atua desde a madrugada de terça-feira (28/2).", "outputs": ["A prefeitura atua desde a madrugada de terça-feira (vinte e oito de fevereiro)."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "Inscrições abertas até 5/10!", "outputs": ["Inscrições abertas até cinco de outubro!"]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O feriado é em 7/9, numa sexta.", "outputs": ["O feriado é em sete de setembro, numa sexta."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O show foi transferido para domingo (12/5).", "outputs": ["O show foi transferido para domingo (doze de maio)."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A vacinação começa amanhã (09/09).", "outputs": ["A vacinação começa amanhã (nove de setembro)."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "A entrega foi feita na quarta-feira, 14/11, no Rio.", "outputs": ["A entrega foi feita na quarta-feira, catorze de novembro, no Rio."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "O contrato vale desde 01/01.", "outputs": ["O contrato vale desde primeiro de janeiro."]}
+{"lang": "pt", "source": "verbalis", "class": "date", "input": "Os dados são de 31/12.", "outputs": ["Os dados são de trinta e um de dezembro."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Ligue para (11) 98765-4321.", "outputs": ["Ligue para um um, nove oito sete seis cinco, quatro três dois um."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "O telefone da delegacia é 35 3451-1399.", "outputs": ["O telefone da delegacia é três cinco, três quatro cinco um, um três nove nove."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Contate pelo número 82 98111-8999 para mais informações.", "outputs": ["Contate pelo número oito dois, nove oito um um um, oito nove nove nove para mais informações."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Atendimento: 0800-123456.", "outputs": ["Atendimento: zero oitocentos, um dois três quatro cinco seis."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Ligue 3456-7890 e fale com a recepção.", "outputs": ["Ligue três quatro cinco seis, sete oito nove zero e fale com a recepção."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "O número antigo era 555-1234.", "outputs": ["O número antigo era cinco cinco cinco, um dois três quatro."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Mande mensagem para (21) 99876-5432 pelo WhatsApp.", "outputs": ["Mande mensagem para dois um, nove nove oito sete seis, cinco quatro três dois pelo WhatsApp."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Tel. 961 501 482", "outputs": ["Tel. nove seis um, cinco zero um, quatro oito dois"]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Ligue para 213 456 789 ainda hoje.", "outputs": ["Ligue para dois um três, quatro cinco seis, sete oito nove ainda hoje."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Os números são 75 99967-3984 e 75 9851-8583.", "outputs": ["Os números são sete cinco, nove nove nove seis sete, três nove oito quatro e sete cinco, nove oito cinco um, oito cinco oito três."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Fale conosco no (11) 3333-4444 ext. 12.", "outputs": ["Fale conosco no um um, três três três três, quatro quatro quatro quatro extensão doze."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "O SAC atende no 0800-7654321.", "outputs": ["O SAC atende no zero oitocentos, sete seis cinco quatro três dois um."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Contato: (31) 3222-1100.", "outputs": ["Contato: três um, três dois dois dois, um um zero zero."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Para denúncias, disque 11 2222-3333.", "outputs": ["Para denúncias, disque um um, dois dois dois dois, três três três três."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "O plantão atende pelo 47 3333-0000 à noite.", "outputs": ["O plantão atende pelo quatro sete, três três três três, zero zero zero zero à noite."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "O celular dele é (48) 99999-1234.", "outputs": ["O celular dele é quatro oito, nove nove nove nove nove, um dois três quatro."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "A loja fica no 3201-4455, ramal 3.", "outputs": ["A loja fica no três dois zero um, quatro quatro cinco cinco, ramal três."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Ligue 192-7788 para emergências locais.", "outputs": ["Ligue um nove dois, sete sete oito oito para emergências locais."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Entre 500-1000 pessoas compareceram.", "outputs": ["Entre quinhentos-mil pessoas compareceram.", "Entre quinhentos a mil pessoas compareceram."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "De 2021-2022 nada mudou.", "outputs": ["De dois mil e vinte e um a dois mil e vinte e dois nada mudou."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "A tabela de 20 2021-2022 foi revista.", "outputs": ["A tabela de vinte dois mil e vinte e um a dois mil e vinte e dois foi revista."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Ligue já: (85) 3101-2020!", "outputs": ["Ligue já: oito cinco, três um zero um, dois zero dois zero!"]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "O fax é (61) 3411-1234.", "outputs": ["O fax é seis um, três quatro um um, um dois três quatro."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Agende pelo 41 3322-4455 de segunda a sexta.", "outputs": ["Agende pelo quatro um, três três dois dois, quatro quatro cinco cinco de segunda a sexta."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "O número 31 98888-7777 é o da secretaria.", "outputs": ["O número três um, nove oito oito oito oito, sete sete sete sete é o da secretaria."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Telefone: 24 2222-1111.", "outputs": ["Telefone: dois quatro, dois dois dois dois, um um um um."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Ligue (19) 3232-4545 ou 19 99191-2323.", "outputs": ["Ligue um nove, três dois três dois, quatro cinco quatro cinco ou um nove, nove nove um nove um, dois três dois três."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Mais informações pelo telefone 3311-2200.", "outputs": ["Mais informações pelo telefone três três um um, dois dois zero zero."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "O disque-denúncia é 181-0000.", "outputs": ["O disque-denúncia é um oito um, zero zero zero zero."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "Liga para o 21 2555-0101 amanhã.", "outputs": ["Liga para o dois um, dois cinco cinco cinco, zero um zero um amanhã."]}
+{"lang": "pt", "source": "verbalis", "class": "telephone", "input": "O contato da escola é (62) 3201-7788.", "outputs": ["O contato da escola é seis dois, três dois zero um, sete sete oito oito."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Registaram-se 109 399 nados vivos em Portugal.", "outputs": ["Registaram-se cento e nove mil trezentos e noventa e nove nados vivos em Portugal."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Esperam receber 13 452 € por ano.", "outputs": ["Esperam receber treze mil quatrocentos e cinquenta e dois euros por ano."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "A cidade tem 10 000 habitantes.", "outputs": ["A cidade tem dez mil habitantes."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Foram vendidos 1 000 bilhetes.", "outputs": ["Foram vendidos mil bilhetes."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "O estádio recebeu 45 678 torcedores.", "outputs": ["O estádio recebeu quarenta e cinco mil seiscentos e setenta e oito torcedores."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "A população chegou a 10 344 802 pessoas.", "outputs": ["A população chegou a dez milhões trezentas e quarenta e quatro mil oitocentas e duas pessoas."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "O orçamento é de 2 500 000 euros.", "outputs": ["O orçamento é de dois milhões e quinhentos mil euros."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Inscreveram-se 1 200 alunos.", "outputs": ["Inscreveram-se mil e duzentos alunos."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "São 3 000 000 000 000 de dólares em dívida.", "outputs": ["São três trilhões de dólares em dívida."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Mais de 100 000 pessoas assinaram.", "outputs": ["Mais de cem mil pessoas assinaram."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "A obra custou 1.500.000 reais.", "outputs": ["A obra custou um milhão e quinhentos mil reais."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Morreram 2.300 soldados.", "outputs": ["Morreram dois mil e trezentos soldados."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "O livro vendeu 12 500 exemplares.", "outputs": ["O livro vendeu doze mil e quinhentos exemplares."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Contacte a linha através do 707 246 707 (dias úteis).", "outputs": ["Contacte a linha através do sete zero sete, dois quatro seis, sete zero sete (dias úteis)."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Ligue através do 300 505 700 ou por email.", "outputs": ["Ligue através do três zero zero, cinco zero cinco, sete zero zero ou por email."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "O país tem 213 456 789 habitantes.", "outputs": ["O país tem duzentos e treze milhões quatrocentos e cinquenta e seis mil setecentos e oitenta e nove habitantes."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "O prémio é de 300 000 000 €.", "outputs": ["O prémio é de trezentos milhões de euros."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Em 2020 havia 1 500 casos.", "outputs": ["Em dois mil e vinte havia mil e quinhentos casos."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Foram 21 casas e 22 pessoas.", "outputs": ["Foram vinte e uma casas e vinte e duas pessoas."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Ele tem 1 irmão e 2 irmãs.", "outputs": ["Ele tem um irmão e duas irmãs."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "O censo contou 200 001 eleitores.", "outputs": ["O censo contou duzentos mil e um eleitores."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "A empresa emprega 3 210 funcionários.", "outputs": ["A empresa emprega três mil duzentos e dez funcionários."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "O site teve 1 000 000 de acessos.", "outputs": ["O site teve um milhão de acessos."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "A dívida soma 7 000 milhões de euros.", "outputs": ["A dívida soma sete mil milhões de euros."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Já são 50 000 inscritos.", "outputs": ["Já são cinquenta mil inscritos."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "O navio transporta 2 400 contentores.", "outputs": ["O navio transporta dois mil e quatrocentos contentores."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "A maratona teve 30 101 participantes.", "outputs": ["A maratona teve trinta mil cento e um participantes."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Contaram 999 999 votos.", "outputs": ["Contaram novecentos e noventa e nove mil novecentos e noventa e nove votos."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "O ano de 1 500 não existe nessa grafia, mas 1500 sim.", "outputs": ["O ano de mil e quinhentos não existe nessa grafia, mas mil e quinhentos sim."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "Cerca de 4 000 famílias foram afetadas.", "outputs": ["Cerca de quatro mil famílias foram afetadas."]}
+{"lang": "pt", "source": "verbalis", "class": "cardinal", "input": "A tiragem foi de 25 000 cópias.", "outputs": ["A tiragem foi de vinte e cinco mil cópias."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "A casa custou R$ 1811605.", "outputs": ["A casa custou um milhão oitocentos e onze mil seiscentos e cinco reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O prêmio é de R$ 2500000.", "outputs": ["O prêmio é de dois milhões e quinhentos mil reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O imóvel vale R$ 1234567,50.", "outputs": ["O imóvel vale um milhão duzentos e trinta e quatro mil quinhentos e sessenta e sete reais e cinquenta centavos."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O salário é de R$ 1.412,00.", "outputs": ["O salário é de mil quatrocentos e doze reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O café custa R$ 5,50.", "outputs": ["O café custa cinco reais e cinquenta centavos."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "Paguei R$ 0,99 pelo chiclete.", "outputs": ["Paguei noventa e nove centavos pelo chiclete."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O carro custa R$ 89.900.", "outputs": ["O carro custa oitenta e nove mil e novecentos reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "A multa é de R$ 1 500.", "outputs": ["A multa é de mil e quinhentos reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O ingresso sai por R$ 1,00.", "outputs": ["O ingresso sai por um real."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O livro custa € 25.", "outputs": ["O livro custa vinte e cinco euros."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "A conta deu 14€.", "outputs": ["A conta deu catorze euros."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O jantar custou 12,50€.", "outputs": ["O jantar custou doze euros e cinquenta centavos."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O dólar fechou a US$ 1.", "outputs": ["O dólar fechou a um dólar."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "Ganhou £ 2 na aposta.", "outputs": ["Ganhou duas libras na aposta."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "A empresa faturou R$ 3 bilhões.", "outputs": ["A empresa faturou três bilhões de reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O governo liberou R$ 1,5 milhão.", "outputs": ["O governo liberou um vírgula cinco milhão de reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "Foram gastos US$ 3 bilhões.", "outputs": ["Foram gastos três bilhões de dólares."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "A obra custou R$ 22 mil.", "outputs": ["A obra custou vinte e dois mil reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O fundo tem R$ 10.000.000.", "outputs": ["O fundo tem dez milhões de reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O valor era R$ 50 reais.", "outputs": ["O valor era cinquenta reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "A diária custa R$ 350,00.", "outputs": ["A diária custa trezentos e cinquenta reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O pacote custa 272€ por pessoa.", "outputs": ["O pacote custa duzentos e setenta e dois euros por pessoa."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O preço subiu para R$ 29,90.", "outputs": ["O preço subiu para vinte e nove reais e noventa centavos."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "Recebeu R$ 1.000,01 de troco.", "outputs": ["Recebeu mil reais e um centavo de troco."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O aluguel é de R$ 2.300.", "outputs": ["O aluguel é de dois mil e trezentos reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "A cota custa $ 75,63.", "outputs": ["A cota custa setenta e cinco dólares e sessenta e três centavos."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O lote saiu por R$ 37,517.", "outputs": ["O lote saiu por trinta e sete mil quinhentos e dezessete reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O orçamento é de € 2,5 milhões.", "outputs": ["O orçamento é de dois vírgula cinco milhões de euros."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "Deu R$ 100 para cada um.", "outputs": ["Deu cem reais para cada um."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "A doação foi de R$ 1.000.000.", "outputs": ["A doação foi de um milhão de reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "O lanche custa R$ 12.", "outputs": ["O lanche custa doze reais."]}
+{"lang": "pt", "source": "verbalis", "class": "money", "input": "A taxa é de R$ 0,01.", "outputs": ["A taxa é de um centavo."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Acrescente 200 g de farinha.", "outputs": ["Acrescente duzentos gramas de farinha."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Use 1 g de sal.", "outputs": ["Use um grama de sal."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A largura do filtro é de 30s.", "outputs": ["A largura do filtro é de trinta segundos."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Coloque 250 g de manteiga.", "outputs": ["Coloque duzentos e cinquenta gramas de manteiga."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O bebê nasceu com 3,2 kg.", "outputs": ["O bebê nasceu com três vírgula dois quilos."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Ele perdeu 5 kg em um mês.", "outputs": ["Ele perdeu cinco quilos em um mês."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O comprimido tem 500 mg.", "outputs": ["O comprimido tem quinhentos miligramas."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Tome 2 mg por dia.", "outputs": ["Tome dois miligramas por dia."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Cozinhe por 30 min.", "outputs": ["Cozinhe por trinta minutos."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O intervalo dura 15 min.", "outputs": ["O intervalo dura quinze minutos."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Espere 1 min antes de abrir.", "outputs": ["Espere um minuto antes de abrir."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Acelera de 0 a 100 km/h em 7 s.", "outputs": ["Acelera de zero a cem quilômetros por hora em sete segundos."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O modelo básico leva 10,9 s.", "outputs": ["O modelo básico leva dez vírgula nove segundos."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A volta foi feita em 45 s.", "outputs": ["A volta foi feita em quarenta e cinco segundos."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A música dos anos 90s voltou.", "outputs": ["A música dos anos noventa voltou."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A trilha tem 12 km.", "outputs": ["A trilha tem doze quilômetros."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O prédio tem 80 m de altura.", "outputs": ["O prédio tem oitenta metros de altura."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A tela mede 15 cm.", "outputs": ["A tela mede quinze centímetros."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Choveu 30 mm em uma hora.", "outputs": ["Choveu trinta milímetros em uma hora."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O apartamento tem 70 m².", "outputs": ["O apartamento tem setenta metros quadrados."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A fazenda tem 200 ha.", "outputs": ["A fazenda tem duzentos hectares."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Beba 2 l de água por dia.", "outputs": ["Beba dois litros de água por dia."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A receita pede 300 ml de leite.", "outputs": ["A receita pede trezentos mililitros de leite."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A temperatura chegou a 34°C.", "outputs": ["A temperatura chegou a trinta e quatro graus Celsius."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O carro estava a 120 km/h.", "outputs": ["O carro estava a cento e vinte quilômetros por hora."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O disco tem 2 TB.", "outputs": ["O disco tem dois terabytes."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O processador roda a 3,5 GHz.", "outputs": ["O processador roda a três vírgula cinco giga-hertz.", "O processador roda a três vírgula cinco gigahertz."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A lâmpada consome 60 W.", "outputs": ["A lâmpada consome sessenta watts."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "A carga pesa 3 t.", "outputs": ["A carga pesa três toneladas."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Foram 2 kg de carne e 1 kg de arroz.", "outputs": ["Foram dois quilos de carne e um quilo de arroz."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "O ciclo dura 10-15 min.", "outputs": ["O ciclo dura dez a quinze minutos."]}
+{"lang": "pt", "source": "verbalis", "class": "measure", "input": "Ferva por 5 min e sirva.", "outputs": ["Ferva por cinco minutos e sirva."]}

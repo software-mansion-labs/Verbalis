@@ -13,7 +13,7 @@ import { isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
 import type { DateFormat, Notation, PhoneFormat, SuffixFormat } from "./formats.ts";
 import { suffixFormat } from "./formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "./match.ts";
-import { digitsAt, numbersAt, romanValue, toDigits } from "./scanning.ts";
+import { digitsAt, numbersAt, romanValue, toDigits, value } from "./scanning.ts";
 
 /**
  * A pattern of a numeric expression. It finds the structure of a match only; how to read it is a language's decision.
@@ -86,10 +86,11 @@ export function genericPatterns(notation: Notation): Pattern[] {
     new RangePattern(),
     new DimensionPattern(notation),
   ];
+  patterns.push(new SignPattern());
   if (notation.fractions) {
     patterns.push(new FractionPattern());
   }
-  patterns.push(new SignPattern(), new TimePattern(notation));
+  patterns.push(new TimePattern(notation));
   if (notation.timeSuffixes.length > 0) {
     patterns.push(new HourPattern(notation));
   }
@@ -306,29 +307,62 @@ export class DimensionPattern extends Pattern {
   }
 }
 
-// 3/4
+// 3/4, and 3 1/2: its numbers are then the whole number, the numerator, and the denominator.
 export class FractionPattern extends Pattern {
   constructor() {
     super(Kind.FRACTION);
   }
 
   match(text: Text, position: number): Match | undefined {
-    const slash = digitsEnd(text, position);
-    if (!isClearBefore(text, position, "./") || slash === position || slash >= text.length || text[slash] !== "/") {
+    if (!isClearBefore(text, position, "./")) {
       return undefined;
     }
 
-    const end = digitsEnd(text, slash + 1);
-    if (end === slash + 1 || !isClearAfter(text, end, "/") || isDigitAfter(text, end, ".,")) {
-      return undefined;
+    // 3 1/2, -4 1/3: a whole number of up to three digits, possibly signed, a space, and a proper fraction
+    const whole = text[position] === "-" ? position + 1 : position;
+    const wholeEnd = digitsEnd(text, whole);
+    if (
+      wholeEnd > whole &&
+      wholeEnd <= whole + 3 &&
+      text[whole] !== "0" &&
+      isClearBefore(text, position, "./-:,") &&
+      wholeEnd + 1 < text.length &&
+      text[wholeEnd] === " "
+    ) {
+      const fraction = simpleFraction(text, wholeEnd + 1);
+      if (
+        fraction &&
+        fraction.numbers[0].integer[0] !== "0" &&
+        value(fraction.numbers[0]) < value(fraction.numbers[1])
+      ) {
+        return {
+          ...fraction,
+          span: { begin: position, end: fraction.span.end },
+          numbers: [digitsAt(text, whole), ...fraction.numbers],
+        };
+      }
     }
-    return match({
-      kind: Kind.FRACTION,
-      span: { begin: position, end },
-      numbers: [digitsAt(text, position), digitsAt(text, slash + 1)],
-      separator: "/",
-    });
+    return simpleFraction(text, position);
   }
+}
+
+// A fraction without a whole number: 3/4
+function simpleFraction(text: Text, position: number): Match | undefined {
+  const slash = digitsEnd(text, position);
+  if (slash === position || slash >= text.length || text[slash] !== "/") {
+    return undefined;
+  }
+
+  const end = digitsEnd(text, slash + 1);
+  if (end === slash + 1 || !isClearAfter(text, end, "/") || isDigitAfter(text, end, ".,")) {
+    return undefined;
+  }
+  return match({
+    kind: Kind.FRACTION,
+    span: { begin: position, end },
+    numbers: [digitsAt(text, position), digitsAt(text, slash + 1)],
+    separator: "/",
+  });
 }
 
 // The minus of -5.
@@ -477,10 +511,11 @@ export class PrefixedMoneyPattern extends Pattern {
   readonly #notation: Notation;
   readonly #currencies: Keys; // Only the ones which are not words
 
-  constructor(notation: Notation) {
+  // words: currencies written as words which also precede an amount: USD 5
+  constructor(notation: Notation, words: Keys = []) {
     super(Kind.MONEY);
     this.#notation = notation;
-    this.#currencies = notation.currencies.filter((currency) => ![...currency].every((c) => isAlpha(c)));
+    this.#currencies = [...words, ...notation.currencies.filter((currency) => ![...currency].every((c) => isAlpha(c)))];
   }
 
   match(text: Text, position: number): Match | undefined {

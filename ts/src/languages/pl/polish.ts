@@ -32,6 +32,7 @@ import {
   AMOUNT_NOUNS,
   BILLION,
   CARDINALS,
+  CHARACTERS,
   CLITICS,
   COMBINING,
   COMPLEX_PREPOSITIONS,
@@ -45,6 +46,8 @@ import {
   FEMININE_PLURALS,
   GENITIVE_VERBS,
   GROSZ,
+  HOUR_WORDS,
+  TIME_UNITS,
   HEADINGS,
   JOINERS,
   LOCATIVE_PREPOSITIONS,
@@ -263,8 +266,13 @@ const DIGITS = "0123456789";
 let genitivePluralForms: ReadonlySet<string> | undefined;
 
 function genitivePlurals(): ReadonlySet<string> {
+  // Not one which is also a nominative (procent, euro): trzydzieści cztery procent
   return (genitivePluralForms ??= new Set(
-    [UNITS, CURRENCIES, SCALES].flatMap((table) => Object.values(table).map((noun) => noun.plural[Case.GENITIVE])),
+    [UNITS, CURRENCIES, SCALES].flatMap((table) =>
+      Object.values(table)
+        .filter((noun) => noun.plural[Case.GENITIVE] !== noun.plural[Case.NOMINATIVE])
+        .map((noun) => noun.plural[Case.GENITIVE]),
+    ),
   ));
 }
 
@@ -441,6 +449,10 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   if (w1 === "dnia") {
     return inflection(Form.ORDINAL, Case.GENITIVE); // z dnia 1.
   }
+  const hour = HOUR_WORDS.get(w1);
+  if (hour !== undefined && n <= 24n && !decimal && !counted(noun)) {
+    return { form: Form.ORDINAL, grammaticalCase: hour, gender: Gender.FEMININE }; // o godzinie piętnastej
+  }
   if (w1 === "roku" || w1 === "rok") {
     const w2Locative = LOCATIVE_PREPOSITIONS.has(w2);
     return inflection(Form.ORDINAL, w1 === "rok" ? Case.NOMINATIVE : w2Locative ? Case.LOCATIVE : Case.GENITIVE);
@@ -567,13 +579,20 @@ function cuesOf(match: Match): Cues {
       return cues;
 
     case Kind.TIME: {
-      // o osiemnastej trzydzieści: the hour is a feminine ordinal (godzina) in the case of the word before
-      const w1 = context.before();
+      // o osiemnastej trzydzieści: the hour is a feminine ordinal (godzina) in the case of the word before, or of the
+      // word before the first time of "między 10:00 a 12:00"
+      let w1 = context.before();
+      const w2 = context.before(2);
+      if (CONJUNCTIONS.has(w1) && w2 !== "" && isDigit(w2[w2.length - 1]) && (w2.includes(":") || w2.includes("."))) {
+        w1 = context.before(3);
+      }
+      const hour = HOUR_WORDS.get(w1);
       // prettier-ignore
       cues.grammaticalCase =
-        w1 === "o" || w1 === "godzinie" || w1 === "po" ? Case.LOCATIVE
+        hour !== undefined ? hour
+        : w1 === "o" || w1 === "po" ? Case.LOCATIVE
         : w1 === "do" || w1 === "od" || w1 === "około" || w1 === "koło" ? Case.GENITIVE
-        : w1 === "przed" || w1 === "między" ? Case.INSTRUMENTAL
+        : w1 === "przed" || w1 === "między" || w1 === "pomiędzy" ? Case.INSTRUMENTAL
         : w1 === "na" || w1 === "za" ? Case.ACCUSATIVE
         : Case.NOMINATIVE;
       return cues;
@@ -637,6 +656,13 @@ function cuesOf(match: Match): Cues {
     const last = match.numbers[match.numbers.length - 1];
     const grosze = match.kind === Kind.MONEY && match.scale === "" && last.fraction.length === 2 && isZloty(match.unit);
     cues.amountCase = inflectionOf(context, 0n, last.fraction !== "" && !grosze).grammaticalCase;
+
+    // w 10 m³, w 100 proc.: in an amount, locative; but w 10 min (within ten minutes) stays accusative
+    const w1 = context.before();
+    const measure = match.kind === Kind.PERCENT || (match.kind === Kind.UNIT && !TIME_UNITS.has(match.unit));
+    if ((w1 === "w" || w1 === "we") && measure && cues.amountCase === Case.ACCUSATIVE) {
+      cues.amountCase = Case.LOCATIVE;
+    }
   }
   return cues;
 }
@@ -717,7 +743,7 @@ const NAME_CUES: RomanCues = {
  */
 class Polish extends PatternLanguage {
   constructor() {
-    super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
+    super({ characters: CHARACTERS, terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
     this.addPattern(new RomanDatePattern());
     for (const format of PHONE_FORMATS) {

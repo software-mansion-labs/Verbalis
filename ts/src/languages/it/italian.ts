@@ -6,6 +6,8 @@ import {
   fitsClock,
   isOne,
   isSpokenDigits,
+  fractionOf,
+  isMarkedFraction,
   namedFraction,
   parseValue,
   spacedSuffix,
@@ -13,12 +15,25 @@ import {
   romanRole,
   RomanRole,
 } from "../../numbers/scanning.ts";
-import { isClearAfter, isClearBefore, join } from "../../text/scan.ts";
-import { split, toLower, type Text } from "../../text/strings.ts";
+import { isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
+import { contains, size, split, toLower, type Text } from "../../text/strings.ts";
+import { isDigit, isLower, isSpace, isUpper } from "../../text/unicode.ts";
+import type { Forms } from "../grammar.ts";
 import { PatternLanguage } from "../language.ts";
 import {
+  CENTS,
+  COUNT_WORDS,
+  FEMININE_ARTICLES,
+  FEMININE_IN_E,
+  MASCULINE_IN_A,
+  MASCULINE_IN_IONE,
+  ORDINAL_ARTICLES,
+  STOP_WORDS,
+  ELIDED_ARTICLES,
+  VERSION_WORDS,
   CURRENCIES,
   DATE_FORMAT,
+  FRACTION_WORDS,
   FRACTIONS,
   JOINERS,
   MONTHS,
@@ -129,6 +144,124 @@ function digits(text: string): string {
   return join([...text].map((c) => ONES[Number(c)]));
 }
 
+// An integer as a cardinal, or digit by digit if it reads as a code: 0039, 1034500
+function integerWords(number: Numeral): string {
+  const n = parseValue(number.integer);
+  return n === undefined || isSpokenDigits(number, 7) ? digits(number.integer) : cardinal(n);
+}
+
+// -------------------
+// ----- Context -----
+// -------------------
+
+function isVowel(c: string | undefined): boolean {
+  return contains("aeiouàèéìòù", c);
+}
+
+function isFeminine(noun: string): boolean {
+  const word = toLower(noun);
+  if (word.endsWith("a")) {
+    return !MASCULINE_IN_A.has(word);
+  }
+  if (word.endsWith("ione")) {
+    return !MASCULINE_IN_IONE.has(word);
+  }
+  return (
+    word.endsWith("tà") || word.endsWith("tù") || word.endsWith("si") || word.endsWith("ie") || FEMININE_IN_E.has(word)
+  );
+}
+
+// The article form of "uno" before a noun: un anno, una volta, uno studente, un'ora
+function oneBefore(noun: string): string {
+  const space = noun.indexOf(" ");
+  const word = [...toLower(space === -1 ? noun : noun.slice(0, space))];
+  if (word.length === 0) {
+    return "uno";
+  }
+  if (isFeminine(word.join(""))) {
+    return isVowel(word[0]) ? "un'" : "una";
+  }
+  const start = word.slice(0, 2).join("");
+  const impure =
+    (word[0] === "s" && word.length > 1 && !isVowel(word[1])) ||
+    word[0] === "z" ||
+    word[0] === "x" ||
+    word[0] === "y" ||
+    start === "gn" ||
+    start === "ps" ||
+    start === "pn";
+  return impure ? "uno" : "un";
+}
+
+// One of a noun: un metro, una sterlina, un'ora
+function oneOf(noun: string): string {
+  const article = oneBefore(noun);
+  return article + (article.endsWith("'") ? "" : " ") + noun;
+}
+
+// Whether a word after a number may be a noun it counts: figli, chili, but not su, è, dell'anno, maggio
+function isNoun(word: string): boolean {
+  return (
+    word !== "" &&
+    isLower(String.fromCodePoint(word.codePointAt(0)!)) &&
+    !STOP_WORDS.has(word) &&
+    !/['’]/.test(word) &&
+    !MONTHS.includes(word)
+  );
+}
+
+// The end of the text before a match, without the spaces closing it
+function headEnd(head: Text): number {
+  let end = head.length;
+  while (end > 0 && isSpace(head[end - 1])) {
+    end--;
+  }
+  return end;
+}
+
+// Whether a decimal with a dot measures the noun after it (pesava 72.3 chili), unlike a version (Python 3.12 introduce)
+function measuresNoun(match: Match): boolean {
+  const head = match.context.head();
+  const end = headEnd(head);
+  let word = end;
+  while (word > 0 && !contains(" \t\n", head[word - 1])) {
+    word--;
+  }
+  const previous = match.context.before();
+  // A capitalized word before it names the version (Python 3.12), unless it is an article opening a sentence (Il 72.3)
+  const name =
+    word < end &&
+    (isUpper(head[word]) || isDigit(head[word])) &&
+    !STOP_WORDS.has(previous) &&
+    !COUNT_WORDS.has(previous);
+  const percent =
+    match.context.after() === "percento" || (match.context.after() === "per" && match.context.after(2) === "cento");
+  return (isNoun(match.context.after()) || percent) && !name && !VERSION_WORDS.has(previous);
+}
+
+// Whether a 1 counts the noun after it: ha 1 figlio, but articolo 1 comma 2, 1 su 3
+function countsNoun(match: Match): boolean {
+  if (!isNoun(match.context.after())) {
+    return false;
+  }
+  const head = match.context.head();
+  const end = headEnd(head);
+  const previous = match.context.before();
+  const participle =
+    size(previous) > 4 &&
+    (previous.endsWith("ato") || previous.endsWith("ito") || previous.endsWith("uto") || previous.endsWith("ati"));
+  return end === 0 || contains('.,!?:;("', head[end - 1]) || COUNT_WORDS.has(previous) || participle;
+}
+
+// A whole number before its noun: un euro, una sterlina, due euro
+function counted(number: Numeral, noun: Forms): string {
+  return isOne(number) ? oneOf(noun.one) : `${integerWords(number)} ${noun.many}`;
+}
+
+function countedValue(n: bigint, noun: Forms): string {
+  return n === 1n ? oneOf(noun.one) : `${cardinal(n)} ${noun.many}`;
+}
+
 // --------------------
 // ----- Patterns -----
 // --------------------
@@ -158,6 +291,38 @@ class DecadePattern extends Pattern {
   }
 }
 
+// 17:15:26: hours, minutes, and seconds.
+class SecondsPattern extends Pattern {
+  constructor() {
+    super(Kind.TIME);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,:")) {
+      return undefined;
+    }
+    const numbers: Numeral[] = [];
+    for (let start = position; numbers.length < 3; start = numbers[numbers.length - 1].span.end + 1) {
+      const part = digitsAt(text, start);
+      const length = part.integer.length;
+      if (
+        length === 0 ||
+        length > 2 ||
+        (numbers.length > 0 && length !== 2) ||
+        (numbers.length < 2 && (part.span.end >= text.length || text[part.span.end] !== ":"))
+      ) {
+        return undefined;
+      }
+      numbers.push(part);
+    }
+    const end = numbers[2].span.end;
+    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:")) {
+      return undefined;
+    }
+    return match({ kind: Kind.TIME, span: { begin: position, end }, numbers, separator: ":" });
+  }
+}
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -166,6 +331,7 @@ class Italian extends PatternLanguage {
   constructor() {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
+    this.addPattern(new SecondsPattern());
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -177,16 +343,23 @@ class Italian extends PatternLanguage {
 
   protected override readNumber(number: Numeral, match: Match): string {
     if (number.fraction === "") {
-      const n = parseValue(number.integer);
-      if (n === undefined || isSpokenDigits(number, 7)) {
-        return digits(number.integer);
+      if (number.integer !== "1") {
+        return integerWords(number);
       }
-      // 1 maggio: "1" before a month is "primo"
-      const month = MONTHS.includes(toLower(match.context.after()));
-      return n === 1n && month ? "primo" : cardinal(n);
+      // 1 maggio: primo maggio; ha 1 figlio: un figlio
+      if (MONTHS.includes(toLower(match.context.after()))) {
+        return "primo";
+      }
+      return match.kind === Kind.NUMBER && countsNoun(match) ? oneBefore(match.context.after()) : "uno";
     }
 
-    // The separator is read as written: due virgola cinque, due punto cinque
+    // A decimal comma reads virgola; a dot reads punto (versione 2.1), but virgola in an amount (1.5 kg, 4.3%)
+    const amount =
+      match.kind === Kind.MONEY ||
+      match.kind === Kind.SCALE ||
+      match.kind === Kind.PERCENT ||
+      match.kind === Kind.UNIT ||
+      (match.kind === Kind.NUMBER && measuresNoun(match));
     const fraction: string[] = [];
     const zeros = number.fraction.search(/[^0]/);
     const count = zeros === -1 ? number.fraction.length : zeros;
@@ -197,7 +370,7 @@ class Italian extends PatternLanguage {
       fraction.push(cardinal(parseValue(number.fraction) ?? 0n));
     }
     const head = number.integer === "" ? "" : `${cardinal(value(number))} `;
-    return head + (number.decimalMark === "," ? "virgola " : "punto ") + join(fraction);
+    return head + (number.decimalMark === "," || amount ? "virgola " : "punto ") + join(fraction);
   }
 
   protected override readCodeDigits(text: string): string {
@@ -219,7 +392,22 @@ class Italian extends PatternLanguage {
   }
 
   protected override readFraction(match: Match): string | undefined {
-    return namedFraction(FRACTIONS, match);
+    // 1/2 litro: mezzo litro, 1/2 porzione: mezza porzione
+    const noun = match.context.after();
+    const [first, second] = fractionOf(match);
+    if (first === 1n && second === 2n && match.numbers.length === 2 && isNoun(noun) && !FRACTION_WORDS.has(noun)) {
+      return isFeminine(noun) ? "mezza" : "mezzo";
+    }
+    const words = namedFraction(FRACTIONS, match);
+    if (words !== undefined) {
+      return words;
+    }
+    const [a, b] = fractionOf(match);
+    if (b < 2n || a >= b || !isMarkedFraction(match, FRACTION_WORDS)) {
+      return undefined;
+    }
+    // un quinto, due terzi, tre undicesimi
+    return `${a === 1n ? "un" : cardinal(a)} ${ordinal(b, a === 1n ? "o" : "i")}`;
   }
 
   protected override readTime(match: Match): string | undefined {
@@ -231,8 +419,19 @@ class Italian extends PatternLanguage {
       return undefined;
     }
 
-    // alle 21.30: ventuno e trenta
+    // alle 21.30: ventuno e trenta; 17:15:26: diciassette e quindici minuti e ventisei secondi
     const hour = hours === 1n ? "una" : cardinal(hours);
+    if (match.numbers.length === 3) {
+      const seconds = value(match.numbers[2]);
+      if (seconds > 59n) {
+        return undefined;
+      }
+      return (
+        hour +
+        (minutes ? ` e ${minutes === 1n ? "un minuto" : `${cardinal(minutes)} minuti`}` : "") +
+        (seconds ? ` e ${seconds === 1n ? "un secondo" : `${cardinal(seconds)} secondi`}` : "")
+      );
+    }
     return minutes ? `${hour} e ${cardinal(minutes)}` : hour;
   }
 
@@ -256,7 +455,13 @@ class Italian extends PatternLanguage {
     if (value(match.numbers[0]) === 0n) {
       return undefined;
     }
-    const ending = match.suffix === "ª" ? "a" : match.suffix === "º" ? "o" : match.suffix.slice(-1);
+    // il 3° posto, la 3° edizione: ° takes the gender of the article
+    let ending = match.suffix === "ª" ? "a" : match.suffix === "º" ? "o" : match.suffix.slice(-1);
+    const article = match.context.before();
+    if (match.suffix === "°") {
+      const elided = ELIDED_ARTICLES.has(article);
+      ending = (elided ? isFeminine(match.context.after()) : FEMININE_ARTICLES.has(article)) ? "a" : "o";
+    }
     return ordinal(value(match.numbers[0]), ending);
   }
 
@@ -273,20 +478,25 @@ class Italian extends PatternLanguage {
       return this.#scaled(number, match) + (thousands ? " " : " di ") + currency.many;
     }
 
-    // 10,50 €: dieci euro e cinquanta
-    if (number.fraction.length === 2 && number.decimalMark === ",") {
+    // 10,50 €: dieci euro e cinquanta centesimi; 0,01 €: un centesimo; but 41,2 €/MWh: quarantuno virgola due euro
+    const cents = Object.hasOwn(CENTS, match.unit) ? CENTS[match.unit] : undefined;
+    if (number.fraction.length === 2 && cents !== undefined) {
       const whole = numeral({
         span: { begin: 0, end: 0 },
         integer: number.integer === "" ? "0" : number.integer,
         grouped: number.grouped,
       });
-      const cents = parseValue(number.fraction) ?? 0n;
-      return (
-        `${this.readNumber(whole, match)} ${number.integer === "1" ? currency.one : currency.many}` +
-        (cents ? ` e ${cardinal(cents)}` : "")
-      );
+      const hundredths = parseValue(number.fraction) ?? 0n;
+      const centsWords = countedValue(hundredths, cents);
+      if (/^0*$/.test(whole.integer) && hundredths) {
+        return centsWords;
+      }
+      return counted(whole, currency) + (hundredths ? ` e ${centsWords}` : "");
     }
-    return `${this.readNumber(number, match)} ${isOne(number) ? currency.one : currency.many}`;
+    if (number.fraction === "") {
+      return counted(number, currency);
+    }
+    return `${this.readNumber(number, match)} ${currency.many}`;
   }
 
   protected override readScale(number: Numeral, match: Match): string | undefined {
@@ -302,8 +512,21 @@ class Italian extends PatternLanguage {
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
+    // il 1° gennaio, al 90° minuto: an ordinal, read by its own pattern
+    if (
+      match.unit === "°" &&
+      match.numbers.length === 1 &&
+      (ORDINAL_ARTICLES.has(match.context.before()) || MONTHS.includes(toLower(match.context.after())))
+    ) {
+      return undefined;
+    }
+    // 155 d: giorni, but not Italia/2007 d.17' nor 1 d'oro
+    const tail = match.context.tail();
+    if (match.unit === "d" && tail.length > 0 && contains(".'’", tail[0])) {
+      return undefined;
+    }
     const unit = UNITS[match.unit];
-    return `${this.readNumber(number, match)} ${isOne(number) ? unit.one : unit.many}`;
+    return number.fraction === "" ? counted(number, unit) : `${this.readNumber(number, match)} ${unit.many}`;
   }
 
   // An amount with its scale: settantaquattromila, tre milioni
@@ -315,8 +538,7 @@ class Italian extends PatternLanguage {
       // uint64_t in C++: an 18-digit amount wraps around
       return cardinal(BigInt.asUintN(64, value(number) * 1000n));
     }
-    const singular = value(number) < 2n && number.fraction === "";
-    return `${this.readNumber(number, match)} ${singular ? scale.one : scale.many}`;
+    return number.fraction === "" ? counted(number, scale) : `${this.readNumber(number, match)} ${scale.many}`;
   }
 }
 

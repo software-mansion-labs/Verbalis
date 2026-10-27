@@ -202,7 +202,10 @@ const std::unordered_set<std::u32string>& genitive_plurals() {
     std::unordered_set<std::u32string> result;
     for (const auto* table : {&kUnits, &kCurrencies, &kScales}) {
       for (const auto& [key, noun] : *table) {
-        result.insert(noun.plural[index(Case::GENITIVE)]);
+        // Not one which is also a nominative (procent, euro): trzydzieści cztery procent
+        if (noun.plural[index(Case::GENITIVE)] != noun.plural[index(Case::NOMINATIVE)]) {
+          result.insert(noun.plural[index(Case::GENITIVE)]);
+        }
       }
     }
     return result;
@@ -366,6 +369,9 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
   if (w1 == U"dnia") {
     return {Form::ORDINAL, Case::GENITIVE}; // z dnia 1.
   }
+  if (auto hour = kHourWords.find(w1); hour != kHourWords.end() && n <= 24 && !decimal && !counted(noun)) {
+    return {Form::ORDINAL, hour->second, Gender::FEMININE}; // o godzinie piętnastej
+  }
   if (w1 == U"roku" || w1 == U"rok") {
     bool w2_locative = kLocativePrepositions.contains(w2);
     return {Form::ORDINAL, w1 == U"rok" ? Case::NOMINATIVE : w2_locative ? Case::LOCATIVE : Case::GENITIVE};
@@ -488,11 +494,19 @@ Cues cues_of(const Match& match) {
       return cues;
 
     case Kind::TIME: {
-      // o osiemnastej trzydzieści: the hour is a feminine ordinal (godzina) in the case of the word before
+      // o osiemnastej trzydzieści: the hour is a feminine ordinal (godzina) in the case of the word before, or of the
+      // word before the first time of "między 10:00 a 12:00"
       std::u32string w1 = context.before();
-      cues.grammatical_case = w1 == U"o" || w1 == U"godzinie" || w1 == U"po"                ? Case::LOCATIVE :
+      std::u32string w2 = context.before(2);
+      if (kConjunctions.contains(w1) && !w2.empty() && unicode::isdigit(w2.back()) &&
+          (strings::contains(w2, U':') || strings::contains(w2, U'.'))) {
+        w1 = context.before(3);
+      }
+      auto hour = kHourWords.find(w1);
+      cues.grammatical_case = hour != kHourWords.end()                                      ? hour->second :
+                              w1 == U"o" || w1 == U"po"                                     ? Case::LOCATIVE :
                               w1 == U"do" || w1 == U"od" || w1 == U"około" || w1 == U"koło" ? Case::GENITIVE :
-                              w1 == U"przed" || w1 == U"między"                             ? Case::INSTRUMENTAL :
+                              w1 == U"przed" || w1 == U"między" || w1 == U"pomiędzy"        ? Case::INSTRUMENTAL :
                               w1 == U"na" || w1 == U"za"                                    ? Case::ACCUSATIVE :
                                                                                               Case::NOMINATIVE;
       return cues;
@@ -552,6 +566,13 @@ Cues cues_of(const Match& match) {
     const Number& last = match.numbers.back();
     bool grosze = match.kind == Kind::MONEY && match.scale.empty() && last.fraction.size() == 2 && is_zloty(match.unit);
     cues.amount_case = inflection_of(context, 0, !last.fraction.empty() && !grosze).grammatical_case;
+
+    // w 10 m³, w 100 proc.: in an amount, locative; but w 10 min (within ten minutes) stays accusative
+    std::u32string w1 = context.before();
+    bool measure = match.kind == Kind::PERCENT || (match.kind == Kind::UNIT && !kTimeUnits.contains(match.unit));
+    if ((w1 == U"w" || w1 == U"we") && measure && cues.amount_case == Case::ACCUSATIVE) {
+      cues.amount_case = Case::LOCATIVE;
+    }
   }
   return cues;
 }
@@ -579,8 +600,7 @@ public:
     }
 
     Match date{.kind = Kind::DATE,
-               .numbers = {digits_at(text, position),
-                           {.span = {month, month_end}, .integer = to_digits(*month_value)}},
+               .numbers = {digits_at(text, position), {.span = {month, month_end}, .integer = to_digits(*month_value)}},
                .separator = U'.'};
     // With a year first (5.VI.2024), then without it (5.VI)
     if (month_end + 5 <= text.size() && text[month_end] == U'.' && digits_end(text, month_end + 1) == month_end + 5 &&
@@ -608,7 +628,8 @@ public:
  */
 class Polish final : public PatternLanguage {
 public:
-  Polish() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
+  Polish()
+      : PatternLanguage({.characters = &kCharacters, .terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
     add_pattern(std::make_unique<RomanDatePattern>());
     for (const auto& format : kPhoneFormats) {

@@ -36,6 +36,14 @@ REGISTER_TEST(numbers_pl_test) {
       verbalize("pl", U"Zadzwoń pod numer 600 123 456 albo o 7.15, numerem 3x38.", only(&Options::numbers)));
   ASSERT_EQUALS(U"W latach dwa tysiące dziesięć-dwa tysiące dwanaście zginęło tysiąc osób, w tym dwie kobiety.",
                 verbalize("pl", U"W latach 2010-2012 zginęło 1 000 osób, w tym 2 kobiety.", only(&Options::numbers)));
+  ASSERT_EQUALS(
+      U"Profesor Nowak mieszka przy ulicy Długiej pięć mieszkanie cztery, o godzinie piętnastej jedzie "
+      U"dziewięćdziesiąt kilometrów na godzinę.",
+      verbalize("pl", U"Prof. Nowak mieszka przy ul. Długiej 5 m. 4, o godz. 15 jedzie 90 km/h."));
+  ASSERT_EQUALS(
+      U"Hołownia zmierzy się, jak się okazało, w dziesięciu metrach sześciennych, o pięć punktów "
+      U"procentowych.",
+      verbalize("pl", U"Ho³ownia zmierzy siê, jak siÄ™ okazaÅ‚o, w 10 m³, o 5 pkt proc."));
 
   return true;
 }

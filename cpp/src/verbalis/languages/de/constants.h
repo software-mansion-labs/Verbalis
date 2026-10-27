@@ -43,16 +43,33 @@ inline const std::unordered_map<std::u32string, std::u32string> kOrdinalStems = 
   {U"eins", U"ers"}, {U"drei", U"drit"}, {U"sieben", U"sieb"}, {U"acht", U"ach"}
 };
 
+// Currencies, and prices per unit (12 €/m²): their reading after "pro" follows the whole price
 inline const std::unordered_map<std::u32string, std::u32string> kCurrencies = {
   {U"€", U"Euro"}, {U"Euro", U"Euro"}, {U"$", U"Dollar"}, {U"Dollar", U"Dollar"}, {U"£", U"Pfund"},
-  {U"CHF", U"Franken"}
+  {U"CHF", U"Franken"},
+  {U"€/m²", U"Euro pro Quadratmeter"},
+  {U"€/qm", U"Euro pro Quadratmeter"},
+  {U"€/kWh", U"Euro pro Kilowattstunde"},
+  {U"€/l", U"Euro pro Liter"},
+  {U"€/kg", U"Euro pro Kilogramm"},
+  {U"€/Monat", U"Euro pro Monat"},
+  {U"€/Jahr", U"Euro pro Jahr"},
+  {U"€/Tag", U"Euro pro Tag"},
+  {U"€/Std.", U"Euro pro Stunde"},
+  {U"€/h", U"Euro pro Stunde"},
+  {U"€/Stunde", U"Euro pro Stunde"},
+  {U"€/Nacht", U"Euro pro Nacht"},
+  {U"€/Person", U"Euro pro Person"}
 };
 
 inline const std::unordered_map<std::u32string, Forms> kScales = {
   {U"Mio.", {U"Million", U"Millionen"}},       {U"Million", {U"Million", U"Millionen"}},
   {U"Millionen", {U"Million", U"Millionen"}},  {U"Mrd.", {U"Milliarde", U"Milliarden"}},
   {U"Milliarde", {U"Milliarde", U"Milliarden"}}, {U"Milliarden", {U"Milliarde", U"Milliarden"}},
-  {U"Tsd.", {U"tausend", U"tausend"}},         {U"k", {U"tausend", U"tausend"}}
+  {U"Tsd.", {U"tausend", U"tausend"}},         {U"k", {U"tausend", U"tausend"}},
+  // Lowercase, as also written: 2,2 millionen €
+  {U"million", {U"Million", U"Millionen"}},     {U"millionen", {U"Million", U"Millionen"}},
+  {U"milliarde", {U"Milliarde", U"Milliarden"}}, {U"milliarden", {U"Milliarde", U"Milliarden"}}
 };
 
 inline const std::unordered_map<std::u32string, Forms> kUnits = {
@@ -74,13 +91,35 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"Std.", {U"Stunde", U"Stunden"}},          {U"min", {U"Minute", U"Minuten"}},
   {U"Min.", {U"Minute", U"Minuten"}},          {U"s", {U"Sekunde", U"Sekunden"}},
   {U"Sek.", {U"Sekunde", U"Sekunden"}},        {U"ct", {U"Cent", U"Cent"}},
-  {U"PS", {U"PS", U"PS"}}
+  {U"PS", {U"PS", U"PS"}},
+  {U"kwh", {U"Kilowattstunde", U"Kilowattstunden"}}, {U"mv", {U"Millivolt", U"Millivolt"}},
+  {U"MW", {U"Megawatt", U"Megawatt"}},         {U"GW", {U"Gigawatt", U"Gigawatt"}},
+  {U"MWh", {U"Megawattstunde", U"Megawattstunden"}}, {U"GWh", {U"Gigawattstunde", U"Gigawattstunden"}},
+  {U"TWh", {U"Terawattstunde", U"Terawattstunden"}},
+  // Per unit: 42259/m², 56,3 /km²
+  {U"/m²", {U"pro Quadratmeter", U"pro Quadratmeter"}}, {U"/km²", {U"pro Quadratkilometer", U"pro Quadratkilometer"}},
+  {U"/m³", {U"pro Kubikmeter", U"pro Kubikmeter"}},
+  {U"µm", {U"Mikrometer", U"Mikrometer"}},
+  {U"μm", {U"Mikrometer", U"Mikrometer"}},
+  {U"µg", {U"Mikrogramm", U"Mikrogramm"}},
+  {U"μg", {U"Mikrogramm", U"Mikrogramm"}},
+  {U"cm²", {U"Quadratzentimeter", U"Quadratzentimeter"}},
+  {U"mm²", {U"Quadratmillimeter", U"Quadratmillimeter"}},
+  {U"cm³", {U"Kubikzentimeter", U"Kubikzentimeter"}},
+  {U"ft", {U"Fuß", U"Fuß"}},
+  {U"mV", {U"Millivolt", U"Millivolt"}},
+  {U"kV", {U"Kilovolt", U"Kilovolt"}},
+  {U"mA", {U"Milliampere", U"Milliampere"}},
+  {U"°F", {U"Grad Fahrenheit", U"Grad Fahrenheit"}}
 };
 
 inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions = {
   {{1, 2}, U"ein halb"}, {{1, 3}, U"ein Drittel"}, {{2, 3}, U"zwei Drittel"}, {{1, 4}, U"ein Viertel"},
   {{3, 4}, U"drei Viertel"}
 };
+
+// Words after a fraction which mark it as one: 2/3 der
+inline const std::unordered_set<std::u32string> kFractionWords = {U"der", U"des", U"eines", U"einer", U"aller"};
 
 // Determiners after which an ordinal takes a weak ending: am dritten, der dritte (nominative)
 inline const std::unordered_set<std::u32string> kWeak = {
@@ -97,6 +136,13 @@ inline const std::unordered_set<std::u32string> kWeakNominative = {
 // ein-words, after which an ordinal takes a mixed ending: ein zweiter, ein drittes
 inline const std::unordered_set<std::u32string> kMixed = {
   U"ein", U"kein", U"mein", U"dein", U"sein", U"ihr", U"unser", U"euer"
+};
+
+// Words after which an amount stays in the nominative: ist 1 Euro, als 1 Euro, aber 1 Euro ist
+inline const std::unordered_set<std::u32string> kNominativeWords = {
+  U"ist", U"sind", U"war", U"waren", U"wird", U"werden", U"wurde", U"wurden", U"bleibt", U"blieb", U"sei", U"seien",
+  U"wäre", U"als", U"wie", U"und", U"oder", U"pro", U"je", U"mal", U"aber", U"denn", U"sondern", U"doch", U"dass",
+  U"weil", U"wenn", U"ob", U"obwohl", U"da", U"damit", U"sodass"
 };
 
 // Prepositions by the case they govern
@@ -166,6 +212,9 @@ inline const std::unordered_set<std::u32string> kFeminineNames = {
   U"elisabeth", U"katharina", U"maria", U"viktoria"
 };
 
+// Words after hours, minutes, and seconds, which the reading says: 02:02:23 Uhr, 13:46:36 Stunden
+inline const Keys kSecondsSuffixes = {U"Uhr", U"Stunden", U"Std.", U"h"};
+
 // --- Notation: how numbers are written ---
 inline const Notation kNotation = {
   .group_separators = U". \u00a0\u202f", .decimal_separators = U",.", .time_separators = U":.", .time_suffixes = {U"Uhr"},
@@ -174,7 +223,8 @@ inline const Notation kNotation = {
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
-  .point = U"Komma", .dot = U"Punkt", .range = U" bis ", .by = U"mal", .score = U" zu ", .minus = U"minus", .plus = U"plus"
+  .point = U"Komma", .dot = U"Punkt", .range = U" bis ", .by = U"mal", .score = U" zu ", .minus = U"minus", .plus = U"plus",
+  .fraction = U" "
 };
 
 // 1.5.2024, 1.5., 12. 3.: the year is optional, a dot closes the month
@@ -184,6 +234,11 @@ inline const DateFormat kDateFormat = {
 
 // 90er, 90ern, 90ers
 inline const Keys kDecadeSuffixes = {U"er", U"ern", U"ers"};
+
+// Ordinal endings written after the digits: am 3ten, zum 20sten, dem 121tem
+inline const Keys kOrdinalSuffixes = {
+  U"te", U"ten", U"tem", U"ter", U"tes", U"ste", U"sten", U"stem", U"ster", U"stes"
+};
 inline const SuffixFormat kDecadeFormat = {.boundaries = U".,-"};
 
 using ::verbalis::text::Readings;
@@ -202,6 +257,17 @@ inline const Readings kSymbols = {
 };
 
 using ::verbalis::text::before_number;
+
+// Days of a month, the word before a month abbreviation in a date: 2. Jan. 2003
+inline const std::unordered_set<std::u32string> kDays = [] {
+  std::unordered_set<std::u32string> days;
+  for (char32_t day = 1; day <= 31; day++) {
+    std::u32string tens(1, U'0' + day / 10), ones(1, U'0' + day % 10);
+    days.insert(day < 10 ? ones : tens + ones);
+    days.insert(tens + ones); // 02. Jan.
+  }
+  return days;
+}();
 using ::verbalis::steps::Terms;
 
 inline const Terms kTerms = {
@@ -212,10 +278,59 @@ inline const Terms kTerms = {
     {U"S.", {{U"Seite", before_number}}},
     {U"Art.", {{U"Artikel", before_number}}},
     {U"Kap.", {{U"Kapitel", before_number}}},
-    {U"ca.", {{U"circa", before_number}}},
     {U"Bd.", {{U"Band", before_number}}},
+    // After a day: 2. Jan. 2003
+    {U"Jan.", {{U"Januar", after_any(kDays)}}},
+    {U"Feb.", {{U"Februar", after_any(kDays)}}},
+    {U"Mär.", {{U"März", after_any(kDays)}}},
+    {U"Apr.", {{U"April", after_any(kDays)}}},
+    {U"Jun.", {{U"Juni", after_any(kDays)}}},
+    {U"Jul.", {{U"Juli", after_any(kDays)}}},
+    {U"Aug.", {{U"August", after_any(kDays)}}},
+    {U"Sep.", {{U"September", after_any(kDays)}}},
+    {U"Sept.", {{U"September", after_any(kDays)}}},
+    {U"Okt.", {{U"Oktober", after_any(kDays)}}},
+    {U"Nov.", {{U"November", after_any(kDays)}}},
+    {U"Dez.", {{U"Dezember", after_any(kDays)}}},
+    {U"jan.", {{U"Januar", after_any(kDays)}}},
+    {U"feb.", {{U"Februar", after_any(kDays)}}},
+    {U"mär.", {{U"März", after_any(kDays)}}},
+    {U"apr.", {{U"April", after_any(kDays)}}},
+    {U"jun.", {{U"Juni", after_any(kDays)}}},
+    {U"jul.", {{U"Juli", after_any(kDays)}}},
+    {U"aug.", {{U"August", after_any(kDays)}}},
+    {U"sep.", {{U"September", after_any(kDays)}}},
+    {U"sept.", {{U"September", after_any(kDays)}}},
+    {U"okt.", {{U"Oktober", after_any(kDays)}}},
+    {U"nov.", {{U"November", after_any(kDays)}}},
+    {U"dez.", {{U"Dezember", after_any(kDays)}}},
+    // Anywhere
+    {U"ca.", {U"circa"}},
+    {U"z.B.", {U"zum Beispiel"}},
+    {U"z. B.", {U"zum Beispiel"}},
+    {U"d.h.", {U"das heißt"}},
+    {U"d. h.", {U"das heißt"}},
+    {U"bzw.", {U"beziehungsweise"}},
+    {U"usw.", {U"und so weiter"}},
+    {U"u.a.", {U"unter anderem"}},
+    {U"u. a.", {U"unter anderem"}},
+    {U"z.T.", {U"zum Teil"}},
+    {U"z. T.", {U"zum Teil"}},
+    {U"ggf.", {U"gegebenenfalls"}},
+    {U"evtl.", {U"eventuell"}},
+    {U"inkl.", {U"inklusive"}},
+    {U"vgl.", {U"vergleiche"}},
+    {U"etc.", {U"et cetera"}},
+    {U"Dr.", {U"Doktor"}},
+    {U"Prof.", {U"Professor"}},
+    {U"Mr.", {U"Mister"}},
+    {U"Mrs.", {U"Misses"}},
+    {U"Ms.", {U"Miss"}},
+    {U"MwSt.", {U"Mehrwertsteuer"}},
+    {U"Mwst.", {U"Mehrwertsteuer"}},
   },
-  .web = {.dot = U"Punkt", .at = U"at", .slash = U"Schrägstrich"}
+  .web = {.dot = U"Punkt", .at = U"at", .slash = U"Schrägstrich", .hyphen = U"Bindestrich", .underscore = U"Unterstrich",
+          .digits = {U"null", U"eins", U"zwei", U"drei", U"vier", U"fünf", U"sechs", U"sieben", U"acht", U"neun"}}
 };
 
 } // namespace verbalis::languages::de

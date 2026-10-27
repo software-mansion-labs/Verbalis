@@ -2,9 +2,12 @@
 
 #include <verbalis/languages/grammar.h>
 #include <verbalis/numbers/formats.h>
+#include <verbalis/steps/normalize.h>
 #include <verbalis/steps/terms.h>
 #include <verbalis/text/readings.h>
+#include <verbalis/text/strings.h>
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <map>
@@ -156,8 +159,35 @@ inline const std::unordered_map<std::u32string, Noun> kScales = {
   {U"tys.", kThousand}, {U"mln", kMillion}, {U"mld", kBillion}
 };
 
+// A noun with an adjective after it, from the adjective's twelve forms: metr kwadratowy, metrów kwadratowych.
+inline Noun qualified(const Noun& base, std::u32string_view adjective) {
+  Noun forms = noun(adjective), result;
+  for (size_t c = 0; c < 6; ++c) {
+    result.singular[c] = base.singular[c] + U" " + forms.singular[c];
+    result.plural[c] = base.plural[c] + U" " + forms.plural[c];
+  }
+  return result;
+}
+
+inline constexpr std::u32string_view kSquare = U"kwadratowy kwadratowego kwadratowemu kwadratowy kwadratowym kwadratowym kwadratowe kwadratowych kwadratowym kwadratowe kwadratowymi kwadratowych";
+inline constexpr std::u32string_view kCubic = U"sześcienny sześciennego sześciennemu sześcienny sześciennym sześciennym sześcienne sześciennych sześciennym sześcienne sześciennymi sześciennych";
+inline const Noun kMetre = masculine(U"metr", U"metrze");
+inline const Noun kKilometre = masculine(U"kilometr", U"kilometrze");
+inline const Noun kCentimetre = masculine(U"centymetr", U"centymetrze");
+inline const Noun kPoint = noun(U"punkt punktu punktowi punkt punktem punkcie punkty punktów punktom punkty punktami punktach");
+
 inline const std::unordered_map<std::u32string, Noun> kUnits = {
-  {U"km", masculine(U"kilometr", U"kilometrze")},   {U"m", masculine(U"metr", U"metrze")},
+  {U"km", kKilometre},   {U"m", kMetre},
+  {U"m²", qualified(kMetre, kSquare)},           {U"m2", qualified(kMetre, kSquare)},
+  {U"km²", qualified(kKilometre, kSquare)},      {U"km2", qualified(kKilometre, kSquare)},
+  {U"cm²", qualified(kCentimetre, kSquare)},     {U"m³", qualified(kMetre, kCubic)},
+  {U"m3", qualified(kMetre, kCubic)},            {U"cm³", qualified(kCentimetre, kCubic)},
+  {U"km/h", qualified(kKilometre, U"na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę|na godzinę")},
+  {U"pkt", kPoint},   {U"pkt.", kPoint},
+  {U"pkt. proc.", qualified(kPoint, U"procentowy procentowego procentowemu procentowy procentowym procentowym procentowe procentowych procentowym procentowe procentowymi procentowych")},
+  {U"pkt proc.", qualified(kPoint, U"procentowy procentowego procentowemu procentowy procentowym procentowym procentowe procentowych procentowym procentowe procentowymi procentowych")},
+  {U"proc.", noun(U"procent procent procentowi procent procentem procencie procent procent procentom procent procentami procentach")},
+  {U"‰", noun(U"promil promila promilowi promil promilem promilu promile promili promilom promile promilami promilach")},
   {U"cm", masculine(U"centymetr", U"centymetrze")}, {U"mm", masculine(U"milimetr", U"milimetrze")},
   {U"nm", masculine(U"nanometr", U"nanometrze")},   {U"kg", masculine(U"kilogram", U"kilogramie")},
   {U"g", masculine(U"gram", U"gramie")},            {U"mg", masculine(U"miligram", U"miligramie")},
@@ -170,7 +200,6 @@ inline const std::unordered_map<std::u32string, Noun> kUnits = {
   {U"Hz", noun(U"herc herca hercowi herc hercem hercu herce herców hercom herce hercami hercach")},
   {U"°C", noun(U"stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza")},
   {U"°", noun(kDegree)},
-  {U"m²", noun(U"metr kwadratowy|metra kwadratowego|metrowi kwadratowemu|metr kwadratowy|metrem kwadratowym|metrze kwadratowym|metry kwadratowe|metrów kwadratowych|metrom kwadratowym|metry kwadratowe|metrami kwadratowymi|metrach kwadratowych")},
   {U"t", noun(U"tona tony tonie tonę toną tonie tony ton tonom tony tonami tonach")},
   {U"h", noun(U"godzina godziny godzinie godzinę godziną godzinie godziny godzin godzinom godziny godzinami godzinach")},
   {U"min", noun(U"minuta minuty minucie minutę minutą minucie minuty minut minutom minuty minutami minutach")},
@@ -270,6 +299,15 @@ inline const std::vector<std::u32string> kFemininePlurals = {
 // Words before a time with a dot, which make it a time: o 18.30
 inline const std::unordered_set<std::u32string> kTimeWords = {
   U"o", U"godzinie", U"godz", U"od", U"do", U"około", U"koło", U"po", U"przed", U"na", U"między", U"za"
+};
+
+// Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
+inline const std::unordered_set<std::u32string_view> kTimeUnits = {U"h", U"min", U"s", U"ms", U"godz.", U"sek."};
+
+// The forms of "godzina", with the case of the hour after them: o godzinie 15 (piętnastej), do godziny 16 (szesnastej)
+inline const std::unordered_map<std::u32string, Case> kHourWords = {
+  {U"godzina", Case::NOMINATIVE}, {U"godziny", Case::GENITIVE}, {U"godzinie", Case::LOCATIVE},
+  {U"godzinę", Case::ACCUSATIVE}, {U"godziną", Case::INSTRUMENTAL}
 };
 
 // Stems of headings: Punkt 3., w punkcie 5.; the ones of kOrdinalHeadings read as ordinals even without a dot
@@ -382,14 +420,137 @@ inline const SuffixFormat kYearFormat = {.space = true, .sentence_dot = true};
 
 using ::verbalis::text::Readings;
 
-inline const Readings kSymbols = {
-  {U"&", {U"and"}},        {U"+", {U"plus"}},           {U"=", {U"równa się"}}, {U"%", {U"procent"}},  {U"°", {U"stopni"}},
-  {U"#", {U""}},           {U"/", {U""}},               {U"²", {U"do kwadratu"}}, {U"³", {U"do sześcianu"}},
-  {U"π", {U"pi"}},         {U"×", {U"razy"}},           {U"€", {U"euro"}},     {U"$", {U"dolarów"}},   {U"@", {U"małpa"}}
+using ::verbalis::steps::Characters;
+
+// Echo's classes, and Polish letters read as Latin-1 from Windows-1250 or ISO 8859-2: zupe³nie -> zupełnie
+inline const Characters kCharacters = {
+  {U"…",                U"..."}, // Ellipsis
+  {U"«»„“”‟˝",          U"\""},  // Quotes
+  {U"‘’‚‛´`ʼ",          U"'"},   // Apostrophes
+  {U"​‌‍﻿", U""}, // Invisible: zero-width space, non-joiner, joiner, byte order mark
+  {U"³", U"ł", true},   {U"£", U"Ł", true},   {U"¹±", U"ą", true},  {U"¥¡", U"Ą", true},
+  {U"œ¶\u009c", U"ś", true}, {U"Œ¦\u008c", U"Ś", true}, {U"¿", U"ż", true}, {U"¯", U"Ż", true},
+  {U"Ÿ¼\u009f", U"ź", true}, {U"\u008f¬", U"Ź", true}, {U"ê", U"ę", true}, {U"Ê", U"Ę", true},
+  {U"æ", U"ć", true},   {U"Æ", U"Ć", true},   {U"ñ", U"ń", true},   {U"Ñ", U"Ń", true}
 };
 
+inline const Readings kSymbols = {
+  {U"&", {U"end"}},        {U"+", {U"plus"}},           {U"=", {U"równa się"}}, {U"%", {U"procent"}},  {U"°", {U"stopni"}},
+  {U"#", {U""}},           {U"/", {U""}},               {U"²", {U"do kwadratu"}}, {U"³", {U"do sześcianu"}},
+  {U"π", {U"pi"}},         {U"×", {U"razy"}},           {U"€", {U"euro"}},     {U"$", {U"dolarów"}},   {U"@", {U"małpa"}},
+  {U"±", {U"plus minus"}}, {U"‰", {U"promili"}},        {U"§", {U"paragraf"}}
+};
+
+using ::verbalis::text::before_name;
 using ::verbalis::text::before_number;
+using ::verbalis::text::Condition;
+using ::verbalis::text::Context;
+using ::verbalis::text::Reading;
 using ::verbalis::steps::Terms;
+
+// Prepositions before an inflected abbreviation, by the case they give it: przy ul. Długiej, od ul. Długiej
+inline const std::unordered_set<std::u32string> kLocativeWords = {U"w", U"we", U"na", U"o", U"po", U"przy"};
+inline const std::unordered_set<std::u32string> kGenitiveWords = {
+  U"od", U"do", U"z", U"ze", U"u", U"obok", U"koło", U"około", U"ok", U"wzdłuż", U"dla", U"spod", U"sprzed", U"zza",
+  U"naprzeciwko", U"blisko", U"niedaleko", U"wokół", U"bez", U"róg", U"rogu", U"okolicach", U"okolice",
+  // A title after the name of a street or a patron: ul. ks. Popiełuszki, im. prof. Nowaka
+  U"ul", U"al", U"pl", U"os", U"ulica", U"ulicy", U"aleja", U"alei", U"plac", U"placu", U"im", U"imienia", U"pw"};
+inline const std::unordered_set<std::u32string> kInstrumentalWords = {U"pod", U"nad", U"przed", U"między", U"pomiędzy"};
+
+/**
+ * The case of an abbreviated noun: from the preposition before it, or the ending of the word after it.
+ * skręć w ul. Długą (accusative), idź ul. Długą (instrumental), przy ul. Długiej (locative), z prof. Nowakiem
+ * (instrumental), do dyr. Kowalskiego (genitive). A comma or a bracket right before it ends the phrase of the word
+ * before: Camping Plus sp. z o. o., ul. Kuropatwia
+ */
+inline Case abbreviation_case(const Context& context) {
+  std::u32string_view head = context.head();
+  size_t last = head.find_last_not_of(U"  ");
+  bool clause = last != std::u32string_view::npos && ::verbalis::text::strings::contains(std::u32string_view(U",;:()[]\""), head[last]);
+  std::u32string before = clause ? U"" : context.before();
+  std::u32string next = ::verbalis::text::strings::to_lower(context.after());
+  if (next.ends_with(U"ą")) {
+    return before == U"w" || before == U"we" || before == U"na" ? Case::ACCUSATIVE : Case::INSTRUMENTAL;
+  }
+  if (kLocativeWords.contains(before)) {
+    return Case::LOCATIVE;
+  }
+  bool along = before == U"z" && context.before(2) == U"zgodnie"; // zgodnie z art. 5
+  if (along || kInstrumentalWords.contains(before) || next.ends_with(U"em") || next.ends_with(U"im") ||
+      next.ends_with(U"ym")) {
+    return Case::INSTRUMENTAL;
+  }
+  if (next.ends_with(U"owi") || next.ends_with(U"emu")) {
+    return Case::DATIVE;
+  }
+  if (kGenitiveWords.contains(before) || next.ends_with(U"ego") || next.ends_with(U"ej")) {
+    return Case::GENITIVE;
+  }
+  return Case::NOMINATIVE;
+}
+
+// The readings of an abbreviated noun from its six forms (in the order of Case), separated by "|"; each one only when
+// a condition holds, if any
+inline std::vector<Reading> declined(std::u32string_view forms, Condition when = nullptr) {
+  std::vector<Reading> readings;
+  size_t start = forms.find(U'|') + 1;
+  for (int c = 1; c < 6; ++c) {
+    size_t end = std::min(forms.find(U'|', start), forms.size());
+    readings.emplace_back(std::u32string(forms.substr(start, end - start)), [c, when](const Context& context) {
+      return (!when || when(context)) && abbreviation_case(context) == static_cast<Case>(c);
+    });
+    start = end + 1;
+  }
+  readings.emplace_back(std::u32string(forms.substr(0, forms.find(U'|'))), when);
+  return readings;
+}
+
+// The readings of an abbreviation which mostly ends a sentence, with its dot when a capitalized word follows: itd. Potem
+inline std::vector<Reading> closing(std::u32string words) {
+  return {{words + U".", before_name}, {words}};
+}
+
+// Between numbers: the "m." of mieszkanie in ul. Mickiewicza 3 m. 4
+inline bool after_number_before_number(const Context& context) {
+  std::u32string before = context.before();
+  return before_number(context) && !before.empty() && ::verbalis::text::unicode::isdigit(before.back());
+}
+
+// The word after it ends with one of given endings (lowercase): św. Anny
+inline Condition before_ending(std::vector<std::u32string> endings) {
+  return [endings = std::move(endings)](const Context& context) {
+    std::u32string next = ::verbalis::text::strings::to_lower(context.after());
+    return std::ranges::any_of(endings, [&next](const auto& ending) { return next.ends_with(ending); });
+  };
+}
+
+// The word before it is one of given words (lowercase): Msza św.
+inline Condition after_word(std::unordered_set<std::u32string> words) {
+  return [words = std::move(words)](const Context& context) { return words.contains(context.before()); };
+}
+
+// Saints whose names end with -a in the nominative (św. Anna), unlike the genitive of the others (św. Jana)
+inline const std::unordered_set<std::u32string> kFemaleSaints = {
+  U"anna", U"maria", U"barbara", U"teresa", U"katarzyna", U"jadwiga", U"faustyna", U"małgorzata", U"elżbieta",
+  U"zofia", U"agnieszka", U"kinga", U"łucja", U"monika", U"cecylia", U"helena", U"weronika", U"rozalia", U"klara",
+  U"joanna", U"magdalena", U"urszula", U"marta", U"brygida", U"apolonia", U"genowefa"
+};
+
+// św. after a noun it describes (Msza św.), then before the name of a saint, by its ending
+inline const std::vector<Reading> kSaint = {
+  {U"święta", after_word({U"msza"})},
+  {U"świętej", after_word({U"mszy"})},
+  {U"świętą", after_word({U"mszę", U"mszą"})},
+  {U"święte", after_word({U"pismo"})},
+  {U"świętego", after_word({U"pisma"})},
+  {U"świętej", before_ending({U"y", U"i"})},
+  {U"święta", [](const Context& context) { return kFemaleSaints.contains(::verbalis::text::strings::to_lower(context.after())); }},
+  {U"świętego", before_ending({U"a", U"ego"})},
+  {U"świętą", before_ending({U"ą", U"ę"})},
+  {U"świętym", before_ending({U"em", U"im", U"ym"})},
+  {U"świętemu", before_ending({U"owi", U"emu"})},
+  {U"święty"}
+};
 
 inline const Terms kTerms = {
   .abbreviations = {
@@ -399,20 +560,89 @@ inline const Terms kTerms = {
     {U"nr.", {{U"numer", before_number}}},
     {U"ust.", {{U"ustęp", before_number}}},
     {U"pkt", {{U"punkt", before_number}}},
-    {U"art.", {{U"artykuł", before_number}}},
-    {U"str.", {{U"strona", before_number}}},
+    {U"pkt.", {{U"punkt", before_number}}},
+    {U"art.", declined(U"artykuł|artykułu|artykułowi|artykuł|artykułem|artykule", before_number)},
+    {U"str.", declined(U"strona|strony|stronie|stronę|stroną|stronie", before_number)},
     {U"poz.", {{U"pozycja", before_number}}},
     {U"ok.", {{U"około", before_number}}},
+    {U"Ok.", {{U"Około", before_number}}},
+    {U"lok.", {{U"lokal", before_number}}},
+    {U"m.", {{U"mieszkanie", after_number_before_number}}}, // ul. Mickiewicza 3 m. 4
+    {U"#", {{U"numer", before_number}}},
+    {U"§", declined(U"paragraf|paragrafu|paragrafowi|paragraf|paragrafem|paragrafie", before_number)},
+    // Inflected nouns: przy ul. Długiej, z prof. Nowakiem
+    {U"ul.", declined(U"ulica|ulicy|ulicy|ulicę|ulicą|ulicy")},
+    {U"Ul.", declined(U"Ulica|Ulicy|Ulicy|Ulicę|Ulicą|Ulicy")},
+    {U"al.", declined(U"aleja|alei|alei|aleję|aleją|alei", before_name)},
+    {U"Al.", declined(U"Aleje|Alej|Alejom|Aleje|Alejami|Alejach", before_name)},
+    {U"pl.", declined(U"plac|placu|placowi|plac|placem|placu", before_name)},
+    {U"os.", declined(U"osiedle|osiedla|osiedlu|osiedle|osiedlem|osiedlu", before_name)},
+    {U"godz.", declined(U"godzina|godziny|godzinie|godzinę|godziną|godzinie")},
+    {U"Godz.", declined(U"Godzina|Godziny|Godzinie|Godzinę|Godziną|Godzinie")},
+    {U"w godz.", {U"w godzinach"}}, // w godz. 8-16
+    {U"W godz.", {U"W godzinach"}},
+    {U"tel.", declined(U"telefon|telefonu|telefonowi|telefon|telefonem|telefonie")},
+    {U"Tel.", declined(U"Telefon|Telefonu|Telefonowi|Telefon|Telefonem|Telefonie")},
+    {U"dr", declined(U"doktor|doktora|doktorowi|doktora|doktorem|doktorze")},
+    {U"dr.", declined(U"doktor|doktora|doktorowi|doktora|doktorem|doktorze")},
+    {U"prof.", declined(U"profesor|profesora|profesorowi|profesora|profesorem|profesorze")},
+    {U"Prof.", declined(U"Profesor|Profesora|Profesorowi|Profesora|Profesorem|Profesorze")},
+    {U"Dr", declined(U"Doktor|Doktora|Doktorowi|Doktora|Doktorem|Doktorze")},
+    {U"Ks.", declined(U"Ksiądz|Księdza|Księdzu|Księdza|Księdzem|Księdzu")},
+    {U"Gen.", declined(U"Generał|Generała|Generałowi|Generała|Generałem|Generale")},
+    {U"mgr", declined(U"magister|magistra|magistrowi|magistra|magistrem|magistrze")},
+    {U"inż.", declined(U"inżynier|inżyniera|inżynierowi|inżyniera|inżynierem|inżynierze")},
+    {U"dyr.", declined(U"dyrektor|dyrektora|dyrektorowi|dyrektora|dyrektorem|dyrektorze")},
+    {U"gen.", declined(U"generał|generała|generałowi|generała|generałem|generale")},
+    {U"płk", declined(U"pułkownik|pułkownika|pułkownikowi|pułkownika|pułkownikiem|pułkowniku")},
+    {U"ks.", declined(U"ksiądz|księdza|księdzu|księdza|księdzem|księdzu")},
+    {U"św.", kSaint},
+    {U"hab.", {U"habilitowany"}},
+    // tzw. by the ending of the noun after it; -ie is mostly the dative or locative of a feminine noun (strefie)
+    {U"tzw.", {{U"tak zwana", before_ending({U"a"})}, {U"tak zwaną", before_ending({U"ą"})},
+               {U"tak zwanego", before_ending({U"ego", U"u"})}, {U"tak zwanej", before_ending({U"ej", U"ie"})},
+               {U"tak zwanych", before_ending({U"ych", U"ów"})}, {U"tak zwanym", before_ending({U"ym"})},
+               {U"tak zwane", before_ending({U"e", U"o"})}, {U"tak zwany"}}},
     // Anywhere
     {U"np.", {U"na przykład"}},
-    {U"itd.", {U"i tak dalej"}},
-    {U"itp.", {U"i tym podobne"}},
+    {U"Np.", {U"Na przykład"}},
+    {U"itd.", closing(U"i tak dalej")},
+    {U"itp.", closing(U"i tym podobne")},
     {U"tzn.", {U"to znaczy"}},
     {U"tj.", {U"to jest"}},
     {U"m.in.", {U"między innymi"}},
+    {U"M.in.", {U"Między innymi"}},
     {U"wg", {U"według"}},
+    {U"Wg", {U"Według"}},
+    {U"wg.", {U"według"}},
+    {U"Wg.", {U"Według"}},
+    {U"ds.", {U"do spraw"}},
+    {U"im.", {{U"imienia", before_name}}},
+    {U"pt.", {{U"pod tytułem", before_name}}},
+    {U"nt.", {U"na temat"}},
+    {U"ws.", {U"w sprawie"}},
+    {U"pw.", {U"pod wezwaniem"}},
+    {U"zob.", {U"zobacz"}},
+    {U"Zob.", {U"Zobacz"}},
+    {U"dn.", {U"dnia"}},
+    {U"br.", closing(U"bieżącego roku")},
+    {U"ub.r.", closing(U"ubiegłego roku")},
+    {U"ub. r.", closing(U"ubiegłego roku")},
+    {U"p.n.e.", closing(U"przed naszą erą")},
+    {U"n.e.", closing(U"naszej ery")},
+    {U"nr tel.", {U"numer telefonu"}},
+    {U"Nr tel.", {U"Numer telefonu"}},
+    {U"tel. kom.", {U"telefon komórkowy"}},
+    {U"Tel. kom.", {U"Telefon komórkowy"}},
+    {U"sp. z o.o.", closing(U"spółka z ograniczoną odpowiedzialnością")},
+    {U"Sp. z o.o.", closing(U"Spółka z ograniczoną odpowiedzialnością")},
+    {U"sp. z o. o.", closing(U"spółka z ograniczoną odpowiedzialnością")},
+    {U"Sp. z o. o.", closing(U"Spółka z ograniczoną odpowiedzialnością")},
+    {U"z o.o.", closing(U"z ograniczoną odpowiedzialnością")},
+    {U"S.A.", closing(U"Spółka Akcyjna")},
   },
-  .web = {.dot = U"kropka", .at = U"małpa", .slash = U"ukośnik"}
+  .web = {.dot = U"kropka", .at = U"małpa", .slash = U"ukośnik", .hyphen = U"myślnik", .underscore = U"podkreślnik",
+          .digits = {U"zero", U"jeden", U"dwa", U"trzy", U"cztery", U"pięć", U"sześć", U"siedem", U"osiem", U"dziewięć"}}
 };
 
 } // namespace verbalis::languages::pl
