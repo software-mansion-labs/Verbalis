@@ -202,7 +202,7 @@ export const NOTATION = notation({
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 export const JOINERS: Joiners = {
   point: "Komma", dot: "Punkt", range: " bis ", by: "mal", score: " zu ", minus: "minus", plus: "plus",
-  fraction: " ",
+  fraction: " ", rating: "von",
 };
 
 // 1.5.2024, 1.5., 12. 3.: the year is optional, a dot closes the month

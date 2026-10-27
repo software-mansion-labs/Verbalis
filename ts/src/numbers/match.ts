@@ -15,22 +15,23 @@ export const Kind = {
   RANGE: 6, // the "-" of 10-15 and 2020-2022
   DIMENSION: 7, // the "x" of 1920x1080 and 3 m x 4 m
   SIGN: 8, // the minus of -5: before FRACTION, which reads its digits (-1/3)
-  FRACTION: 9, // 3/4
-  TIME: 10, // 18:30, 7pm, 18 Uhr, 21h30
-  SCORE: 11, // the ":" of 2:1
+  RATING: 9, // the "/" of 4,2/5 and 4.5/10: before FRACTION, which would take 2/5
+  FRACTION: 10, // 3/4
+  TIME: 11, // 18:30, 7pm, 18 Uhr, 21h30
+  SCORE: 12, // the ":" of 2:1
   // Numbers with what they count
-  MONEY: 12, // $5, 12,99 zł, 10-15 €, 3 mln zł
-  SCALE: 13, // 3 mln, 500k, 1.5 million
-  PERCENT: 14, // 20%, 10-15%, 8%ige
-  UNIT: 15, // 5 kg, 10-15 km
+  MONEY: 13, // $5, 12,99 zł, 10-15 €, 3 mln zł
+  SCALE: 14, // 3 mln, 500k, 1.5 million
+  PERCENT: 15, // 20%, 10-15%, 8%ige
+  UNIT: 16, // 5 kg, 10-15 km
   // Numbers marked by a suffix or joined to letters
-  ORDINAL: 16, // 21st, 3., 1er, 1º
-  DECADE: 17, // 1990s, 90er, '80
-  ROMAN: 18, // Henry VIII, XXI wieku, Kapitel III: read only where the words around it mark it as a number
-  COMPOUND: 19, // 21-year-old, 45-metrowe
-  CODE: 20, // MP3, A380, COVID-19
+  ORDINAL: 17, // 21st, 3., 1er, 1º
+  DECADE: 18, // 1990s, 90er, '80
+  ROMAN: 19, // Henry VIII, XXI wieku, Kapitel III: read only where the words around it mark it as a number
+  COMPOUND: 20, // 21-year-old, 45-metrowe
+  CODE: 21, // MP3, A380, COVID-19
   // Any other number
-  NUMBER: 21, // 42, 1 000,5, .5, 2020 r.
+  NUMBER: 22, // 42, 1 000,5, .5, 2020 r.
 } as const;
 export type Kind = (typeof Kind)[keyof typeof Kind];
 

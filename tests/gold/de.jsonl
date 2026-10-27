@@ -68,9 +68,9 @@
 {"lang": "de", "source": "nemo", "class": "decimal", "input": "10 millionen", "outputs": ["zehn millionen"]}
 {"lang": "de", "source": "nemo", "class": "decimal", "input": "-60,2400", "outputs": ["minus sechzig komma zwei vier null null"]}
 {"lang": "de", "source": "nemo", "class": "decimal", "input": "818,303", "outputs": ["acht hundert achtzehn komma drei null drei"]}
-{"lang": "de", "source": "nemo", "class": "decimal", "input": "1,2,3", "outputs": ["eins , zwei komma drei"]}
-{"lang": "de", "source": "nemo", "class": "decimal", "input": "1,2,3,4", "outputs": ["eins komma zwei , drei komma vier"]}
-{"lang": "de", "source": "nemo", "class": "decimal", "input": "1,2,3,4,5", "outputs": ["eins , zwei komma drei , vier komma fünf"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "1,2,3", "outputs": ["eins , zwei komma drei"], "out_of_scope": "A list of numbers joined by commas, which gold reads as decimals paired from the right; the reading depends on what the list means."}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "1,2,3,4", "outputs": ["eins komma zwei , drei komma vier"], "out_of_scope": "A list of numbers joined by commas, which gold reads as decimals paired from the right; the reading depends on what the list means."}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "1,2,3,4,5", "outputs": ["eins , zwei komma drei , vier komma fünf"], "out_of_scope": "A list of numbers joined by commas, which gold reads as decimals paired from the right; the reading depends on what the list means."}
 {"lang": "de", "source": "nemo", "class": "electronic", "input": "cdf@abc.edu", "outputs": ["c d f at a b c punkt edu"]}
 {"lang": "de", "source": "nemo", "class": "electronic", "input": "abc@gmail.abc", "outputs": ["a b c at g mail punkt a b c"]}
 {"lang": "de", "source": "nemo", "class": "electronic", "input": "abc@abc.com", "outputs": ["a b c at a b c punkt com"]}
@@ -82,7 +82,7 @@
 {"lang": "de", "source": "nemo", "class": "electronic", "input": "brettspielversand.de.", "outputs": ["brettspielversand punkt de."]}
 {"lang": "de", "source": "nemo", "class": "electronic", "input": "www.enveedya.net.", "outputs": ["w w w punkt e n v e e d y a punkt net."]}
 {"lang": "de", "source": "nemo", "class": "electronic", "input": "www.amazon.com.de.", "outputs": ["w w w punkt amazon punkt com punkt de."]}
-{"lang": "de", "source": "nemo", "class": "electronic", "input": "https://www.abc.com/ab?=3-/abs/1", "outputs": ["h t t p s doppelpunkt slash slash w w w punkt a b c punkt com slash a b fragezeichen gleichheitszeichen drei bindestrich slash a b s slash eins"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "https://www.abc.com/ab?=3-/abs/1", "outputs": ["h t t p s doppelpunkt slash slash w w w punkt a b c punkt com slash a b fragezeichen gleichheitszeichen drei bindestrich slash a b s slash eins"], "out_of_scope": "A URL with a query, which gold reads with its scheme and spelled letters."}
 {"lang": "de", "source": "nemo", "class": "electronic", "input": "@jensen", "outputs": ["at j e n s e n"]}
 {"lang": "de", "source": "nemo", "class": "electronic", "input": "@jensen.me", "outputs": ["at j e n s e n punkt m e"]}
 {"lang": "de", "source": "nemo", "class": "electronic", "input": "@wezyr1986", "outputs": ["at w e z y r eins neun acht sechs"]}
@@ -184,15 +184,15 @@
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "C24", "outputs": ["C24", "C vierundzwanzig"]}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1970-2010", "outputs": ["1970-2010", "neunzehnhundertsiebzig bis zweitausendzehn"]}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "W26s", "outputs": ["W26s", "W sechsundzwanzig s"]}
-{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "5-3-Ws", "outputs": ["5-3-Ws"]}
-{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "401-ks", "outputs": ["401-ks"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "5-3-Ws", "outputs": ["5-3-Ws"], "out_of_scope": "Gold leaves the digits as written, which a front end for speech can't do."}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "401-ks", "outputs": ["401-ks"], "out_of_scope": "Gold leaves the digits as written, which a front end for speech can't do."}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "The box was 25 x 7 m.", "outputs": ["The box was 25 x 7 m.", "The box was fünfundzwanzig mal sieben Meter."]}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "4567", "outputs": ["4567", "viertausendfünfhundertsiebenundsechzig"]}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "$2,20", "outputs": ["zwei us dollar zwanzig", "zwei dollar und zwanzig cent", "zwei us dollar und zwanzig cent", "zwei us dollar zwanzig cent", "zwei dollar zwanzig", "zwei dollar zwanzig cent"]}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "25.]", "outputs": ["25 . ]", "25. ]", "fünf und zwanzigster ]", "fünfundzwanzig.]"]}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "Francis I--test", "outputs": ["Francis I--test"]}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "librivox.com", "outputs": ["librivox.com", "l i b r i v o x punkt com", "l i b r i v o x punkt c o m"]}
-{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1,000,123", "outputs": ["1,000,123"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1,000,123", "outputs": ["1,000,123"], "out_of_scope": "Gold leaves the digits as written, which a front end for speech can't do."}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1980", "outputs": ["neunzehn achtzig", "ein tausend neun hundert achtzig", "neunzehn hundert achtzig", "eine tausend neun hundert achtzig", "ein tausend neun hundert und achtzig", "eine tausend neun hundert und achtzig"]}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "02.03.2003", "outputs": ["zweiter dritter zwanzig drei", "zweiter märz zwei tausend drei", "zweiter dritter zwei tausend drei", "zweiter märz zwanzig drei"]}
 {"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "abc@gmail.abc", "outputs": ["a b c at g mail punkt a b c", "a b c at g m a i l punkt a b c"]}

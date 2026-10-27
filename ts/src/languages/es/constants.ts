@@ -262,7 +262,7 @@ export const NOTATION = notation({
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 export const JOINERS: Joiners = {
   point: "punto", dot: "punto", range: "-", by: "por", score: " a ", minus: "menos", plus: "más",
-  fraction: " y ", half: " y medio",
+  fraction: " y ", half: " y medio", rating: "sobre",
 };
 
 // 14/07/2023, 31/12/99

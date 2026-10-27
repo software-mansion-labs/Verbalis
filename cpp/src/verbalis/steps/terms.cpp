@@ -83,9 +83,21 @@ void TermReader::apply(Document& document) const {
   std::u32string_view text = document.text();
 
   for (size_t position = 0; position < text.size();) {
-    // Terms start at word boundaries, but not after a dot: e.g. is not g.
+    // Terms start at word boundaries, but not after a dot: e.g. is not g.; a URL also right after a word, from
+    // which a space parts it, read if complete (Councilhttps://www2.example.com) or else as written
     std::optional<Term> term;
-    if (is_clear_before(text, position, U".")) {
+    bool scheme = text.substr(position).starts_with(U"http://") || text.substr(position).starts_with(U"https://");
+    if (scheme && position > 0 && unicode::isalnum(text[position - 1])) {
+      term = read_address(text, position);
+      if (!term) {
+        size_t end = position;
+        while (end < text.size() && !unicode::isspace(text[end])) {
+          end++;
+        }
+        term = Term{.span = {position, end}, .words = std::u32string(text.substr(position, end - position))};
+      }
+      term->words = U" " + term->words;
+    } else if (is_clear_before(text, position, U".")) {
       term = read_uuid(text, position);
       if (!term) {
         term = read_address(text, position);
@@ -148,7 +160,11 @@ std::optional<TermReader::Term> TermReader::read_address(std::u32string_view tex
   while (host < text.size() && unicode::is_latin(text[host])) {
     host++;
   }
-  bool scheme = host > position && text.substr(host).starts_with(U"://");
+  // A known scheme only: in Councilhttps://, the word before isn't part of it
+  static const std::unordered_set<std::u32string> schemes = {U"http", U"https", U"ftp", U"sftp",
+                                                             U"file", U"ws",    U"wss"};
+  bool scheme = text.substr(host).starts_with(U"://") &&
+                schemes.contains(strings::to_lower(text.substr(position, host - position)));
   host = scheme ? host + 3 : position;
 
   // 2. The user of an email: jan.kowalski@

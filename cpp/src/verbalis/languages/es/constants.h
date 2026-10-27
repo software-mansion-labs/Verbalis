@@ -243,7 +243,7 @@ inline const Notation kNotation = {
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
   .point = U"punto", .dot = U"punto", .range = U"-", .by = U"por", .score = U" a ", .minus = U"menos", .plus = U"más",
-  .fraction = U" y ", .half = U" y medio"
+  .fraction = U" y ", .half = U" y medio", .rating = U"sobre"
 };
 
 // 14/07/2023, 31/12/99, 15/06

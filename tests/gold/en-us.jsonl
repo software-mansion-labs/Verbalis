@@ -30,7 +30,7 @@
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "july 25 2012", "outputs": ["july twenty fifth twenty twelve"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "jul 25 2012", "outputs": ["july twenty fifth twenty twelve"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "1980s", "outputs": ["nineteen eighties"]}
-{"lang": "en-us", "source": "nemo", "class": "date", "input": "1980 s", "outputs": ["nineteen eighties"]}
+{"lang": "en-us", "source": "nemo", "class": "date", "input": "1980 s", "outputs": ["nineteen eighties"], "out_of_scope": "A space before the s of a decade; reading it as a decade would also read 5 s (seconds) wrongly."}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "25 july 2012", "outputs": ["the twenty fifth of july twenty twelve"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "25 jul 2012", "outputs": ["the twenty fifth of july twenty twelve"]}
 {"lang": "en-us", "source": "nemo", "class": "date", "input": "22 july 2012", "outputs": ["the twenty second of july twenty twelve"]}
@@ -106,10 +106,10 @@
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "ab3.sdd.3@gmail.com", "outputs": ["ab three dot sdd dot three at gmail dot com"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "email is abc1@gmail.com", "outputs": ["email is abc one at gmail dot com"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "abs@nvidia.com", "outputs": ["abs at NVIDIA dot com"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "email is a-1.b3_c&-d@gma4i-l.com test", "outputs": ["email is a dash one dot b three underscore c ampersand dash d at gma four i dash l dot com test"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "email is a-1.b3_c&-d@gma4i-l.com test", "outputs": ["email is a dash one dot b three underscore c ampersand dash d at gma four i dash l dot com test"], "out_of_scope": "Malformed or garbled input, with no single reading a speaker would give."}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "nvidia.com", "outputs": ["nvidia dot com"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "test.com", "outputs": ["test dot com"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "test.abc", "outputs": ["test dot abc"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "test.abc", "outputs": ["test dot abc"], "out_of_scope": "A name with an unknown top-level domain, which reads like a file name."}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "http://www.ourdailynews.com.sm", "outputs": ["HTTP colon slash slash WWW dot ourdailynews dot com dot SM", "w w w dot ourdailynews dot com dot sm"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://www.ourdailynews.com.sm", "outputs": ["HTTPS colon slash slash WWW dot ourdailynews dot com dot SM", "w w w dot ourdailynews dot com dot sm"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "www.ourdailynews.com.sm", "outputs": ["WWW dot ourdailynews dot com dot SM"]}
@@ -119,7 +119,7 @@
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "sdf@gmail.abc/123-sm", "outputs": ["sdf at gmail dot ABC slash one two three dash SM"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "sdf@gmail.abc/123456-sm", "outputs": ["sdf at gmail dot ABC slash one two three four five six dash SM"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "ourdailynews.com/12-sm", "outputs": ["ourdailynews dot com slash one two dash sm"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "ourdailynews.abc", "outputs": ["ourdailynews dot abc"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "ourdailynews.abc", "outputs": ["ourdailynews dot abc"], "out_of_scope": "A name with an unknown top-level domain, which reads like a file name."}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "file:///c/code/NeMo/docs/build/html/processing/intro.html", "outputs": ["file colon slash slash slash c slash code slash nemo slash docs slash build slash html slash processing slash intro dot HTML"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "file:///photos/image.jpg", "outputs": ["file colon slash slash slash photos slash image dot jpeg", "file colon slash slash slash photos slash image dot jpg"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "electronic test.com and test2.uk", "outputs": ["electronic test dot com and test two dot UK"]}
@@ -148,11 +148,11 @@
 {"lang": "en-us", "source": "nemo", "class": "fraction", "input": "31/32", "outputs": ["thirty one thirty seconds"]}
 {"lang": "en-us", "source": "nemo", "class": "fraction", "input": "22/3", "outputs": ["twenty two thirds"]}
 {"lang": "en-us", "source": "nemo", "class": "fraction", "input": "1/3", "outputs": ["one third"]}
-{"lang": "en-us", "source": "nemo", "class": "fraction", "input": "2 142/1", "outputs": ["two and one hundred forty two over one"]}
+{"lang": "en-us", "source": "nemo", "class": "fraction", "input": "2 142/1", "outputs": ["two and one hundred forty two over one"], "out_of_scope": "A bare a/b or fragment without a cue; its reading depends on what it means (date, score, ratio, code)."}
 {"lang": "en-us", "source": "nemo", "class": "fraction", "input": "1/2", "outputs": ["one half"]}
 {"lang": "en-us", "source": "nemo", "class": "fraction", "input": "2 1/2", "outputs": ["two and a half"]}
 {"lang": "en-us", "source": "nemo", "class": "fraction", "input": "3 5/2", "outputs": ["three and five halves"]}
-{"lang": "en-us", "source": "nemo", "class": "fraction", "input": "1795 / 1805", "outputs": ["one thousand seven hundred ninety five one thousand eight hundred fifths"]}
+{"lang": "en-us", "source": "nemo", "class": "fraction", "input": "1795 / 1805", "outputs": ["one thousand seven hundred ninety five one thousand eight hundred fifths"], "out_of_scope": "A bare a/b or fragment without a cue; its reading depends on what it means (date, score, ratio, code)."}
 {"lang": "en-us", "source": "nemo", "class": "math", "input": "1-2=5", "outputs": ["one minus two equals five"]}
 {"lang": "en-us", "source": "nemo", "class": "math", "input": "1- 2 = 5", "outputs": ["one minus two equals five"]}
 {"lang": "en-us", "source": "nemo", "class": "math", "input": "y=x +1", "outputs": ["y equals x plus one"]}
@@ -174,7 +174,7 @@
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "2°C", "outputs": ["two degrees Celsius"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "1°C", "outputs": ["one degree Celsius"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "1234-123kg", "outputs": ["one thousand two hundred and thirty four to one hundred and twenty three kilograms", "one thousand two hundred thirty-four to one hundred twenty-three kilograms"]}
-{"lang": "en-us", "source": "nemo", "class": "measure", "input": "45º&C", "outputs": ["forty five degree and C"]}
+{"lang": "en-us", "source": "nemo", "class": "measure", "input": "45º&C", "outputs": ["forty five degree and C"], "out_of_scope": "Malformed or garbled input, with no single reading a speaker would give."}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "41,459.00 km³", "outputs": ["forty one thousand four hundred and fifty nine point zero zero cubic kilometers", "forty-one thousand four hundred fifty-nine point zero zero cubic kilometers"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "Nancy lived on 1428 Elm St.", "outputs": ["Nancy lived on fourteen twenty eight Elm Street"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "Nancy lived on 1428 Elm St. It was a strange place.", "outputs": ["Nancy lived on fourteen twenty eight Elm Street. It was a strange place."]}
@@ -251,7 +251,7 @@
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "They bought 23 books for $123.02.", "outputs": ["They bought twenty three books for one hundred twenty three dollars and two cents.", "They bought twenty three books for one hundred twenty three dollars two cents."]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "$1.01", "outputs": ["one dollar and one cent", "one us dollar one cent", "one dollar one cent"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "1.24", "outputs": ["one point two four", "one point twenty four"]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "~1/24", "outputs": ["january twenty four", "the twenty fourth of january", "january twenty fourth"]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "~1/24", "outputs": ["january twenty four", "the twenty fourth of january", "january twenty fourth"], "out_of_scope": "A bare a/b or fragment without a cue; its reading depends on what it means (date, score, ratio, code)."}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "$1.21", "outputs": ["one dollar and twenty one cents", "one dollar twenty one cents"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "£1.00", "outputs": ["one pound"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "t-0t25d12-f", "outputs": ["t-oh t twenty five d one two-f", "t-oh t two five d one two-f", "t-zero t twenty five d twelve-f"]}
@@ -262,7 +262,7 @@
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "It seemed to her that the jacket Oswald wore was darker than Commission Exhibit No. 162.", "outputs": ["It seemed to her that the jacket Oswald wore was darker than Commission Exhibit number one hundred sixty two.", "It seemed to her that the jacket Oswald wore was darker than Commission Exhibit number one hundred and sixty two.", "It seemed to her that the jacket Oswald wore was darker than Commission Exhibit number one six two."]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "\"Father, let this cup pass.\" He prayed was heard. What cup was it that passed away from him? Sure not the death-cup, now filled to the brim! There was no quailing in the awful word; He still was king of kings, of lords the lord: He feared lest, in the suffering waste and grim, His faith might grow too faint and sickly dim.\"", "outputs": ["\"Father, let this cup pass.\" He prayed was heard. What cup was it that passed away from him? Sure not the death-cup, now filled to the brim! There was no quailing in the awful word; He still was king of kings, of lords the lord: He feared lest, in the suffering waste and grim, His faith might grow too faint and sickly dim.\""]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "1970-2010", "outputs": ["nineteen seventy-twenty ten", "one thousand nine hundred and seventy-two thousand ten", "one thousand nine hundred and seventy-twenty ten", "nineteen seventy to twenty ten", "one thousand nine hundred seventy to two thousand ten"]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "W26s", "outputs": ["W twenty six s", "W two six s"]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "W26s", "outputs": ["W twenty six s", "W two six s"], "out_of_scope": "Letters, digits, and a plural s read as the plural of a model (F-16s, B52s); gold reads the s alone."}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "5-3-Ws", "outputs": ["five-three-Ws"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "401-ks", "outputs": ["four oh one-ks", "four hundred one-ks"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "The box was 25 x 7 m.", "outputs": ["The box was twenty five by seven meters."]}
@@ -288,9 +288,9 @@
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "0.004", "outputs": ["zero point zero zero four", "oh point oh oh four"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "[0.4] and [5 and 4]", "outputs": ["[zero point four] and [five and four]"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "Henry III.", "outputs": ["Henry three.", "Henry the third."]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "for Tu (2/22) at 5 pm.", "outputs": ["for Tuesday (the twenty second of february) at five PM.", "for Tuesday (two divided by twenty two) at five PM.", "for Tuesday (february twenty second) at five PM.", "for Tuesday (two/two two) at five PM.", "for Tuesday (two twenty seconds) at five PM.", "for Tuesday (two/twenty two) at five PM.", "for Tuesday (february twenty two) at five PM."]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "for Tu (2/22) at 5 pm.", "outputs": ["for Tuesday (the twenty second of february) at five PM.", "for Tuesday (two divided by twenty two) at five PM.", "for Tuesday (february twenty second) at five PM.", "for Tuesday (two/two two) at five PM.", "for Tuesday (two twenty seconds) at five PM.", "for Tuesday (two/twenty two) at five PM.", "for Tuesday (february twenty two) at five PM."], "out_of_scope": "A bare a/b or fragment without a cue; its reading depends on what it means (date, score, ratio, code)."}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "12\"", "outputs": ["twelve inches", "twelve\""]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "Sam I", "outputs": ["Sam first", "Sam the first"]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "Sam I", "outputs": ["Sam first", "Sam the first"], "out_of_scope": "A name and a Roman numeral as the whole text; in running text these are mostly other words."}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2*8", "outputs": ["two times eight", "two asterisk eight"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2-8", "outputs": ["two minus eight", "two to eight"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2:8", "outputs": ["two to eight"]}
@@ -346,7 +346,7 @@
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "April 29th’s meeting", "outputs": ["april twenty ninth’s meeting"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "?,", "outputs": ["?,"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "?,no", "outputs": ["?,no"]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "I've 20' and 14/ they're I'm 16c.", "outputs": ["I've twenty ' and fourteen slash they're I'm sixteen c."]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "I've 20' and 14/ they're I'm 16c.", "outputs": ["I've twenty ' and fourteen slash they're I'm sixteen c."], "out_of_scope": "Malformed or garbled input, with no single reading a speaker would give."}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "He's and I'm and Müller's and d'être", "outputs": ["He's and I'm and Müller's and d'être"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "here (4 June 2014). and", "outputs": ["here (the fourth of june twenty fourteen). and"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "``He's 50 and 2010``.", "outputs": ["\"He's fifty and twenty ten\"."]}
@@ -362,14 +362,14 @@
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "\"12's and 3'sssssss\"", "outputs": ["\"twelve's and three ' sssssss\""]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "This is ABC 'second ", "outputs": ["This is ABC 'second"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "``text 7`` text ``.", "outputs": ["\"text seven\" text \"."]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "\"text 7\" text \".", "outputs": ["\"text seven inches text\"."]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "\"text 7\" text \".", "outputs": ["\"text seven inches text\"."], "out_of_scope": "Gold reads a quote mark as inches although it closes a quotation."}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "\"And now,\" he said, \"He,", "outputs": ["\"And now,\" he said, \"He,"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a: \"b\", \"c\", \"d\", \"e\", \"f\" or \"g\".", "outputs": ["a: \"b\", \"c\", \"d\", \"e\", \"f\" or \"g\"."]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a: \"b\" \"c\" \"d\" \"e\" \"f\" or \"g\".", "outputs": ["a: \"b\" \"c\" \"d\" \"e\" \"f\" or \"g\"."]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a: ``b``, ``c``, ``d``, ``e``, ``f`` or ``g``.", "outputs": ["a: \"b\", \"c\", \"d\", \"e\", \"f\" or \"g\"."]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "80's", "outputs": ["eighty's", "eighties"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "test .b@gmail.com", "outputs": ["test. b at gmail dot com", "test dot b at gmail dot com"]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "123,000012", "outputs": ["one hundred and twenty three, zero zero zero zero one two"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "123,000012", "outputs": ["one hundred and twenty three, zero zero zero zero one two"], "out_of_scope": "Malformed or garbled input, with no single reading a speaker would give."}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "9000,000th", "outputs": ["nine thousand, zero zero zero th", "nine thousand,oh oh oh th"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "16 July, 1943", "outputs": ["the sixteenth of july, nineteen forty three"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "august 23, 2002", "outputs": ["august twenty third, two thousand two"]}
@@ -380,14 +380,14 @@
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "1961–1965 and (2006–2012)", "outputs": ["nineteen sixty one– nineteen sixty five and (two thousand six– twenty twelve)", "nineteen sixty-one to nineteen sixty-five and (two thousand six to twenty twelve)"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "114...48", "outputs": ["one hundred and fourteen... forty eight", "one hundred fourteen... forty-eight"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "12kg.", "outputs": ["twelve kilograms."]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "<pitch=-.3>123?123</pitch>", "outputs": ["<pitch=-.3> one hundred and twenty three? one hundred and twenty three </pitch>"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "<pitch=-.3>123?123</pitch>", "outputs": ["<pitch=-.3> one hundred and twenty three? one hundred and twenty three </pitch>"], "out_of_scope": "Markup or phonetic notation, which a text front end doesn't receive or leaves alone."}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "2!", "outputs": ["two!"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "1!hello", "outputs": ["one! hello"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "1, ", "outputs": ["one,"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "1!!!!", "outputs": ["one!!!!"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "(1)Hello", "outputs": ["(one) Hello"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "ÀÁÂÃ check §- and ƛ, also ɧ", "outputs": ["ÀÁÂÃ check section - and ƛ, also ɧ"]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "Hi it's 5pm,4A.M.?-34. Hi,no,yes,34! 12,again,4 and NO?17 and $.01,here & there -0.004kg", "outputs": ["Hi it's five PM, four AM.? minus thirty four. Hi,no,yes, thirty four! twelve, again, four and NO? seventeen and one cent, here and there minus zero point zero zero four kilograms"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "Hi it's 5pm,4A.M.?-34. Hi,no,yes,34! 12,again,4 and NO?17 and $.01,here & there -0.004kg", "outputs": ["Hi it's five PM, four AM.? minus thirty four. Hi,no,yes, thirty four! twelve, again, four and NO? seventeen and one cent, here and there minus zero point zero zero four kilograms"], "out_of_scope": "Malformed or garbled input, with no single reading a speaker would give."}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "1°C.", "outputs": ["one degree Celsius."]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "my email is myemail@gmail.com!", "outputs": ["my email is myemail at gmail dot com!"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "1980-1986", "outputs": ["nineteen eighty to nineteen eighty six"]}
@@ -410,7 +410,7 @@
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "mid-80s", "outputs": ["mid eighties"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "$250-$300", "outputs": ["two hundred and fifty dollars to three hundred dollars", "two hundred fifty dollars to three hundred dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "range", "input": "$150.25-$250.67", "outputs": ["one hundred and fifty dollars twenty five cents to two hundred and fifty dollars sixty seven cents", "one hundred fifty dollars and twenty-five cents to two hundred fifty dollars and sixty-seven cents"]}
-{"lang": "en-us", "source": "nemo", "class": "roman", "input": "Sam II", "outputs": ["Sam second"]}
+{"lang": "en-us", "source": "nemo", "class": "roman", "input": "Sam II", "outputs": ["Sam second"], "out_of_scope": "A name and a Roman numeral as the whole text; in running text these are mostly other words."}
 {"lang": "en-us", "source": "nemo", "class": "roman", "input": "Chapter IV", "outputs": ["Chapter four"]}
 {"lang": "en-us", "source": "nemo", "class": "roman", "input": "PART XL", "outputs": ["PART forty"]}
 {"lang": "en-us", "source": "nemo", "class": "roman", "input": "Sam and I", "outputs": ["Sam and I"]}
@@ -424,7 +424,7 @@
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "b-c-1-5-b-s-b", "outputs": ["b-c-one-five-b-s-b"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "MIG-25/235212-asdg", "outputs": ["MIG-twenty five/two three five two one two-asdg"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "1/f-4s", "outputs": ["one/f-four s"]}
-{"lang": "en-us", "source": "nemo", "class": "serial", "input": "1/f", "outputs": ["one per F"]}
+{"lang": "en-us", "source": "nemo", "class": "serial", "input": "1/f", "outputs": ["one per F"], "out_of_scope": "A bare a/b or fragment without a cue; its reading depends on what it means (date, score, ratio, code)."}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "4s", "outputs": ["four S"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "7-eleven", "outputs": ["seven eleven"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "2x", "outputs": ["two x"]}
@@ -447,7 +447,7 @@
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "2*8", "outputs": ["two asterisk eight", "two times eight"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "my pnr is t2000", "outputs": ["my pnr is t two thousand"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "your otp is ab9453", "outputs": ["your otp is ab nine four five three"]}
-{"lang": "en-us", "source": "nemo", "class": "special_text", "input": "[HH AH0 L OW1]", "outputs": ["[HH AH0 L OW1]"]}
+{"lang": "en-us", "source": "nemo", "class": "special_text", "input": "[HH AH0 L OW1]", "outputs": ["[HH AH0 L OW1]"], "out_of_scope": "Markup or phonetic notation, which a text front end doesn't receive or leaves alone."}
 {"lang": "en-us", "source": "nemo", "class": "special_text", "input": "[nəkɫudɔf ˈfɫəʃt... ənd ˈfɛɫt - ˈɔɫˌweɪz ˈdɪd!]", "outputs": ["[nəkɫudɔf ˈfɫəʃt... ənd ˈfɛɫt - ˈɔɫˌweɪz ˈdɪd!]"]}
 {"lang": "en-us", "source": "nemo", "class": "special_text", "input": "[poʊstˌmɑɹk]", "outputs": ["[poʊstˌmɑɹk]"]}
 {"lang": "en-us", "source": "nemo", "class": "special_text", "input": "<breathing/>", "outputs": ["<breathing/>"]}
@@ -455,7 +455,7 @@
 {"lang": "en-us", "source": "nemo", "class": "special_text", "input": "go<noise/>home", "outputs": ["go<noise/>home"]}
 {"lang": "en-us", "source": "nemo", "class": "special_text", "input": "<pausing/>", "outputs": ["<pausing/>"]}
 {"lang": "en-us", "source": "nemo", "class": "special_text", "input": "<cough/>", "outputs": ["<cough/>"]}
-{"lang": "en-us", "source": "nemo", "class": "special_text", "input": "<pitch=-.3>123 123</pitch>", "outputs": ["<pitch=-.3> one hundred and twenty three one hundred and twenty three </pitch>"]}
+{"lang": "en-us", "source": "nemo", "class": "special_text", "input": "<pitch=-.3>123 123</pitch>", "outputs": ["<pitch=-.3> one hundred and twenty three one hundred and twenty three </pitch>"], "out_of_scope": "Markup or phonetic notation, which a text front end doesn't receive or leaves alone."}
 {"lang": "en-us", "source": "nemo", "class": "special_text", "input": "<singing> haleluja </singing>", "outputs": ["<singing> haleluja </singing>"]}
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "+1 123-123-5678", "outputs": ["plus one, one two three, one two three, five six seven eight"]}
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "123-123-5678", "outputs": ["one two three, one two three, five six seven eight"]}
@@ -537,7 +537,7 @@
 {"lang": "en-us", "source": "nemo", "class": "word", "input": "1", "outputs": ["one"]}
 {"lang": "en-us", "source": "nemo", "class": "word", "input": "!1", "outputs": ["! one"]}
 {"lang": "en-us", "source": "nemo", "class": "word", "input": "mar", "outputs": ["mar"]}
-{"lang": "en-us", "source": "nemo", "class": "word", "input": "/$€₩£BB¥#%AA and $€₩£¥#%", "outputs": ["slash dollar euro won pound BB yen hash percent AA and dollar euro won pound yen hash percent"]}
+{"lang": "en-us", "source": "nemo", "class": "word", "input": "/$€₩£BB¥#%AA and $€₩£¥#%", "outputs": ["slash dollar euro won pound BB yen hash percent AA and dollar euro won pound yen hash percent"], "out_of_scope": "Malformed or garbled input, with no single reading a speaker would give."}
 {"lang": "en-us", "source": "nemo", "class": "word", "input": "love him while we may,", "outputs": ["love him while we may,"]}
 {"lang": "en-us", "source": "nemo", "class": "word", "input": "i saw (22) ducklings", "outputs": ["i saw (twenty two) ducklings"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "-23", "outputs": ["negative twenty three", "minus twenty-three"]}
@@ -554,8 +554,8 @@
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "200", "outputs": ["two hundred"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1000", "outputs": ["thousand", "one thousand"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1001", "outputs": ["thousand and one", "one thousand one"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1011", "outputs": ["thousand and eleven"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1111", "outputs": ["thousand one hundred and eleven"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1011", "outputs": ["thousand and eleven"], "out_of_scope": "Gold reads other bare four-digit numbers as years (1155, 1219); a bare four-digit number has no single reading."}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1111", "outputs": ["thousand one hundred and eleven"], "out_of_scope": "Gold reads other bare four-digit numbers as years (1155, 1219); a bare four-digit number has no single reading."}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "2000", "outputs": ["two thousand"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10000", "outputs": ["ten thousand"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10001", "outputs": ["ten thousand and one", "ten thousand one"]}
@@ -566,7 +566,7 @@
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "101111", "outputs": ["one hundred one thousand one hundred and eleven", "one hundred one thousand one hundred eleven"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1001111", "outputs": ["one million one thousand one hundred and eleven", "one million one thousand one hundred eleven"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10001111", "outputs": ["ten million one thousand one hundred and eleven", "ten million one thousand one hundred eleven"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "4567", "outputs": ["four thousand five hundred and sixty seven"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "4567", "outputs": ["four thousand five hundred and sixty seven"], "out_of_scope": "Gold reads other bare four-digit numbers as years (1155, 1219); a bare four-digit number has no single reading."}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "1219", "outputs": ["twelve nineteen"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "2999", "outputs": ["twenty nine ninety nine"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "'70s", "outputs": ["seventies"]}

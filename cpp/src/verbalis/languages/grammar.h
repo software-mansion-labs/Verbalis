@@ -17,6 +17,7 @@ struct Joiners {
   std::u32string plus;     // 2 + 2
   std::u32string fraction; // 3 3/4, with its own spaces: " and ", " y "; a space if empty
   std::u32string half;     // 3 1/2 in place of the fraction, with its own spaces: " and a half"; unused if empty
+  std::u32string rating;   // 4.5/5: four point five out of five; the slash stays if empty
 };
 
 // The forms of a noun after a number: one dollar, two dollars.

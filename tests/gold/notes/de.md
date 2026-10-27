@@ -5,9 +5,9 @@ speaker accepts it as equally correct.
 
 - `1/2 ft`: "ein halber Fuß" added beside "ein halb Fuß"; before a noun the fraction declines like an adjective.
 
-## Unreachable
+## Out of scope
 
-These cases stay failing.
+**Decision (the user, 2026-10-27):** these cases carry an `out_of_scope` reason and are left out of the score.
 
 - The gold reading leaves the input as written, which a front end for speech can't do with digits: `5-3-Ws`,
   `401-ks`, `1,000,123`.

@@ -174,7 +174,7 @@ export const NOTATION = notation({
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 export const JOINERS: Joiners = {
   point: "ponto", dot: "ponto", range: " a ", by: "por", score: " a ", minus: "menos", plus: "mais",
-  fraction: " e ",
+  fraction: " e ", rating: "de",
 };
 
 // 24/03/2022, 07-11-2018

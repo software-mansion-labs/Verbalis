@@ -18,6 +18,9 @@ can sit in both and pass ("mieszkania" for "mieszkanie" did). `score.py` reports
 NeMo and WeTextProcessing cases ("own" and "independent"); count them as evidence only once a person has checked
 them (`review/`).
 
+A case with an `"out_of_scope"` reason (markup, malformed input, gold that contradicts itself, inputs gold leaves as
+written) is left out of the score; `score.py` counts these apart ("excluded"), and `notes/<lang>.md` lists them.
+
 `scores.json` lists the cases Verbalis passes. `score.py` reports accuracy per language (and `--classes`), shows the
 failing cases (`--show <lang>`), and exits 1 if a recorded case no longer passes: a change may fix gold cases but not
 break them (`tests/python/test_gold.py`). After a change that fixes cases, record them with `--write`.

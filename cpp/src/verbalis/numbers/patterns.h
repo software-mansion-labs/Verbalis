@@ -133,6 +133,17 @@ private:
   std::u32string group_separators_;
 };
 
+// The "/" of 4,2/5 and 4.5/10: a rating, a decimal out of 5, 10, 20, or 100.
+class RatingPattern : public Pattern {
+public:
+  explicit RatingPattern(const Notation& notation) : Pattern(Kind::RATING), decimals_(notation.decimal_separators) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override;
+
+private:
+  std::u32string decimals_;
+};
+
 // The minus of -5.
 class SignPattern : public Pattern {
 public:

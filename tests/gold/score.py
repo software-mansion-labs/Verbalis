@@ -6,7 +6,9 @@
     .venv/bin/python tests/gold/score.py --write      # record the current passing cases in scores.json
 
 A case passes when the output equals one of its acceptable readings, after normalization: case, whitespace, and
-punctuation are ignored ("twenty-one" = "twenty one"). "exact" counts equality as written. Exits 1 if a case that
+punctuation are ignored ("twenty-one" = "twenty one"). "exact" counts equality as written. A case with an
+"out_of_scope" reason (markup, malformed input, gold that contradicts itself) is left out of the score and counted
+apart; tests/gold/notes/<lang>.md lists them. Exits 1 if a case that
 passed in scores.json fails now: a behaviour change may fix gold cases, but must not break them.
 """
 
@@ -38,13 +40,16 @@ def key(case: dict) -> str:
     return f"{case['source']}/{case['class']}/{case['input']}"
 
 
-passing, totals, failures = defaultdict(list), {}, defaultdict(list)
+passing, totals, failures, excluded = defaultdict(list), {}, defaultdict(list), defaultdict(int)
 for path in sorted(GOLD.glob("*.jsonl")):
     cases = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
     lang = cases[0]["lang"]
     verbalizer = Verbalizer(lang)
     by_class = defaultdict(lambda: [0, 0, 0])  # cases, exact, normalized
     for case in cases:
+        if "out_of_scope" in case:
+            excluded[lang] += 1
+            continue
         output = verbalizer.process(case["input"])
         exact = output in case["outputs"]
         ok = exact or normalized(output) in {normalized(o) for o in case["outputs"]}
@@ -66,11 +71,11 @@ def share(counts):
 
 # "independent": cases from NeMo and WeTextProcessing; "own": cases written for Verbalis (source "verbalis"),
 # which are only as right as their author, until a native speaker has checked them
-print(f"{'language':10}{'cases':>7}{'exact':>9}{'normalized':>12}   {'independent':>18}   {'own':>18}")
+print(f"{'language':10}{'cases':>7}{'exact':>9}{'normalized':>12}   {'independent':>18}   {'own':>18}   {'excluded':>8}")
 for lang, by_class in totals.items():
     n, exact, ok = by_class["all"]
     print(f"{lang:10}{n:>7}{100 * exact / n:>8.1f}%{100 * ok / n:>11.1f}%   "
-          f"{share(by_class['independent']):>18}   {share(by_class['own']):>18}")
+          f"{share(by_class['independent']):>18}   {share(by_class['own']):>18}   {excluded[lang] or '-':>8}")
     if args.classes:
         for name, (n, exact, ok) in sorted(by_class.items()):
             if name not in ("all", "independent", "own"):

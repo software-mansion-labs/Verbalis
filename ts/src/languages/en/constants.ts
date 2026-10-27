@@ -191,7 +191,7 @@ export const NOTATION = notation({
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 export const JOINERS: Joiners = {
   point: "point", dot: "dot", range: " to ", by: "by", score: " to ", minus: "minus", plus: "plus",
-  fraction: " and ", half: " and a half",
+  fraction: " and ", half: " and a half", rating: "out of",
 };
 
 // 27.03.2026, 27-03-2026: the year has four digits (3.8.10 is a version)

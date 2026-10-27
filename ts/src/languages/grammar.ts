@@ -11,6 +11,7 @@ export interface Joiners {
   readonly plus: string; // 2 + 2
   readonly fraction?: string; // 3 3/4, with its own spaces: " and ", " y "; a space if empty
   readonly half?: string; // 3 1/2 in place of the fraction, with its own spaces: " and a half"; unused if empty
+  readonly rating?: string; // 4.5/5: four point five out of five; the slash stays if empty
 }
 
 // The forms of a noun after a number: one dollar, two dollars.

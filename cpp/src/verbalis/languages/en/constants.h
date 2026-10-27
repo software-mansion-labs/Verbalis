@@ -208,7 +208,7 @@ inline const Notation kNotation = {
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
   .point = U"point", .dot = U"dot", .range = U" to ", .by = U"by", .score = U" to ", .minus = U"minus", .plus = U"plus",
-  .fraction = U" and ", .half = U" and a half"
+  .fraction = U" and ", .half = U" and a half", .rating = U"out of"
 };
 
 // 27.03.2026, 27-03-2026: the year has four digits (3.8.10 is a version)

@@ -224,7 +224,7 @@ inline const Notation kNotation = {
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
   .point = U"Komma", .dot = U"Punkt", .range = U" bis ", .by = U"mal", .score = U" zu ", .minus = U"minus", .plus = U"plus",
-  .fraction = U" "
+  .fraction = U" ", .rating = U"von"
 };
 
 // 1.5.2024, 1.5., 12. 3.: the year is optional, a dot closes the month

@@ -85,6 +85,7 @@ std::vector<std::unique_ptr<Pattern>> generic_patterns(const Notation& notation)
   patterns.push_back(std::make_unique<RangePattern>());
   patterns.push_back(std::make_unique<DimensionPattern>(notation));
   patterns.push_back(std::make_unique<SignPattern>());
+  patterns.push_back(std::make_unique<RatingPattern>(notation));
   if (notation.fractions) {
     patterns.push_back(std::make_unique<FractionPattern>());
   }
@@ -288,6 +289,35 @@ std::optional<Match> FractionPattern::simple(std::u32string_view text, size_t po
                .span = {position, end},
                .numbers = {digits_at(text, position), digits_at(text, slash + 1)},
                .separator = U'/'};
+}
+
+std::optional<Match> RatingPattern::match(std::u32string_view text, size_t position) const {
+  if (text[position] != U'/' || position < 3 || !unicode::isdigit(text[position - 1])) {
+    return std::nullopt;
+  }
+  // A decimal before the slash: 4,2 or 4.5
+  size_t fraction = position;
+  while (fraction > 0 && unicode::isdigit(text[fraction - 1])) {
+    fraction--;
+  }
+  size_t whole = fraction - 1;
+  if (fraction < 2 || !strings::contains(decimals_, text[whole]) || !unicode::isdigit(text[whole - 1])) {
+    return std::nullopt;
+  }
+  while (whole > 0 && unicode::isdigit(text[whole - 1])) {
+    whole--;
+  }
+  if (!is_clear_before(text, whole, U".,/")) {
+    return std::nullopt;
+  }
+  // 5, 10, 20, or 100 after it
+  size_t end = digits_end(text, position + 1);
+  std::u32string_view denominator = text.substr(position + 1, end - position - 1);
+  if ((denominator != U"5" && denominator != U"10" && denominator != U"20" && denominator != U"100") ||
+      !is_clear_after(text, end, U"/") || is_digit_after(text, end, U".,")) {
+    return std::nullopt;
+  }
+  return Match{.kind = Kind::RATING, .span = {position, position + 1}, .separator = U'/'};
 }
 
 std::optional<Match> SignPattern::match(std::u32string_view text, size_t position) const {

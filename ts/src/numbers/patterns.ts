@@ -101,6 +101,7 @@ export function genericPatterns(notation: Notation): Pattern[] {
     new DimensionPattern(notation),
   ];
   patterns.push(new SignPattern());
+  patterns.push(new RatingPattern(notation));
   if (notation.fractions) {
     patterns.push(new FractionPattern());
   }
@@ -450,6 +451,48 @@ export class GroupedOrdinalPattern extends Pattern {
       }
     }
     return undefined;
+  }
+}
+
+// The "/" of 4,2/5 and 4.5/10: a rating, a decimal out of 5, 10, 20, or 100.
+export class RatingPattern extends Pattern {
+  readonly #decimals: string;
+
+  constructor(notation: Notation) {
+    super(Kind.RATING);
+    this.#decimals = notation.decimalSeparators;
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (text[position] !== "/" || position < 3 || !isDigit(text[position - 1])) {
+      return undefined;
+    }
+    // A decimal before the slash: 4,2 or 4.5
+    let fraction = position;
+    while (fraction > 0 && isDigit(text[fraction - 1])) {
+      fraction--;
+    }
+    let whole = fraction - 1;
+    if (fraction < 2 || !contains(this.#decimals, text[whole]) || !isDigit(text[whole - 1])) {
+      return undefined;
+    }
+    while (whole > 0 && isDigit(text[whole - 1])) {
+      whole--;
+    }
+    if (!isClearBefore(text, whole, ".,/")) {
+      return undefined;
+    }
+    // 5, 10, 20, or 100 after it
+    const end = digitsEnd(text, position + 1);
+    const denominator = str(text, position + 1, end);
+    if (
+      !["5", "10", "20", "100"].includes(denominator) ||
+      !isClearAfter(text, end, "/") ||
+      isDigitAfter(text, end, ".,")
+    ) {
+      return undefined;
+    }
+    return match({ kind: Kind.RATING, span: { begin: position, end: position + 1 }, separator: "/" });
   }
 }
 

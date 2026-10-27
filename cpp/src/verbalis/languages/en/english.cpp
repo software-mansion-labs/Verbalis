@@ -237,6 +237,47 @@ public:
   }
 };
 
+// 30-May-2018, 5-Jan-20: a day, the name of its month, and a year, joined by hyphens. Its numbers are the day,
+// the month, and the year.
+class NamedMonthDatePattern : public Pattern {
+public:
+  NamedMonthDatePattern() : Pattern(Kind::DATE) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    size_t day_end = digits_end(text, position);
+    if (!is_clear_before(text, position, U".,/-") || day_end == position || day_end > position + 2 ||
+        day_end >= text.size() || text[day_end] != U'-') {
+      return std::nullopt;
+    }
+    size_t name_end = day_end + 1;
+    while (name_end < text.size() && unicode::isalpha(text[name_end])) {
+      name_end++;
+    }
+    std::u32string name = strings::to_lower(text.substr(day_end + 1, name_end - day_end - 1));
+    auto month = std::ranges::find_if(kMonths, [&](const auto& m) { return strings::to_lower(m).starts_with(name); });
+    // The terms step may have written out an abbreviation already: 5-Jan-2020 is 5-January 2020 here
+    if (name.size() < 3 || !kMonthWords.contains(name) || month == kMonths.end() || name_end >= text.size() ||
+        (text[name_end] != U'-' && text[name_end] != U' ')) {
+      return std::nullopt;
+    }
+    // After a space, a four-digit year only: July 28-August 31 is a range
+    size_t end = digits_end(text, name_end + 1), year = end - name_end - 1;
+    if ((year != 2 && year != 4) || (text[name_end] == U' ' && year != 4) || !is_clear_after(text, end) ||
+        is_digit_after(text, end, U".,-/")) {
+      return std::nullopt;
+    }
+    Number day = digits_at(text, position);
+    if (value(day) < 1 || value(day) > 31) {
+      return std::nullopt;
+    }
+    Number number{.integer = to_digits(static_cast<uint64_t>(month - kMonths.begin() + 1))};
+    return Match{.kind = Kind::DATE,
+                 .span = {position, end},
+                 .numbers = {day, number, digits_at(text, name_end + 1)},
+                 .separator = U'-'};
+  }
+};
+
 // 2Q22, 3Q2022, 1H23: a quarter or a half of a year. Its numbers are the quarter or half and the year.
 class QuarterPattern : public Pattern {
 public:
@@ -621,6 +662,7 @@ public:
   English() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<SlashDatePattern>());
     add_pattern(std::make_unique<YearFirstDatePattern>());
+    add_pattern(std::make_unique<NamedMonthDatePattern>());
     add_pattern(std::make_unique<QuarterPattern>());
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
     for (const auto& format : kPhoneFormats) {
@@ -784,6 +826,18 @@ protected:
     if (match.numbers.size() == 3 && clock && value(match.numbers[1]) == 0 && value(match.numbers[2]) == 0 &&
         hours >= 1 && hours <= 12) {
       return cardinal(hours);
+    }
+    // 1:38:33 p.m., at 01:38:33: a clock time, one thirty-eight thirty-three; but "coming in at 8:51:00" is a duration
+    bool stamp = match.context.before() == U"at" && match.numbers[0].integer.size() == 2;
+    if (match.numbers.size() == 3 && (clock || stamp) && value(match.numbers[1]) != 0) {
+      Match minutes = match;
+      minutes.numbers.pop_back();
+      auto words = read_time(minutes);
+      uint64_t seconds = value(match.numbers[2]);
+      if (words && seconds) {
+        *words += U" " + (seconds < 10 ? U"oh " + cardinal(seconds) : cardinal(seconds));
+      }
+      return words;
     }
     // 2:08:29: two hours eight minutes and twenty-nine seconds, without the parts that are zero
     if (match.numbers.size() == 3) {

@@ -43,10 +43,12 @@ native speaker accepts as the same.
 - `123000`: gold reads a round number digit by digit; it is a cardinal
 - `1000`: gold drops "one" of "one thousand"
 
-## Unreachable
+## Out of scope
 
-These cases stay failing: no reading of the bare fragment is right in running text without misreading other
-sentences, or the input is malformed.
+**Decision (the user, 2026-10-27):** these cases carry an `out_of_scope` reason and are left out of the score. No
+reading of the bare fragment is right in running text without misreading other sentences, the input is malformed or
+markup, or gold contradicts itself. The paragraphs about a/b and four- and five-digit numbers explain what Verbalis
+reads instead.
 
 - an a/b in running text is left as written: it is mostly a date, a score, a rating, odds, or a season (baseline: 9/10, 25/1, 3/47, 2018/19, 24/7); a/b reads as a fraction when marked (3 1/2, 1/3 of, 3/8", 1/4th) or when it is the whole text. Still failing: `3 5/2` (an improper mixed fraction), `2 142/1`, and `1795 / 1805` (spaces around the slash).
 - a four-digit number reads in pairs, as a year, an address, or a model (1999, 2788 San Tomas, GTX 1080), also when it is the whole text; gold reads some bare four-digit numbers as years (`1155`, `1219`) and others as cardinals: `1011`, `1111`, `4567`.

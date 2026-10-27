@@ -527,7 +527,7 @@ inline const std::unordered_set<std::u32string> kFractionStops = {
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
   .point = U"kropka", .dot = U"kropka", .range = U"-", .by = U"na", .score = U" do ", .minus = U"minus", .plus = U"plus",
-  .fraction = U" i ", .half = U" i pół"
+  .fraction = U" i ", .half = U" i pół", .rating = U"na"
 };
 
 // 15.08.2020 r.: the year has four digits, "r." may follow it

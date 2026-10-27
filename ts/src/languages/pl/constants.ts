@@ -503,7 +503,7 @@ export const FRACTION_STOPS: ReadonlySet<string> = new Set([
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 export const JOINERS: Joiners = {
   point: "kropka", dot: "kropka", range: "-", by: "na", score: " do ", minus: "minus", plus: "plus",
-  fraction: " i ", half: " i pół",
+  fraction: " i ", half: " i pół", rating: "na",
 };
 
 // 15.08.2020 r.: the year has four digits, "r." may follow it

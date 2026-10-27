@@ -12,6 +12,7 @@ import { Kind, match as matchOf, numeral, type Match, type Numeral } from "../..
 import {
   codeParts,
   digitsAt,
+  toDigits,
   numbersAt,
   fitsClock,
   isSpokenDigits,
@@ -330,6 +331,68 @@ class YearFirstDatePattern extends Pattern {
       return undefined;
     }
     return matchOf({ kind: Kind.DATE, span: { begin: position, end: dayEnd }, numbers: [d, m, y], separator: "-" });
+  }
+}
+
+// 30-May-2018, 5-Jan-20: a day, the name of its month, and a year, joined by hyphens. Its numbers are the day,
+// the month, and the year.
+class NamedMonthDatePattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const dayEnd = digitsEnd(text, position);
+    if (
+      !isClearBefore(text, position, ".,/-") ||
+      dayEnd === position ||
+      dayEnd > position + 2 ||
+      dayEnd >= text.length ||
+      text[dayEnd] !== "-"
+    ) {
+      return undefined;
+    }
+    let nameEnd = dayEnd + 1;
+    while (nameEnd < text.length && isAlpha(text[nameEnd])) {
+      nameEnd++;
+    }
+    const name = toLower(str(text, dayEnd + 1, nameEnd));
+    const month = MONTHS.findIndex((m) => toLower(m).startsWith(name));
+    // The terms step may have written out an abbreviation already: 5-Jan-2020 is 5-January 2020 here
+    if (
+      size(name) < 3 ||
+      !MONTH_WORDS.has(name) ||
+      month < 0 ||
+      nameEnd >= text.length ||
+      (text[nameEnd] !== "-" && text[nameEnd] !== " ")
+    ) {
+      return undefined;
+    }
+    // After a space, a four-digit year only: July 28-August 31 is a range
+    const end = digitsEnd(text, nameEnd + 1);
+    const year = end - nameEnd - 1;
+    if (
+      (year !== 2 && year !== 4) ||
+      (text[nameEnd] === " " && year !== 4) ||
+      !isClearAfter(text, end) ||
+      isDigitAfter(text, end, ".,-/")
+    ) {
+      return undefined;
+    }
+    const day = digitsAt(text, position);
+    if (value(day) < 1n || value(day) > 31n) {
+      return undefined;
+    }
+    return matchOf({
+      kind: Kind.DATE,
+      span: { begin: position, end },
+      numbers: [
+        day,
+        numeral({ span: { begin: 0, end: 0 }, integer: toDigits(BigInt(month + 1)) }),
+        digitsAt(text, nameEnd + 1),
+      ],
+      separator: "-",
+    });
   }
 }
 
@@ -749,6 +812,7 @@ class English extends PatternLanguage {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new SlashDatePattern());
     this.addPattern(new YearFirstDatePattern());
+    this.addPattern(new NamedMonthDatePattern());
     this.addPattern(new QuarterPattern());
     this.addPattern(new DatePattern(DATE_FORMAT));
     for (const format of PHONE_FORMATS) {
@@ -909,6 +973,16 @@ class English extends PatternLanguage {
       hours <= 12n
     ) {
       return cardinal(hours);
+    }
+    // 1:38:33 p.m., at 01:38:33: a clock time, one thirty-eight thirty-three; but "coming in at 8:51:00" is a duration
+    const stamp = match.context.before() === "at" && match.numbers[0].integer.length === 2;
+    if (match.numbers.length === 3 && (clock || stamp) && value(match.numbers[1]) !== 0n) {
+      let words = this.readTime({ ...match, numbers: match.numbers.slice(0, 2) });
+      const seconds = value(match.numbers[2]);
+      if (words !== undefined && seconds !== 0n) {
+        words += ` ${seconds < 10n ? `oh ${cardinal(seconds)}` : cardinal(seconds)}`;
+      }
+      return words;
     }
     // 2:08:29: two hours eight minutes and twenty-nine seconds, without the parts that are zero
     if (match.numbers.length === 3) {

@@ -74,6 +74,7 @@ std::optional<std::u32string> PatternLanguage::read_match(const Match& match) co
     case Kind::RANGE:
     case Kind::DIMENSION:
     case Kind::SIGN:
+    case Kind::RATING:
     case Kind::SCORE:
       return read_joiner(match);
     case Kind::FRACTION:
@@ -199,6 +200,8 @@ std::optional<std::u32string> PatternLanguage::read_joiner(const Match& match) c
       return joiners_.minus + U" ";
     case Kind::SCORE:
       return joiners_.score;
+    case Kind::RATING:
+      return joiners_.rating.empty() ? std::nullopt : std::optional(U" " + joiners_.rating + U" ");
     default:
       return std::nullopt; // Not a joiner
   }

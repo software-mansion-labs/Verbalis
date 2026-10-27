@@ -3,7 +3,7 @@ import type { Document, Span } from "../text/document.ts";
 import { beforeName, read, type Readings } from "../text/readings.ts";
 import { isClearAfter, isClearBefore, isSentenceEnd, join, keysAt, type Keys } from "../text/scan.ts";
 import { contains, size, startsWith, str, toLower, type Text } from "../text/strings.ts";
-import { isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
+import { isAlnum, isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
 
 // The words between the parts of a web address.
 export interface WebWords {
@@ -78,6 +78,8 @@ function isLabel(c: string | undefined): boolean {
 }
 
 // A part of an address with its dots (and hyphens, if the language reads them) read: jan.kowalski -> jan dot kowalski
+const SCHEMES: ReadonlySet<string> = new Set(["http", "https", "ftp", "sftp", "file", "ws", "wss"]);
+
 // A part of an address with its separators read, and its digits apart, to be read one by one: a1 -> a 1
 function dotted(part: string, web: WebWords): string {
   const chars = [...part];
@@ -116,9 +118,21 @@ export class TermReader {
     const text = document.text();
 
     for (let position = 0; position < text.length;) {
-      // Terms start at word boundaries, but not after a dot: e.g. is not g.
+      // Terms start at word boundaries, but not after a dot: e.g. is not g.; a URL also right after a word, from
+      // which a space parts it, read if complete (Councilhttps://www2.example.com) or else as written
       let term: Term | undefined;
-      if (isClearBefore(text, position, ".")) {
+      const scheme = startsWith(text, position, "http://") || startsWith(text, position, "https://");
+      if (scheme && position > 0 && isAlnum(text[position - 1])) {
+        term = this.#readAddress(text, position);
+        if (!term) {
+          let end = position;
+          while (end < text.length && !isSpace(text[end])) {
+            end++;
+          }
+          term = { span: { begin: position, end }, words: str(text, position, end) };
+        }
+        term = { ...term, words: ` ${term.words}` };
+      } else if (isClearBefore(text, position, ".")) {
         term =
           this.#readUuid(text, position) ??
           this.#readAddress(text, position) ??
@@ -176,7 +190,8 @@ export class TermReader {
     while (host < text.length && isLatin(text[host])) {
       host++;
     }
-    const scheme = host > position && startsWith(text, host, "://");
+    // A known scheme only: in Councilhttps://, the word before isn't part of it
+    const scheme = startsWith(text, host, "://") && SCHEMES.has(toLower(str(text, position, host)));
     host = scheme ? host + 3 : position;
 
     // 2. The user of an email: jan.kowalski@

@@ -176,7 +176,7 @@ export abstract class PatternLanguage extends Language {
     return this.#withWord(amount, match, match.unit);
   }
 
-  // Symbols between numbers (DIFFERENCE, SUM, RANGE, DIMENSION, SIGN, SCORE), from the joiners by default
+  // Symbols between numbers (DIFFERENCE, SUM, RANGE, DIMENSION, SIGN, RATING, SCORE), from the joiners by default
   protected readJoiner(match: Match): string | undefined {
     const joiners = this.#joiners;
     switch (match.kind) {
@@ -192,6 +192,8 @@ export abstract class PatternLanguage extends Language {
         return `${joiners.minus} `;
       case Kind.SCORE:
         return joiners.score;
+      case Kind.RATING:
+        return joiners.rating ? ` ${joiners.rating} ` : undefined;
       default:
         return undefined; // Not a joiner
     }
@@ -221,6 +223,7 @@ export abstract class PatternLanguage extends Language {
       case Kind.RANGE:
       case Kind.DIMENSION:
       case Kind.SIGN:
+      case Kind.RATING:
       case Kind.SCORE:
         return this.readJoiner(match);
       case Kind.FRACTION:
