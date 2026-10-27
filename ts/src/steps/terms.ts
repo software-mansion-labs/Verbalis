@@ -118,7 +118,10 @@ export class TermReader {
       let term: Term | undefined;
       if (isClearBefore(text, position, ".")) {
         term =
-          this.#readAddress(text, position) ?? this.#readPath(text, position) ?? this.#readAbbreviation(text, position);
+          this.#readUuid(text, position) ??
+          this.#readAddress(text, position) ??
+          this.#readPath(text, position) ??
+          this.#readAbbreviation(text, position);
       }
 
       if (!term) {
@@ -128,6 +131,37 @@ export class TermReader {
       document.replace(term.span, term.words);
       position = term.span.end;
     }
+  }
+
+  // 3f2504e0-4f89-11d3-9a0c-0305e82c3301: a UUID, character by character with the names of the digits
+  #readUuid(text: Text, position: number): Term | undefined {
+    const digits = this.#terms.web.digits;
+    if (digits?.length !== 10) {
+      return undefined;
+    }
+    const hex = (c: string | undefined) => c !== undefined && /^[0-9a-fA-F]$/.test(c);
+    let end = position;
+    for (const length of [8, 4, 4, 4, 12]) {
+      if (end > position && (end >= text.length || text[end++] !== "-")) {
+        return undefined;
+      }
+      for (let i = 0; i < length; ++i, ++end) {
+        if (end >= text.length || !hex(text[end])) {
+          return undefined;
+        }
+      }
+    }
+    if (end < text.length && isWord(text[end])) {
+      return undefined;
+    }
+
+    const words: string[] = [];
+    for (const c of text.slice(position, end)) {
+      if (c !== "-") {
+        words.push(isDigit(c) ? digits[Number(c)] : c.toLowerCase());
+      }
+    }
+    return { span: { begin: position, end }, words: join(words) };
   }
 
   // https://www.example.com/news, jan.kowalski@example.pl: its parts joined with the words of the separators

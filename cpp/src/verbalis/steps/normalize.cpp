@@ -26,6 +26,32 @@ size_t dash_end(std::u32string_view text, size_t position) {
   return end - position >= 2 ? end : position;
 }
 
+// A character lost in decoding, which says nothing: the replacement character, also as UTF-8 read as Latin-1
+// (dï¿½clarant -> dclarant)
+std::optional<Document::Edit> read_lost(std::u32string_view text, size_t position) {
+  for (std::u32string_view lost : {std::u32string_view(U"ï¿½"), std::u32string_view(U"\ufffd")}) {
+    if (text.substr(position).starts_with(lost)) {
+      return Document::Edit{.span = {position, position + lost.size()}, .text = U""};
+    }
+  }
+  return std::nullopt;
+}
+
+// A fraction character standing apart, written with digits for the fraction readings: ¾ szklanki -> 3/4, 2½ -> 2 1/2;
+// nullopt next to a letter, where it is likely a mis-encoded letter (dï¿½clarant)
+std::optional<std::u32string> vulgar_fraction(std::u32string_view text, size_t position) {
+  static const std::unordered_map<char32_t, std::u32string> fractions = {
+      {U'½', U"1/2"}, {U'¼', U"1/4"}, {U'¾', U"3/4"}, {U'⅓', U"1/3"}, {U'⅔', U"2/3"}};
+  auto it = fractions.find(text[position]);
+  bool letter_before = position > 0 && unicode::isalpha(text[position - 1]);
+  bool letter_after = position + 1 < text.size() && unicode::isalpha(text[position + 1]);
+  if (it == fractions.end() || letter_before || letter_after) {
+    return std::nullopt;
+  }
+  bool digit_before = position > 0 && unicode::isdigit(text[position - 1]);
+  return (digit_before ? U" " : U"") + it->second;
+}
+
 // Whether an ordinal sign at a position is a degree: 18ºC, 12 ºF
 bool is_degree(std::u32string_view text, size_t position) {
   size_t before = position;
@@ -92,6 +118,9 @@ void Normalizer::apply(Document& document) const {
   for (size_t i = 0; i < text.size();) {
     auto edit = utf8_ ? read_utf8(text, i) : std::nullopt;
     if (!edit) {
+      edit = read_lost(text, i);
+    }
+    if (!edit) {
       edit = read_dash(text, i);
     }
     if (edit) {
@@ -101,6 +130,8 @@ void Normalizer::apply(Document& document) const {
     }
     if (is_degree(text, i)) {
       document.replace({i, i + 1}, U"°");
+    } else if (auto fraction = vulgar_fraction(text, i)) {
+      document.replace({i, i + 1}, std::move(*fraction));
     } else if (auto it = canonical_.find(text[i]);
                it != canonical_.end() && (!letters_.contains(text[i]) || is_letter(text, i))) {
       document.replace({i, i + 1}, it->second);

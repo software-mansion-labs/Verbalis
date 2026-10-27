@@ -21,3 +21,8 @@ None yet.
 ## Unreachable cases
 
 None yet.
+
+## Ambiguous cases left failing (2026-10-27)
+
+- `Wynik to 7/10.`, `Wynik to 3/8.`: after "wynik", a/b is a score ("siedem na dziesięć") as often as a fraction;
+  nothing in the sentence decides it, so Verbalis leaves a bare a/b as written.

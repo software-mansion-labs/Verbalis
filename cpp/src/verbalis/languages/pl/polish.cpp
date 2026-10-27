@@ -248,6 +248,9 @@ std::pair<std::vector<std::u32string>, std::u32string> surroundings(const Contex
          made_of(before[before.size() - 2], U"0123456789,.")) {
     before.resize(before.size() - 2);
   }
+  if (!before.empty() && before.back() == U"minus") {
+    before.pop_back(); // do minus siedmiu stopni
+  }
   if (!before.empty() && kCurrencyWords.contains(before.back())) {
     before.pop_back();
     while (!before.empty() && made_of(before.back(), kDigits)) {
@@ -321,7 +324,55 @@ std::optional<Case> governed(const std::vector<std::u32string>& before) {
   return std::nullopt;
 }
 
+// The forms of the nouns of kOrdinalNouns: each form with its possible case, gender, and number
+const std::unordered_map<std::u32string, std::vector<NounForm>>& ordinal_nouns() {
+  static const auto forms = [] {
+    std::unordered_map<std::u32string, std::vector<NounForm>> result;
+    for (const auto& [gender, list] : kOrdinalNouns) {
+      Noun n = noun(list);
+      bool plural_only = n.singular == n.plural; // urodziny
+      for (size_t c = 0; c < 6; ++c) {
+        if (!plural_only) {
+          result[n.singular[c]].push_back({static_cast<Case>(c), gender, false});
+        }
+        result[n.plural[c]].push_back({static_cast<Case>(c), gender, true});
+      }
+    }
+    return result;
+  }();
+  return forms;
+}
+
+// The cases a preposition gives a noun, in order of likelihood: w rundzie (locative), z miejsca (genitive)
+std::vector<Case> preposition_cases(std::u32string_view preposition) {
+  std::u32string p(preposition);
+  if (kLocativePrepositions.contains(p)) {
+    return {Case::LOCATIVE, Case::ACCUSATIVE};
+  }
+  if (p == U"przed" || p == U"nad" || p == U"pod" || p == U"między" || p == U"pomiędzy" || p == U"za") {
+    return {Case::INSTRUMENTAL, Case::ACCUSATIVE};
+  }
+  if (auto it = kPrepositionCases.find(p); it != kPrepositionCases.end()) {
+    return {it->second == Case::INSTRUMENTAL ? Case::GENITIVE : it->second, it->second}; // z miejsca, ze stron
+  }
+  return {Case::NOMINATIVE, Case::ACCUSATIVE, Case::GENITIVE, Case::LOCATIVE, Case::DATIVE, Case::INSTRUMENTAL};
+}
+
 NounForm noun_form(std::u32string_view word, std::u32string_view preposition) {
+  // A known noun: the singular form its preposition makes likeliest, then the plural (w ramach fazy, not fazy)
+  if (auto it = ordinal_nouns().find(std::u32string(word)); it != ordinal_nouns().end()) {
+    for (bool plural : {false, true}) {
+      for (Case c : preposition_cases(preposition)) {
+        for (const NounForm& form : it->second) {
+          if (form.grammatical_case == c && form.plural == plural) {
+            return form;
+          }
+        }
+      }
+    }
+    return it->second.front();
+  }
+
   bool locative = kLocativePrepositions.contains(std::u32string(preposition));
   bool instrumental = preposition == U"z" || preposition == U"ze" || preposition == U"przed" || preposition == U"nad" ||
                       preposition == U"pod";
@@ -359,7 +410,7 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
 
   // 1. Years, days and headings are ordinals
   bool locative = kLocativePrepositions.contains(w1);
-  if (noun == U"roku" || noun == U"rok" || noun == U"rokiem") {
+  if ((noun == U"roku" || noun == U"rok" || noun == U"rokiem") && !decimal) {
     Case c = noun == U"rok"    ? Case::NOMINATIVE :
              noun == U"rokiem" ? Case::INSTRUMENTAL :
              locative          ? Case::LOCATIVE :
@@ -376,8 +427,21 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
     bool w2_locative = kLocativePrepositions.contains(w2);
     return {Form::ORDINAL, w1 == U"rok" ? Case::NOMINATIVE : w2_locative ? Case::LOCATIVE : Case::GENITIVE};
   }
-  if (std::ranges::find(kMonthsGenitive, noun) != kMonthsGenitive.end() && n >= 1 && n <= 31) {
-    return {Form::ORDINAL, kCopulas.contains(w1) ? Case::NOMINATIVE : Case::GENITIVE}; // od pierwszego kwietnia
+  // od pierwszego do piątego lipca: the first day of a range, before "do" and a day of a month
+  auto after = words_of(context.tail());
+  bool month_after_range =
+      noun == U"do" && after.size() >= 3 && made_of(stripped(after[1]), kDigits) &&
+      std::ranges::find(kMonthsGenitive, strings::to_lower(stripped(after[2]))) != kMonthsGenitive.end();
+  if ((std::ranges::find(kMonthsGenitive, noun) != kMonthsGenitive.end() || month_after_range) && n >= 1 && n <= 31) {
+    // od pierwszego kwietnia, po pierwszym maja, przed dwudziestym czwartym grudnia, na szósty grudnia
+    // 11 listopada to Święto: a date opening its sentence before a copula is its subject
+    bool subject = before.empty() && after.size() >= 2 && kCopulas.contains(strings::to_lower(stripped(after[1])));
+    Case c = kCopulas.contains(w1) || subject ? Case::NOMINATIVE :
+             w1 == U"po"                      ? Case::LOCATIVE :
+             w1 == U"przed"                   ? Case::INSTRUMENTAL :
+             w1 == U"na"                      ? Case::ACCUSATIVE :
+                                                Case::GENITIVE;
+    return {Form::ORDINAL, c};
   }
   if (kMonthWords.contains(w1) && n >= 1000 && n <= 2100) {
     return {Form::ORDINAL, Case::GENITIVE};
@@ -394,28 +458,42 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
 
   // 2. The case of a cardinal: from a preposition, a governing word or a number it continues
   Inflection result;
-  if (auto it = kPrepositionCases.find(w1); it != kPrepositionCases.end()) {
+  if ((w1 == U"pod" || w1 == U"na") && kCallVerbs.contains(w2)) {
+    result.grammatical_case = Case::NOMINATIVE; // zadzwoń pod sto dwanaście: a number to call
+  } else if (auto it = kPrepositionCases.find(w1); it != kPrepositionCases.end()) {
     result.grammatical_case = it->second;
   } else if (auto it = kComplexPrepositions.find(w1); it != kComplexPrepositions.end() && it->second == w2) {
     result.grammatical_case = Case::GENITIVE;
-  } else if (auto governing = decimal ? std::nullopt : governed(before)) {
+  } else if (auto governing = decimal || kCopulas.contains(noun) ? std::nullopt : governed(before)) {
     result.grammatical_case = *governing;
   } else if (auto earlier = enumerated(context)) {
     result.grammatical_case = inflection_of(*earlier, 0, false).grammatical_case;
   }
 
-  // 3. The noun after it, as it agrees with the number
+  // 3. The noun after it, as it agrees with the number, or with the end of the range it starts: 4-5 godzin agrees
+  // with pięć, so cztery-pięć godzin
+  std::u32string_view tail = context.tail();
+  if (tail.size() > 1 && tail[0] == U'-' && unicode::isdigit(tail[1])) {
+    n = parse_value(tail.substr(1, digits_end(tail, 1) - 1)).value_or(n);
+  }
   bool few = n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14);
   bool nominative = result.grammatical_case == Case::NOMINATIVE || result.grammatical_case == Case::ACCUSATIVE;
   if ((noun.ends_with(U"ami") || noun.ends_with(U"mi")) && noun.size() > 4) {
     result.grammatical_case = Case::INSTRUMENTAL;
   } else if (noun.ends_with(U"ach") && noun.size() > 4) {
     result.grammatical_case = Case::LOCATIVE;
-  } else if (nominative && few && counted(noun)) {
+  } else if (noun.ends_with(U"om") && noun.size() > 4 && !decimal) {
+    result.grammatical_case = Case::DATIVE; // pomogliśmy czterem rodzinom
+  } else if (nominative && n >= 2 && n % 1000 != 0 && kVirileNouns.contains(noun)) {
+    result.grammatical_case = Case::GENITIVE; // piętnastu pracowników, but trzydzieści osiem milionów mieszkańców
+  } else if (nominative && few && counted(noun) && !kSameInBothCases.contains(noun)) {
     result.grammatical_case = Case::GENITIVE; // trzech osób: the noun is genitive, so the number is too
   }
 
-  if ((noun.ends_with(U'a') && n == 1) || starts_with_any(noun, kFemininePlurals)) {
+  // jedna godzina, jednej godziny, but jednego stopnia (a masculine genitive in -a)
+  bool nominative_feminine = noun.ends_with(U'a') && result.grammatical_case == Case::NOMINATIVE;
+  bool genitive_feminine = (noun.ends_with(U'y') || noun.ends_with(U'i')) && result.grammatical_case == Case::GENITIVE;
+  if (((nominative_feminine || genitive_feminine) && n == 1) || starts_with_any(noun, kFemininePlurals)) {
     result.gender = Gender::FEMININE;
   } else if (noun == U"euro") {
     result.gender = Gender::NEUTER;
@@ -455,8 +533,11 @@ std::u32string decimal(const Number& number, Case c) {
     return U"półtora";
   }
   std::u32string head = zero ? cardinal(value(number), c) + U" " : U"";
-  if (number.fraction == U"5") {
-    return head + U"i pół";
+  if (number.fraction == U"5" && value(number) > 0) {
+    return head + U"i pół"; // dwa i pół, but zero przecinek pięć
+  }
+  if (number.fraction.size() > 3) {
+    return head + U"przecinek " + digits(number.fraction); // dwa przecinek siedem jeden osiem dwa osiem
   }
 
   std::vector<std::u32string> words = {U"przecinek"};
@@ -577,6 +658,37 @@ Cues cues_of(const Match& match) {
   return cues;
 }
 
+// 1/2 kg, 3/4 l: a fraction of a unit, read with the unit's genitive (pół kilograma, trzy czwarte litra)
+class FractionUnitPattern : public Pattern {
+public:
+  FractionUnitPattern() : Pattern(Kind::FRACTION), units_(keys_of(kUnits)) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    size_t slash = digits_end(text, position);
+    if (!is_clear_before(text, position, U".,/") || slash == position || slash >= text.size() || text[slash] != U'/') {
+      return std::nullopt;
+    }
+    size_t end = digits_end(text, slash + 1);
+    if (end == slash + 1) {
+      return std::nullopt;
+    }
+    size_t unit = skip_space(text, end);
+    for (auto key : keys_at(text, unit, units_)) {
+      if (is_clear_after(text, unit + key.size())) {
+        return Match{.kind = Kind::FRACTION,
+                     .span = {position, unit + key.size()},
+                     .numbers = {digits_at(text, position), digits_at(text, slash + 1)},
+                     .unit = key,
+                     .separator = U'/'};
+      }
+    }
+    return std::nullopt;
+  }
+
+private:
+  Keys units_;
+};
+
 // 5.VI, 5.VI.2024: a date with its month in Roman numerals
 class RomanDatePattern : public Pattern {
 public:
@@ -632,6 +744,7 @@ public:
       : PatternLanguage({.characters = &kCharacters, .terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
     add_pattern(std::make_unique<RomanDatePattern>());
+    add_pattern(std::make_unique<FractionUnitPattern>());
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -675,15 +788,33 @@ protected:
   }
 
   std::optional<std::u32string> read_phone(const Match& match) const override {
-    // 600 123 456 is a count, unless a word says it is a phone number
-    if (match.kind == Kind::PHONE && match.separator == U' ' && !kPhoneWords.contains(match.context.before())) {
+    // 600 123 456 is a count, unless a word says it is a phone number: numer, tel., zadzwoń pod
+    std::u32string w1 = match.context.before();
+    bool called = (w1 == U"pod" || w1 == U"na") && kCallVerbs.contains(match.context.before(2));
+    if (match.kind == Kind::PHONE && match.separator == U' ' && !kPhoneWords.contains(w1) && !called) {
+      return std::nullopt;
+    }
+    // 31-123 Kraków: a postal code only before a capitalized town or after "kod"; else a range (20-300 zł)
+    std::u32string town = match.context.after();
+    bool postal = (!town.empty() && unicode::isupper(town[0])) || w1 == U"kod" || w1 == U"pocztowy";
+    if (match.numbers.size() == 2 && match.numbers[0].integer.size() == 2 && !postal) {
       return std::nullopt;
     }
 
-    // In groups: sześćset sto dwadzieścia trzy; a longer one digit by digit
+    // In groups: sześćset sto dwadzieścia trzy, a leading zero apart (020: zero dwadzieścia, 00: zero zero); a
+    // longer one digit by digit
     std::vector<std::u32string> words;
     for (const auto& group : match.numbers) {
-      words.push_back(group.integer.size() > 3 ? digits(group.integer) : cardinal(value(group)));
+      std::u32string_view g = group.integer;
+      if (g.size() > 3) {
+        words.push_back(digits(g));
+        continue;
+      }
+      size_t zeros = std::min(g.find_first_not_of(U'0'), g.size());
+      words.insert(words.end(), zeros, U"zero");
+      if (zeros < g.size()) {
+        words.push_back(cardinal(parse_value(g.substr(zeros)).value_or(0)));
+      }
     }
     return join(words);
   }
@@ -759,7 +890,11 @@ protected:
       }
       return form;
     };
+    // XIX i XX wieku: the first of two numerals shares the noun of the second
     std::u32string next = strings::to_lower(match.context.after());
+    if (kConjunctions.contains(next) && roman_value(match.context.after(2))) {
+      next = strings::to_lower(match.context.after(3));
+    }
     if (auto gender = gender_of(next)) {
       NounForm noun = form_of(next, previous);
       return ordinal(n, noun.grammatical_case, *gender, noun.plural);
@@ -823,11 +958,20 @@ protected:
       return amount(number, kScales.at(std::u32string(match.scale)), c) + U" " + currency.plural[index(Case::GENITIVE)];
     }
 
-    // dwanaście złotych dziewięćdziesiąt dziewięć groszy
-    if (number.fraction.size() == 2 && is_zloty(match.unit)) {
-      uint64_t grosze = parse_value(number.fraction).value_or(0);
-      Number zlote{.integer = number.integer, .grouped = number.grouped};
-      return amount(zlote, currency, c) + U" " + cardinal(grosze, c) + U" " + form(kGrosz, grosze, c);
+    // dwanaście złotych dziewięćdziesiąt dziewięć groszy; 5,00 zł pięć złotych; 0,99 zł dziewięćdziesiąt dziewięć
+    // groszy; 3,50 € trzy euro pięćdziesiąt centów
+    // A price per unit keeps its unit for the end: 5,96 zł/m² pięć złotych dziewięćdziesiąt sześć groszy za metr
+    std::u32string unit(match.unit.substr(0, match.unit.find(U'/')));
+    std::u32string per = currency.singular[0].substr(kCurrencies.at(unit).singular[0].size());
+    const Noun* hundredth = is_zloty(unit) ? &kGrosz : kCents.contains(unit) ? &kCent : nullptr;
+    if (number.fraction.size() == 2 && hundredth) {
+      uint64_t cents = parse_value(number.fraction).value_or(0);
+      Number whole{.integer = number.integer, .grouped = number.grouped};
+      std::u32string small = cardinal(cents, c) + U" " + form(*hundredth, cents, c);
+      if (value(whole) == 0 && cents) {
+        return small + per;
+      }
+      return amount(whole, kCurrencies.at(unit), c) + (cents ? U" " + small : U"") + per;
     }
     return amount(number, currency, c);
   }
@@ -844,8 +988,100 @@ protected:
     return amount(number, kUnits.at(std::u32string(match.unit)), cues_of(match).amount_case);
   }
 
+  std::optional<std::u32string> read_fraction(const Match& match) const override {
+    // Only where it divides a noun after it (2/3 głosów), after "ułamek", or after a whole number: 10/12 may be a
+    // house number, and 7/10 a score
+    auto [a, b] = fraction_of(match);
+    // 1/2 kg pół kilograma, 3/4 l trzy czwarte litra: a unit's genitive after the fraction
+    if (!match.unit.empty()) {
+      if (b < 2 || a == 0 || a >= b) {
+        return std::nullopt;
+      }
+      Case c = fraction_case(match.context);
+      bool direct = c == Case::NOMINATIVE || c == Case::ACCUSATIVE;
+      const std::u32string& unit = kUnits.at(std::u32string(match.unit)).singular[index(Case::GENITIVE)];
+      return (a == 1 && b == 2 && direct ? U"pół" : fraction_words(a, b, c)) + U" " + unit;
+    }
+    // ulica Marszałkowska 10/12: a house number, dziesięć łamane przez dwanaście
+    // (ulica Nowy Świat 15/17: a name of up to three words)
+    bool street = std::ranges::any_of(std::array{2, 3, 4},
+                                      [&](size_t k) { return kStreetWords.contains(match.context.before(k)); });
+    if (match.numbers.size() == 2 && street) {
+      return cardinal(a) + U" łamane przez " + cardinal(b);
+    }
+    std::u32string next = strings::to_lower(match.context.after());
+    bool month = std::ranges::find(kMonthsGenitive, next) != kMonthsGenitive.end(); // 3/4 maja: two days
+    bool noun = !next.empty() && unicode::isalpha(next[0]) && !kFractionStops.contains(next) && !month;
+    bool compared = match.context.before() == U"niż" && !kFractionStops.contains(next); // większy niż 1/2
+    bool marked =
+        match.numbers.size() == 3 || match.context.before().starts_with(U"ułam") || compared || noun; // większy niż 1/2
+    std::u32string_view head = match.context.head();
+    bool decimal = head.size() >= 2 && head.back() == U',' && unicode::isdigit(head[head.size() - 2]); // 10,8/12 V
+    bool common = b <= 10 || b == 12 || b == 16 || b == 20 || b == 100 || b == 1000;
+    if (a == 0 || a >= b || !common || !marked || decimal) {
+      return std::nullopt;
+    }
+
+    // pół szklanki; jedna trzecia, dwie trzecie, pięć ósmych; około jednej piątej, w jednej czwartej finału
+    Case c = fraction_case(match.context);
+    bool direct = c == Case::NOMINATIVE || c == Case::ACCUSATIVE;
+    if (a == 1 && b == 2 && noun && direct) {
+      return U"pół";
+    }
+    return fraction_words(a, b, c);
+  }
+
+  std::optional<std::u32string> read_mixed_fraction(const Match& match) const override {
+    if (match.numbers.size() == 2) {
+      return read_fraction(match);
+    }
+    // 1 1/2: półtorej godziny, półtora roku (a feminine noun's genitive ends in -y or -i); 2 1/2 roku: dwa i pół
+    // roku; 3 3/4 mili: trzy i trzy czwarte mili
+    auto [a, b] = fraction_of(match);
+    uint64_t whole = value(match.numbers[0]);
+    if (a >= b) {
+      return std::nullopt;
+    }
+    if (whole == 1 && a == 1 && b == 2) {
+      std::u32string next = match.context.after();
+      return next.ends_with(U'y') || next.ends_with(U'i') ? U"półtorej" : U"półtora";
+    }
+    Case c = fraction_case(match.context);
+    return cardinal(whole, c) + U" i " + (a == 1 && b == 2 ? U"pół" : fraction_words(a, b, c));
+  }
+
+private:
+  // The case of a fraction, from the word before it: około jednej piątej, w jednej czwartej, zjadł jedną szóstą
+  static Case fraction_case(const Context& context) {
+    std::u32string before = context.before();
+    if (before == U"w" || before == U"we") {
+      return Case::LOCATIVE;
+    }
+    if (auto it = kPrepositionCases.find(before); it != kPrepositionCases.end()) {
+      return it->second;
+    }
+    // An object after a verb: zjadł, wypił, dodaj, kup
+    bool past = before.size() > 2 && before.ends_with(U'ł');
+    return past || kImperatives.contains(before) ? Case::ACCUSATIVE : Case::NOMINATIVE;
+  }
+
+  // a/b in a case: jedna trzecia, dwie trzecie, pięć ósmych, jednej piątej, dwóch trzecich
+  static std::u32string fraction_words(uint64_t a, uint64_t b, Case c) {
+    bool direct = c == Case::NOMINATIVE || c == Case::ACCUSATIVE;
+    bool few = a % 10 >= 2 && a % 10 <= 4 && (a % 100 < 12 || a % 100 > 14);
+    Case denominator = a == 1 || few || !direct ? c : Case::GENITIVE;
+    return cardinal(a, c, Gender::FEMININE) + U" " + ordinal(b, denominator, Gender::FEMININE, a != 1);
+  }
+
+public:
   std::optional<std::u32string> read_joiner(const Match& match) const override {
     if (match.kind == Kind::DIMENSION) {
+      // 5 × 3 = 15, oblicz 5 × 3: a product; 60 × 35 cm, wymiary 20 × 30: a dimension
+      static const std::unordered_set<std::u32string> math = {U"oblicz", U"policz", U"ile", U"pomnóż", U"wynik"};
+      bool product = match.context.after(2) == U"=" || math.contains(match.context.before(2));
+      if (product && match.text.find(U'×') != std::u32string_view::npos) {
+        return U" razy ";
+      }
       return cues_of(match).numbered ? U" przez " : U" na ";
     }
     return PatternLanguage::read_joiner(match);

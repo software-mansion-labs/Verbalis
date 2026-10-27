@@ -45,6 +45,26 @@ REGISTER_TEST(numbers_pl_test) {
       U"procentowych.",
       verbalize("pl", U"Ho³ownia zmierzy siê, jak siÄ™ okazaÅ‚o, w 10 m³, o 5 pkt proc."));
 
+  ASSERT_EQUALS(U"Kandydat zdobył dwie trzecie głosów, około jednej piątej wyjechało, w jednej ósmej finału.",
+                verbalize("pl", U"Kandydat zdobył 2/3 głosów, około 1/5 wyjechało, w 1/8 finału."));
+  ASSERT_EQUALS(U"Czekał półtorej godziny, ma dwa i pół roku, ulica Marszałkowska dziesięć łamane przez dwanaście.",
+                verbalize("pl", U"Czekał 1 1/2 godziny, ma 2 1/2 roku, ul. Marszałkowska 10/12."));
+
+  ASSERT_EQUALS(U"W trzeciej rundzie, na trzecim piętrze, z pierwszego miejsca, w ramach drugiej fazy.",
+                verbalize("pl", U"W 3. rundzie, na 3. piętrze, z 1. miejsca, w ramach 2. fazy."));
+
+  ASSERT_EQUALS(
+      U"Dzwoń na pięćset trzy dwieście dwadzieścia dwa sto jedenaście, zadzwoń pod sto dwanaście, telefon "
+      U"pięćdziesiąt osiem trzysta czterdzieści pięćdziesiąt zero zero.",
+      verbalize("pl", U"Dzwoń na 503 222 111, zadzwoń pod 112, tel. 58 340 50 00."));
+
+  ASSERT_EQUALS(
+      U"Zatrudniamy piętnastu pracowników, cena wzrosła z czterdziestu złotych do pięćdziesięciu złotych, "
+      U"temperatura spadła do minus siedmiu stopni, po pierwszym maja, kosztuje dziewięćdziesiąt dziewięć groszy.",
+      verbalize("pl",
+                U"Zatrudniamy 15 pracowników, cena wzrosła z 40 zł do 50 zł, temperatura spadła do -7 "
+                U"stopni, po 1 maja, kosztuje 0,99 zł."));
+
   return true;
 }
 

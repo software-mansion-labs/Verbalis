@@ -122,6 +122,13 @@ export const ORDINAL_SUFFIXES: ReadonlyMap<string, string> = new Map([
   ["ci", "y"],     ["go", "ego"],  ["ego", "ego"], ["tego", "ego"], ["ej", "ej"],    ["tej", "ej"],
   ["ym", "ym"],    ["tym", "ym"],  ["ta", "a"],    ["a", "a"],     ["te", "e"],     ["e", "e"],
   ["mu", "emu"],   ["temu", "emu"],
+  // The endings after the stem of 1, 2, 3, 7, 8, and from 20: 1-szym, 2-gim, 3-cim, 3-ciej, 7-mym, 20-stym
+  ["cim", "ym"],   ["gim", "ym"],  ["szym", "ym"], ["mym", "ym"],   ["stym", "ym"],
+  ["ciej", "ej"],  ["giej", "ej"], ["szej", "ej"], ["mej", "ej"],   ["stej", "ej"],
+  ["ciego", "ego"], ["giego", "ego"], ["szego", "ego"], ["mego", "ego"], ["stego", "ego"],
+  ["cia", "a"],    ["ga", "a"],    ["sza", "a"],   ["ma", "a"],     ["sta", "a"],
+  ["cie", "e"],    ["gie", "e"],   ["sze", "e"],   ["me", "e"],     ["ste", "e"],
+  ["my", "y"],     ["sty", "y"],
 ]);
 
 // Nouns counted by numbers
@@ -135,9 +142,24 @@ export const EURO = noun("euro euro euro euro euro euro euro euro euro euro euro
 export const DOLLAR = masculine("dolar", "dolarze");
 export const DEGREE = "stopień stopnia stopniowi stopień stopniem stopniu stopnie stopni stopniom stopnie stopniami stopniach";
 
+// A noun followed by words which don't inflect: złotych za metr kwadratowy
+export function followed(base: Noun, words: string): Noun {
+  return {
+    singular: base.singular.map((form) => `${form} ${words}`),
+    plural: base.plural.map((form) => `${form} ${words}`),
+  };
+}
+
 export const CURRENCIES: Readonly<Record<string, Noun>> = {
   "zł": ZLOTY, "PLN": ZLOTY, "€": EURO, "EUR": EURO, "$": DOLLAR, "USD": DOLLAR,
   "£": masculine("funt", "funcie"), "gr": GROSZ,
+  // Prices per unit: 100 zł/m² sto złotych za metr kwadratowy
+  "zł/m²": followed(ZLOTY, "za metr kwadratowy"), "zł/m2": followed(ZLOTY, "za metr kwadratowy"),
+  "zł/h": followed(ZLOTY, "za godzinę"),           "zł/godz.": followed(ZLOTY, "za godzinę"),
+  "zł/kg": followed(ZLOTY, "za kilogram"),         "zł/szt.": followed(ZLOTY, "za sztukę"),
+  "zł/l": followed(ZLOTY, "za litr"),              "zł/os.": followed(ZLOTY, "za osobę"),
+  "zł/km": followed(ZLOTY, "za kilometr"),         "zł/mies.": followed(ZLOTY, "miesięcznie"),
+  "€/m²": followed(EURO, "za metr kwadratowy"),
 };
 
 export const SCALES: Readonly<Record<string, Noun>> = {
@@ -199,7 +221,8 @@ export const MONTHS_GENITIVE = [
 export const MONTH_WORDS: ReadonlySet<string> = new Set([
   "stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września",
   "października", "listopada", "grudnia", "styczeń", "luty", "marzec", "kwiecień", "maj", "czerwiec",
-  "lipiec", "sierpień", "wrzesień", "październik", "listopad", "grudzień",
+  "lipiec", "sierpień", "wrzesień", "październik", "listopad", "grudzień", "styczniu", "lutym", "marcu",
+  "kwietniu", "maju", "czerwcu", "lipcu", "sierpniu", "wrześniu", "październiku", "listopadzie", "grudniu",
 ]);
 
 // The case a preposition gives the number after it: od pięciu, z trzema
@@ -216,7 +239,7 @@ export const PREPOSITION_CASES: ReadonlyMap<string, Case> = new Map<string, Case
   ["wbrew", Case.DATIVE],
   ["przez", Case.ACCUSATIVE], ["ponad", Case.ACCUSATIVE], ["na", Case.ACCUSATIVE], ["o", Case.ACCUSATIVE],
   ["za", Case.ACCUSATIVE], ["po", Case.ACCUSATIVE], ["w", Case.ACCUSATIVE], ["we", Case.ACCUSATIVE],
-  ["z", Case.INSTRUMENTAL], ["ze", Case.INSTRUMENTAL], ["nad", Case.INSTRUMENTAL],
+  ["z", Case.GENITIVE], ["ze", Case.GENITIVE], ["nad", Case.INSTRUMENTAL],
   ["pod", Case.INSTRUMENTAL], ["przed", Case.INSTRUMENTAL], ["między", Case.INSTRUMENTAL],
   ["pomiędzy", Case.INSTRUMENTAL],
   ["przy", Case.LOCATIVE],
@@ -228,6 +251,7 @@ export const LOCATIVE_PREPOSITIONS: ReadonlySet<string> = new Set(["w", "we", "o
 export const COMPLEX_PREPOSITIONS: ReadonlyMap<string, string> = new Map([
   ["ciągu", "w"], ["trakcie", "w"], ["czasie", "w"], ["wyniku", "w"], ["przypadku", "w"],
   ["zakresie", "w"], ["ramach", "w"], ["celu", "w"], ["postaci", "w"], ["powodu", "z"],
+  ["przeciągu", "w"], ["okresie", "w"],
 ]);
 
 // Stems of amount nouns: a number after them is their genitive attribute (od kwoty trzystu tysięcy)
@@ -272,18 +296,101 @@ export const COUNT_NOUNS: ReadonlySet<string> = new Set([
   "miesięcy",
 ]);
 
+// Nouns of men in the genitive plural, after which a number takes its genitive form: piętnastu pracowników
+export const VIRILE_NOUNS: ReadonlySet<string> = new Set([
+  "uczniów", "studentów", "pracowników", "mężczyzn", "chłopców", "żołnierzy", "policjantów", "strażaków", "lekarzy",
+  "nauczycieli", "zawodników", "piłkarzy", "kibiców", "posłów", "senatorów", "radnych", "polityków", "kandydatów",
+  "uczestników", "pasażerów", "turystów", "mieszkańców", "obywateli", "pacjentów", "klientów", "użytkowników",
+  "gości", "sędziów", "prawników", "dziennikarzy", "autorów", "artystów", "muzyków", "aktorów", "naukowców",
+  "badaczy", "ekspertów", "specjalistów", "inżynierów", "kierowców", "rolników", "górników", "ratowników",
+  "ministrów", "członków", "kolegów", "przyjaciół", "braci", "synów", "Polaków", "polaków", "zwycięzców",
+  "finalistów", "laureatów", "absolwentów", "ochotników", "wolontariuszy", "funkcjonariuszy", "oficerów",
+  "generałów", "księży", "biskupów", "więźniów", "zakładników", "pracowników", "robotników", "sportowców",
+  "trenerów", "graczy", "chłopaków", "panów", "emerytów", "rodziców", "ojców", "dziadków", "wnuków", "sąsiadów",
+  "świadków", "podejrzanych", "zatrzymanych", "rannych", "zabitych",
+]);
+
+// Counted nouns whose nominative plural is also their genitive: trzy razy, cztery dni
+export const SAME_IN_BOTH_CASES: ReadonlySet<string> = new Set(["razy", "dni"]);
+
+export const CENT = noun("cent centa centowi cent centem cencie centy centów centom centy centami centach");
+
+// Currencies whose hundredth is a cent: 3,50 € trzy euro pięćdziesiąt centów
+export const CENTS: ReadonlySet<string> = new Set(["€", "EUR", "$", "USD"]);
+
 export const CURRENCY_WORDS: ReadonlySet<string> = new Set(["zł", "złoty", "złote", "złotych"]);
 
 // Stems of nouns whose numbers are feminine: dwie osoby, dwie godziny
 export const FEMININE_PLURALS = [
   "osob", "osób", "godzin", "minut", "sekund", "złotówk", "kobiet", "stron", "sztuk", "rzecz", "częś",
   "noc", "dob", "klas", "wersj", "sesj", "edycj", "zapał", "tablic", "butelk", "szklank", "łyżk",
+  "dziewczyn", "dziewcząt", "córk", "córek", "siostr", "sióstr", "matk", "matek", "rodzin", "uczennic",
+  "zawodniczk", "zawodniczek",
 ] as const;
 
 // Words before a time with a dot, which make it a time: o 18.30
 export const TIME_WORDS: ReadonlySet<string> = new Set([
   "o", "godzinie", "godz", "od", "do", "około", "koło", "po", "przed", "na", "między", "za",
 ]);
+
+// Nouns which often follow an ordinal, with their twelve forms, so that the ordinal agrees: w 3. rundzie (trzeciej),
+// na 3. piętrze (trzecim), z 1. miejsca (pierwszego), 18. urodziny (osiemnaste)
+export const ORDINAL_NOUNS: readonly (readonly [Gender, string])[] = [
+  [Gender.FEMININE, "runda rundy rundzie rundę rundą rundzie rundy rund rundom rundy rundami rundach"],
+  [Gender.FEMININE, "minuta minuty minucie minutę minutą minucie minuty minut minutom minuty minutami minutach"],
+  [Gender.FEMININE, "połowa połowy połowie połowę połową połowie połowy połów połowom połowy połowami połowach"],
+  [Gender.FEMININE, "tura tury turze turę turą turze tury tur turom tury turami turach"],
+  [Gender.FEMININE, "strona strony stronie stronę stroną stronie strony stron stronom strony stronami stronach"],
+  [Gender.FEMININE, "kolejka kolejki kolejce kolejkę kolejką kolejce kolejki kolejek kolejkom kolejki kolejkami kolejkach"],
+  [Gender.FEMININE, "edycja edycji edycji edycję edycją edycji edycje edycji edycjom edycje edycjami edycjach"],
+  [Gender.FEMININE, "klasa klasy klasie klasę klasą klasie klasy klas klasom klasy klasami klasach"],
+  [Gender.FEMININE, "liga ligi lidze ligę ligą lidze ligi lig ligom ligi ligami ligach"],
+  [Gender.FEMININE, "pozycja pozycji pozycji pozycję pozycją pozycji pozycje pozycji pozycjom pozycje pozycjami pozycjach"],
+  [Gender.FEMININE, "sesja sesji sesji sesję sesją sesji sesje sesji sesjom sesje sesjami sesjach"],
+  [Gender.FEMININE, "rocznica rocznicy rocznicy rocznicę rocznicą rocznicy rocznice rocznic rocznicom rocznice rocznicami rocznicach"],
+  [Gender.FEMININE, "kadencja kadencji kadencji kadencję kadencją kadencji kadencje kadencji kadencjom kadencje kadencjami kadencjach"],
+  [Gender.FEMININE, "godzina godziny godzinie godzinę godziną godzinie godziny godzin godzinom godziny godzinami godzinach"],
+  [Gender.FEMININE, "wojna wojny wojnie wojnę wojną wojnie wojny wojen wojnom wojny wojnami wojnach"],
+  [Gender.FEMININE, "nagroda nagrody nagrodzie nagrodę nagrodą nagrodzie nagrody nagród nagrodom nagrody nagrodami nagrodach"],
+  [Gender.FEMININE, "faza fazy fazie fazę fazą fazie fazy faz fazom fazy fazami fazach"],
+  [Gender.FEMININE, "seria serii serii serię serią serii serie serii seriom serie seriami seriach"],
+  [Gender.FEMININE, "sekunda sekundy sekundzie sekundę sekundą sekundzie sekundy sekund sekundom sekundy sekundami sekundach"],
+  [Gender.FEMININE, "doba doby dobie dobę dobą dobie doby dób dobom doby dobami dobach"],
+  [Gender.FEMININE, "kategoria kategorii kategorii kategorię kategorią kategorii kategorie kategorii kategoriom kategorie kategoriami kategoriach"],
+  [Gender.FEMININE, "linia linii linii linię linią linii linie linii liniom linie liniami liniach"],
+  [Gender.FEMININE, "część części części część częścią części części części częściom części częściami częściach"],
+  [Gender.FEMININE, "odsłona odsłony odsłonie odsłonę odsłoną odsłonie odsłony odsłon odsłonom odsłony odsłonami odsłonach"],
+  [Gender.FEMININE, "kwarta kwarty kwarcie kwartę kwartą kwarcie kwarty kwart kwartom kwarty kwartami kwartach"],
+  [Gender.NEUTER, "piętro piętra piętru piętro piętrem piętrze piętra pięter piętrom piętra piętrami piętrach"],
+  [Gender.NEUTER, "miejsce miejsca miejscu miejsce miejscem miejscu miejsca miejsc miejscom miejsca miejscami miejscach"],
+  [Gender.NEUTER, "wydanie wydania wydaniu wydanie wydaniem wydaniu wydania wydań wydaniom wydania wydaniami wydaniach"],
+  [Gender.NEUTER, "okrążenie okrążenia okrążeniu okrążenie okrążeniem okrążeniu okrążenia okrążeń okrążeniom okrążenia okrążeniami okrążeniach"],
+  [Gender.NEUTER, "stulecie stulecia stuleciu stulecie stuleciem stuleciu stulecia stuleci stuleciom stulecia stuleciami stuleciach"],
+  [Gender.NEUTER, "spotkanie spotkania spotkaniu spotkanie spotkaniem spotkaniu spotkania spotkań spotkaniom spotkania spotkaniami spotkaniach"],
+  [Gender.NEUTER, "półrocze półrocza półroczu półrocze półroczem półroczu półrocza półroczy półroczom półrocza półroczami półroczach"],
+  [Gender.NEUTER, "urodziny urodzin urodzinom urodziny urodzinami urodzinach urodziny urodzin urodzinom urodziny urodzinami urodzinach"],
+  [Gender.MASCULINE, "kwartał kwartału kwartałowi kwartał kwartałem kwartale kwartały kwartałów kwartałom kwartały kwartałami kwartałach"],
+  [Gender.MASCULINE, "etap etapu etapowi etap etapem etapie etapy etapów etapom etapy etapami etapach"],
+  [Gender.MASCULINE, "mecz meczu meczowi mecz meczem meczu mecze meczów meczom mecze meczami meczach"],
+  [Gender.MASCULINE, "sezon sezonu sezonowi sezon sezonem sezonie sezony sezonów sezonom sezony sezonami sezonach"],
+  [Gender.MASCULINE, "dzień dnia dniowi dzień dniem dniu dni dni dniom dni dniami dniach"],
+  [Gender.MASCULINE, "tydzień tygodnia tygodniowi tydzień tygodniem tygodniu tygodnie tygodni tygodniom tygodnie tygodniami tygodniach"],
+  [Gender.MASCULINE, "miesiąc miesiąca miesiącowi miesiąc miesiącem miesiącu miesiące miesięcy miesiącom miesiące miesiącami miesiącach"],
+  [Gender.MASCULINE, "wiek wieku wiekowi wiek wiekiem wieku wieki wieków wiekom wieki wiekami wiekach"],
+  [Gender.MASCULINE, "raz razu razowi raz razem razie razy razy razom razy razami razach"],
+  [Gender.MASCULINE, "punkt punktu punktowi punkt punktem punkcie punkty punktów punktom punkty punktami punktach"],
+  [Gender.MASCULINE, "set seta setowi seta setem secie sety setów setom sety setami setach"],
+  [Gender.MASCULINE, "stopień stopnia stopniowi stopień stopniem stopniu stopnie stopni stopniom stopnie stopniami stopniach"],
+  [Gender.MASCULINE, "poziom poziomu poziomowi poziom poziomem poziomie poziomy poziomów poziomom poziomy poziomami poziomach"],
+  [Gender.MASCULINE, "tom tomu tomowi tom tomem tomie tomy tomów tomom tomy tomami tomach"],
+  [Gender.MASCULINE, "rozdział rozdziału rozdziałowi rozdział rozdziałem rozdziale rozdziały rozdziałów rozdziałom rozdziały rozdziałami rozdziałach"],
+  [Gender.MASCULINE, "odcinek odcinka odcinkowi odcinek odcinkiem odcinku odcinki odcinków odcinkom odcinki odcinkami odcinkach"],
+  [Gender.MASCULINE, "turniej turnieju turniejowi turniej turniejem turnieju turnieje turniejów turniejom turnieje turniejami turniejach"],
+  [Gender.MASCULINE, "festiwal festiwalu festiwalowi festiwal festiwalem festiwalu festiwale festiwali festiwalom festiwale festiwalami festiwalach"],
+  [Gender.MASCULINE, "kongres kongresu kongresowi kongres kongresem kongresie kongresy kongresów kongresom kongresy kongresami kongresach"],
+  [Gender.MASCULINE, "krok kroku krokowi krok krokiem kroku kroki kroków krokom kroki krokami krokach"],
+  [Gender.MASCULINE, "rząd rzędu rzędowi rząd rzędem rzędzie rzędy rzędów rzędom rzędy rzędami rzędach"],
+];
 
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
 export const TIME_UNITS: ReadonlySet<string> = new Set(["h", "min", "s", "ms", "godz.", "sek."]);
@@ -352,7 +459,8 @@ export const ROMAN_NOUNS: ReadonlyArray<readonly [string, Gender]> = [
   ["wiek-", Gender.MASCULINE], ["stuleci-", Gender.NEUTER], ["tysiącleci-", Gender.NEUTER],
   ["wojn-", Gender.FEMININE], ["rzeczpospolit-", Gender.FEMININE], ["rzeczypospolit-", Gender.FEMININE],
   ["kadencj-", Gender.FEMININE], ["edycj-", Gender.FEMININE], ["połow-", Gender.FEMININE],
-  ["kwartał-", Gender.MASCULINE], ["zjazd-", Gender.MASCULINE], ["kongres-", Gender.MASCULINE],
+  ["kwartał-", Gender.MASCULINE], ["kwartal-", Gender.MASCULINE], ["nagrod-", Gender.FEMININE],
+  ["półrocz-", Gender.NEUTER], ["miejsc-", Gender.NEUTER], ["zjazd-", Gender.MASCULINE], ["kongres-", Gender.MASCULINE],
   ["sesj-", Gender.FEMININE], ["festiwal-", Gender.MASCULINE], ["konkurs-", Gender.MASCULINE],
   ["piętr-", Gender.NEUTER], ["kategori-", Gender.FEMININE], ["rozdzia-", Gender.MASCULINE],
   ["liga", Gender.FEMININE], ["ligi", Gender.FEMININE], ["lidze", Gender.FEMININE], ["ligę", Gender.FEMININE],
@@ -370,12 +478,32 @@ export const ROMAN_NOUNS: ReadonlyArray<readonly [string, Gender]> = [
 // --- Notation: how numbers are written ---
 export const NOTATION = notation({
   groupSeparators: "   .", decimalSeparators: ",.", timeSeparators: ":.",
-  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS),
+  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
 });
+
+// Words before the name of a street, after which a/b is a house number: ulica Marszałkowska 10/12
+export const STREET_WORDS: ReadonlySet<string> = new Set([
+  "ulica", "ulicy", "ulicę", "ulicą", "aleja", "alei", "aleję", "aleje", "alejach", "plac", "placu", "placem", "osiedle",
+  "osiedlu", "rondo", "rondzie",
+]);
+
+// Imperatives which take an amount as their object: Dodaj 1/4 łyżeczki (jedną czwartą)
+export const IMPERATIVES: ReadonlySet<string> = new Set([
+  "dodaj", "dodać", "kup", "weź", "wsyp", "wlej", "dosyp", "odlej", "odsyp", "zjedz", "wypij", "użyj",
+]);
+
+// Words after a fraction which are not the noun it divides: Ułamek 1/2 jest prosty, Wynik to 3/8
+export const FRACTION_STOPS: ReadonlySet<string> = new Set([
+  "to", "jest", "są", "był", "była", "było", "i", "a", "oraz", "lub", "albo", "czy", "w", "we",
+  "na", "z", "ze", "do", "od", "po", "przez", "dla", "za", "o", "się", "nie", "że", "jak",
+  // Plural spans of time: 2/3 dni is two or three days, but 3/4 godziny three quarters of an hour
+  "dni", "tygodni", "miesięcy", "lat", "godzin", "minut", "sekund", "razy",
+]);
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 export const JOINERS: Joiners = {
   point: "kropka", dot: "kropka", range: "-", by: "na", score: " do ", minus: "minus", plus: "plus",
+  fraction: " i ", half: " i pół",
 };
 
 // 15.08.2020 r.: the year has four digits, "r." may follow it
@@ -387,11 +515,23 @@ export const PHONE_FORMATS = [
   phoneFormat({ groups: [[2, 2], [3, 3], [2, 2], [2, 2]], separators: " ", boundaries: "", closing: "" }),
   phoneFormat({ groups: [[3, 3], [3, 3], [3, 3]], separators: "-", boundaries: ".,-", closing: "-" }),
   phoneFormat({ groups: [[2, 2], [3, 3], [2, 2], [2, 2]], separators: "-", boundaries: ".,-", closing: "-" }),
+  phoneFormat({ groups: [[1, 1], [3, 3], [3, 3], [3, 3]], separators: " ", leadingZero: true, boundaries: "", closing: "" }),
+  phoneFormat({ groups: [[3, 3], [3, 3]], separators: " ", boundaries: "", closing: "" }),
+  // 31-123 Kraków: a postal code, before the name of its town
+  phoneFormat({ groups: [[2, 2], [3, 3]], separators: "-", boundaries: ".,-", closing: "-" }),
 ];
 
 // Words before a phone number written with spaces, which else reads as a count: numer 600 123 456
 export const PHONE_WORDS: ReadonlySet<string> = new Set([
   "numer", "numerem", "numeru", "tel", "telefon", "telefonu", "telefonem", "infolinia", "faks", "fax",
+  "komórka", "komórki", "komórkowy", "komórkowego", "kontaktowy", "kontaktowego", "zaufania", "alarmowy",
+  "alarmowego", "sms", "whatsapp",
+]);
+
+// Verbs of calling, after which "pod" or "na" takes a phone number: zadzwoń pod 112, dzwoń na 503 222 111
+export const CALL_VERBS: ReadonlySet<string> = new Set([
+  "dzwoń", "zadzwoń", "dzwońcie", "zadzwońcie", "dzwonić", "zadzwonić", "dzwoni", "zadzwonił", "dzwonił",
+  "pisz", "napisz", "wyślij",
 ]);
 
 // 2020 r.: a year with "roku" after it

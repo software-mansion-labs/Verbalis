@@ -39,6 +39,35 @@ function dashEnd(text: Text, position: number): number {
   return end - position >= 2 ? end : position;
 }
 
+// A character lost in decoding, which says nothing: the replacement character, also as UTF-8 read as Latin-1
+// (dï¿½clarant -> dclarant)
+function readLost(text: Text, position: number): Edit | undefined {
+  for (const lost of ["ï¿½", "\ufffd"]) {
+    const length = [...lost].length;
+    if (str(text, position, position + length) === lost) {
+      return { span: { begin: position, end: position + length }, text: "" };
+    }
+  }
+  return undefined;
+}
+
+// A fraction character standing apart, written with digits for the fraction readings: ¾ szklanki -> 3/4, 2½ -> 2 1/2;
+// undefined next to a letter, where it is likely a mis-encoded letter (dï¿½clarant)
+const VULGAR_FRACTIONS: ReadonlyMap<string, string> = new Map([
+  ["½", "1/2"],
+  ["¼", "1/4"],
+  ["¾", "3/4"],
+  ["⅓", "1/3"],
+  ["⅔", "2/3"],
+]);
+function vulgarFraction(text: Text, position: number): string | undefined {
+  const fraction = VULGAR_FRACTIONS.get(text[position]);
+  if (fraction === undefined || isAlpha(text[position - 1]) || isAlpha(text[position + 1])) {
+    return undefined;
+  }
+  return (isDigit(text[position - 1]) ? " " : "") + fraction;
+}
+
 // Whether an ordinal sign at a position is a degree: 18ºC, 12 ºF
 function isDegree(text: Text, position: number): boolean {
   let before = position;
@@ -97,7 +126,7 @@ function readUtf8(text: Text, position: number): Edit | undefined {
 /**
  * Writes equivalent characters in one canonical form, before anything reads the text:
  * quotes as ", apostrophes as ', an ellipsis as ..., dashes as - or " - ", a degree written as an ordinal sign
- * (18ºC) as °, and no invisible characters.
+ * (18ºC) as °, a fraction character apart as digits (¾ -> 3/4), and no invisible or lost characters (ï¿½).
  *
  * A language whose classes have letters read in the wrong encoding also gets UTF-8 read as Windows-1252 repaired:
  * siÄ™ -> się.
@@ -122,15 +151,18 @@ export class Normalizer {
   apply(document: Document): void {
     const text = document.text();
     for (let i = 0; i < text.length;) {
-      const edit = (this.#utf8 ? readUtf8(text, i) : undefined) ?? readDash(text, i);
+      const edit = (this.#utf8 ? readUtf8(text, i) : undefined) ?? readLost(text, i) ?? readDash(text, i);
       if (edit) {
         document.replace(edit.span, edit.text);
         i = edit.span.end;
         continue;
       }
       const canonical = this.#canonical.get(text[i]);
+      const fraction = vulgarFraction(text, i);
       if (isDegree(text, i)) {
         document.replace({ begin: i, end: i + 1 }, "°");
+      } else if (fraction !== undefined) {
+        document.replace({ begin: i, end: i + 1 }, fraction);
       } else if (canonical !== undefined && (!this.#letters.has(text[i]) || this.#isLetter(text, i))) {
         document.replace({ begin: i, end: i + 1 }, canonical);
       }

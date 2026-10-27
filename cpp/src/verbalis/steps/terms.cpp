@@ -86,7 +86,10 @@ void TermReader::apply(Document& document) const {
     // Terms start at word boundaries, but not after a dot: e.g. is not g.
     std::optional<Term> term;
     if (is_clear_before(text, position, U".")) {
-      term = read_address(text, position);
+      term = read_uuid(text, position);
+      if (!term) {
+        term = read_address(text, position);
+      }
       if (!term) {
         term = read_path(text, position);
       }
@@ -102,6 +105,36 @@ void TermReader::apply(Document& document) const {
     document.replace(term->span, std::move(term->words));
     position = term->span.end;
   }
+}
+
+std::optional<TermReader::Term> TermReader::read_uuid(std::u32string_view text, size_t position) const {
+  const WebWords& web = terms_.web;
+  if (web.digits.size() != 10) {
+    return std::nullopt;
+  }
+  auto hex = [](char32_t c) { return unicode::isdigit(c) || (c >= U'a' && c <= U'f') || (c >= U'A' && c <= U'F'); };
+  size_t end = position;
+  for (size_t length : {8, 4, 4, 4, 12}) {
+    if (end > position && (end >= text.size() || text[end++] != U'-')) {
+      return std::nullopt;
+    }
+    for (size_t i = 0; i < length; ++i, ++end) {
+      if (end >= text.size() || !hex(text[end])) {
+        return std::nullopt;
+      }
+    }
+  }
+  if (end < text.size() && unicode::isword(text[end])) {
+    return std::nullopt;
+  }
+
+  std::vector<std::u32string> words;
+  for (char32_t c : text.substr(position, end - position)) {
+    if (c != U'-') {
+      words.push_back(unicode::isdigit(c) ? web.digits[c - U'0'] : std::u32string(1, unicode::tolower(c)));
+    }
+  }
+  return Term{.span = {position, end}, .words = join(words)};
 }
 
 std::optional<TermReader::Term> TermReader::read_address(std::u32string_view text, size_t position) const {

@@ -136,7 +136,14 @@ inline const std::unordered_map<std::u32string, std::u32string_view> kOrdinalSuf
   {U"tych", U"ych"}, {U"ych", U"ych"}, {U"ty", U"y"},    {U"y", U"y"},     {U"szy", U"y"},    {U"gi", U"y"},
   {U"ci", U"y"},     {U"go", U"ego"},  {U"ego", U"ego"}, {U"tego", U"ego"}, {U"ej", U"ej"},    {U"tej", U"ej"},
   {U"ym", U"ym"},    {U"tym", U"ym"},  {U"ta", U"a"},    {U"a", U"a"},     {U"te", U"e"},     {U"e", U"e"},
-  {U"mu", U"emu"},   {U"temu", U"emu"}
+  {U"mu", U"emu"},   {U"temu", U"emu"},
+  // The endings after the stem of 1, 2, 3, 7, 8, and from 20: 1-szym, 2-gim, 3-cim, 3-ciej, 7-mym, 20-stym
+  {U"cim", U"ym"},   {U"gim", U"ym"},  {U"szym", U"ym"}, {U"mym", U"ym"},   {U"stym", U"ym"},
+  {U"ciej", U"ej"},  {U"giej", U"ej"}, {U"szej", U"ej"}, {U"mej", U"ej"},   {U"stej", U"ej"},
+  {U"ciego", U"ego"}, {U"giego", U"ego"}, {U"szego", U"ego"}, {U"mego", U"ego"}, {U"stego", U"ego"},
+  {U"cia", U"a"},    {U"ga", U"a"},    {U"sza", U"a"},   {U"ma", U"a"},     {U"sta", U"a"},
+  {U"cie", U"e"},    {U"gie", U"e"},   {U"sze", U"e"},   {U"me", U"e"},     {U"ste", U"e"},
+  {U"my", U"y"},     {U"sty", U"y"}
 };
 
 // Nouns counted by numbers
@@ -144,20 +151,16 @@ inline const Noun kThousand = noun(U"tysiąc tysiąca tysiącowi tysiąc tysiąc
 inline const Noun kMillion = masculine(U"milion", U"milionie");
 inline const Noun kBillion = masculine(U"miliard", U"miliardzie");
 inline const Noun kZloty = noun(U"złoty złotego złotemu złoty złotym złotym złote złotych złotym złote złotymi złotych");
+inline const Noun kCent = noun(U"cent centa centowi cent centem cencie centy centów centom centy centami centach");
+
+// Currencies whose hundredth is a cent: 3,50 € trzy euro pięćdziesiąt centów
+inline const std::unordered_set<std::u32string> kCents = {U"€", U"EUR", U"$", U"USD"};
+
 inline const Noun kGrosz = noun(U"grosz grosza groszowi grosz groszem groszu grosze groszy groszom grosze groszami groszach");
 inline const Noun kPercent = noun(U"procent procent procentowi procent procentem procencie procent procent procentom procent procentami procentach");
 inline const Noun kEuro = noun(U"euro euro euro euro euro euro euro euro euro euro euro euro");
 inline const Noun kDollar = masculine(U"dolar", U"dolarze");
 inline constexpr std::u32string_view kDegree = U"stopień stopnia stopniowi stopień stopniem stopniu stopnie stopni stopniom stopnie stopniami stopniach";
-
-inline const std::unordered_map<std::u32string, Noun> kCurrencies = {
-  {U"zł", kZloty}, {U"PLN", kZloty}, {U"€", kEuro}, {U"EUR", kEuro}, {U"$", kDollar}, {U"USD", kDollar},
-  {U"£", masculine(U"funt", U"funcie")}, {U"gr", kGrosz}
-};
-
-inline const std::unordered_map<std::u32string, Noun> kScales = {
-  {U"tys.", kThousand}, {U"mln", kMillion}, {U"mld", kBillion}
-};
 
 // A noun with an adjective after it, from the adjective's twelve forms: metr kwadratowy, metrów kwadratowych.
 inline Noun qualified(const Noun& base, std::u32string_view adjective) {
@@ -168,6 +171,33 @@ inline Noun qualified(const Noun& base, std::u32string_view adjective) {
   }
   return result;
 }
+
+// A noun followed by words which don't inflect: złotych za metr kwadratowy
+inline Noun followed(const Noun& base, std::u32string_view words) {
+  Noun result = base;
+  for (size_t c = 0; c < 6; ++c) {
+    result.singular[c] += U" " + std::u32string(words);
+    result.plural[c] += U" " + std::u32string(words);
+  }
+  return result;
+}
+
+inline const std::unordered_map<std::u32string, Noun> kCurrencies = {
+  {U"zł", kZloty}, {U"PLN", kZloty}, {U"€", kEuro}, {U"EUR", kEuro}, {U"$", kDollar}, {U"USD", kDollar},
+  {U"£", masculine(U"funt", U"funcie")}, {U"gr", kGrosz},
+  // Prices per unit: 100 zł/m² sto złotych za metr kwadratowy
+  {U"zł/m²", followed(kZloty, U"za metr kwadratowy")}, {U"zł/m2", followed(kZloty, U"za metr kwadratowy")},
+  {U"zł/h", followed(kZloty, U"za godzinę")},           {U"zł/godz.", followed(kZloty, U"za godzinę")},
+  {U"zł/kg", followed(kZloty, U"za kilogram")},         {U"zł/szt.", followed(kZloty, U"za sztukę")},
+  {U"zł/l", followed(kZloty, U"za litr")},              {U"zł/os.", followed(kZloty, U"za osobę")},
+  {U"zł/km", followed(kZloty, U"za kilometr")},         {U"zł/mies.", followed(kZloty, U"miesięcznie")},
+  {U"€/m²", followed(kEuro, U"za metr kwadratowy")}
+};
+
+inline const std::unordered_map<std::u32string, Noun> kScales = {
+  {U"tys.", kThousand}, {U"mln", kMillion}, {U"mld", kBillion}
+};
+
 
 inline constexpr std::u32string_view kSquare = U"kwadratowy kwadratowego kwadratowemu kwadratowy kwadratowym kwadratowym kwadratowe kwadratowych kwadratowym kwadratowe kwadratowymi kwadratowych";
 inline constexpr std::u32string_view kCubic = U"sześcienny sześciennego sześciennemu sześcienny sześciennym sześciennym sześcienne sześciennych sześciennym sześcienne sześciennymi sześciennych";
@@ -215,7 +245,8 @@ inline const std::array<std::u32string_view, 12> kMonthsGenitive = {
 inline const std::unordered_set<std::u32string> kMonthWords = {
   U"stycznia", U"lutego", U"marca", U"kwietnia", U"maja", U"czerwca", U"lipca", U"sierpnia", U"września",
   U"października", U"listopada", U"grudnia", U"styczeń", U"luty", U"marzec", U"kwiecień", U"maj", U"czerwiec",
-  U"lipiec", U"sierpień", U"wrzesień", U"październik", U"listopad", U"grudzień"
+  U"lipiec", U"sierpień", U"wrzesień", U"październik", U"listopad", U"grudzień", U"styczniu", U"lutym", U"marcu",
+  U"kwietniu", U"maju", U"czerwcu", U"lipcu", U"sierpniu", U"wrześniu", U"październiku", U"listopadzie", U"grudniu"
 };
 
 // The case a preposition gives the number after it: od pięciu, z trzema
@@ -232,7 +263,7 @@ inline const std::unordered_map<std::u32string, Case> kPrepositionCases = {
   {U"wbrew", Case::DATIVE},
   {U"przez", Case::ACCUSATIVE}, {U"ponad", Case::ACCUSATIVE}, {U"na", Case::ACCUSATIVE}, {U"o", Case::ACCUSATIVE},
   {U"za", Case::ACCUSATIVE}, {U"po", Case::ACCUSATIVE}, {U"w", Case::ACCUSATIVE}, {U"we", Case::ACCUSATIVE},
-  {U"z", Case::INSTRUMENTAL}, {U"ze", Case::INSTRUMENTAL}, {U"nad", Case::INSTRUMENTAL},
+  {U"z", Case::GENITIVE}, {U"ze", Case::GENITIVE}, {U"nad", Case::INSTRUMENTAL},
   {U"pod", Case::INSTRUMENTAL}, {U"przed", Case::INSTRUMENTAL}, {U"między", Case::INSTRUMENTAL},
   {U"pomiędzy", Case::INSTRUMENTAL},
   {U"przy", Case::LOCATIVE}
@@ -243,7 +274,8 @@ inline const std::unordered_set<std::u32string> kLocativePrepositions = {U"w", U
 // Prepositional phrases which govern the genitive, with the preposition they need: w ciągu dwóch tygodni
 inline const std::unordered_map<std::u32string, std::u32string> kComplexPrepositions = {
   {U"ciągu", U"w"}, {U"trakcie", U"w"}, {U"czasie", U"w"}, {U"wyniku", U"w"}, {U"przypadku", U"w"},
-  {U"zakresie", U"w"}, {U"ramach", U"w"}, {U"celu", U"w"}, {U"postaci", U"w"}, {U"powodu", U"z"}
+  {U"zakresie", U"w"}, {U"ramach", U"w"}, {U"celu", U"w"}, {U"postaci", U"w"}, {U"powodu", U"z"},
+  {U"przeciągu", U"w"}, {U"okresie", U"w"}
 };
 
 // Stems of amount nouns: a number after them is their genitive attribute (od kwoty trzystu tysięcy)
@@ -288,17 +320,96 @@ inline const std::unordered_set<std::u32string> kCountNouns = {
   U"miesięcy"
 };
 
+// Nouns of men in the genitive plural, after which a number takes its genitive form: piętnastu pracowników
+inline const std::unordered_set<std::u32string> kVirileNouns = {
+  U"uczniów", U"studentów", U"pracowników", U"mężczyzn", U"chłopców", U"żołnierzy", U"policjantów", U"strażaków",
+  U"lekarzy", U"nauczycieli", U"zawodników", U"piłkarzy", U"kibiców", U"posłów", U"senatorów", U"radnych",
+  U"polityków", U"kandydatów", U"uczestników", U"pasażerów", U"turystów", U"mieszkańców", U"obywateli",
+  U"pacjentów", U"klientów", U"użytkowników", U"gości", U"sędziów", U"prawników", U"dziennikarzy", U"autorów",
+  U"artystów", U"muzyków", U"aktorów", U"naukowców", U"badaczy", U"ekspertów", U"specjalistów", U"inżynierów",
+  U"kierowców", U"rolników", U"górników", U"ratowników", U"ministrów", U"członków", U"kolegów", U"przyjaciół",
+  U"braci", U"synów", U"Polaków", U"polaków", U"zwycięzców", U"finalistów", U"laureatów", U"absolwentów",
+  U"ochotników", U"wolontariuszy", U"funkcjonariuszy", U"oficerów", U"generałów", U"księży", U"biskupów",
+  U"więźniów", U"zakładników", U"pracowników", U"robotników", U"sportowców", U"trenerów", U"graczy", U"chłopaków",
+  U"panów", U"emerytów", U"rodziców", U"ojców", U"dziadków", U"wnuków", U"sąsiadów", U"świadków", U"podejrzanych",
+  U"zatrzymanych", U"rannych", U"zabitych"
+};
+
+// Counted nouns whose nominative plural is also their genitive: trzy razy, cztery dni
+inline const std::unordered_set<std::u32string> kSameInBothCases = {U"razy", U"dni"};
+
 inline const std::unordered_set<std::u32string> kCurrencyWords = {U"zł", U"złoty", U"złote", U"złotych"};
 
 // Stems of nouns whose numbers are feminine: dwie osoby, dwie godziny
 inline const std::vector<std::u32string> kFemininePlurals = {
   U"osob", U"osób", U"godzin", U"minut", U"sekund", U"złotówk", U"kobiet", U"stron", U"sztuk", U"rzecz", U"częś",
-  U"noc", U"dob", U"klas", U"wersj", U"sesj", U"edycj", U"zapał", U"tablic", U"butelk", U"szklank", U"łyżk"
+  U"noc", U"dob", U"klas", U"wersj", U"sesj", U"edycj", U"zapał", U"tablic", U"butelk", U"szklank", U"łyżk",
+  U"dziewczyn", U"dziewcząt", U"córk", U"córek", U"siostr", U"sióstr", U"matk", U"matek", U"rodzin", U"uczennic",
+  U"zawodniczk", U"zawodniczek"
 };
 
 // Words before a time with a dot, which make it a time: o 18.30
 inline const std::unordered_set<std::u32string> kTimeWords = {
   U"o", U"godzinie", U"godz", U"od", U"do", U"około", U"koło", U"po", U"przed", U"na", U"między", U"za"
+};
+
+// Nouns which often follow an ordinal, with their twelve forms, so that the ordinal agrees: w 3. rundzie (trzeciej),
+// na 3. piętrze (trzecim), z 1. miejsca (pierwszego), 18. urodziny (osiemnaste)
+inline const std::vector<std::pair<Gender, std::u32string_view>> kOrdinalNouns = {
+  {Gender::FEMININE, U"runda rundy rundzie rundę rundą rundzie rundy rund rundom rundy rundami rundach"},
+  {Gender::FEMININE, U"minuta minuty minucie minutę minutą minucie minuty minut minutom minuty minutami minutach"},
+  {Gender::FEMININE, U"połowa połowy połowie połowę połową połowie połowy połów połowom połowy połowami połowach"},
+  {Gender::FEMININE, U"tura tury turze turę turą turze tury tur turom tury turami turach"},
+  {Gender::FEMININE, U"strona strony stronie stronę stroną stronie strony stron stronom strony stronami stronach"},
+  {Gender::FEMININE, U"kolejka kolejki kolejce kolejkę kolejką kolejce kolejki kolejek kolejkom kolejki kolejkami kolejkach"},
+  {Gender::FEMININE, U"edycja edycji edycji edycję edycją edycji edycje edycji edycjom edycje edycjami edycjach"},
+  {Gender::FEMININE, U"klasa klasy klasie klasę klasą klasie klasy klas klasom klasy klasami klasach"},
+  {Gender::FEMININE, U"liga ligi lidze ligę ligą lidze ligi lig ligom ligi ligami ligach"},
+  {Gender::FEMININE, U"pozycja pozycji pozycji pozycję pozycją pozycji pozycje pozycji pozycjom pozycje pozycjami pozycjach"},
+  {Gender::FEMININE, U"sesja sesji sesji sesję sesją sesji sesje sesji sesjom sesje sesjami sesjach"},
+  {Gender::FEMININE, U"rocznica rocznicy rocznicy rocznicę rocznicą rocznicy rocznice rocznic rocznicom rocznice rocznicami rocznicach"},
+  {Gender::FEMININE, U"kadencja kadencji kadencji kadencję kadencją kadencji kadencje kadencji kadencjom kadencje kadencjami kadencjach"},
+  {Gender::FEMININE, U"godzina godziny godzinie godzinę godziną godzinie godziny godzin godzinom godziny godzinami godzinach"},
+  {Gender::FEMININE, U"wojna wojny wojnie wojnę wojną wojnie wojny wojen wojnom wojny wojnami wojnach"},
+  {Gender::FEMININE, U"nagroda nagrody nagrodzie nagrodę nagrodą nagrodzie nagrody nagród nagrodom nagrody nagrodami nagrodach"},
+  {Gender::FEMININE, U"faza fazy fazie fazę fazą fazie fazy faz fazom fazy fazami fazach"},
+  {Gender::FEMININE, U"seria serii serii serię serią serii serie serii seriom serie seriami seriach"},
+  {Gender::FEMININE, U"sekunda sekundy sekundzie sekundę sekundą sekundzie sekundy sekund sekundom sekundy sekundami sekundach"},
+  {Gender::FEMININE, U"doba doby dobie dobę dobą dobie doby dób dobom doby dobami dobach"},
+  {Gender::FEMININE, U"kategoria kategorii kategorii kategorię kategorią kategorii kategorie kategorii kategoriom kategorie kategoriami kategoriach"},
+  {Gender::FEMININE, U"linia linii linii linię linią linii linie linii liniom linie liniami liniach"},
+  {Gender::FEMININE, U"część części części część częścią części części części częściom części częściami częściach"},
+  {Gender::FEMININE, U"odsłona odsłony odsłonie odsłonę odsłoną odsłonie odsłony odsłon odsłonom odsłony odsłonami odsłonach"},
+  {Gender::FEMININE, U"kwarta kwarty kwarcie kwartę kwartą kwarcie kwarty kwart kwartom kwarty kwartami kwartach"},
+  {Gender::NEUTER, U"piętro piętra piętru piętro piętrem piętrze piętra pięter piętrom piętra piętrami piętrach"},
+  {Gender::NEUTER, U"miejsce miejsca miejscu miejsce miejscem miejscu miejsca miejsc miejscom miejsca miejscami miejscach"},
+  {Gender::NEUTER, U"wydanie wydania wydaniu wydanie wydaniem wydaniu wydania wydań wydaniom wydania wydaniami wydaniach"},
+  {Gender::NEUTER, U"okrążenie okrążenia okrążeniu okrążenie okrążeniem okrążeniu okrążenia okrążeń okrążeniom okrążenia okrążeniami okrążeniach"},
+  {Gender::NEUTER, U"stulecie stulecia stuleciu stulecie stuleciem stuleciu stulecia stuleci stuleciom stulecia stuleciami stuleciach"},
+  {Gender::NEUTER, U"spotkanie spotkania spotkaniu spotkanie spotkaniem spotkaniu spotkania spotkań spotkaniom spotkania spotkaniami spotkaniach"},
+  {Gender::NEUTER, U"półrocze półrocza półroczu półrocze półroczem półroczu półrocza półroczy półroczom półrocza półroczami półroczach"},
+  {Gender::NEUTER, U"urodziny urodzin urodzinom urodziny urodzinami urodzinach urodziny urodzin urodzinom urodziny urodzinami urodzinach"},
+  {Gender::MASCULINE, U"kwartał kwartału kwartałowi kwartał kwartałem kwartale kwartały kwartałów kwartałom kwartały kwartałami kwartałach"},
+  {Gender::MASCULINE, U"etap etapu etapowi etap etapem etapie etapy etapów etapom etapy etapami etapach"},
+  {Gender::MASCULINE, U"mecz meczu meczowi mecz meczem meczu mecze meczów meczom mecze meczami meczach"},
+  {Gender::MASCULINE, U"sezon sezonu sezonowi sezon sezonem sezonie sezony sezonów sezonom sezony sezonami sezonach"},
+  {Gender::MASCULINE, U"dzień dnia dniowi dzień dniem dniu dni dni dniom dni dniami dniach"},
+  {Gender::MASCULINE, U"tydzień tygodnia tygodniowi tydzień tygodniem tygodniu tygodnie tygodni tygodniom tygodnie tygodniami tygodniach"},
+  {Gender::MASCULINE, U"miesiąc miesiąca miesiącowi miesiąc miesiącem miesiącu miesiące miesięcy miesiącom miesiące miesiącami miesiącach"},
+  {Gender::MASCULINE, U"wiek wieku wiekowi wiek wiekiem wieku wieki wieków wiekom wieki wiekami wiekach"},
+  {Gender::MASCULINE, U"raz razu razowi raz razem razie razy razy razom razy razami razach"},
+  {Gender::MASCULINE, U"punkt punktu punktowi punkt punktem punkcie punkty punktów punktom punkty punktami punktach"},
+  {Gender::MASCULINE, U"set seta setowi seta setem secie sety setów setom sety setami setach"},
+  {Gender::MASCULINE, U"stopień stopnia stopniowi stopień stopniem stopniu stopnie stopni stopniom stopnie stopniami stopniach"},
+  {Gender::MASCULINE, U"poziom poziomu poziomowi poziom poziomem poziomie poziomy poziomów poziomom poziomy poziomami poziomach"},
+  {Gender::MASCULINE, U"tom tomu tomowi tom tomem tomie tomy tomów tomom tomy tomami tomach"},
+  {Gender::MASCULINE, U"rozdział rozdziału rozdziałowi rozdział rozdziałem rozdziale rozdziały rozdziałów rozdziałom rozdziały rozdziałami rozdziałach"},
+  {Gender::MASCULINE, U"odcinek odcinka odcinkowi odcinek odcinkiem odcinku odcinki odcinków odcinkom odcinki odcinkami odcinkach"},
+  {Gender::MASCULINE, U"turniej turnieju turniejowi turniej turniejem turnieju turnieje turniejów turniejom turnieje turniejami turniejach"},
+  {Gender::MASCULINE, U"festiwal festiwalu festiwalowi festiwal festiwalem festiwalu festiwale festiwali festiwalom festiwale festiwalami festiwalach"},
+  {Gender::MASCULINE, U"kongres kongresu kongresowi kongres kongresem kongresie kongresy kongresów kongresom kongresy kongresami kongresach"},
+  {Gender::MASCULINE, U"krok kroku krokowi krok krokiem kroku kroki kroków krokom kroki krokami krokach"},
+  {Gender::MASCULINE, U"rząd rzędu rzędowi rząd rzędem rzędzie rzędy rzędów rzędom rzędy rzędami rzędach"}
 };
 
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
@@ -367,7 +478,8 @@ inline const std::vector<std::pair<std::u32string_view, Gender>> kRomanNouns = {
   {U"wiek-", Gender::MASCULINE}, {U"stuleci-", Gender::NEUTER}, {U"tysiącleci-", Gender::NEUTER},
   {U"wojn-", Gender::FEMININE}, {U"rzeczpospolit-", Gender::FEMININE}, {U"rzeczypospolit-", Gender::FEMININE},
   {U"kadencj-", Gender::FEMININE}, {U"edycj-", Gender::FEMININE}, {U"połow-", Gender::FEMININE},
-  {U"kwartał-", Gender::MASCULINE}, {U"zjazd-", Gender::MASCULINE}, {U"kongres-", Gender::MASCULINE},
+  {U"kwartał-", Gender::MASCULINE}, {U"kwartal-", Gender::MASCULINE}, {U"nagrod-", Gender::FEMININE},
+  {U"półrocz-", Gender::NEUTER}, {U"miejsc-", Gender::NEUTER}, {U"zjazd-", Gender::MASCULINE}, {U"kongres-", Gender::MASCULINE},
   {U"sesj-", Gender::FEMININE}, {U"festiwal-", Gender::MASCULINE}, {U"konkurs-", Gender::MASCULINE},
   {U"piętr-", Gender::NEUTER}, {U"kategori-", Gender::FEMININE}, {U"rozdzia-", Gender::MASCULINE},
   {U"liga", Gender::FEMININE}, {U"ligi", Gender::FEMININE}, {U"lidze", Gender::FEMININE}, {U"ligę", Gender::FEMININE},
@@ -390,12 +502,32 @@ inline const Keys kCenturyAbbreviations = {U"w."};
 // --- Notation: how numbers are written ---
 inline const Notation kNotation = {
   .group_separators = U" \u00a0\u202f.", .decimal_separators = U",.", .time_separators = U":.",
-  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits)
+  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true
+};
+
+// Words before the name of a street, after which a/b is a house number: ulica Marszałkowska 10/12
+inline const std::unordered_set<std::u32string> kStreetWords = {
+  U"ulica", U"ulicy", U"ulicę", U"ulicą", U"aleja", U"alei", U"aleję", U"aleje", U"alejach", U"plac", U"placu", U"placem", U"osiedle",
+  U"osiedlu", U"rondo", U"rondzie"
+};
+
+// Imperatives which take an amount as their object: Dodaj 1/4 łyżeczki (jedną czwartą)
+inline const std::unordered_set<std::u32string> kImperatives = {
+  U"dodaj", U"dodać", U"kup", U"weź", U"wsyp", U"wlej", U"dosyp", U"odlej", U"odsyp", U"zjedz", U"wypij", U"użyj"
+};
+
+// Words after a fraction which are not the noun it divides: Ułamek 1/2 jest prosty, Wynik to 3/8
+inline const std::unordered_set<std::u32string> kFractionStops = {
+  U"to", U"jest", U"są", U"był", U"była", U"było", U"i", U"a", U"oraz", U"lub", U"albo", U"czy", U"w", U"we",
+  U"na", U"z", U"ze", U"do", U"od", U"po", U"przez", U"dla", U"za", U"o", U"się", U"nie", U"że", U"jak",
+  // Plural spans of time: 2/3 dni is two or three days, but 3/4 godziny three quarters of an hour
+  U"dni", U"tygodni", U"miesięcy", U"lat", U"godzin", U"minut", U"sekund", U"razy"
 };
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
-  .point = U"kropka", .dot = U"kropka", .range = U"-", .by = U"na", .score = U" do ", .minus = U"minus", .plus = U"plus"
+  .point = U"kropka", .dot = U"kropka", .range = U"-", .by = U"na", .score = U" do ", .minus = U"minus", .plus = U"plus",
+  .fraction = U" i ", .half = U" i pół"
 };
 
 // 15.08.2020 r.: the year has four digits, "r." may follow it
@@ -406,12 +538,24 @@ inline const std::vector<PhoneFormat> kPhoneFormats = {
   {.groups = {{3, 3}, {3, 3}, {3, 3}}, .separators = U" ", .boundaries = U"", .closing = U""},
   {.groups = {{2, 2}, {3, 3}, {2, 2}, {2, 2}}, .separators = U" ", .boundaries = U"", .closing = U""},
   {.groups = {{3, 3}, {3, 3}, {3, 3}}, .separators = U"-", .boundaries = U".,-", .closing = U"-"},
-  {.groups = {{2, 2}, {3, 3}, {2, 2}, {2, 2}}, .separators = U"-", .boundaries = U".,-", .closing = U"-"}
+  {.groups = {{2, 2}, {3, 3}, {2, 2}, {2, 2}}, .separators = U"-", .boundaries = U".,-", .closing = U"-"},
+  {.groups = {{1, 1}, {3, 3}, {3, 3}, {3, 3}}, .separators = U" ", .leading_zero = true, .boundaries = U"", .closing = U""},
+  {.groups = {{3, 3}, {3, 3}}, .separators = U" ", .boundaries = U"", .closing = U""},
+  // 31-123 Kraków: a postal code, before the name of its town
+  {.groups = {{2, 2}, {3, 3}}, .separators = U"-", .boundaries = U".,-", .closing = U"-"}
 };
 
 // Words before a phone number written with spaces, which else reads as a count: numer 600 123 456
 inline const std::unordered_set<std::u32string> kPhoneWords = {
-  U"numer", U"numerem", U"numeru", U"tel", U"telefon", U"telefonu", U"telefonem", U"infolinia", U"faks", U"fax"
+  U"numer", U"numerem", U"numeru", U"tel", U"telefon", U"telefonu", U"telefonem", U"infolinia", U"faks", U"fax",
+  U"komórka", U"komórki", U"komórkowy", U"komórkowego", U"kontaktowy", U"kontaktowego", U"zaufania", U"alarmowy",
+  U"alarmowego", U"sms", U"whatsapp"
+};
+
+// Verbs of calling, after which "pod" or "na" takes a phone number: zadzwoń pod 112, dzwoń na 503 222 111
+inline const std::unordered_set<std::u32string> kCallVerbs = {
+  U"dzwoń", U"zadzwoń", U"dzwońcie", U"zadzwońcie", U"dzwonić", U"zadzwonić", U"dzwoni", U"zadzwonił", U"dzwonił",
+  U"pisz", U"napisz", U"wyślij"
 };
 
 // 2020 r.: a year with "roku" after it

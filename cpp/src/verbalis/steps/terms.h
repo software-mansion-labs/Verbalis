@@ -60,6 +60,9 @@ private:
   // /home/desktop, C:\Users\HP, home/desktop, report.pdf: a path or a file name, with its separators read
   std::optional<Term> read_path(std::u32string_view text, size_t position) const;
 
+  // 3f2504e0-4f89-11d3-9a0c-0305e82c3301: a UUID, character by character with the names of the digits
+  std::optional<Term> read_uuid(std::u32string_view text, size_t position) const;
+
   // The longest abbreviation at a position with a reading in its context
   std::optional<Term> read_abbreviation(std::u32string_view text, size_t position) const;
 

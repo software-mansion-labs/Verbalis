@@ -36,7 +36,7 @@ inline constexpr std::u32string_view kDashes = U"—–‒―";
 /**
  * Writes equivalent characters in one canonical form, before anything reads the text:
  * quotes as ", apostrophes as ', an ellipsis as ..., dashes as - or " - ", a degree written as an ordinal sign
- * (18ºC) as °, and no invisible characters.
+ * (18ºC) as °, a fraction character apart as digits (¾ -> 3/4), and no invisible or lost characters (ï¿½).
  *
  * A language whose classes have letters read in the wrong encoding also gets UTF-8 read as Windows-1252 repaired:
  * siÄ™ -> się.
