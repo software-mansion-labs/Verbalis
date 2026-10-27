@@ -18,3 +18,7 @@ CLAUDE.local.md
 tests/parity/local/
 wheelhouse/
 ts/dist/
+
+# Local only: notes and third-party licence texts, added back before release
+knowledge/
+licenses/
