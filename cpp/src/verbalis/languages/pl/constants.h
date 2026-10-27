@@ -220,6 +220,13 @@ inline const std::unordered_map<std::u32string, Noun> kUnits = {
   {U"‰", noun(U"promil promila promilowi promil promilem promilu promile promili promilom promile promilami promilach")},
   {U"cm", masculine(U"centymetr", U"centymetrze")}, {U"mm", masculine(U"milimetr", U"milimetrze")},
   {U"nm", masculine(U"nanometr", U"nanometrze")},   {U"kg", masculine(U"kilogram", U"kilogramie")},
+  {U"μg", masculine(U"mikrogram", U"mikrogramie")}, {U"µg", masculine(U"mikrogram", U"mikrogramie")},
+  // μg/m³: of fine dust; C after a number: degrees (piec w 180 C)
+  {U"μg/m3", qualified(masculine(U"mikrogram", U"mikrogramie"), U"na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny")},
+  {U"µg/m3", qualified(masculine(U"mikrogram", U"mikrogramie"), U"na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny")},
+  {U"μg/m³", qualified(masculine(U"mikrogram", U"mikrogramie"), U"na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny")},
+  {U"µg/m³", qualified(masculine(U"mikrogram", U"mikrogramie"), U"na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny")},
+  {U"C", noun(U"stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza")},
   {U"g", masculine(U"gram", U"gramie")},            {U"mg", masculine(U"miligram", U"miligramie")},
   {U"l", masculine(U"litr", U"litrze")},            {U"ml", masculine(U"mililitr", U"mililitrze")},
   {U"ha", masculine(U"hektar", U"hektarze")},       {U"W", masculine(U"wat", U"wacie")},
@@ -584,7 +591,7 @@ inline const Readings kSymbols = {
   {U"&", {U"end"}},        {U"+", {U"plus"}},           {U"=", {U"równa się"}}, {U"%", {U"procent"}},  {U"°", {U"stopni"}},
   {U"#", {U""}},           {U"/", {U""}},               {U"²", {U"do kwadratu"}}, {U"³", {U"do sześcianu"}},
   {U"π", {U"pi"}},         {U"×", {U"razy"}},           {U"€", {U"euro"}},     {U"$", {U"dolarów"}},   {U"@", {U"małpa"}},
-  {U"±", {U"plus minus"}}, {U"‰", {U"promili"}},        {U"§", {U"paragraf"}}
+  {U"±", {U"plus minus"}}, {U"+/-", {U"plus minus"}}, {U"+-", {U"plus minus"}}, {U"‰", {U"promili"}},        {U"§", {U"paragraf"}}
 };
 
 using ::verbalis::text::before_name;
@@ -654,6 +661,33 @@ inline std::vector<Reading> declined(std::u32string_view forms, Condition when =
 // The readings of an abbreviation which mostly ends a sentence, with its dot when a capitalized word follows: itd. Potem
 inline std::vector<Reading> closing(std::u32string words) {
   return {{words + U".", before_name}, {words}};
+}
+
+// A year named by an adjective, in the locative after "w": w br. w bieżącym roku, ub.r. ubiegłego roku
+inline std::vector<Reading> of_year(std::u32string genitive, std::u32string locative) {
+  auto in = [](const Context& context) { return abbreviation_case(context) == Case::LOCATIVE; };
+  auto in_closing = [in](const Context& context) { return in(context) && before_name(context); };
+  std::vector<Reading> readings = {{locative + U" roku.", in_closing}, {locative + U" roku", in}};
+  for (auto& reading : closing(genitive + U" roku")) {
+    readings.push_back(reading);
+  }
+  return readings;
+}
+
+// ub. before a form of "rok": ubiegłym after "w" or before "rokiem", ubiegłego before "roku"
+inline std::vector<Reading> past() {
+  auto readings = declined(U"ubiegły|ubiegłego|ubiegłemu|ubiegły|ubiegłym|ubiegłym");
+  readings.insert(readings.end() - 1, {U"ubiegłego", [](const Context& context) {
+                    return ::verbalis::text::strings::to_lower(context.after()) == U"roku";
+                  }});
+  return readings;
+}
+
+// ps. before a name or a quotation: pseudonim
+inline bool before_alias(const Context& context) {
+  std::u32string_view tail = context.tail();
+  size_t start = tail.find_first_not_of(U' ');
+  return before_name(context) || (start != std::u32string_view::npos && (tail[start] == U'"' || tail[start] == U'„'));
 }
 
 // Between numbers: the "m." of mieszkanie in ul. Mickiewicza 3 m. 4
@@ -771,9 +805,19 @@ inline const Terms kTerms = {
     {U"zob.", {U"zobacz"}},
     {U"Zob.", {U"Zobacz"}},
     {U"dn.", {U"dnia"}},
-    {U"br.", closing(U"bieżącego roku")},
-    {U"ub.r.", closing(U"ubiegłego roku")},
-    {U"ub. r.", closing(U"ubiegłego roku")},
+    {U"br.", of_year(U"bieżącego", U"bieżącym")},
+    {U"ub.r.", of_year(U"ubiegłego", U"ubiegłym")},
+    {U"ub. r.", of_year(U"ubiegłego", U"ubiegłym")},
+    {U"ub.", past()},
+    {U"r.", declined(U"rok|roku|rokowi|rok|rokiem|roku", before_number)}, // w r. 1786
+    {U"mjr", declined(U"major|majora|majorowi|majora|majorem|majorze")},
+    {U"mjr.", declined(U"major|majora|majorowi|majora|majorem|majorze")},
+    {U"kpt.", declined(U"kapitan|kapitana|kapitanowi|kapitana|kapitanem|kapitanie")},
+    {U"płk.", declined(U"pułkownik|pułkownika|pułkownikowi|pułkownika|pułkownikiem|pułkowniku")},
+    {U"ppłk", declined(U"podpułkownik|podpułkownika|podpułkownikowi|podpułkownika|podpułkownikiem|podpułkowniku")},
+    {U"ps.", {{U"pseudonim", before_alias}}},
+    {U"Ur.", {U"Urodzony"}},
+    {U"ur.", {U"urodzony"}},
     {U"p.n.e.", closing(U"przed naszą erą")},
     {U"n.e.", closing(U"naszej ery")},
     {U"nr tel.", {U"numer telefonu"}},

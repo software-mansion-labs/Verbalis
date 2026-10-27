@@ -196,6 +196,13 @@ export const UNITS: Readonly<Record<string, Noun>> = {
   "‰": noun("promil promila promilowi promil promilem promilu promile promili promilom promile promilami promilach"),
   "cm": masculine("centymetr", "centymetrze"), "mm": masculine("milimetr", "milimetrze"),
   "nm": masculine("nanometr", "nanometrze"),   "kg": masculine("kilogram", "kilogramie"),
+  "μg": masculine("mikrogram", "mikrogramie"), "µg": masculine("mikrogram", "mikrogramie"),
+  // μg/m³: of fine dust; C after a number: degrees (piec w 180 C)
+  "μg/m3": qualified(masculine("mikrogram", "mikrogramie"), "na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny"),
+  "µg/m3": qualified(masculine("mikrogram", "mikrogramie"), "na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny"),
+  "μg/m³": qualified(masculine("mikrogram", "mikrogramie"), "na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny"),
+  "µg/m³": qualified(masculine("mikrogram", "mikrogramie"), "na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny"),
+  "C": noun("stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza"),
   "g": masculine("gram", "gramie"),            "mg": masculine("miligram", "miligramie"),
   "l": masculine("litr", "litrze"),            "ml": masculine("mililitr", "mililitrze"),
   "ha": masculine("hektar", "hektarze"),       "W": masculine("wat", "wacie"),
@@ -560,7 +567,7 @@ export const SYMBOLS: Readings = {
   "&": ["end"],        "+": ["plus"],           "=": ["równa się"], "%": ["procent"],  "°": ["stopni"],
   "#": [""],           "/": [""],               "²": ["do kwadratu"], "³": ["do sześcianu"],
   "π": ["pi"],         "×": ["razy"],           "€": ["euro"],     "$": ["dolarów"],   "@": ["małpa"],
-  "±": ["plus minus"], "‰": ["promili"],        "§": ["paragraf"],
+  "±": ["plus minus"], "+/-": ["plus minus"], "+-": ["plus minus"], "‰": ["promili"],        "§": ["paragraf"],
 };
 
 // Prepositions before an inflected abbreviation, by the case they give it: przy ul. Długiej, od ul. Długiej
@@ -622,6 +629,36 @@ export function declined(forms: string, when?: Condition): Reading[] {
 // The readings of an abbreviation which mostly ends a sentence, with its dot when a capitalized word follows: itd. Potem
 export function closing(words: string): Reading[] {
   return [{ words: `${words}.`, when: beforeName }, words];
+}
+
+// A year named by an adjective, in the locative after "w": w br. w bieżącym roku, ub.r. ubiegłego roku
+function ofYear(genitive: string, locative: string): Reading[] {
+  const inside = (context: Context): boolean => abbreviationCase(context) === Case.LOCATIVE;
+  return [
+    { words: `${locative} roku.`, when: (context) => inside(context) && beforeName(context) },
+    { words: `${locative} roku`, when: inside },
+    ...closing(`${genitive} roku`),
+  ];
+}
+
+// ub. before a form of "rok": ubiegłym after "w" or before "rokiem", ubiegłego before "roku"
+function past(): Reading[] {
+  const readings = declined("ubiegły|ubiegłego|ubiegłemu|ubiegły|ubiegłym|ubiegłym");
+  readings.splice(readings.length - 1, 0, {
+    words: "ubiegłego",
+    when: (context) => toLower(context.after()) === "roku",
+  });
+  return readings;
+}
+
+// ps. before a name or a quotation: pseudonim
+function beforeAlias(context: Context): boolean {
+  const tail = context.tail();
+  let start = 0;
+  while (start < tail.length && tail[start] === " ") {
+    start++;
+  }
+  return beforeName(context) || (start < tail.length && (tail[start] === '"' || tail[start] === "„"));
 }
 
 // Between numbers: the "m." of mieszkanie in ul. Mickiewicza 3 m. 4
@@ -742,9 +779,19 @@ export const TERMS: Terms = {
     "zob.": ["zobacz"],
     "Zob.": ["Zobacz"],
     "dn.": ["dnia"],
-    "br.": closing("bieżącego roku"),
-    "ub.r.": closing("ubiegłego roku"),
-    "ub. r.": closing("ubiegłego roku"),
+    "br.": ofYear("bieżącego", "bieżącym"),
+    "ub.r.": ofYear("ubiegłego", "ubiegłym"),
+    "ub. r.": ofYear("ubiegłego", "ubiegłym"),
+    "ub.": past(),
+    "r.": declined("rok|roku|rokowi|rok|rokiem|roku", beforeNumber), // w r. 1786
+    mjr: declined("major|majora|majorowi|majora|majorem|majorze"),
+    "mjr.": declined("major|majora|majorowi|majora|majorem|majorze"),
+    "kpt.": declined("kapitan|kapitana|kapitanowi|kapitana|kapitanem|kapitanie"),
+    "płk.": declined("pułkownik|pułkownika|pułkownikowi|pułkownika|pułkownikiem|pułkowniku"),
+    ppłk: declined("podpułkownik|podpułkownika|podpułkownikowi|podpułkownika|podpułkownikiem|podpułkowniku"),
+    "ps.": [{ words: "pseudonim", when: beforeAlias }],
+    "Ur.": ["Urodzony"],
+    "ur.": ["urodzony"],
     "p.n.e.": closing("przed naszą erą"),
     "n.e.": closing("naszej ery"),
     "nr tel.": ["numer telefonu"],

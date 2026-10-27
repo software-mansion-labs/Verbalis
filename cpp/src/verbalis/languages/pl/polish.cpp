@@ -409,6 +409,11 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
   std::u32string w2 = before.size() < 2 ? U"" : before[before.size() - 2];
   std::u32string noun = year_abbreviation ? U"roku" : next; // 2020 r.
 
+  // do lat 3, od lat 5: an age in the case of the preposition before "lat" (but z lat 1991-2020 are years)
+  if (w1 == U"lat" && kPrepositionCases.contains(w2) && n < 100) {
+    return {Form::CARDINAL, kPrepositionCases.at(w2)};
+  }
+
   // 1990-1994: the end of a range of years stays a cardinal, as its start (but od 2020 do 2022 reads ordinals)
   auto year = [](std::u32string_view w) { return w.size() == 4 && made_of(w, kDigits); };
   std::u32string w3 = before.size() < 3 ? U"" : before[before.size() - 3];
@@ -530,8 +535,9 @@ Gender gender_of(const Noun& noun) {
 
 // A decimal number in a case: dwa przecinek pięć, półtora, dwa i pół
 std::u32string decimal(const Number& number, Case c) {
-  // 801.04, 4.0: a dotted code rather than a decimal
-  if (number.decimal_mark == U'.' && (number.fraction.size() == 2 || number.fraction == U"0")) {
+  // 801.04, 4.0: a dotted code rather than a decimal (but 0.05 is a decimal)
+  if (number.decimal_mark == U'.' && number.integer != U"0" &&
+      (number.fraction.size() == 2 || number.fraction == U"0")) {
     uint64_t f = parse_value(number.fraction).value_or(0);
     return cardinal(value(number)) + U" " + (number.fraction[0] == U'0' ? digits(number.fraction) : cardinal(f));
   }
@@ -670,6 +676,44 @@ Cues cues_of(const Match& match) {
   return cues;
 }
 
+// lat 80.-90., latach 20. - 30.: a range of decades after a word for years. Its numbers are both decades.
+class DecadeRangePattern : public Pattern {
+public:
+  DecadeRangePattern() : Pattern(Kind::ORDINAL) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    if (!is_clear_before(text, position, U".,-") ||
+        !kDecadeWords.contains(strings::to_lower(Context(text, {position, position}).before()))) {
+      return std::nullopt;
+    }
+    size_t first = digits_end(text, position);
+    if (first != position + 2 || first >= text.size() || text[first] != U'.') {
+      return std::nullopt;
+    }
+    size_t dash = skip_space(text, first + 1);
+    if (dash >= text.size() || (text[dash] != U'-' && text[dash] != U'–')) {
+      return std::nullopt;
+    }
+    size_t second = skip_space(text, dash + 1), end = digits_end(text, second);
+    if (end != second + 2 || end >= text.size() || text[end] != U'.') {
+      return std::nullopt;
+    }
+    Number a = digits_at(text, position), b = digits_at(text, second);
+    if (value(a) % 10 || value(b) % 10 || value(a) == 0 || value(b) == 0) {
+      return std::nullopt;
+    }
+    // A dot closing both the decade and the sentence stays with the sentence; a century after it continues the
+    // sentence (lat 80.-90. XX wieku)
+    size_t next = skip_space(text, end + 1), roman = next;
+    while (roman < text.size() && strings::contains(std::u32string_view(U"IVXLCDM"), text[roman])) {
+      roman++;
+    }
+    bool century = roman > next && is_clear_after(text, roman);
+    size_t span_end = is_sentence_end(text, end + 1, true) && !century ? end : end + 1;
+    return Match{.kind = Kind::ORDINAL, .span = {position, span_end}, .numbers = {a, b}, .suffix = U"."};
+  }
+};
+
 // 1/2 kg, 3/4 l: a fraction of a unit, read with the unit's genitive (pół kilograma, trzy czwarte litra)
 class FractionUnitPattern : public Pattern {
 public:
@@ -701,6 +745,55 @@ private:
   Keys units_;
 };
 
+// 04.02., 23.07-22.08: a day and a month of two digits each, without a year: before a closing dot, or as a
+// range of two such dates (its numbers are then both days and months)
+class YearlessDatePattern : public Pattern {
+public:
+  YearlessDatePattern() : Pattern(Kind::DATE) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    if (!is_clear_before(text, position, U".,-/")) {
+      return std::nullopt;
+    }
+    auto date_at = [&](size_t at) -> std::optional<std::pair<Number, Number>> {
+      if (digits_end(text, at) != at + 2 || at + 5 > text.size() || text[at + 2] != U'.' ||
+          digits_end(text, at + 3) != at + 5) {
+        return std::nullopt;
+      }
+      Number day = digits_at(text, at), month = digits_at(text, at + 3);
+      if (value(day) < 1 || value(day) > 31 || value(month) < 1 || value(month) > 12) {
+        return std::nullopt;
+      }
+      return std::pair{day, month};
+    };
+    auto first = date_at(position);
+    if (!first) {
+      return std::nullopt;
+    }
+    size_t end = position + 5;
+    // 23.07-22.08: a range
+    if (end < text.size() && text[end] == U'-') {
+      if (auto second = date_at(end + 1);
+          second && is_clear_after(text, end + 6) && !is_digit_after(text, end + 6, U".")) {
+        return Match{.kind = Kind::DATE,
+                     .span = {position, end + 6},
+                     .numbers = {first->first, first->second, second->first, second->second},
+                     .separator = U'-'};
+      }
+      return std::nullopt;
+    }
+    // 04.02.: a closing dot, not followed by a year
+    if (end < text.size() && text[end] == U'.' && !is_digit_after(text, end + 1) && is_clear_after(text, end + 1)) {
+      size_t span_end = is_sentence_end(text, end + 1, true) ? end : end + 1;
+      return Match{.kind = Kind::DATE,
+                   .span = {position, span_end},
+                   .numbers = {first->first, first->second},
+                   .separator = U'.'};
+    }
+    return std::nullopt;
+  }
+};
+
 // 5.VI, 5.VI.2024: a date with its month in Roman numerals
 class RomanDatePattern : public Pattern {
 public:
@@ -709,10 +802,10 @@ public:
   std::optional<Match> match(std::u32string_view text, size_t position) const override {
     size_t day_end = digits_end(text, position);
     if (!is_clear_before(text, position, U".,") || day_end == position || day_end > position + 2 ||
-        day_end >= text.size() || text[day_end] != U'.') {
+        day_end >= text.size() || (text[day_end] != U'.' && text[day_end] != U' ')) {
       return std::nullopt;
     }
-    size_t month = day_end + 1;
+    size_t month = day_end + 1; // 5.VI, or 15 X
     size_t month_end = month;
     while (month_end < text.size() && strings::contains(std::u32string_view(U"IVX"), text[month_end])) {
       month_end++;
@@ -720,6 +813,11 @@ public:
     auto month_value = roman_value(text.substr(month, month_end - month));
     uint64_t day = value(digits_at(text, position));
     if (!month_value || *month_value > 12 || day < 1 || day > 31) {
+      return std::nullopt;
+    }
+    // 15 X: after a space, not V or I alone (12 V is volts), nor an edition (15 X wyd.)
+    std::u32string_view numeral = text.substr(month, month_end - month);
+    if (text[day_end] == U' ' && (numeral == U"V" || numeral == U"I" || text.substr(month_end).starts_with(U" wyd"))) {
       return std::nullopt;
     }
 
@@ -755,11 +853,13 @@ public:
   Polish()
       : PatternLanguage({.characters = &kCharacters, .terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
+    add_pattern(std::make_unique<YearlessDatePattern>());
     add_pattern(std::make_unique<RomanDatePattern>());
     add_pattern(std::make_unique<FractionUnitPattern>());
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
+    add_pattern(std::make_unique<DecadeRangePattern>());
     add_pattern(std::make_unique<DotOrdinalPattern>(true, true));
     add_pattern(std::make_unique<SuffixPattern>(Kind::NUMBER, kYearSuffixes, kYearFormat));
     add_pattern(std::make_unique<RomanPattern>(false, kCenturyAbbreviations));
@@ -788,6 +888,13 @@ protected:
   }
 
   std::optional<std::u32string> read_date(const Match& match) const override {
+    // 23.07-22.08: dwudziestego trzeciego lipca do dwudziestego drugiego sierpnia
+    if (match.numbers.size() == 4) {
+      return ordinal(value(match.numbers[0]), cues_of(match).grammatical_case) + U" " +
+             std::u32string(kMonthsGenitive[value(match.numbers[1]) - 1]) + U" do " +
+             ordinal(value(match.numbers[2]), Case::GENITIVE) + U" " +
+             std::u32string(kMonthsGenitive[value(match.numbers[3]) - 1]);
+    }
     std::vector<std::u32string> words = {ordinal(value(match.numbers[0]), cues_of(match).grammatical_case),
                                          std::u32string(kMonthsGenitive[value(match.numbers[1]) - 1])};
     if (match.numbers.size() == 3) { // 5.VI has no year
@@ -849,10 +956,23 @@ protected:
   std::optional<std::u32string> read_roman(const Match& match) const override {
     uint64_t n = value(match.numbers[0]);
     std::u32string previous = match.context.before();
+    // w XX czy XXI wieku: the second of two numerals takes the case of the word before the first
+    std::u32string first = match.context.before(2); // lowercased: xix
+    if (kConjunctions.contains(previous) && !first.empty() && made_of(first, U"ivxlcdm")) {
+      previous = match.context.before(3);
+    }
 
-    // XIX w.: dziewiętnastego wieku, w dziewiętnastym wieku
-    if (match.suffix == U"w.") {
-      return ordinal(n, kLocativePrepositions.contains(previous) ? Case::LOCATIVE : Case::GENITIVE) + U" wieku";
+    // XIX w.: dziewiętnastego wieku, w dziewiętnastym wieku; opening its sentence or clause, osiemnasty wiek
+    std::u32string next = strings::to_lower(match.context.after());
+    bool century_after = kConjunctions.contains(next) && roman_value(match.context.after(2)) &&
+                         match.context.tail().find(U" w.") != std::u32string_view::npos &&
+                         strings::to_lower(match.context.after(3)) == U"w";
+    if (match.suffix == U"w." || century_after) {
+      if (previous.empty()) {
+        return ordinal(n, Case::NOMINATIVE) + (century_after ? U"" : U" wiek");
+      }
+      Case c = kLocativePrepositions.contains(previous) ? Case::LOCATIVE : Case::GENITIVE;
+      return ordinal(n, c) + (century_after ? U"" : U" wieku"); // XIX i XX w.: the noun once, after the second
     }
 
     // Jan Paweł drugi, Jana Pawła drugiego, Elżbiety drugiej: the case of the name
@@ -903,7 +1023,6 @@ protected:
       return form;
     };
     // XIX i XX wieku: the first of two numerals shares the noun of the second
-    std::u32string next = strings::to_lower(match.context.after());
     if (kConjunctions.contains(next) && roman_value(match.context.after(2))) {
       next = strings::to_lower(match.context.after(3));
     }
@@ -929,12 +1048,22 @@ protected:
     auto words = words_of(match.context.tail());
     std::u32string_view next = words.empty() ? U"" : stripped(words[0]);
     bool heading = starts_with_any(w1, kHeadings) && value(match.numbers[0]) < 100;
-    if (!kDecadeWords.contains(w1) && !heading && (next.empty() || !unicode::islower(next[0]))) {
+    // lat 70.: a decade; but "do lat 3." counts years (do lat trzech)
+    uint64_t n = value(match.numbers[0]);
+    bool decade = kDecadeWords.contains(w1) && n % 10 == 0 && n >= 10 && n < 100;
+    if (kDecadeWords.contains(w1) && !decade) {
+      return std::nullopt;
+    }
+    if (!decade && !heading && (next.empty() || !unicode::islower(next[0]))) {
       return std::nullopt;
     }
 
     Cues cues = cues_of(match);
-    return ordinal(value(match.numbers[0]), cues.grammatical_case, cues.gender, cues.plural);
+    std::u32string reading = ordinal(n, cues.grammatical_case, cues.gender, cues.plural);
+    if (match.numbers.size() == 2) {
+      reading += U"-" + ordinal(value(match.numbers[1]), cues.grammatical_case, cues.gender, cues.plural); // 80.-90.
+    }
+    return reading;
   }
 
   std::optional<std::u32string> read_compound(const Match& match) const override {

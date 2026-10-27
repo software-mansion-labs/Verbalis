@@ -28,6 +28,7 @@ import {
   join,
   isClearAfter,
   isDigitAfter,
+  isSentenceEnd,
   keysAt,
   skipSpace,
   type Keys,
@@ -513,6 +514,11 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   const w2 = before.length < 2 ? "" : before[before.length - 2];
   const noun = yearAbbreviation ? "roku" : next; // 2020 r.
 
+  // do lat 3, od lat 5: an age in the case of the preposition before "lat" (but z lat 1991-2020 are years)
+  if (w1 === "lat" && PREPOSITION_CASES.has(w2) && n < 100n) {
+    return { form: Form.CARDINAL, grammaticalCase: PREPOSITION_CASES.get(w2)!, gender: Gender.MASCULINE };
+  }
+
   // 1990-1994: the end of a range of years stays a cardinal, as its start (but od 2020 do 2022 reads ordinals)
   const year = (w: string): boolean => w.length === 4 && madeOf(w, DIGITS);
   const w3 = before.length < 3 ? "" : before[before.length - 3];
@@ -668,8 +674,12 @@ function genderOf(noun: Noun): Gender {
 
 // A decimal number in a case: dwa przecinek pięć, półtora, dwa i pół
 function decimal(number: Numeral, c: Case): string {
-  // 801.04, 4.0: a dotted code rather than a decimal
-  if (number.decimalMark === "." && (number.fraction.length === 2 || number.fraction === "0")) {
+  // 801.04, 4.0: a dotted code rather than a decimal (but 0.05 is a decimal)
+  if (
+    number.decimalMark === "." &&
+    number.integer !== "0" &&
+    (number.fraction.length === 2 || number.fraction === "0")
+  ) {
     const f = parseValue(number.fraction) ?? 0n;
     return `${cardinal(value(number))} ${number.fraction[0] === "0" ? digits(number.fraction) : cardinal(f)}`;
   }
@@ -814,6 +824,104 @@ function cuesOf(match: Match): Cues {
 }
 
 // 5.VI, 5.VI.2024: a date with its month in Roman numerals
+// lat 80.-90., latach 20. - 30.: a range of decades after a word for years. Its numbers are both decades.
+class DecadeRangePattern extends Pattern {
+  constructor() {
+    super(Kind.ORDINAL);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (
+      !isClearBefore(text, position, ".,-") ||
+      !DECADE_WORDS.has(toLower(new Context(text, { begin: position, end: position }).before()))
+    ) {
+      return undefined;
+    }
+    const first = digitsEnd(text, position);
+    if (first !== position + 2 || first >= text.length || text[first] !== ".") {
+      return undefined;
+    }
+    const dash = skipSpace(text, first + 1);
+    if (dash >= text.length || (text[dash] !== "-" && text[dash] !== "–")) {
+      return undefined;
+    }
+    const second = skipSpace(text, dash + 1);
+    const end = digitsEnd(text, second);
+    if (end !== second + 2 || end >= text.length || text[end] !== ".") {
+      return undefined;
+    }
+    const a = digitsAt(text, position);
+    const b = digitsAt(text, second);
+    if (value(a) % 10n !== 0n || value(b) % 10n !== 0n || value(a) === 0n || value(b) === 0n) {
+      return undefined;
+    }
+    // A dot closing both the decade and the sentence stays with the sentence; a century after it continues the
+    // sentence (lat 80.-90. XX wieku)
+    const next = skipSpace(text, end + 1);
+    let roman = next;
+    while (roman < text.length && contains("IVXLCDM", text[roman])) {
+      roman++;
+    }
+    const century = roman > next && isClearAfter(text, roman);
+    const spanEnd = isSentenceEnd(text, end + 1, true) && !century ? end : end + 1;
+    return matchOf({ kind: Kind.ORDINAL, span: { begin: position, end: spanEnd }, numbers: [a, b], suffix: "." });
+  }
+}
+
+// 04.02., 23.07-22.08: a day and a month of two digits each, without a year: before a closing dot, or as a
+// range of two such dates (its numbers are then both days and months)
+class YearlessDatePattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,-/")) {
+      return undefined;
+    }
+    const dateAt = (at: number): [Numeral, Numeral] | undefined => {
+      if (
+        digitsEnd(text, at) !== at + 2 ||
+        at + 5 > text.length ||
+        text[at + 2] !== "." ||
+        digitsEnd(text, at + 3) !== at + 5
+      ) {
+        return undefined;
+      }
+      const day = digitsAt(text, at);
+      const month = digitsAt(text, at + 3);
+      if (value(day) < 1n || value(day) > 31n || value(month) < 1n || value(month) > 12n) {
+        return undefined;
+      }
+      return [day, month];
+    };
+    const first = dateAt(position);
+    if (!first) {
+      return undefined;
+    }
+    const end = position + 5;
+    // 23.07-22.08: a range
+    if (end < text.length && text[end] === "-") {
+      const second = dateAt(end + 1);
+      if (second && isClearAfter(text, end + 6) && !isDigitAfter(text, end + 6, ".")) {
+        return matchOf({
+          kind: Kind.DATE,
+          span: { begin: position, end: end + 6 },
+          numbers: [first[0], first[1], second[0], second[1]],
+          separator: "-",
+        });
+      }
+      return undefined;
+    }
+    // 04.02.: a closing dot, not followed by a year
+    if (end < text.length && text[end] === "." && !isDigitAfter(text, end + 1) && isClearAfter(text, end + 1)) {
+      const spanEnd = isSentenceEnd(text, end + 1, true) ? end : end + 1;
+      return matchOf({ kind: Kind.DATE, span: { begin: position, end: spanEnd }, numbers: first, separator: "." });
+    }
+    return undefined;
+  }
+}
+
 // 1/2 kg, 3/4 l: a fraction of a unit, read with the unit's genitive (pół kilograma, trzy czwarte litra)
 class FractionUnitPattern extends Pattern {
   readonly #units: Keys = keysOf(UNITS);
@@ -859,11 +967,11 @@ class RomanDatePattern extends Pattern {
       dayEnd === position ||
       dayEnd > position + 2 ||
       dayEnd >= text.length ||
-      text[dayEnd] !== "."
+      (text[dayEnd] !== "." && text[dayEnd] !== " ")
     ) {
       return undefined;
     }
-    const month = dayEnd + 1;
+    const month = dayEnd + 1; // 5.VI, or 15 X
     let monthEnd = month;
     while (monthEnd < text.length && contains("IVX", text[monthEnd])) {
       monthEnd++;
@@ -871,6 +979,11 @@ class RomanDatePattern extends Pattern {
     const monthValue = romanValue(str(text, month, monthEnd));
     const day = value(digitsAt(text, position));
     if (monthValue === undefined || monthValue > 12n || day < 1n || day > 31n) {
+      return undefined;
+    }
+    // 15 X: after a space, not V or I alone (12 V is volts), nor an edition (15 X wyd.)
+    const roman = str(text, month, monthEnd);
+    if (text[dayEnd] === " " && (roman === "V" || roman === "I" || str(text, monthEnd, monthEnd + 4) === " wyd")) {
       return undefined;
     }
 
@@ -926,11 +1039,13 @@ class Polish extends PatternLanguage {
   constructor() {
     super({ characters: CHARACTERS, terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
+    this.addPattern(new YearlessDatePattern());
     this.addPattern(new RomanDatePattern());
     this.addPattern(new FractionUnitPattern());
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
+    this.addPattern(new DecadeRangePattern());
     this.addPattern(new DotOrdinalPattern(true, true));
     this.addPattern(new SuffixPattern(Kind.NUMBER, YEAR_SUFFIXES, YEAR_FORMAT));
     this.addPattern(new RomanPattern(false, CENTURY_ABBREVIATIONS));
@@ -958,6 +1073,14 @@ class Polish extends PatternLanguage {
   }
 
   protected override readDate(match: Match): string | undefined {
+    // 23.07-22.08: dwudziestego trzeciego lipca do dwudziestego drugiego sierpnia
+    if (match.numbers.length === 4) {
+      return (
+        `${ordinal(value(match.numbers[0]), cuesOf(match).grammaticalCase)} ` +
+        `${MONTHS_GENITIVE[Number(value(match.numbers[1])) - 1]} do ` +
+        `${ordinal(value(match.numbers[2]), Case.GENITIVE)} ${MONTHS_GENITIVE[Number(value(match.numbers[3])) - 1]}`
+      );
+    }
     const words = [
       ordinal(value(match.numbers[0]), cuesOf(match).grammaticalCase),
       MONTHS_GENITIVE[Number(value(match.numbers[1])) - 1],
@@ -1025,11 +1148,26 @@ class Polish extends PatternLanguage {
 
   protected override readRoman(match: Match): string | undefined {
     const n = value(match.numbers[0]);
-    const previous = match.context.before();
+    let previous = match.context.before();
+    // w XX czy XXI wieku: the second of two numerals takes the case of the word before the first
+    const first = match.context.before(2); // lowercased: xix
+    if (CONJUNCTIONS.has(previous) && first !== "" && madeOf(first, "ivxlcdm")) {
+      previous = match.context.before(3);
+    }
 
-    // XIX w.: dziewiętnastego wieku, w dziewiętnastym wieku
-    if (match.suffix === "w.") {
-      return `${ordinal(n, LOCATIVE_PREPOSITIONS.has(previous) ? Case.LOCATIVE : Case.GENITIVE)} wieku`;
+    // XIX w.: dziewiętnastego wieku, w dziewiętnastym wieku; opening its sentence or clause, osiemnasty wiek
+    let next = toLower(match.context.after());
+    const centuryAfter =
+      CONJUNCTIONS.has(next) &&
+      romanValue(match.context.after(2)) !== undefined &&
+      str(match.context.tail()).includes(" w.") &&
+      toLower(match.context.after(3)) === "w";
+    if (match.suffix === "w." || centuryAfter) {
+      if (previous === "") {
+        return ordinal(n, Case.NOMINATIVE) + (centuryAfter ? "" : " wiek");
+      }
+      const c = LOCATIVE_PREPOSITIONS.has(previous) ? Case.LOCATIVE : Case.GENITIVE;
+      return ordinal(n, c) + (centuryAfter ? "" : " wieku"); // XIX i XX w.: the noun once, after the second
     }
 
     // Jan Paweł drugi, Jana Pawła drugiego, Elżbiety drugiej: the case of the name
@@ -1065,7 +1203,6 @@ class Polish extends PatternLanguage {
       return form;
     };
     // XIX i XX wieku: the first of two numerals shares the noun of the second
-    let next = toLower(match.context.after());
     if (CONJUNCTIONS.has(next) && romanValue(match.context.after(2)) !== undefined) {
       next = toLower(match.context.after(3));
     }
@@ -1093,12 +1230,22 @@ class Polish extends PatternLanguage {
     const words = wordsOf(match.context.tail());
     const next = words.length === 0 ? [] : stripped(words[0]);
     const heading = startsWithAny(w1, HEADINGS) && value(match.numbers[0]) < 100n;
-    if (!DECADE_WORDS.has(w1) && !heading && (next.length === 0 || !isLower(next[0]))) {
+    // lat 70.: a decade; but "do lat 3." counts years (do lat trzech)
+    const n = value(match.numbers[0]);
+    const decade = DECADE_WORDS.has(w1) && n % 10n === 0n && n >= 10n && n < 100n;
+    if (DECADE_WORDS.has(w1) && !decade) {
+      return undefined;
+    }
+    if (!decade && !heading && (next.length === 0 || !isLower(next[0]))) {
       return undefined;
     }
 
     const cues = cuesOf(match);
-    return ordinal(value(match.numbers[0]), cues.grammaticalCase, cues.gender, cues.plural);
+    let reading = ordinal(n, cues.grammaticalCase, cues.gender, cues.plural);
+    if (match.numbers.length === 2) {
+      reading += `-${ordinal(value(match.numbers[1]), cues.grammaticalCase, cues.gender, cues.plural)}`; // 80.-90.
+    }
+    return reading;
   }
 
   protected override readCompound(match: Match): string | undefined {
