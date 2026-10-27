@@ -24,9 +24,9 @@ distributed under their own terms, listed below. The full license texts are in [
 
 ## Gold test cases
 
-- **Files:** `tests/gold/*.jsonl`, test data only, never in a package.
+- **Files:** `tests/lang/*/gold.jsonl`, test data only, never in a package.
 - **Source:** the text normalization test cases of [NeMo text processing](https://github.com/NVIDIA/NeMo-text-processing)
   by NVIDIA and of [WeTextProcessing](https://github.com/wenet-e2e/WeTextProcessing) by WeNet, converted to one format
-  by `tests/gold/build.py` (German cases swapped to written → spoken; acceptable readings of an input merged).
+  by `tests/lang/build.py` (German cases swapped to written → spoken; acceptable readings of an input merged).
 - **License:** Apache License 2.0, see [`licenses/NeMo-text-processing-Apache-2.0.txt`](licenses/NeMo-text-processing-Apache-2.0.txt)
   and [`licenses/WeTextProcessing-Apache-2.0.txt`](licenses/WeTextProcessing-Apache-2.0.txt).

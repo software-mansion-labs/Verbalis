@@ -35,7 +35,7 @@ ctest --test-dir cpp/build --output-on-failure             # unit tests and pari
 cpp/build/tests/verbalis_parity tests/parity/baseline       # parity summary per language and category
 uv venv && uv pip install ".[test]" && .venv/bin/pytest     # Python package: build, API and parity tests
 (cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format and types, API and parity tests
-.venv/bin/python tests/gold/score.py [--classes]          # accuracy against hand-written readings (tests/gold/)
+.venv/bin/python tests/lang/score.py [--classes]          # accuracy against hand-written readings (tests/lang/)
 tests/compare/cross.sh [lang ...]                           # TypeScript outputs identical to the C++ working tree
 tests/compare/compare.sh [commit]                           # outputs identical to a reference commit (default 3143074)
 ```
@@ -51,8 +51,8 @@ local hi and zh sentences that can't be committed yet.
   and say in the commit which outputs changed and why.
   Regenerate `api.jsonl` with `.venv/bin/python tests/parity/api.py`.
 - Offsets in `process_with_changes` count Unicode code points in every implementation.
-- `tests/gold/` measures correctness against readings written by people (`knowledge/gold-set.md`). A behaviour change
-  must keep every case in `tests/gold/scores.json` passing; record newly passing cases with `score.py --write`.
+- `tests/lang/` measures correctness against readings written by people (`knowledge/gold-set.md`). A behaviour change
+  must keep every case in `tests/lang/scores.json` passing; record newly passing cases with `score.py --write`.
 
 ## Code style
 

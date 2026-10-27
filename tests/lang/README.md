@@ -1,13 +1,18 @@
-# Gold set: inputs with readings written by people
+# Language tests: gold readings and reviews
+
+One folder per language: `gold.jsonl` (the gold set), `notes.md` (its edits and unreachable cases), and
+`review.jsonl` (verdicts on Verbalis's output for real sentences, by people and by review agents).
+
+## Gold set: inputs with readings written by people
 
 Unlike the parity baseline (`tests/parity/`), which records what the C++ core does, every reading here was written by
 a person: the gold set measures whether Verbalis reads text right, not whether it changed. 3,197 cases in de, en-us,
 es, fr, hi, it, pt, and zh from NeMo and WeTextProcessing, and cases written for Verbalis (`"source": "verbalis"`),
-the only ones in pl. `notes/<lang>.md` records edited readings and unreachable cases.
+the only ones in pl. `<lang>/notes.md` records edited readings and unreachable cases.
 
-## Files
+### Files
 
-`<lang>.jsonl`, one case per line; every reading in `outputs` is acceptable:
+`<lang>/gold.jsonl`, one case per line; every reading in `outputs` is acceptable:
 
 ```json
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "$123", "outputs": ["one hundred twenty three dollars", "one hundred and twenty three dollars"]}
@@ -26,7 +31,7 @@ failing cases (`--show <lang>`), and exits 1 if a recorded case no longer passes
 break them (`tests/python/test_gold.py`). After a change that fixes cases, record them with `--write`.
 
 ```bash
-.venv/bin/python tests/gold/score.py --classes
+.venv/bin/python tests/lang/score.py --classes
 ```
 
 A case passes when the output equals one of its readings, ignoring case, whitespace, and punctuation: "twenty-one"
@@ -34,7 +39,7 @@ and "twenty one", "einhundertdreiundzwanzig" and "ein hundert drei und zwanzig" 
 short fragments, often without a sentence around them, so some are ambiguous: Verbalis leaves a German `11.` as
 written unless a noun follows, where the gold reading is "elfter".
 
-## Sources
+### Sources
 
 Built by `build.py` from two checkouts, both Apache-2.0 (`licenses/`):
 
@@ -49,5 +54,23 @@ Built by `build.py` from two checkouts, both Apache-2.0 (`licenses/`):
 ```bash
 git clone --depth 1 https://github.com/NVIDIA/NeMo-text-processing.git /tmp/nemo
 git clone --depth 1 https://github.com/wenet-e2e/WeTextProcessing.git /tmp/wetext
-python3 tests/gold/build.py /tmp/nemo /tmp/wetext
+python3 tests/lang/build.py /tmp/nemo /tmp/wetext
 ```
+
+## Reviews: verdicts on real sentences
+
+`review.py` runs the agent review: it cuts the sentences of `tests/parity/baseline/` into batches of 100 for the
+`review-<lang>` agents (`.claude/agents/`), hides 10 controls in each (5 known-good readings, 5 planted errors), checks
+the agents' answers, and stops a language at 20% wrong after 200 sentences. Batches and answers live in
+`build/review/<lang>/`; the docstring of `review.py` lists the commands.
+
+`<lang>/review.jsonl` holds one verdict per line, for the output it judged (a later change of Verbalis makes it stale):
+
+```json
+{"lang": "pl", "input": "Mam 2 koty.", "output": "Mam dwie koty.", "by": "haiku", "pass": 1, "batch": "pl-003", "verdict": "wrong", "errors": [{"span": "dwie koty", "correction": "dwa koty", "category": "agreement", "rule": "PL-LICZ-1", "why": "kot jest rodzaju męskiego"}]}
+```
+
+`by` is `haiku` or `human` (clicker exports, `review.py import-human`, which may add a whole corrected sentence as
+`correction`). `pass` 2 is the blind second pass that confirms a first-pass `wrong`. Reviewed sentences are not gold:
+`score.py` doesn't count them. `hi/review.jsonl` and `zh/review.jsonl` hold sentences from `tests/parity/local/` and
+stay local.

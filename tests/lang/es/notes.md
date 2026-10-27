@@ -1,6 +1,6 @@
 # Spanish gold set: edits and unreachable cases
 
-Every edit of `tests/gold/es.jsonl` that changes a NeMo case, with its reason. Cases with `"source": "verbalis"` are
+Every edit of `tests/lang/es/gold.jsonl` that changes a NeMo case, with its reason. Cases with `"source": "verbalis"` are
 written by the Spanish worker as a native-level speaker.
 
 ## All classes

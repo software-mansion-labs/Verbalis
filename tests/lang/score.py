@@ -1,14 +1,14 @@
-"""Scores Verbalis against the gold test set (tests/gold/<lang>.jsonl): how many inputs it reads as a person would.
+"""Scores Verbalis against the gold test set (tests/lang/<lang>/gold.jsonl): how many inputs it reads as a person would.
 
-    .venv/bin/python tests/gold/score.py              # accuracy per language, and changes since scores.json
-    .venv/bin/python tests/gold/score.py --classes    # also per class
-    .venv/bin/python tests/gold/score.py --show de    # every failing case of a language
-    .venv/bin/python tests/gold/score.py --write      # record the current passing cases in scores.json
+    .venv/bin/python tests/lang/score.py              # accuracy per language, and changes since scores.json
+    .venv/bin/python tests/lang/score.py --classes    # also per class
+    .venv/bin/python tests/lang/score.py --show de    # every failing case of a language
+    .venv/bin/python tests/lang/score.py --write      # record the current passing cases in scores.json
 
 A case passes when the output equals one of its acceptable readings, after normalization: case, whitespace, and
 punctuation are ignored ("twenty-one" = "twenty one"). "exact" counts equality as written. A case with an
 "out_of_scope" reason (markup, malformed input, gold that contradicts itself) is left out of the score and counted
-apart; tests/gold/notes/<lang>.md lists them. Exits 1 if a case that
+apart; tests/lang/<lang>/notes.md lists them. Exits 1 if a case that
 passed in scores.json fails now: a behaviour change may fix gold cases, but must not break them.
 """
 
@@ -21,8 +21,8 @@ from pathlib import Path
 
 from verbalis import Verbalizer
 
-GOLD = Path(__file__).parent
-SCORES = GOLD / "scores.json"
+ROOT = Path(__file__).parent
+SCORES = ROOT / "scores.json"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--classes", action="store_true")
@@ -41,7 +41,7 @@ def key(case: dict) -> str:
 
 
 passing, totals, failures, excluded = defaultdict(list), {}, defaultdict(list), defaultdict(int)
-for path in sorted(GOLD.glob("*.jsonl")):
+for path in sorted(ROOT.glob("*/gold.jsonl")):
     cases = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
     lang = cases[0]["lang"]
     verbalizer = Verbalizer(lang)

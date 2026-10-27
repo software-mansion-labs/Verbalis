@@ -16,6 +16,8 @@ CLAUDE.local.md
 
 # Local, unlicensed test inputs for the refactor comparison
 tests/parity/local/
+tests/lang/hi/review.jsonl
+tests/lang/zh/review.jsonl
 wheelhouse/
 ts/dist/
 

@@ -1,11 +1,11 @@
-"""Builds the gold test set (tests/gold/<lang>.jsonl) from the hand-written test cases of two text normalization
+"""Builds the gold test set (tests/lang/<lang>/gold.jsonl) from the hand-written test cases of two text normalization
 projects, both Apache-2.0:
 
 - NeMo text processing (https://github.com/NVIDIA/NeMo-text-processing),
   tests/nemo_text_processing/<lang>/data_text_normalization/test_cases_<class>.txt;
 - WeTextProcessing (https://github.com/wenet-e2e/WeTextProcessing), tn/<language>/test/data/<class>.txt.
 
-    python3 tests/gold/build.py <NeMo-text-processing checkout> <WeTextProcessing checkout>
+    python3 tests/lang/build.py <NeMo-text-processing checkout> <WeTextProcessing checkout>
 
 A record is {"lang", "source", "class", "input", "outputs"}: every reading in "outputs" is acceptable.
 """
@@ -66,7 +66,7 @@ for language, lang in [("chinese", "zh"), ("english", "en-us")]:
 
 total = 0
 for lang, by_case in sorted(cases.items()):
-    with open(OUT / f"{lang}.jsonl", "w", encoding="utf-8") as file:
+    with open(OUT / lang / "gold.jsonl", "w", encoding="utf-8") as file:
         for (source, name, written), outputs in by_case.items():
             record = {"lang": lang, "source": source, "class": name, "input": written,
                       "outputs": list(dict.fromkeys(outputs))}
