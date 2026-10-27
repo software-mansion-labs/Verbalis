@@ -513,6 +513,13 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   const w2 = before.length < 2 ? "" : before[before.length - 2];
   const noun = yearAbbreviation ? "roku" : next; // 2020 r.
 
+  // 1990-1994: the end of a range of years stays a cardinal, as its start (but od 2020 do 2022 reads ordinals)
+  const year = (w: string): boolean => w.length === 4 && madeOf(w, DIGITS);
+  const w3 = before.length < 3 ? "" : before[before.length - 3];
+  if (w1 === "do" && year(w2) && n >= 1000n && n <= 2100n && w3 !== "od" && noun !== "roku" && noun !== "r") {
+    return { form: Form.CARDINAL, grammaticalCase: Case.NOMINATIVE, gender: Gender.MASCULINE };
+  }
+
   // 1. Years, days and headings are ordinals
   const locative = LOCATIVE_PREPOSITIONS.has(w1);
   if ((noun === "roku" || noun === "rok" || noun === "rokiem") && !decimal) {
@@ -797,6 +804,10 @@ function cuesOf(match: Match): Cues {
     const measure = match.kind === Kind.PERCENT || (match.kind === Kind.UNIT && !TIME_UNITS.has(match.unit));
     if ((w1 === "w" || w1 === "we") && measure && cues.amountCase === Case.ACCUSATIVE) {
       cues.amountCase = Case.LOCATIVE;
+      // w 10-15 proc.: w dziesięciu do piętnastu procent, the start of the range too
+      if (match.numbers.length === 2 && cues.grammaticalCase === Case.ACCUSATIVE) {
+        cues.grammaticalCase = Case.LOCATIVE;
+      }
     }
   }
   return cues;
@@ -1119,7 +1130,7 @@ class Polish extends PatternLanguage {
 
   protected override readMoney(number: Numeral, match: Match): string | undefined {
     const currency = CURRENCIES[match.unit];
-    const c = cuesOf(match).amountCase;
+    const c = this.#amountCase(match);
     if (match.scale !== "") {
       return `${amount(number, SCALES[match.scale], c)} ${currency.plural[Case.GENITIVE]}`;
     }
@@ -1144,15 +1155,15 @@ class Polish extends PatternLanguage {
   }
 
   protected override readScale(number: Numeral, match: Match): string | undefined {
-    return amount(number, SCALES[match.scale], cuesOf(match).amountCase);
+    return amount(number, SCALES[match.scale], this.#amountCase(match));
   }
 
   protected override readPercent(number: Numeral, match: Match): string | undefined {
-    return amount(number, PERCENT, cuesOf(match).amountCase) + spacedSuffix(match);
+    return amount(number, PERCENT, this.#amountCase(match)) + spacedSuffix(match);
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
-    return amount(number, UNITS[match.unit], cuesOf(match).amountCase);
+    return amount(number, UNITS[match.unit], this.#amountCase(match));
   }
 
   protected override readFraction(match: Match): string | undefined {
@@ -1225,7 +1236,42 @@ class Polish extends PatternLanguage {
       }
       return cuesOf(match).numbered ? " przez " : " na ";
     }
+    // 1990 - 1994: a spaced dash between numbers is a range, unless an equation follows (5 - 3 = 2)
+    if (match.kind === Kind.DIFFERENCE && match.text === " - " && match.context.after(2) !== "=") {
+      return " do ";
+    }
     return super.readJoiner(match);
+  }
+
+  // 15-20%, 20-300 zł, 1990-1994: piętnaście do dwudziestu procent ("do" gives the end its case). But a range
+  // of hours (w godzinach 12-16: dwunasta-szesnasta), or before a noun written to agree with its end (2-3 minuty:
+  // dwie-trzy minuty), keeps its hyphen.
+  protected override readRange(from: Numeral, to: Numeral, match: Match): string {
+    // A range of hours, or of clock times (9:00-17:00): dziewiąta-siedemnasta
+    const head = match.context.head();
+    let start = head.length;
+    while (start > 0 && isDigit(head[start - 1])) {
+      start--;
+    }
+    if (HOUR_WORDS.has(match.context.before(2)) || (start > 0 && head[start - 1] === ":")) {
+      return "-";
+    }
+    const year = (n: Numeral): boolean => n.integer.length === 4 && value(n) >= 1000n && value(n) <= 2100n;
+    const after = wordsOf(match.context.tail());
+    const noun =
+      after.length >= 2 && madeOf(str(stripped(after[0])), "0123456789,.") && str(after[0]) === str(stripped(after[0]))
+        ? str(stripped(after[1]))
+        : "";
+    const counted = noun !== "" && isLower([...noun][0]) && !(noun in UNITS) && !(noun in CURRENCIES);
+    return counted && !(year(from) && year(to)) ? "-" : " do ";
+  }
+
+  // The case of an amount, or of the end of its range after "do": 4-5 proc. cztery do pięciu procent
+  #amountCase(match: Match): Case {
+    if (match.numbers.length === 2 && this.readRange(match.numbers[0], match.numbers[1], match) === " do ") {
+      return Case.GENITIVE;
+    }
+    return cuesOf(match).amountCase;
   }
 }
 

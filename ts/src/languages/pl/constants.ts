@@ -399,6 +399,8 @@ export const TIME_UNITS: ReadonlySet<string> = new Set(["h", "min", "s", "ms", "
 export const HOUR_WORDS: ReadonlyMap<string, Case> = new Map<string, Case>([
   ["godzina", Case.NOMINATIVE], ["godziny", Case.GENITIVE], ["godzinie", Case.LOCATIVE],
   ["godzinę", Case.ACCUSATIVE], ["godziną", Case.INSTRUMENTAL],
+  // w godzinach 12-16: dwunasta-szesnasta
+  ["godzinach", Case.NOMINATIVE],
 ]);
 
 // Stems of headings: Punkt 3., w punkcie 5.; the ones of ORDINAL_HEADINGS read as ordinals even without a dot

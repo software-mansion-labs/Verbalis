@@ -34,7 +34,7 @@ REGISTER_TEST(numbers_pl_test) {
       U"Zadzwoń pod numer sześćset sto dwadzieścia trzy czterysta pięćdziesiąt sześć albo o siódmej piętnaście, "
       U"numerem trzy przez trzydzieści osiem.",
       verbalize("pl", U"Zadzwoń pod numer 600 123 456 albo o 7.15, numerem 3x38.", only(&Options::numbers)));
-  ASSERT_EQUALS(U"W latach dwa tysiące dziesięć-dwa tysiące dwanaście zginęło tysiąc osób, w tym dwie kobiety.",
+  ASSERT_EQUALS(U"W latach dwa tysiące dziesięć do dwa tysiące dwanaście zginęło tysiąc osób, w tym dwie kobiety.",
                 verbalize("pl", U"W latach 2010-2012 zginęło 1 000 osób, w tym 2 kobiety.", only(&Options::numbers)));
   ASSERT_EQUALS(
       U"Profesor Nowak mieszka przy ulicy Długiej pięć mieszkanie cztery, o godzinie piętnastej jedzie "

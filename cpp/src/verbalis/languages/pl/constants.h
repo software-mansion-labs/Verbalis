@@ -418,7 +418,9 @@ inline const std::unordered_set<std::u32string_view> kTimeUnits = {U"h", U"min",
 // The forms of "godzina", with the case of the hour after them: o godzinie 15 (piętnastej), do godziny 16 (szesnastej)
 inline const std::unordered_map<std::u32string, Case> kHourWords = {
   {U"godzina", Case::NOMINATIVE}, {U"godziny", Case::GENITIVE}, {U"godzinie", Case::LOCATIVE},
-  {U"godzinę", Case::ACCUSATIVE}, {U"godziną", Case::INSTRUMENTAL}
+  {U"godzinę", Case::ACCUSATIVE}, {U"godziną", Case::INSTRUMENTAL},
+  // w godzinach 12-16: dwunasta-szesnasta
+  {U"godzinach", Case::NOMINATIVE}
 };
 
 // Stems of headings: Punkt 3., w punkcie 5.; the ones of kOrdinalHeadings read as ordinals even without a dot

@@ -262,8 +262,9 @@ std::pair<std::vector<std::u32string>, std::u32string> surroundings(const Contex
   std::u32string next;
   std::u32string_view tail = context.tail();
   if (tail.empty() || !strings::contains(text::kPunctuation, tail[0])) {
-    for (auto word : words_of(tail)) {
-      std::u32string_view w = stripped(word);
+    auto after = words_of(tail);
+    for (size_t i = 0; i < after.size(); ++i) {
+      std::u32string_view w = stripped(after[i]);
       if (!(w.size() > 1 && w[0] == U'-' && made_of(w.substr(1), U"0123456789,."))) {
         next = strings::to_lower(w);
         break;
@@ -407,6 +408,13 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
   std::u32string w1 = before.empty() ? U"" : before.back();
   std::u32string w2 = before.size() < 2 ? U"" : before[before.size() - 2];
   std::u32string noun = year_abbreviation ? U"roku" : next; // 2020 r.
+
+  // 1990-1994: the end of a range of years stays a cardinal, as its start (but od 2020 do 2022 reads ordinals)
+  auto year = [](std::u32string_view w) { return w.size() == 4 && made_of(w, kDigits); };
+  std::u32string w3 = before.size() < 3 ? U"" : before[before.size() - 3];
+  if (w1 == U"do" && year(w2) && n >= 1000 && n <= 2100 && w3 != U"od" && noun != U"roku" && noun != U"r") {
+    return {Form::CARDINAL, Case::NOMINATIVE};
+  }
 
   // 1. Years, days and headings are ordinals
   bool locative = kLocativePrepositions.contains(w1);
@@ -653,6 +661,10 @@ Cues cues_of(const Match& match) {
     bool measure = match.kind == Kind::PERCENT || (match.kind == Kind::UNIT && !kTimeUnits.contains(match.unit));
     if ((w1 == U"w" || w1 == U"we") && measure && cues.amount_case == Case::ACCUSATIVE) {
       cues.amount_case = Case::LOCATIVE;
+      // w 10-15 proc.: w dziesięciu do piętnastu procent, the start of the range too
+      if (match.numbers.size() == 2 && cues.grammatical_case == Case::ACCUSATIVE) {
+        cues.grammatical_case = Case::LOCATIVE;
+      }
     }
   }
   return cues;
@@ -953,7 +965,7 @@ protected:
 
   std::optional<std::u32string> read_money(const Number& number, const Match& match) const override {
     const Noun& currency = kCurrencies.at(std::u32string(match.unit));
-    Case c = cues_of(match).amount_case;
+    Case c = amount_case(match);
     if (!match.scale.empty()) {
       return amount(number, kScales.at(std::u32string(match.scale)), c) + U" " + currency.plural[index(Case::GENITIVE)];
     }
@@ -976,16 +988,24 @@ protected:
     return amount(number, currency, c);
   }
 
+  // The case of an amount, or of the end of its range after "do": 4-5 proc. cztery do pięciu procent
+  Case amount_case(const Match& match) const {
+    if (match.numbers.size() == 2 && read_range(match.numbers[0], match.numbers[1], match) == U" do ") {
+      return Case::GENITIVE;
+    }
+    return cues_of(match).amount_case;
+  }
+
   std::optional<std::u32string> read_scale(const Number& number, const Match& match) const override {
-    return amount(number, kScales.at(std::u32string(match.scale)), cues_of(match).amount_case);
+    return amount(number, kScales.at(std::u32string(match.scale)), amount_case(match));
   }
 
   std::optional<std::u32string> read_percent(const Number& number, const Match& match) const override {
-    return amount(number, kPercent, cues_of(match).amount_case) + spaced_suffix(match);
+    return amount(number, kPercent, amount_case(match)) + spaced_suffix(match);
   }
 
   std::optional<std::u32string> read_unit(const Number& number, const Match& match) const override {
-    return amount(number, kUnits.at(std::u32string(match.unit)), cues_of(match).amount_case);
+    return amount(number, kUnits.at(std::u32string(match.unit)), amount_case(match));
   }
 
   std::optional<std::u32string> read_fraction(const Match& match) const override {
@@ -1084,7 +1104,34 @@ public:
       }
       return cues_of(match).numbered ? U" przez " : U" na ";
     }
+    // 1990 - 1994: a spaced dash between numbers is a range, unless an equation follows (5 - 3 = 2)
+    if (match.kind == Kind::DIFFERENCE && match.text == U" - " && match.context.after(2) != U"=") {
+      return U" do ";
+    }
     return PatternLanguage::read_joiner(match);
+  }
+
+  // 15-20%, 20-300 zł, 1990-1994: piętnaście do dwudziestu procent ("do" gives the end its case). But a range
+  // of hours (w godzinach 12-16: dwunasta-szesnasta), or before a noun written to agree with its end (2-3 minuty:
+  // dwie-trzy minuty), keeps its hyphen.
+  std::u32string read_range(const Number& from, const Number& to, const Match& match) const override {
+    // A range of hours, or of clock times (9:00-17:00): dziewiąta-siedemnasta
+    std::u32string_view head = match.context.head();
+    size_t start = head.size();
+    while (start > 0 && unicode::isdigit(head[start - 1])) {
+      start--;
+    }
+    if (kHourWords.contains(match.context.before(2)) || (start > 0 && head[start - 1] == U':')) {
+      return U"-";
+    }
+    auto year = [](const Number& n) { return n.integer.size() == 4 && value(n) >= 1000 && value(n) <= 2100; };
+    auto after = words_of(match.context.tail());
+    std::u32string noun =
+        after.size() >= 2 && made_of(stripped(after[0]), U"0123456789,.") && after[0] == stripped(after[0]) ?
+            std::u32string(stripped(after[1])) :
+            U"";
+    bool counted = !noun.empty() && unicode::islower(noun[0]) && !kUnits.contains(noun) && !kCurrencies.contains(noun);
+    return counted && !(year(from) && year(to)) ? U"-" : U" do ";
   }
 };
 } // namespace
