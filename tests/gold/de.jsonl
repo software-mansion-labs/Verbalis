@@ -1,0 +1,306 @@
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "0", "outputs": ["null"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "1", "outputs": ["eins"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "2", "outputs": ["zwei"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "3", "outputs": ["drei"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "4", "outputs": ["vier"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "6", "outputs": ["sechs"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "10", "outputs": ["zehn"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "11", "outputs": ["elf"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "12", "outputs": ["zwölf"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "13", "outputs": ["dreizehn"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "14", "outputs": ["vierzehn"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "15", "outputs": ["fünfzehn"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "16", "outputs": ["sechzehn"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "17", "outputs": ["siebzehn"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "18", "outputs": ["achtzehn"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "20", "outputs": ["zwanzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "30", "outputs": ["dreißig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "40", "outputs": ["vierzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "50", "outputs": ["fünfzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "60", "outputs": ["sechzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "70", "outputs": ["siebzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "80", "outputs": ["achtzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "90", "outputs": ["neunzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "23", "outputs": ["drei und zwanzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "100", "outputs": ["ein hundert"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "123", "outputs": ["ein hundert drei und zwanzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "101", "outputs": ["ein hundert eins"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "1000", "outputs": ["ein tausend"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "100000", "outputs": ["ein hundert tausend"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "1000000", "outputs": ["eine million"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "10000000", "outputs": ["zehn millionen"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "100000000", "outputs": ["ein hundert millionen"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "9789382536130", "outputs": ["neun billionen sieben hundert neun und achtzig milliarden drei hundert zwei und achtzig millionen fünf hundert sechs und dreißig tausend ein hundert dreißig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "147451", "outputs": ["ein hundert sieben und vierzig tausend vier hundert ein und fünfzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "1156173", "outputs": ["eine million ein hundert sechs und fünfzig tausend ein hundert drei und siebzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "1593072961", "outputs": ["eine milliarde fünf hundert drei und neunzig millionen zwei und siebzig tausend neun hundert ein und sechzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "97808264772792005", "outputs": ["sieben und neunzig billiarden acht hundert acht billionen zwei hundert vier und sechzig milliarden sieben hundert zwei und siebzig millionen sieben hundert zwei und neunzig tausend fünf"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "10010000010100010", "outputs": ["zehn billiarden zehn billionen zehn millionen ein hundert tausend zehn"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "-25037", "outputs": ["minus fünf und zwanzig tausend sieben und dreißig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "1264301000000000", "outputs": ["eine billiarde zwei hundert vier und sechzig billionen drei hundert eins milliarden"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "-60", "outputs": ["minus sechzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "46664", "outputs": ["sechs und vierzig tausend sechs hundert vier und sechzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "2000003", "outputs": ["zwei millionen drei"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "1026", "outputs": ["ein tausend sechs und zwanzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "1126", "outputs": ["ein tausend ein hundert sechs und zwanzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "18450990", "outputs": ["achtzehn millionen vier hundert fünfzig tausend neun hundert neunzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "18940722", "outputs": ["achtzehn millionen neun hundert vierzig tausend sieben hundert zwei und zwanzig"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "18690916", "outputs": ["achtzehn millionen sechs hundert neunzig tausend neun hundert sechzehn"]}
+{"lang": "de", "source": "nemo", "class": "cardinal", "input": "18880", "outputs": ["achtzehn tausend acht hundert achtzig"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "24. juli 2013", "outputs": ["vier und zwanzigster juli zwei tausend dreizehn"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "14. januar", "outputs": ["vierzehnter januar"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "1. januar", "outputs": ["erster januar"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "30. juni", "outputs": ["dreißigster juni"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "02.03.2003", "outputs": ["zweiter märz zwei tausend drei"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "2.3.2003", "outputs": ["zweiter märz zwei tausend drei"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "2.3", "outputs": ["zweiter märz"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "02.03", "outputs": ["zweiter märz"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "2. März 2003", "outputs": ["zweiter märz zwei tausend drei"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "2. Mär. 2003", "outputs": ["zweiter märz zwei tausend drei"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "2. mär. 2003", "outputs": ["zweiter märz zwei tausend drei"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "2003-03-02", "outputs": ["zweiter märz zwei tausend drei"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "2003-03", "outputs": ["märz zwei tausend drei"]}
+{"lang": "de", "source": "nemo", "class": "date", "input": "2003-3-2", "outputs": ["zweiter märz zwei tausend drei"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "0,2 millionen", "outputs": ["null komma zwei millionen"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "18 milliarden", "outputs": ["achtzehn milliarden"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "460 millionen", "outputs": ["vier hundert sechzig millionen"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "120 millionen", "outputs": ["ein hundert zwanzig millionen"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "10 millionen", "outputs": ["zehn millionen"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "-60,2400", "outputs": ["minus sechzig komma zwei vier null null"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "818,303", "outputs": ["acht hundert achtzehn komma drei null drei"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "1,2,3", "outputs": ["eins , zwei komma drei"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "1,2,3,4", "outputs": ["eins komma zwei , drei komma vier"]}
+{"lang": "de", "source": "nemo", "class": "decimal", "input": "1,2,3,4,5", "outputs": ["eins , zwei komma drei , vier komma fünf"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "cdf@abc.edu", "outputs": ["c d f at a b c punkt edu"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "abc@gmail.abc", "outputs": ["a b c at g mail punkt a b c"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "abc@abc.com", "outputs": ["a b c at a b c punkt com"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "asdf123@abc.com", "outputs": ["a s d f eins zwei drei at a b c punkt com"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "a1b2@abc.com", "outputs": ["a eins b zwei at a b c punkt com"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "ab3-sdd-3@gmail.com", "outputs": ["a b drei bindestrich s d d bindestrich drei at g mail punkt com"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "https://www.abc.com", "outputs": ["h t t p s doppelpunkt slash slash w w w punkt a b c punkt com"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "www.abc.com", "outputs": ["w w w punkt a b c punkt com"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "brettspielversand.de.", "outputs": ["brettspielversand punkt de."]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "www.enveedya.net.", "outputs": ["w w w punkt e n v e e d y a punkt net."]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "www.amazon.com.de.", "outputs": ["w w w punkt amazon punkt com punkt de."]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "https://www.abc.com/ab?=3-/abs/1", "outputs": ["h t t p s doppelpunkt slash slash w w w punkt a b c punkt com slash a b fragezeichen gleichheitszeichen drei bindestrich slash a b s slash eins"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "@jensen", "outputs": ["at j e n s e n"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "@jensen.me", "outputs": ["at j e n s e n punkt m e"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "@wezyr1986", "outputs": ["at w e z y r eins neun acht sechs"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "2D-Mammogram", "outputs": ["zwei-D-Mammogram"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "2-D-Mammogram", "outputs": ["zwei-D-Mammogram"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "3D-Drucker", "outputs": ["drei-D-Drucker"]}
+{"lang": "de", "source": "nemo", "class": "electronic", "input": "3-D-Drucker", "outputs": ["drei-D-Drucker"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "0/0", "outputs": ["null nulltel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/2", "outputs": ["ein halb"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "4/2", "outputs": ["vier halbe"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/3", "outputs": ["ein drittel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/4", "outputs": ["ein viertel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/5", "outputs": ["ein fünftel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/6", "outputs": ["ein sechstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/7", "outputs": ["ein siebtel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/8", "outputs": ["ein achtel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "2/9", "outputs": ["zwei neuntel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1 1/2", "outputs": ["ein ein halb"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/10", "outputs": ["ein zehntel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/11", "outputs": ["ein elftel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/12", "outputs": ["ein zwölftel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/13", "outputs": ["ein dreizehntel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/14", "outputs": ["ein vierzehntel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/15", "outputs": ["ein fünfzehntel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/16", "outputs": ["ein sechzehntel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/17", "outputs": ["ein siebzehntel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/18", "outputs": ["ein achtzehntel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/19", "outputs": ["ein neunzehntel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/20", "outputs": ["ein zwanzigstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/30", "outputs": ["ein dreißigstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/40", "outputs": ["ein vierzigstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/50", "outputs": ["ein fünfzigstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/60", "outputs": ["ein sechzigstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/70", "outputs": ["ein siebzigstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/80", "outputs": ["ein achtzigstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/90", "outputs": ["ein neunzigstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/100", "outputs": ["ein ein hundertstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "1/22", "outputs": ["ein zwei und zwanzigstel"]}
+{"lang": "de", "source": "nemo", "class": "fraction", "input": "-1/22", "outputs": ["minus ein zwei und zwanzigstel"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "200 m", "outputs": ["zwei hundert meter"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "56,3 /km²", "outputs": ["sechs und fünfzig komma drei pro quadrat kilometer"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "200 km/h", "outputs": ["zwei hundert kilometer pro stunde"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "42259 /m²", "outputs": ["zwei und vierzig tausend zwei hundert neun und fünfzig pro quadrat meter"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "42259/m²", "outputs": ["zwei und vierzig tausend zwei hundert neun und fünfzig pro quadrat meter"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "-66 kg", "outputs": ["minus sechs und sechzig kilogramm"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "2 kwh", "outputs": ["zwei kilowattstunden"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "1,000028 cm³", "outputs": ["eins komma null null null null zwei acht kubik zentimeter"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "1,1 cm", "outputs": ["eins komma eins zentimeter"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "3 h", "outputs": ["drei stunden"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "1 h", "outputs": ["ein stunde"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "1 mv", "outputs": ["ein millivolt"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "1 million mv", "outputs": ["eins million millivolt"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "2 m³", "outputs": ["zwei kubik meter"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "90 g", "outputs": ["neunzig gramm"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "90 millionen g", "outputs": ["neunzig millionen gramm"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "90,4 millionen g", "outputs": ["neunzig komma vier millionen gramm"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "440 ml", "outputs": ["vier hundert vierzig milliliter"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "300 μm", "outputs": ["drei hundert mikrometer"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "65000 km²", "outputs": ["fünf und sechzig tausend quadrat kilometer"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "2 km/h", "outputs": ["zwei kilometer pro stunde"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "2km/h", "outputs": ["zwei kilometer pro stunde"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "2 millionen km/h", "outputs": ["zwei millionen kilometer pro stunde"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "2,2 millionen km/h", "outputs": ["zwei komma zwei millionen kilometer pro stunde"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "60,2400 kg", "outputs": ["sechzig komma zwei vier null null kilogramm"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "0 ft", "outputs": ["null fuß"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "1/2 ft", "outputs": ["ein halb fuß"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "1 1/2 ft", "outputs": ["ein ein halb fuß"]}
+{"lang": "de", "source": "nemo", "class": "measure", "input": "-1 1/2 ft", "outputs": ["minus ein ein halb fuß"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2", "outputs": ["zwei dollar"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2,000", "outputs": ["zwei dollar"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2,0", "outputs": ["zwei dollar"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2,00", "outputs": ["zwei dollar"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2,0001", "outputs": ["zwei komma null null null eins dollar"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "€1 million", "outputs": ["eins million euro"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "€0,01", "outputs": ["ein cent"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "€0,02", "outputs": ["zwei cent"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "€0,20", "outputs": ["zwanzig cent"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2,20", "outputs": ["zwei dollar zwanzig cent"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2,20000", "outputs": ["zwei dollar zwanzig cent"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2,200", "outputs": ["zwei dollar zwanzig cent"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2,2010", "outputs": ["zwei komma zwei null eins dollar"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "$2,201", "outputs": ["zwei komma zwei null eins dollar"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "€2,20", "outputs": ["zwei euro zwanzig cent"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "€2,200", "outputs": ["zwei euro zwanzig cent"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "€2,200 millionen", "outputs": ["zwei komma zwei null null millionen euro"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "€2,201 millionen", "outputs": ["zwei komma zwei null eins millionen euro"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "€2,21 millionen", "outputs": ["zwei komma zwei eins millionen euro"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "£2,01", "outputs": ["zwei pfund ein penny"]}
+{"lang": "de", "source": "nemo", "class": "money", "input": "£2,20", "outputs": ["zwei pfund zwanzig pence"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "123", "outputs": ["ein hundert drei und zwanzig", "ein hundert und drei und zwanzig", "123"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "101", "outputs": ["ein hundert eins", "ein hundert eine", "ein hundert ein", "ein hundert und eins", "ein hundert und ein", "101", "ein hundert und eine"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1001", "outputs": ["zehn hundert eins", "ein tausend eine", "eine tausend eins", "zehn eins", "1001", "ein tausend ein", "ein tausend eins", "eine tausend eine", "eine tausend ein"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1101", "outputs": ["ein tausend ein hundert und eins", "ein tausend ein hundert eine", "ein tausend ein hundert und ein", "eine tausend ein hundert und ein", "elf hundert eins", "eine tausend ein hundert eine", "elf eins", "eine tausend ein hundert und eine", "ein tausend ein hundert und eine", "eine tausend ein hundert und eins", "ein tausend ein hundert ein", "1101", "eine tausend ein hundert eins", "eine tausend ein hundert ein", "ein tausend ein hundert eins"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1000000", "outputs": ["eine million", "1000000", "ein million", "ein millionen", "eine millionen", "eins million"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "t-0t25d12-f", "outputs": ["t-0t25d12-f"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "133-A", "outputs": ["133-A", "ein hundert drei und dreißig A", "ein hundert und drei und dreißig A"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "B2A23C", "outputs": ["B2A23C"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "25d08A", "outputs": ["25d08A"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "C24", "outputs": ["C24"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1970-2010", "outputs": ["1970-2010"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "W26s", "outputs": ["W26s"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "5-3-Ws", "outputs": ["5-3-Ws"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "401-ks", "outputs": ["401-ks"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "The box was 25 x 7 m.", "outputs": ["The box was 25 x 7 m."]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "4567", "outputs": ["4567"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "$2,20", "outputs": ["zwei us dollar zwanzig", "zwei dollar und zwanzig cent", "zwei us dollar und zwanzig cent", "zwei us dollar zwanzig cent", "zwei dollar zwanzig", "zwei dollar zwanzig cent"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "25.]", "outputs": ["25 . ]", "25. ]", "fünf und zwanzigster ]"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "Francis I--test", "outputs": ["Francis I--test"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "librivox.com", "outputs": ["librivox.com", "l i b r i v o x punkt com", "l i b r i v o x punkt c o m"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1,000,123", "outputs": ["1,000,123"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1980", "outputs": ["neunzehn achtzig", "ein tausend neun hundert achtzig", "neunzehn hundert achtzig", "eine tausend neun hundert achtzig", "ein tausend neun hundert und achtzig", "eine tausend neun hundert und achtzig"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "02.03.2003", "outputs": ["zweiter dritter zwanzig drei", "zweiter märz zwei tausend drei", "zweiter dritter zwei tausend drei", "zweiter märz zwanzig drei"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "abc@gmail.abc", "outputs": ["a b c at g mail punkt a b c", "a b c at g m a i l punkt a b c"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "1 1/2", "outputs": ["1 ein halb", "eins ein halb", "ein ein halb", "ein und ein halb", "eins 1/2"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "11:30 Uhr", "outputs": ["halb zwölf", "elf uhr dreißig", "dreißig nach elf"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "11:45 Uhr", "outputs": ["fünfzehn vor zwölf", "elf uhr fünf und vierzig", "viertel vor zwölf"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "11:57 Uhr", "outputs": ["elf uhr sieben und fünfzig", "drei vor zwölf"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "12:03 Uhr", "outputs": ["drei nach zwölf", "zwölf uhr drei"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "12:15 Uhr", "outputs": ["fünfzehn nach zwölf", "zwölf uhr fünfzehn", "viertel nach zwölf"]}
+{"lang": "de", "source": "nemo", "class": "normalize_with_audio", "input": "24:15 Uhr", "outputs": ["viertel nach zwölf", "fünfzehn nach zwölf", "vier und zwanzig uhr fünfzehn"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "100. Geburtstag", "outputs": ["ein hundertster Geburtstag"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "25111.", "outputs": ["fünf und zwanzig tausend ein hundert elfter"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "2.", "outputs": ["zweiter"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "0.", "outputs": ["nullter"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "1.", "outputs": ["erster"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "3.", "outputs": ["dritter"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "4.", "outputs": ["vierter"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "11.", "outputs": ["elfter"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "13.", "outputs": ["dreizehnter"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "21.", "outputs": ["ein und zwanzigster"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "23.", "outputs": ["drei und zwanzigster"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "111.", "outputs": ["ein hundert elfter"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "1000.", "outputs": ["ein tausendster"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "dem 1000.", "outputs": ["dem ein tausendstem"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "101.", "outputs": ["ein hundert erster"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "1000000.", "outputs": ["eine millionster"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "121.", "outputs": ["ein hundert ein und zwanzigster"]}
+{"lang": "de", "source": "nemo", "class": "ordinal", "input": "121tem", "outputs": ["ein hundert ein und zwanzigstem"]}
+{"lang": "de", "source": "nemo", "class": "telephone", "input": "(0411) 1234-1234", "outputs": ["null vier eins eins eins zwei drei vier eins zwei drei vier"]}
+{"lang": "de", "source": "nemo", "class": "telephone", "input": "(0411) 0234-1234", "outputs": ["null vier eins eins null zwei drei vier eins zwei drei vier"]}
+{"lang": "de", "source": "nemo", "class": "telephone", "input": "+49 1234-1234", "outputs": ["plus neun und vierzig eins zwei drei vier eins zwei drei vier"]}
+{"lang": "de", "source": "nemo", "class": "telephone", "input": "+49 12341234", "outputs": ["plus neun und vierzig eins zwei drei vier eins zwei drei vier"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "08:00 Uhr", "outputs": ["acht uhr"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "00:00 Uhr", "outputs": ["null uhr"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "00:15 Uhr", "outputs": ["null uhr fünfzehn"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "20:00 Uhr", "outputs": ["zwanzig uhr"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "24:00 Uhr", "outputs": ["vier und zwanzig uhr"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "14:00 Uhr", "outputs": ["vierzehn uhr"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "12:00 Uhr", "outputs": ["zwölf uhr"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "11:30 Uhr", "outputs": ["elf uhr dreißig"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "18:00 Uhr", "outputs": ["achtzehn uhr"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "08:07 Uhr", "outputs": ["acht uhr sieben"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "00:17 Uhr", "outputs": ["null uhr siebzehn"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "11:45 Uhr", "outputs": ["elf uhr fünf und vierzig"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "11:57 Uhr", "outputs": ["elf uhr sieben und fünfzig"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "12:03 Uhr", "outputs": ["zwölf uhr drei"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "12:10 Uhr", "outputs": ["zwölf uhr zehn"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "11:50 Uhr", "outputs": ["elf uhr fünfzig"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "23:30 Uhr", "outputs": ["drei und zwanzig uhr dreißig"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "23:15 Uhr", "outputs": ["drei und zwanzig uhr fünfzehn"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "24:45 Uhr", "outputs": ["vier und zwanzig uhr fünf und vierzig"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "24:15 Uhr", "outputs": ["vier und zwanzig uhr fünfzehn"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "00:00:00 Uhr", "outputs": ["null uhr null minuten null sekunden"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "01:01:01 Uhr est", "outputs": ["ein uhr eine minute eine sekunde e s t"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "02:02:23 Uhr", "outputs": ["zwei uhr zwei minuten drei und zwanzig sekunden"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "2.30 Uhr", "outputs": ["zwei uhr dreißig"]}
+{"lang": "de", "source": "nemo", "class": "time", "input": "02.30 Uhr", "outputs": ["zwei uhr dreißig"]}
+{"lang": "de", "source": "nemo", "class": "whitelist", "input": "Dr. dao", "outputs": ["doktor dao"]}
+{"lang": "de", "source": "nemo", "class": "whitelist", "input": "Ms. smith", "outputs": ["miss smith"]}
+{"lang": "de", "source": "nemo", "class": "whitelist", "input": "Mrs. smith", "outputs": ["misses smith"]}
+{"lang": "de", "source": "nemo", "class": "whitelist", "input": "Mr. dao", "outputs": ["mister dao"]}
+{"lang": "de", "source": "nemo", "class": "whitelist", "input": "ich mag essen z.B. eis", "outputs": ["ich mag essen zum beispiel eis"]}
+{"lang": "de", "source": "nemo", "class": "whitelist", "input": "Chanel Nr. 5", "outputs": ["Chanel nummer fünf"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "yahoo!", "outputs": ["yahoo!"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "20!", "outputs": ["zwanzig !"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": " x", "outputs": ["x"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "—", "outputs": ["—"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aaa", "outputs": ["aaa"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aabach", "outputs": ["aabach"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aabenraa", "outputs": ["aabenraa"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aabye", "outputs": ["aabye"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aaccessed", "outputs": ["aaccessed"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aach", "outputs": ["aach"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aachen's", "outputs": ["aachen's"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aadri", "outputs": ["aadri"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aafia", "outputs": ["aafia"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aagaard", "outputs": ["aagaard"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aagadu", "outputs": ["aagadu"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aagard", "outputs": ["aagard"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aagathadi", "outputs": ["aagathadi"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aaghart's", "outputs": ["aaghart's"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aagnes", "outputs": ["aagnes"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aagomoni", "outputs": ["aagomoni"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aagon", "outputs": ["aagon"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aagoo", "outputs": ["aagoo"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aagot", "outputs": ["aagot"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aahar", "outputs": ["aahar"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aahh", "outputs": ["aahh"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aahperd", "outputs": ["aahperd"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aaibinterstate", "outputs": ["aaibinterstate"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aajab", "outputs": ["aajab"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aakasa", "outputs": ["aakasa"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aakervik", "outputs": ["aakervik"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aakirkeby", "outputs": ["aakirkeby"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aalam", "outputs": ["aalam"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aalbaek", "outputs": ["aalbaek"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aaldiu", "outputs": ["aaldiu"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aalem", "outputs": ["aalem"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "a'ali", "outputs": ["a'ali"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aalilaassamthey", "outputs": ["aalilaassamthey"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aalin", "outputs": ["aalin"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aaliyan", "outputs": ["aaliyan"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aaliyan's", "outputs": ["aaliyan's"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aamadu", "outputs": ["aamadu"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aamara", "outputs": ["aamara"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aambala", "outputs": ["aambala"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aamera", "outputs": ["aamera"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aamer's", "outputs": ["aamer's"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aamina", "outputs": ["aamina"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aaminah", "outputs": ["aaminah"]}
+{"lang": "de", "source": "nemo", "class": "word", "input": "aamjiwnaang", "outputs": ["aamjiwnaang"]}

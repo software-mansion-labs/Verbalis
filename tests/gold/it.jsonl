@@ -1,0 +1,52 @@
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "2", "outputs": ["due"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "3", "outputs": ["tre"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "4", "outputs": ["quattro"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "5", "outputs": ["cinque"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "15", "outputs": ["quindici"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "155", "outputs": ["cento cinquantacinque"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "369", "outputs": ["trecento sessantanove"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "3544", "outputs": ["tremila cinquecento quarantaquattro"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "1000", "outputs": ["mille"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "1034500", "outputs": ["un milione trentaquattromila cinquecento"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "3453243534", "outputs": ["tremila quattrocento cinquantatre milioni duecento quarantatremila cinquecento trentaquattro"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "38", "outputs": ["trentotto"]}
+{"lang": "it", "source": "nemo", "class": "cardinal", "input": "7 giorni sono una settimana", "outputs": ["sette giorni sono una settimana"]}
+{"lang": "it", "source": "nemo", "class": "decimal", "input": "33,32", "outputs": ["trentatre virgola trentadue"]}
+{"lang": "it", "source": "nemo", "class": "decimal", "input": "5,342", "outputs": ["cinque virgola trecento quarantadue"]}
+{"lang": "it", "source": "nemo", "class": "decimal", "input": "4,56 milioni", "outputs": ["quattro virgola cinquantasei milioni"]}
+{"lang": "it", "source": "nemo", "class": "decimal", "input": "3,55 miliardi", "outputs": ["tre virgola cinquantacinque miliardi"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "Trovateci su mail.university.edu.", "outputs": ["Trovateci su m a i l punto u n i v e r s i t y punto edu ."]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "Trovateci su mail.nasa.gov.", "outputs": ["Trovateci su m a i l punto n a s a punto gov ."]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "Trovateci su mail.nasa.mx.", "outputs": ["Trovateci su m a i l punto n a s a punto m x ."]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com", "outputs": ["h t t p s due punti slash slash w w w punto nvidia punto com"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com/abc/ciao.html", "outputs": ["h t t p s due punti slash slash w w w punto nvidia punto com slash a b c slash c i a o punto html"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.it/abc/12df/like.py", "outputs": ["h t t p s due punti slash slash w w w punto nvidia punto IT slash a b c slash uno due d f slash l i k e punto python"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "abc.def@23df.sd.IT", "outputs": ["a b c punto d e f chiocciola due tre d f punto s d punto I T"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "abc.de!f@23d_f.sd.us", "outputs": ["a b c punto d e punto esclamativo f chiocciola due tre d trattino basso f punto s d punto US"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "www.nvidia.file&TN.com", "outputs": ["w w w punto nvidia punto f i l e e commerciale T N punto com"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "@jensen", "outputs": ["chiocciola j e n s e n"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "@jensen.me", "outputs": ["chiocciola j e n s e n punto m e"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "@wezyr1986", "outputs": ["chiocciola w e z y r uno nove otto sei"]}
+{"lang": "it", "source": "nemo", "class": "electronic", "input": "visitate il sito https://www.nvidia.com.", "outputs": ["visitate il sito h t t p s due punti slash slash w w w punto nvidia punto com ."]}
+{"lang": "it", "source": "nemo", "class": "measure", "input": "1 m", "outputs": ["un metro"]}
+{"lang": "it", "source": "nemo", "class": "measure", "input": "2 m", "outputs": ["due metri"]}
+{"lang": "it", "source": "nemo", "class": "measure", "input": "4,3 l", "outputs": ["quattro virgola tre litri"]}
+{"lang": "it", "source": "nemo", "class": "measure", "input": "5 km/s", "outputs": ["cinque chilometri per secondo"]}
+{"lang": "it", "source": "nemo", "class": "measure", "input": "15 A", "outputs": ["quindici ampere"]}
+{"lang": "it", "source": "nemo", "class": "measure", "input": "155 d", "outputs": ["cento cinquantacinque giorni"]}
+{"lang": "it", "source": "nemo", "class": "measure", "input": "il 18% delle emissioni di carbonio", "outputs": ["il diciotto percento delle emissioni di carbonio"]}
+{"lang": "it", "source": "nemo", "class": "money", "input": "2,01 ₽", "outputs": ["due rubli un copeca"]}
+{"lang": "it", "source": "nemo", "class": "money", "input": "3,23€", "outputs": ["tre euro ventitre centesimi"]}
+{"lang": "it", "source": "nemo", "class": "money", "input": "4,2 £", "outputs": ["quattro sterline venti penny"]}
+{"lang": "it", "source": "nemo", "class": "money", "input": "1 eur", "outputs": ["un euro"]}
+{"lang": "it", "source": "nemo", "class": "money", "input": "1 eur per il caffè", "outputs": ["un euro per il caffè"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "12:30", "outputs": ["dodici e trenta minuti~dodici e mezza"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "05:15", "outputs": ["cinque e quindici minuti~cinque e un quarto"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "17:15:26", "outputs": ["diciassette e quindici minuti e ventisei secondi~diciassette e un quarto e ventisei secondi"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "23:45", "outputs": ["ventitre e quarantacinque minuti"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "03:38", "outputs": ["tre e trentotto minuti"]}
+{"lang": "it", "source": "nemo", "class": "time", "input": "l'evento inizia alle 16:00", "outputs": ["l'evento inizia alle sedici"]}
+{"lang": "it", "source": "nemo", "class": "whitelist", "input": "avv.", "outputs": ["avvocato"]}
+{"lang": "it", "source": "nemo", "class": "whitelist", "input": "dip. di Fisica", "outputs": ["dipartimento di Fisica"]}
+{"lang": "it", "source": "nemo", "class": "whitelist", "input": "sig.na Sonia", "outputs": ["signorina Sonia"]}
+{"lang": "it", "source": "nemo", "class": "whitelist", "input": "p.za Grande", "outputs": ["piazza Grande"]}

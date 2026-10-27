@@ -1,0 +1,116 @@
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "0", "outputs": ["zéro"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "6", "outputs": ["six"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "11", "outputs": ["onze"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "20", "outputs": ["vingt"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "71", "outputs": ["soixante et onze"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "83", "outputs": ["quatre-vingt-trois"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "94", "outputs": ["quatre-vingt-quatorze"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "100", "outputs": ["cent"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "181", "outputs": ["cent quatre-vingt-un"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "415297", "outputs": ["quatre cent quinze mille deux cent quatre-vingt-dix-sept"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "1000000", "outputs": ["un million"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "6 492 000", "outputs": ["six millions quatre cent quatre-vingt-douze mille"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "1 593 072 962", "outputs": ["un milliard cinq cent quatre-vingt-treize millions soixante-douze mille neuf cent soixante-deux"]}
+{"lang": "fr", "source": "nemo", "class": "cardinal", "input": "-60", "outputs": ["moins soixante"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "02.03.2003", "outputs": ["deux mars deux mille trois"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "02/03/2003", "outputs": ["deux mars deux mille trois"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "02-03-2003", "outputs": ["deux mars deux mille trois"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "le 02.03.2003", "outputs": ["le deux mars deux mille trois"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "17.06", "outputs": ["dix-sept juin"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "17 janvier", "outputs": ["dix-sept janvier"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "10 mars 2023", "outputs": ["dix mars deux mille vingt-trois"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "le 10 mars 2023", "outputs": ["le dix mars deux mille vingt-trois"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "les 80s", "outputs": ["les eighties"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "les 17/18 juin", "outputs": ["les dix-sept dix-huit juin"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "les 17/18/19 mars", "outputs": ["les dix-sept dix-huit dix-neuf mars"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "les 17-18-19 juin", "outputs": ["les dix-sept dix-huit dix-neuf juin"]}
+{"lang": "fr", "source": "nemo", "class": "date", "input": "les 17-18-19 juin 2025", "outputs": ["les dix-sept dix-huit dix-neuf juin deux mille vingt-cinq"]}
+{"lang": "fr", "source": "nemo", "class": "decimal", "input": "0,2 million", "outputs": ["zéro virgule deux million"]}
+{"lang": "fr", "source": "nemo", "class": "decimal", "input": "18,2 milliards", "outputs": ["dix-huit virgule deux milliards"]}
+{"lang": "fr", "source": "nemo", "class": "decimal", "input": "460,3 millions", "outputs": ["quatre cent soixante virgule trois millions"]}
+{"lang": "fr", "source": "nemo", "class": "decimal", "input": "10 billions", "outputs": ["dix billions"]}
+{"lang": "fr", "source": "nemo", "class": "decimal", "input": "818,303", "outputs": ["huit cent dix-huit virgule trois cent trois"]}
+{"lang": "fr", "source": "nemo", "class": "decimal", "input": "1 818,303", "outputs": ["mille huit cent dix-huit virgule trois cent trois"]}
+{"lang": "fr", "source": "nemo", "class": "decimal", "input": "24,1313", "outputs": ["vingt-quatre virgule treize treize"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "1/2", "outputs": ["un demi"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "1/3", "outputs": ["un tiers"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "1/4", "outputs": ["un quart"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "1/5", "outputs": ["un cinquième"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "1/6", "outputs": ["un sixième"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "1/7", "outputs": ["un septième"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "1/8", "outputs": ["un huitième"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "2/9", "outputs": ["deux neuvièmes"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "1 1/2", "outputs": ["un et demi"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "1/10", "outputs": ["un dixième"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "4 2/4", "outputs": ["quatre et deux quarts"]}
+{"lang": "fr", "source": "nemo", "class": "fraction", "input": "-4 1/3", "outputs": ["moins quatre et un tiers"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "1er", "outputs": ["premier"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "1ère", "outputs": ["première"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "3e", "outputs": ["troisième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "8ème", "outputs": ["huitième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "6°", "outputs": ["sixième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "21e", "outputs": ["vingt et unième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "5e", "outputs": ["cinquième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "9e", "outputs": ["neuvième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "10°", "outputs": ["dixième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "4e", "outputs": ["quatrième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "90e", "outputs": ["quatre-vingt-dixième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "100e", "outputs": ["centième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "1000e", "outputs": ["millième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "2540e", "outputs": ["deux mille cinq cent quarantième"]}
+{"lang": "fr", "source": "nemo", "class": "ordinal", "input": "1 000 000 000e", "outputs": ["un milliardième"]}
+{"lang": "fr", "source": "nemo", "class": "whitelist", "input": "Dʳ", "outputs": ["docteur"]}
+{"lang": "fr", "source": "nemo", "class": "whitelist", "input": "Dʳᵉˢ", "outputs": ["docteures"]}
+{"lang": "fr", "source": "nemo", "class": "whitelist", "input": "Mᵐᵉ", "outputs": ["madame"]}
+{"lang": "fr", "source": "nemo", "class": "whitelist", "input": "Mᵐᵉˢ", "outputs": ["mesdames"]}
+{"lang": "fr", "source": "nemo", "class": "whitelist", "input": "Mˡˡᵉ", "outputs": ["mademoiselle"]}
+{"lang": "fr", "source": "nemo", "class": "whitelist", "input": "Mˡˡᵉˢ", "outputs": ["mademoiselles"]}
+{"lang": "fr", "source": "nemo", "class": "whitelist", "input": "18%", "outputs": ["dix-huit pour cent"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "yahoo!", "outputs": ["yahoo!"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "20 !", "outputs": ["vingt !"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "x", "outputs": ["x"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "—", "outputs": ["—"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aaa", "outputs": ["aaa"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aabach", "outputs": ["aabach"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aabenraa", "outputs": ["aabenraa"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aabye", "outputs": ["aabye"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aaccessed", "outputs": ["aaccessed"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aach", "outputs": ["aach"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aachen's", "outputs": ["aachen's"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aadri", "outputs": ["aadri"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aafia", "outputs": ["aafia"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aagaard", "outputs": ["aagaard"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aagadu", "outputs": ["aagadu"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aagard", "outputs": ["aagard"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aagathadi", "outputs": ["aagathadi"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aaghart's", "outputs": ["aaghart's"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aagnes", "outputs": ["aagnes"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aagomoni", "outputs": ["aagomoni"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aagon", "outputs": ["aagon"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aagoo", "outputs": ["aagoo"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aagot", "outputs": ["aagot"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aahar", "outputs": ["aahar"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aahh", "outputs": ["aahh"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aahperd", "outputs": ["aahperd"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aaibinterstate", "outputs": ["aaibinterstate"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aajab", "outputs": ["aajab"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aakasa", "outputs": ["aakasa"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aakervik", "outputs": ["aakervik"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aakirkeby", "outputs": ["aakirkeby"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aalam", "outputs": ["aalam"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aalbaek", "outputs": ["aalbaek"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aaldiu", "outputs": ["aaldiu"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aalem", "outputs": ["aalem"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "a'ali", "outputs": ["a'ali"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aalilaassamthey", "outputs": ["aalilaassamthey"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aalin", "outputs": ["aalin"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aaliyan", "outputs": ["aaliyan"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aaliyan's", "outputs": ["aaliyan's"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aamadu", "outputs": ["aamadu"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aamara", "outputs": ["aamara"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aambala", "outputs": ["aambala"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aamera", "outputs": ["aamera"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aamer's", "outputs": ["aamer's"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aamina", "outputs": ["aamina"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aaminah", "outputs": ["aaminah"]}
+{"lang": "fr", "source": "nemo", "class": "word", "input": "aamjiwnaang", "outputs": ["aamjiwnaang"]}

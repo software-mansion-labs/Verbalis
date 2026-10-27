@@ -1,0 +1,777 @@
+{"lang": "hi", "source": "nemo", "class": "address", "input": "700 ओक स्ट्रीट", "outputs": ["सात सौ ओक स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "११ जंगल रोड", "outputs": ["ग्यारह जंगल रोड"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "301 पार्क एवेन्यू", "outputs": ["तीन सौ एक पार्क एवेन्यू"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "गली नंबर १७ जीएकगढ़", "outputs": ["गली नंबर सत्रह जीएकगढ़"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "अदनान अपार्टमेंट फ्लैट नंबर 55", "outputs": ["अदनान अपार्टमेंट फ्लैट नंबर पचपन"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "प्लॉट नंबर ८ बालाजी मार्केट", "outputs": ["प्लॉट नंबर आठ बालाजी मार्केट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "शॉप नंबर 109 9 और 10 डिवाइडिंग रोड सेक्टर 10 फरीदाबाद", "outputs": ["शॉप नंबर एक सौ नौ नौ और दस डिवाइडिंग रोड सेक्टर दस फरीदाबाद"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "बूथ ७०, सेक्टर ८, चंडीगढ़", "outputs": ["बूथ सत्तर, सेक्टर आठ, चंडीगढ़"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "७०० ओक स्ट्रीट", "outputs": ["सात सौ ओक स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "625 स्कूल स्ट्रीट", "outputs": ["छह सौ पच्चीस स्कूल स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "१४७० एस वाशिंगटन स्ट्रीट", "outputs": ["एक चार सात शून्य एस वाशिंगटन स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "506 स्टेट रोड", "outputs": ["पाँच सौ छह स्टेट रोड"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "579 ट्रॉय-शेंक्टाडी रोड", "outputs": ["पाँच सौ उनासी ट्रॉय हाइफ़न शेंक्टाडी रोड"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "७८३० - ई वेटरन्स पार्कवे, कोलंबस, जी ए ३१९०९", "outputs": ["सात आठ तीन शून्य हाइफ़न ई वेटरन्स पार्कवे, कोलंबस, जी ए तीन एक नौ शून्य नौ"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "66-4, पार्कहर्स्ट रोड", "outputs": ["छियासठ हाइफ़न चार, पार्कहर्स्ट रोड"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "८४०/१, १०० फीट रोड, मेट्रो पिलर ५६-५७, इंदिरानगर, बैंगलोर", "outputs": ["आठ सौ चालीस बटा एक, एक सौ फीट रोड, मेट्रो पिलर छप्पन हाइफ़न सत्तावन, इंदिरानगर, बैंगलोर"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "17-18, राजलक्ष्मी नगर, 7th क्रॉस स्ट्रीट, 100 फीट बाईपास रोड, वेलाचेरी, चेन्नई", "outputs": ["सत्रह हाइफ़न अठारह, राजलक्ष्मी नगर, सेवंथ क्रॉस स्ट्रीट, एक सौ फीट बाईपास रोड, वेलाचेरी, चेन्नई"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "४/५ न्यू म्युनिसिपल मार्केट रोड नंबर ५ और ६ सेन्टाक्रूज़ वेस्ट", "outputs": ["चार बटा पाँच न्यू म्युनिसिपल मार्केट रोड नंबर पाँच और छह सेन्टाक्रूज़ वेस्ट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "16/17 4th फ्लोर जवाहर नगर मटरू मंदिर रोड नंबर 2", "outputs": ["सोलह बटा सत्रह फ़ोर्थ फ्लोर जवाहर नगर मटरू मंदिर रोड नंबर दो"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "५/३०४ सिक्का कॉम्प्लेक्स विकास मार्ग एक्सटेंशन", "outputs": ["पाँच बटा तीन सौ चार सिक्का कॉम्प्लेक्स विकास मार्ग एक्सटेंशन"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "21/2 2nd फ्लोर 1st मेन रोड गांधी नगर", "outputs": ["इक्कीस बटा दो सेकंड फ्लोर फ़र्स्ट मेन रोड गांधी नगर"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "नंबर २२/१८ ३rd फ्लोर सराय बोउ अली शू मार्केट", "outputs": ["नंबर बाईस बटा अठारह थर्ड फ्लोर सराय बोउ अली शू मार्केट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "14/3, मथुरा रोड", "outputs": ["चौदह बटा तीन, मथुरा रोड"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "यूनिट ३ १st फ्लोर नंबर ३७ सोलेमान खतर स्ट्रीट", "outputs": ["यूनिट तीन फ़र्स्ट फ्लोर नंबर सैंतीस सोलेमान खतर स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "1st फ्लोर नंबर 52 नॉर्थ अबूज़र स्ट्रीट खान ए अंसारी स्ट्रीट शरीयती स्ट्रीट 16617", "outputs": ["फ़र्स्ट फ्लोर नंबर बावन नॉर्थ अबूज़र स्ट्रीट खान ए अंसारी स्ट्रीट शरीयती स्ट्रीट एक छह छह एक सात"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "२०६ जय कॉम कॉम्प्लेक्स १st पोखरन रोड", "outputs": ["दो सौ छह जय कॉम कॉम्प्लेक्स फ़र्स्ट पोखरन रोड"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "नंबर 36 2nd फ्लोर सुपर 8 फेज 1 एकबतन टाउन तेहरान 13947", "outputs": ["नंबर छत्तीस सेकंड फ्लोर सुपर आठ फेज एक एकबतन टाउन तेहरान एक तीन नौ चार सात"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "२nd फ्लोर नंबर ८०८ आजादी स्ट्रीट", "outputs": ["सेकंड फ्लोर नंबर आठ सौ आठ आजादी स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "2nd फ्लोर नंबर 15 बिफ़ोर कांदि स्ट्रीट नॉर्थ सोहरावर्दी स्ट्रीट 15669", "outputs": ["सेकंड फ्लोर नंबर पंद्रह बिफ़ोर कांदि स्ट्रीट नॉर्थ सोहरावर्दी स्ट्रीट एक पाँच छह छह नौ"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "यूनिट ४ नंबर २५ २nd गोलहा स्ट्रीट काशनी स्ट्रीट नूर स्क्वेर", "outputs": ["यूनिट चार नंबर पच्चीस सेकंड गोलहा स्ट्रीट काशनी स्ट्रीट नूर स्क्वेर"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "ईस्ट 3rd फ्लोर नंबर 70 नेक्स्ट दो तोहीद इंस्टीट्यूट परचम स्ट्रीट", "outputs": ["ईस्ट थर्ड फ्लोर नंबर सत्तर नेक्स्ट दो तोहीद इंस्टीट्यूट परचम स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "३rd फ्लोर नंबर ५ हमेदन एली अपोज़िट लाले पार्क नॉर्थ कारगर स्ट्रीट", "outputs": ["थर्ड फ्लोर नंबर पाँच हमेदन एली अपोज़िट लाले पार्क नॉर्थ कारगर स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "4th फ्लोर नंबर 1124 जमहोरी स्ट्रीट", "outputs": ["फ़ोर्थ फ्लोर नंबर एक एक दो चार जमहोरी स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "५th फ्लोर नंबर ७/१ १३th एली शाहिद अराबली स्ट्रीट", "outputs": ["फ़िफ्थ फ्लोर नंबर सात बटा एक थर्टींथ एली शाहिद अराबली स्ट्रीट"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "11, 80 फीट रोड, इंडियन ऑयल पेट्रोल पंप, कोरमंगला 6th ब्लॉक, बैंगलोर के सामने", "outputs": ["ग्यारह, अस्सी फीट रोड, इंडियन ऑयल पेट्रोल पंप, कोरमंगला सिक्स्थ ब्लॉक, बैंगलोर के सामने"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "२१/११, जे ब्लॉक, ६th एवेन्यू मेन रोड, अन्ना नगर पूर्व, चेन्नई", "outputs": ["इक्कीस बटा ग्यारह, जे ब्लॉक, सिक्स्थ एवेन्यू मेन रोड, अन्ना नगर पूर्व, चेन्नई"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "32A नाज़ प्लाज़ा मेरिस रोड", "outputs": ["बत्तीस ए नाज़ प्लाज़ा मेरिस रोड"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "२१४ बी गोविंद पूरी स्ट्रीट नंबर २", "outputs": ["दो सौ चौदह बी गोविंद पूरी स्ट्रीट नंबर दो"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "२५१३ ५३ एवेन्यू, मुंबई, महाराष्ट्र ४००००१", "outputs": ["दो पाँच एक तीन तिरेपन एवेन्यू, मुंबई, महाराष्ट्र चार शून्य शून्य शून्य शून्य एक"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "अमरावती ६५५९३०", "outputs": ["अमरावती छह पाँच पाँच नौ तीन शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "शिमला, हिमाचल प्रदेश 593988", "outputs": ["शिमला, हिमाचल प्रदेश पाँच नौ तीन नौ आठ आठ"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "रांची, झारखंड 736557", "outputs": ["रांची, झारखंड सात तीन छह पाँच पाँच सात"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "कोहिमा, नागालैंड ४४८३७७", "outputs": ["कोहिमा, नागालैंड चार चार आठ तीन सात सात"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "मुंबई, महाराष्ट्र 839488", "outputs": ["मुंबई, महाराष्ट्र आठ तीन नौ चार आठ आठ"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "अमरावती ४६८२५२", "outputs": ["अमरावती चार छह आठ दो पाँच दो"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "गांधीनगर, गुजरात 808374", "outputs": ["गांधीनगर, गुजरात आठ शून्य आठ तीन सात चार"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "मुंबई, महाराष्ट्र २९०९३७", "outputs": ["मुंबई, महाराष्ट्र दो नौ शून्य नौ तीन सात"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "श्रीनगर, जम्मू और कश्मीर 964523", "outputs": ["श्रीनगर, जम्मू और कश्मीर नौ छह चार पाँच दो तीन"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "रायपुर, छत्तीसगढ़ ११०६३५", "outputs": ["रायपुर, छत्तीसगढ़ एक एक शून्य छह तीन पाँच"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "भोपाल, मध्य प्रदेश 751225", "outputs": ["भोपाल, मध्य प्रदेश सात पाँच एक दो दो पाँच"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "अगरतला, त्रिपुरा ९१५३०५", "outputs": ["अगरतला, त्रिपुरा नौ एक पाँच तीन शून्य पाँच"]}
+{"lang": "hi", "source": "nemo", "class": "address", "input": "लखनऊ, उत्तर प्रदेश 802481", "outputs": ["लखनऊ, उत्तर प्रदेश आठ शून्य दो चार आठ एक"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "4 चौके", "outputs": ["चार चौके"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "६ खिलाड़ी आउट", "outputs": ["छह खिलाड़ी आउट"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "वनप्लस 8 प्रो", "outputs": ["वनप्लस आठ प्रो"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५ चार्जर", "outputs": ["पाँच चार्जर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "4 ओवर में 17 रन", "outputs": ["चार ओवर में सत्रह रन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५ चॉकलेट्स ९ टॉफ़िज़", "outputs": ["पाँच चॉकलेट्स नौ टॉफ़िज़"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "10099", "outputs": ["दस हज़ार निन्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१००००१", "outputs": ["एक लाख एक"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "4 छक्के 14 चौके", "outputs": ["चार छक्के चौदह चौके"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "६ रन बनाए", "outputs": ["छह रन बनाए"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "3 गोल मारे", "outputs": ["तीन गोल मारे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५ चौके", "outputs": ["पाँच चौके"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "2 छक्के 12 रन", "outputs": ["दो छक्के बारह रन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "९ पॉइंट्स", "outputs": ["नौ पॉइंट्स"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "4 मृत 18 घायल", "outputs": ["चार मृत अठारह घायल"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५ गोल मार", "outputs": ["पाँच गोल मार"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "3 बैट्समैन 12 खिलाड़ी", "outputs": ["तीन बैट्समैन बारह खिलाड़ी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५ हार १ ड्रॉ १७ जीत", "outputs": ["पाँच हार एक ड्रॉ सत्रह जीत"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "51022345567", "outputs": ["इक्यावन अरब दो करोड़ तेईस लाख पैंतालीस हज़ार पाँच सौ सड़सठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "पाठ १० श्लोक २", "outputs": ["पाठ दस श्लोक दो"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "101", "outputs": ["एक सौ एक"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१०२", "outputs": ["एक सौ दो"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "103", "outputs": ["एक सौ तीन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१०४", "outputs": ["एक सौ चार"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "105", "outputs": ["एक सौ पाँच"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१०६", "outputs": ["एक सौ छह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "107", "outputs": ["एक सौ सात"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१०८", "outputs": ["एक सौ आठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "109", "outputs": ["एक सौ नौ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "११०", "outputs": ["एक सौ दस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "111", "outputs": ["एक सौ ग्यारह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "११२", "outputs": ["एक सौ बारह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "113", "outputs": ["एक सौ तेरह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "११४", "outputs": ["एक सौ चौदह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "115", "outputs": ["एक सौ पंद्रह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "११६", "outputs": ["एक सौ सोलह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "817", "outputs": ["आठ सौ सत्रह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८१८", "outputs": ["आठ सौ अठारह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "819", "outputs": ["आठ सौ उन्नीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८२०", "outputs": ["आठ सौ बीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "821", "outputs": ["आठ सौ इक्कीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८२२", "outputs": ["आठ सौ बाईस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "823", "outputs": ["आठ सौ तेईस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८२४", "outputs": ["आठ सौ चौबीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "825", "outputs": ["आठ सौ पच्चीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८२६", "outputs": ["आठ सौ छब्बीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "827", "outputs": ["आठ सौ सत्ताईस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८२८", "outputs": ["आठ सौ अट्ठाईस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "829", "outputs": ["आठ सौ उनतीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८३०", "outputs": ["आठ सौ तीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "831", "outputs": ["आठ सौ इकतीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८३२", "outputs": ["आठ सौ बत्तीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "833", "outputs": ["आठ सौ तैंतीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८३४", "outputs": ["आठ सौ चौंतीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "835", "outputs": ["आठ सौ पैंतीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८३६", "outputs": ["आठ सौ छत्तीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "737", "outputs": ["सात सौ सैंतीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "७३८", "outputs": ["सात सौ अड़तीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "739", "outputs": ["सात सौ उनतालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "७४०", "outputs": ["सात सौ चालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "741", "outputs": ["सात सौ इकतालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "७४२", "outputs": ["सात सौ बयालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "743", "outputs": ["सात सौ तैंतालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "७४४", "outputs": ["सात सौ चौवालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "745", "outputs": ["सात सौ पैंतालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "४४६", "outputs": ["चार सौ छियालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "447", "outputs": ["चार सौ सैंतालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "४४८", "outputs": ["चार सौ अड़तालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "449", "outputs": ["चार सौ उनचास"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "४५०", "outputs": ["चार सौ पचास"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "461", "outputs": ["चार सौ इकसठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१७५", "outputs": ["एक सौ पचहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "181", "outputs": ["एक सौ इक्यासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१९०", "outputs": ["एक सौ नब्बे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "191", "outputs": ["एक सौ इक्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१९९", "outputs": ["एक सौ निन्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "1001", "outputs": ["एक हज़ार एक"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१०९९", "outputs": ["एक हज़ार निन्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "5551 केले", "outputs": ["पाँच हज़ार पाँच सौ इक्यावन केले"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५५५५२ सेब", "outputs": ["पचपन हज़ार पाँच सौ बावन सेब"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "53", "outputs": ["तिरेपन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५४", "outputs": ["चौवन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "55", "outputs": ["पचपन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५६", "outputs": ["छप्पन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "57", "outputs": ["सत्तावन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५८", "outputs": ["अट्ठावन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "59", "outputs": ["उनसठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "६०", "outputs": ["साठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "61", "outputs": ["इकसठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "६२", "outputs": ["बासठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "63", "outputs": ["तिरेसठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "६४", "outputs": ["चौंसठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "65", "outputs": ["पैंसठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "६६", "outputs": ["छियासठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "67", "outputs": ["सड़सठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "६८", "outputs": ["अड़सठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "69", "outputs": ["उनहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "७०", "outputs": ["सत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "71", "outputs": ["इकहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "७२", "outputs": ["बहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "73", "outputs": ["तिहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "७४", "outputs": ["चौहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "75", "outputs": ["पचहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "७६", "outputs": ["छिहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "77", "outputs": ["सतहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "७८", "outputs": ["अठहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "79", "outputs": ["उनासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८०", "outputs": ["अस्सी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "81", "outputs": ["इक्यासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८२", "outputs": ["बयासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "83", "outputs": ["तिरासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८४", "outputs": ["चौरासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "85", "outputs": ["पचासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८६", "outputs": ["छियासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "87", "outputs": ["सत्तासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "८८", "outputs": ["अट्ठासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "89", "outputs": ["नवासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "९०", "outputs": ["नब्बे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "91", "outputs": ["इक्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "९२", "outputs": ["बानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "93", "outputs": ["तिरानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "९४", "outputs": ["चौरानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "95", "outputs": ["पंचानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "९६", "outputs": ["छियानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "97", "outputs": ["सत्तानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "९८", "outputs": ["अट्ठानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "99", "outputs": ["निन्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१३२३", "outputs": ["एक हज़ार तीन सौ तेईस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "1345", "outputs": ["एक हज़ार तीन सौ पैंतालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१३४५६", "outputs": ["तेरह हज़ार चार सौ छप्पन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "12346", "outputs": ["बारह हज़ार तीन सौ छियालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१२३४५६", "outputs": ["एक लाख तेईस हज़ार चार सौ छप्पन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "872987", "outputs": ["आठ लाख बहत्तर हज़ार नौ सौ सत्तासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "९८७६०९", "outputs": ["नौ लाख सत्तासी हज़ार छह सौ नौ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "9876789", "outputs": ["अट्ठानबे लाख छिहत्तर हज़ार सात सौ नवासी"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "२३४५५६७", "outputs": ["तेईस लाख पैंतालीस हज़ार पाँच सौ सड़सठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "12345567", "outputs": ["एक करोड़ तेईस लाख पैंतालीस हज़ार पाँच सौ सड़सठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१२१२१२१२", "outputs": ["एक करोड़ इक्कीस लाख इक्कीस हज़ार दो सौ बारह"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "1122345567", "outputs": ["एक अरब बारह करोड़ तेईस लाख पैंतालीस हज़ार पाँच सौ सड़सठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "१०२२३४५५६७", "outputs": ["एक अरब दो करोड़ तेईस लाख पैंतालीस हज़ार पाँच सौ सड़सठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "11022345567", "outputs": ["ग्यारह अरब दो करोड़ तेईस लाख पैंतालीस हज़ार पाँच सौ सड़सठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५१०२२३४५५६७", "outputs": ["इक्यावन अरब दो करोड़ तेईस लाख पैंतालीस हज़ार पाँच सौ सड़सठ"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "2 पॉइंट्स 12 गोल", "outputs": ["दो पॉइंट्स बारह गोल"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "०५", "outputs": ["शून्य पाँच"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "01", "outputs": ["शून्य एक"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "०७३", "outputs": ["शून्य सात तीन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "0001", "outputs": ["शून्य शून्य शून्य एक"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "०००", "outputs": ["शून्य शून्य शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "3,24,50,000", "outputs": ["तीन करोड़ चौबीस लाख पचास हज़ार"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "२,१२,१५,०००", "outputs": ["दो करोड़ बारह लाख पंद्रह हज़ार"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "32,450,000", "outputs": ["तीन करोड़ चौबीस लाख पचास हज़ार"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "४,९९,९९,०००", "outputs": ["चार करोड़ निन्यानबे लाख निन्यानबे हज़ार"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "5,50,00,000", "outputs": ["पाँच करोड़ पचास लाख"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "32,45,000", "outputs": ["बत्तीस लाख पैंतालीस हज़ार"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "५,५६,३२०", "outputs": ["पाँच लाख छप्पन हज़ार तीन सौ बीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "1,23,456", "outputs": ["एक लाख तेईस हज़ार चार सौ छप्पन"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "12,345", "outputs": ["बारह हज़ार तीन सौ पैंतालीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "११,२२०", "outputs": ["ग्यारह हज़ार दो सौ बीस"]}
+{"lang": "hi", "source": "nemo", "class": "cardinal", "input": "1,00,00,000", "outputs": ["एक करोड़"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "06-05", "outputs": ["छह मई"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "३१-०६", "outputs": ["इकतीस जून"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "02-01", "outputs": ["दो जनवरी"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "०४-०१", "outputs": ["चार जनवरी"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "01-10", "outputs": ["एक अक्टूबर"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "१२-०७", "outputs": ["बारह जुलाई"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "०४-०३", "outputs": ["चार मार्च"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "25-03-2020", "outputs": ["पच्चीस मार्च दो हज़ार बीस"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "३०-०५-२०७०", "outputs": ["तीस मई दो हज़ार सत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "०९-१२-२१०१", "outputs": ["नौ दिसंबर इक्कीस सौ एक"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "23-08-2024", "outputs": ["तेईस अगस्त दो हज़ार चौबीस"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "३ मार्च", "outputs": ["तीन मार्च"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "६ मार्च, २०१०", "outputs": ["छह मार्च दो हज़ार दस"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "३१ मई, १९९० ई.", "outputs": ["इकतीस मई उन्नीस सौ नब्बे ईसवी"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "मार्च, २०२४", "outputs": ["मार्च दो हज़ार चौबीस"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "जनवरी, १९९० ई.", "outputs": ["जनवरी उन्नीस सौ नब्बे ईसवी"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "२०७०", "outputs": ["दो हज़ार सत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "2024", "outputs": ["दो हज़ार चौबीस"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "१२० ई. पू.", "outputs": ["एक सौ बीस ईसा पूर्व"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "297-272 ई. पू.", "outputs": ["दो सौ सत्तानबे से दो सौ बहत्तर ईसा पूर्व"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "३२७वीं सदी", "outputs": ["तीन सौ सत्ताईसवीं सदी"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "18वीं शताब्दी", "outputs": ["अठारहवीं शताब्दी"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "१९वीं दशक", "outputs": ["उन्नीसवीं दशक"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "1999 में", "outputs": ["उन्नीस सौ निन्यानबे में"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "१९९० का", "outputs": ["उन्नीस सौ नब्बे का"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "1992 की", "outputs": ["उन्नीस सौ बानबे की"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "१९६० के अभिनेता है", "outputs": ["उन्नीस सौ साठ के अभिनेता है"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "1788 से", "outputs": ["सत्रह सौ अट्ठासी से"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "१९५४ तक", "outputs": ["उन्नीस सौ चौवन तक"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "सन 1999", "outputs": ["सन उन्नीस सौ निन्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "सन् १९२०", "outputs": ["सन् उन्नीस सौ बीस"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "साल 1971", "outputs": ["साल उन्नीस सौ इकहत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "सन 1999 में", "outputs": ["सन उन्नीस सौ निन्यानबे में"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "सन् उन्नीस सौ बीस", "outputs": ["सन् उन्नीस सौ बीस"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "सन उन्नीस सौ बीस में", "outputs": ["सन उन्नीस सौ बीस में"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "१९२०-२६ तक", "outputs": ["उन्नीस सौ बीस से छब्बीस तक"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "2-7-1970", "outputs": ["दो जुलाई उन्नीस सौ सत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "02-07-1970", "outputs": ["दो जुलाई उन्नीस सौ सत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "date", "input": "12-07-1970", "outputs": ["बारह जुलाई उन्नीस सौ सत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "99.99", "outputs": ["निन्यानबे दशमलव नौ नौ"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "९७.०", "outputs": ["सत्तानबे दशमलव शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "2563.412", "outputs": ["दो हज़ार पाँच सौ तिरेसठ दशमलव चार एक दो"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "७२८६०.७०", "outputs": ["बहत्तर हज़ार आठ सौ साठ दशमलव सात शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "0.008", "outputs": ["शून्य दशमलव शून्य शून्य आठ"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "०.०००३", "outputs": ["शून्य दशमलव शून्य शून्य शून्य तीन"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "40.0", "outputs": ["चालीस दशमलव शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "८०.०", "outputs": ["अस्सी दशमलव शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "1500.22", "outputs": ["एक हज़ार पाँच सौ दशमलव दो दो"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "५०००.१२३५६", "outputs": ["पाँच हज़ार दशमलव एक दो तीन पाँच छह"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "1000.31", "outputs": ["एक हज़ार दशमलव तीन एक"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "५१४६.१७", "outputs": ["पाँच हज़ार एक सौ छियालीस दशमलव एक सात"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "10000.999", "outputs": ["दस हज़ार दशमलव नौ नौ नौ"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "१०००००.१७", "outputs": ["एक लाख दशमलव एक सात"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "10000000.31", "outputs": ["एक करोड़ दशमलव तीन एक"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "१०००००००००.२२", "outputs": ["एक अरब दशमलव दो दो"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "100000000000.70", "outputs": ["एक खरब दशमलव सात शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "१०००००००००००००.०००३", "outputs": ["एक नील दशमलव शून्य शून्य शून्य तीन"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "1000000000000000.008", "outputs": ["एक पद्म दशमलव शून्य शून्य आठ"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "१०००००००००००००००००.४१२", "outputs": ["एक शंख दशमलव चार एक दो"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "१९२.१६८", "outputs": ["एक सौ बानबे दशमलव एक छह आठ"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "192.168", "outputs": ["एक सौ बानबे दशमलव एक छह आठ"]}
+{"lang": "hi", "source": "nemo", "class": "decimal", "input": "९९.९९", "outputs": ["निन्यानबे दशमलव नौ नौ"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "gmail.com", "outputs": ["gmail डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "yahoo.com", "outputs": ["yahoo डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "hotmail.com", "outputs": ["hotmail डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "google.com", "outputs": ["google डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "kumaar.org", "outputs": ["kumaar डॉट org"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "kumaar.info", "outputs": ["kumaar डॉट info"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "kumar@gmail.com", "outputs": ["kumar एट gmail डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "robin@hotmail.com", "outputs": ["robin एट hotmail डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "kapil@live.com", "outputs": ["kapil एट live डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "sneha@live.com", "outputs": ["sneha एट live डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "mayank@google.com", "outputs": ["mayank एट google डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "charu@yahoo.com", "outputs": ["charu एट yahoo डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "john20@yahoo.com", "outputs": ["john दो शून्य एट yahoo डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "vivaan62@gmail.com", "outputs": ["vivaan छह दो एट gmail डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "viaan15@kumaar.com", "outputs": ["viaan एक पाँच एट kumaar डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "ltaa12@gmail.com", "outputs": ["ltaa एक दो एट gmail डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "kristen11@hotmail.com", "outputs": ["kristen एक एक एट hotmail डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "dsmith@yahoo.com", "outputs": ["dsmith एट yahoo डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "hgarza@gmail.com", "outputs": ["hgarza एट gmail डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "qhill@yahoo.com", "outputs": ["qhill एट yahoo डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "green-turner.org", "outputs": ["green हाइफ़न turner डॉट org"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "sharma-badami.com", "outputs": ["sharma हाइफ़न badami डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "osborne-gross.com", "outputs": ["osborne हाइफ़न gross डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "lucero-stevenson.net", "outputs": ["lucero हाइफ़न stevenson डॉट net"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://google.com/", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश google डॉट com फॉरवर्ड स्लैश"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://github.com/", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश github डॉट com फॉरवर्ड स्लैश"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://wikipedia.org/", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश wikipedia डॉट org फॉरवर्ड स्लैश"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://amazon.com/", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश amazon डॉट com फॉरवर्ड स्लैश"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "www.google.com", "outputs": ["www डॉट google डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://www.ndtv.com", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश www डॉट ndtv डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://www.rbi.org.in/", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश www डॉट rbi डॉट org डॉट in फॉरवर्ड स्लैश"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://www.amity.edu", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश www डॉट amity डॉट edu"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://example.com/blog/", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश example डॉट com फॉरवर्ड स्लैश blog फॉरवर्ड स्लैश"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://example.com/about.html", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश example डॉट com फॉरवर्ड स्लैश about डॉट html"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "https://example.com/search.php", "outputs": ["https कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश example डॉट com फॉरवर्ड स्लैश search डॉट php"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "http://ati.edu", "outputs": ["http कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश ati डॉट edu"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "http://gcu.edu", "outputs": ["http कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश gcu डॉट edu"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "http://pima.edu", "outputs": ["http कोलन फॉरवर्ड स्लैश फॉरवर्ड स्लैश pima डॉट edu"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "bamu.nic.in/", "outputs": ["bamu डॉट nic डॉट in फॉरवर्ड स्लैश"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "bieap.gov.in/", "outputs": ["bieap डॉट gov डॉट in फॉरवर्ड स्लैश"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "www.sharda.ac.in", "outputs": ["www डॉट sharda डॉट ac डॉट in"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "C:\\Users\\HP\\Desktop", "outputs": ["C कोलन बैकवर्ड स्लैश Users बैकवर्ड स्लैश HP बैकवर्ड स्लैश Desktop"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "C:\\Users\\HP\\Downloads", "outputs": ["C कोलन बैकवर्ड स्लैश Users बैकवर्ड स्लैश HP बैकवर्ड स्लैश Downloads"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "C:\\Users\\HP\\Documents\\Zoom", "outputs": ["C कोलन बैकवर्ड स्लैश Users बैकवर्ड स्लैश HP बैकवर्ड स्लैश Documents बैकवर्ड स्लैश Zoom"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "/home/desktop", "outputs": ["फॉरवर्ड स्लैश home फॉरवर्ड स्लैश desktop"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "/etc/apache", "outputs": ["फॉरवर्ड स्लैश etc फॉरवर्ड स्लैश apache"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "/var/www", "outputs": ["फॉरवर्ड स्लैश var फॉरवर्ड स्लैश www"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "192.168.1.1", "outputs": ["एक नौ दो डॉट एक छह आठ डॉट एक डॉट एक"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "10.0.0.1", "outputs": ["एक शून्य डॉट शून्य डॉट शून्य डॉट एक"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "83.54.245.61", "outputs": ["आठ तीन डॉट पाँच चार डॉट दो चार पाँच डॉट छह एक"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "85.189.50.24", "outputs": ["आठ पाँच डॉट एक आठ नौ डॉट पाँच शून्य डॉट दो चार"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "172.16.0.1", "outputs": ["एक सात दो डॉट एक छह डॉट शून्य डॉट एक"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "255.255.255.0", "outputs": ["दो पाँच पाँच डॉट दो पाँच पाँच डॉट दो पाँच पाँच डॉट शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "आईपी पता है 192.168.1.1", "outputs": ["आईपी पता है एक नौ दो डॉट एक छह आठ डॉट एक डॉट एक"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "आईपी एड्रेस 10.0.0.1", "outputs": ["आईपी एड्रेस एक शून्य डॉट शून्य डॉट शून्य डॉट एक"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "ip address 192.168.1.1", "outputs": ["ip address एक नौ दो डॉट एक छह आठ डॉट एक डॉट एक"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "ip address 10.0.0.1", "outputs": ["ip address एक शून्य डॉट शून्य डॉट शून्य डॉट एक"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "report.pdf", "outputs": ["report डॉट pdf"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "photo.jpg", "outputs": ["photo डॉट jpg"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "data.csv", "outputs": ["data डॉट csv"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "robinson.org", "outputs": ["robinson डॉट org"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "anand@gmail.com", "outputs": ["anand एट gmail डॉट com"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "Al₂(SO₄)₃", "outputs": ["ए एल दो ओपन ब्रेकेट एस ओ चार क्लोज़ ब्रेकेट तीन"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "C₂H₄", "outputs": ["सी दो एच चार"]}
+{"lang": "hi", "source": "nemo", "class": "electronic", "input": "home/desktop", "outputs": ["home फॉरवर्ड स्लैश desktop"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "99/99", "outputs": ["निन्यानबे बटा निन्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "२२ ३१/१७", "outputs": ["बाईस और इकतीस बटा सत्रह"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "97/0", "outputs": ["सत्तानबे बटा शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "२५६३/४१२", "outputs": ["दो हज़ार पाँच सौ तिरेसठ बटा चार सौ बारह"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "72860/70", "outputs": ["बहत्तर हज़ार आठ सौ साठ बटा सत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "०/८", "outputs": ["शून्य बटा आठ"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "3/0", "outputs": ["तीन बटा शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "४०/०", "outputs": ["चालीस बटा शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "80/0", "outputs": ["अस्सी बटा शून्य"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "१५००/२२", "outputs": ["एक हज़ार पाँच सौ बटा बाईस"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "5000/12356", "outputs": ["पाँच हज़ार बटा बारह हज़ार तीन सौ छप्पन"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "१०००/३१", "outputs": ["एक हज़ार बटा इकतीस"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "5146/17", "outputs": ["पाँच हज़ार एक सौ छियालीस बटा सत्रह"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "१००००/९९९", "outputs": ["दस हज़ार बटा नौ सौ निन्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "100000/17", "outputs": ["एक लाख बटा सत्रह"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "१०००००००/३१", "outputs": ["एक करोड़ बटा इकतीस"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "1000000000/22", "outputs": ["एक अरब बटा बाईस"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "१०००००००००००/७०", "outputs": ["एक खरब बटा सत्तर"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "10000000000000/3", "outputs": ["एक नील बटा तीन"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "१०००००००००००००००/८", "outputs": ["एक पद्म बटा आठ"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "100000000000000000/412", "outputs": ["एक शंख बटा चार सौ बारह"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "२ २/७", "outputs": ["दो और दो बटा सात"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "120 75/90", "outputs": ["एक सौ बीस और पचहत्तर बटा नब्बे"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "१/२", "outputs": ["आधा"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "१/३", "outputs": ["तिहाई"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "1/4", "outputs": ["चौथाई"]}
+{"lang": "hi", "source": "nemo", "class": "fraction", "input": "3/4", "outputs": ["तीन चौथाई"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "19 m²", "outputs": ["उन्नीस वर्ग मीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "१२.१९ m²", "outputs": ["बारह दशमलव एक नौ वर्ग मीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "20 km²", "outputs": ["बीस वर्ग किलोमीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "२०.७ km²", "outputs": ["बीस दशमलव सात वर्ग किलोमीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "2 ha", "outputs": ["दो हेक्टेयर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "२.७ ha", "outputs": ["दो दशमलव सात हेक्टेयर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "1 ac", "outputs": ["एक एकड़"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "३.८ ac", "outputs": ["तीन दशमलव आठ एकड़"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "4 m", "outputs": ["चार मीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "४.२ m", "outputs": ["चार दशमलव दो मीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "18 mi", "outputs": ["अठारह मील"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "१८.५५ mi", "outputs": ["अठारह दशमलव पाँच पाँच मील"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "34 in", "outputs": ["चौंतीस इंच"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "३४.२ in", "outputs": ["चौंतीस दशमलव दो इंच"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "40 ft", "outputs": ["चालीस फीट"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "४०.३ ft", "outputs": ["चालीस दशमलव तीन फीट"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "39 yd", "outputs": ["उनतालीस यार्ड"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "३९.१८ yd", "outputs": ["उनतालीस दशमलव एक आठ यार्ड"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "35 µm", "outputs": ["पैंतीस माइक्रोमीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "३५.३ µm", "outputs": ["पैंतीस दशमलव तीन माइक्रोमीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "5 km/hr", "outputs": ["पाँच किलोमीटर प्रति घंटा"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "५.३५ km/hr", "outputs": ["पाँच दशमलव तीन पाँच किलोमीटर प्रति घंटा"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "3 mi/hr", "outputs": ["तीन मील प्रति घंटा"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "३.५ mi/hr", "outputs": ["तीन दशमलव पाँच मील प्रति घंटा"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "25 °C", "outputs": ["पच्चीस डिग्री सेल्सियस"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "२५.४ °C", "outputs": ["पच्चीस दशमलव चार डिग्री सेल्सियस"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "22 °F", "outputs": ["बाईस डिग्री फारेनहाइट"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "२२.५ °F", "outputs": ["बाईस दशमलव पाँच डिग्री फारेनहाइट"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "50 ml", "outputs": ["पचास मिलीलीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "५०.५ ml", "outputs": ["पचास दशमलव पाँच मिलीलीटर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "19 qt", "outputs": ["उन्नीस क्वार्ट"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "१९.७ qt", "outputs": ["उन्नीस दशमलव सात क्वार्ट"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "5 gal", "outputs": ["पाँच गैलन"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "५.७ gal", "outputs": ["पाँच दशमलव सात गैलन"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "76 pt", "outputs": ["छिहत्तर पिंट"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "७६.८८ pt", "outputs": ["छिहत्तर दशमलव आठ आठ पिंट"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "77 g", "outputs": ["सतहत्तर ग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "७७.१९ g", "outputs": ["सतहत्तर दशमलव एक नौ ग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "5 kg", "outputs": ["पाँच किलोग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "५.६ kg", "outputs": ["पाँच दशमलव छह किलोग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "50 kg", "outputs": ["पचास किलोग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "५०.५ kg", "outputs": ["पचास दशमलव पाँच किलोग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "90 mg", "outputs": ["नब्बे मिलीग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "९०.७ mg", "outputs": ["नब्बे दशमलव सात मिलीग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "82 cg", "outputs": ["बयासी सेंटीग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "८२.५ cg", "outputs": ["बयासी दशमलव पाँच सेंटीग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "97 dg", "outputs": ["सत्तानबे डेसीग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "९७.७७ dg", "outputs": ["सत्तानबे दशमलव सात सात डेसीग्राम"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "65 t", "outputs": ["पैंसठ टन"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "६५.६ t", "outputs": ["पैंसठ दशमलव छह टन"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "88 st", "outputs": ["अट्ठासी स्टोन"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "८८.५ st", "outputs": ["अट्ठासी दशमलव पाँच स्टोन"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "93 lb", "outputs": ["तिरानबे पाउंड"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "९३.४ lb", "outputs": ["तिरानबे दशमलव चार पाउंड"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "99 oz", "outputs": ["निन्यानबे आउन्स"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "९९.५ oz", "outputs": ["निन्यानबे दशमलव पाँच आउन्स"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "85 q", "outputs": ["पचासी क्विंटल"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "८५.९९ q", "outputs": ["पचासी दशमलव नौ नौ क्विंटल"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "200x10 के गद्दे", "outputs": ["दो सौ बाई दस के गद्दे"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "५x५ का सोफ़ा", "outputs": ["पाँच बाई पाँच का सोफ़ा"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "2x2 रुबिक्स क्यूब", "outputs": ["दो बाई दो रुबिक्स क्यूब"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "१३x१३ का घर", "outputs": ["तेरह बाई तेरह का घर"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "1000 yr", "outputs": ["एक हज़ार वर्ष"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "९९९९ yr", "outputs": ["नौ हज़ार नौ सौ निन्यानबे वर्ष"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "16.07 yr", "outputs": ["सोलह दशमलव शून्य सात वर्ष"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "५ yr", "outputs": ["पाँच साल"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "1.5 yr", "outputs": ["डेढ़ साल"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "२.५ yr", "outputs": ["ढाई साल"]}
+{"lang": "hi", "source": "nemo", "class": "measure", "input": "3.5 yr", "outputs": ["साढ़े तीन साल"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹111", "outputs": ["एक सौ ग्यारह रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "£१८००", "outputs": ["एक हज़ार आठ सौ पाउंड"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩760", "outputs": ["सात सौ साठ वॉन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$५००", "outputs": ["पाँच सौ डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹22", "outputs": ["बाईस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺५६००", "outputs": ["पाँच हज़ार छह सौ लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺1200", "outputs": ["एक हज़ार दो सौ लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺१२४", "outputs": ["एक सौ चौबीस लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$696", "outputs": ["छह सौ छियानबे डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१४४", "outputs": ["एक सौ चौवालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺615", "outputs": ["छह सौ पंद्रह लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩३३०", "outputs": ["तीन सौ तीस वॉन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "£700", "outputs": ["सात सौ पाउंड"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹५३०", "outputs": ["पाँच सौ तीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺85", "outputs": ["पचासी लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩१९०", "outputs": ["एक सौ नब्बे वॉन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺6", "outputs": ["छह लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺१००", "outputs": ["एक सौ लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "£20", "outputs": ["बीस पाउंड"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$५०१५", "outputs": ["पाँच हज़ार पंद्रह डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺670", "outputs": ["छह सौ सत्तर लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$८००", "outputs": ["आठ सौ डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$75000", "outputs": ["पचहत्तर हज़ार डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$७५०", "outputs": ["सात सौ पचास डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹2132", "outputs": ["दो हज़ार एक सौ बत्तीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१९८", "outputs": ["एक सौ अट्ठानबे रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹1115", "outputs": ["एक हज़ार एक सौ पंद्रह रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺५३०", "outputs": ["पाँच सौ तीस लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺5", "outputs": ["पाँच लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹३१८०", "outputs": ["तीन हज़ार एक सौ अस्सी रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹245", "outputs": ["दो सौ पैंतालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹२१४८", "outputs": ["दो हज़ार एक सौ अड़तालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺514", "outputs": ["पाँच सौ चौदह लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१५७४", "outputs": ["एक हज़ार पाँच सौ चौहत्तर रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$1500", "outputs": ["एक हज़ार पाँच सौ डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹२७५", "outputs": ["दो सौ पचहत्तर रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺23", "outputs": ["तेईस लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺४०", "outputs": ["चालीस लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺291", "outputs": ["दो सौ इक्यानबे लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩३२", "outputs": ["बत्तीस वॉन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$540", "outputs": ["पाँच सौ चालीस डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$१९४६", "outputs": ["एक हज़ार नौ सौ छियालीस डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹650", "outputs": ["छह सौ पचास रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺४९", "outputs": ["उनचास लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹2190", "outputs": ["दो हज़ार एक सौ नब्बे रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१०००", "outputs": ["एक हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "£100", "outputs": ["एक सौ पाउंड"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹५१३५", "outputs": ["पाँच हज़ार एक सौ पैंतीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹322", "outputs": ["तीन सौ बाईस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$७", "outputs": ["सात डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩195", "outputs": ["एक सौ पंचानबे वॉन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$१०००", "outputs": ["एक हज़ार डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺1708", "outputs": ["एक हज़ार सात सौ आठ लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$९", "outputs": ["नौ डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$440", "outputs": ["चार सौ चालीस डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$१२८", "outputs": ["एक सौ अट्ठाईस डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺8", "outputs": ["आठ लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "£३०", "outputs": ["तीस पाउंड"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹1000", "outputs": ["एक हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩५४३", "outputs": ["पाँच सौ तैंतालीस वॉन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹405", "outputs": ["चार सौ पाँच रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "£४०", "outputs": ["चालीस पाउंड"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹47", "outputs": ["सैंतालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$६९", "outputs": ["उनहत्तर डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹220", "outputs": ["दो सौ बीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹५१", "outputs": ["इक्यावन रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺45", "outputs": ["पैंतालीस लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹६३३", "outputs": ["छह सौ तैंतीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$1000", "outputs": ["एक हज़ार डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$२०००", "outputs": ["दो हज़ार डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹320", "outputs": ["तीन सौ बीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹४६७", "outputs": ["चार सौ सड़सठ रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹811", "outputs": ["आठ सौ ग्यारह रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१०४०", "outputs": ["एक हज़ार चालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$765", "outputs": ["सात सौ पैंसठ डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩५९९", "outputs": ["पाँच सौ निन्यानबे वॉन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹550", "outputs": ["पाँच सौ पचास रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹६५६००", "outputs": ["पैंसठ हज़ार छह सौ रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$29", "outputs": ["उनतीस डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩६००", "outputs": ["छह सौ वॉन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹189", "outputs": ["एक सौ नवासी रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹५९१", "outputs": ["पाँच सौ इक्यानबे रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹1689", "outputs": ["एक हज़ार छह सौ नवासी रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१०९", "outputs": ["एक सौ नौ रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺12", "outputs": ["बारह लीरा"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹२०३", "outputs": ["दो सौ तीन रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹635", "outputs": ["छह सौ पैंतीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹४६९", "outputs": ["चार सौ उनहत्तर रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$127", "outputs": ["एक सौ सत्ताईस डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$८५", "outputs": ["पचासी डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹55000000", "outputs": ["पाँच करोड़ पचास लाख रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$२८२१", "outputs": ["दो हज़ार आठ सौ इक्कीस डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹1254000", "outputs": ["बारह लाख चौवन हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹३१५", "outputs": ["तीन सौ पंद्रह रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹2044", "outputs": ["दो हज़ार चौवालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१००००", "outputs": ["दस हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹545", "outputs": ["पाँच सौ पैंतालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१८४५", "outputs": ["एक हज़ार आठ सौ पैंतालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹372", "outputs": ["तीन सौ बहत्तर रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$९८", "outputs": ["अट्ठानबे डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹123.57", "outputs": ["एक सौ तेईस रुपए सत्तावन पैसे"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹९९९.५०", "outputs": ["नौ सौ निन्यानबे रुपए पचास पैसे"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "£150.29", "outputs": ["एक सौ पचास पाउंड उनतीस पेंस"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "£८०.३१", "outputs": ["अस्सी पाउंड इकतीस पेंस"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩2345.10", "outputs": ["दो हज़ार तीन सौ पैंतालीस वॉन दस जिओन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₩१००.२५", "outputs": ["एक सौ वॉन पच्चीस जिओन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$125.70", "outputs": ["एक सौ पच्चीस डॉलर सत्तर सेंट"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$९.९९", "outputs": ["नौ डॉलर निन्यानबे सेंट"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺80.36", "outputs": ["अस्सी लीरा छत्तीस कुरस"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₺१२३४.७८", "outputs": ["एक हज़ार दो सौ चौंतीस लीरा अठहत्तर कुरस"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "৳100.42", "outputs": ["एक सौ टका बयालीस पैसे"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "৳३०२५.८७", "outputs": ["तीन हज़ार पच्चीस टका सत्तासी पैसे"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "¥100.48", "outputs": ["एक सौ येन अड़तालीस सेन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "¥७७७.२३", "outputs": ["सात सौ सतहत्तर येन तेईस सेन"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₦876.53", "outputs": ["आठ सौ छिहत्तर नाइरा तिरेपन कोबो"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₦१०.२७", "outputs": ["दस नाइरा सत्ताईस कोबो"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "€200.90", "outputs": ["दो सौ यूरो नब्बे सेंट"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "€१२३४.७५", "outputs": ["एक हज़ार दो सौ चौंतीस यूरो पचहत्तर सेंट"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$1.12", "outputs": ["एक डॉलर बारह सेंट"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$1.123", "outputs": ["एक दशमलव एक दो तीन डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$1.1234", "outputs": ["एक दशमलव एक दो तीन चार डॉलर"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹2.2000", "outputs": ["दो रुपए बीस पैसे"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "$1.2000", "outputs": ["एक डॉलर बीस सेंट"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹1.500", "outputs": ["एक रुपया पचास पैसे"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹5.00", "outputs": ["पाँच रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१", "outputs": ["एक रुपया"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹२.१२३", "outputs": ["दो दशमलव एक दो तीन रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१.१२३४", "outputs": ["एक दशमलव एक दो तीन चार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹3,24,50,000", "outputs": ["तीन करोड़ चौबीस लाख पचास हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹32,450,000", "outputs": ["तीन करोड़ चौबीस लाख पचास हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹5,50,00,000", "outputs": ["पाँच करोड़ पचास लाख रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹12,54,000", "outputs": ["बारह लाख चौवन हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹1,00,000", "outputs": ["एक लाख रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹2,148", "outputs": ["दो हज़ार एक सौ अड़तालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹99,999", "outputs": ["निन्यानबे हज़ार नौ सौ निन्यानबे रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹३,२४,५०,०००", "outputs": ["तीन करोड़ चौबीस लाख पचास हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹३२,४५०,०००", "outputs": ["तीन करोड़ चौबीस लाख पचास हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹२,१२,१५,०००", "outputs": ["दो करोड़ बारह लाख पंद्रह हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹५,५०,००,०००", "outputs": ["पाँच करोड़ पचास लाख रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१२,५४,०००", "outputs": ["बारह लाख चौवन हज़ार रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹५,५६,३२०", "outputs": ["पाँच लाख छप्पन हज़ार तीन सौ बीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹१,००,०००", "outputs": ["एक लाख रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹२,१४८", "outputs": ["दो हज़ार एक सौ अड़तालीस रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "money", "input": "₹९९,९९९", "outputs": ["निन्यानबे हज़ार नौ सौ निन्यानबे रुपए"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "1ला", "outputs": ["पहला"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "१ली", "outputs": ["पहली"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "2रा", "outputs": ["दूसरा"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "२री", "outputs": ["दूसरी"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "3रा", "outputs": ["तीसरा"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "३री", "outputs": ["तीसरी"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "4था", "outputs": ["चौथा"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "४थी", "outputs": ["चौथी"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "5वां", "outputs": ["पाँचवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "५वीं", "outputs": ["पाँचवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "6ठा", "outputs": ["छठा"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "६ठी", "outputs": ["छठी"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "7वां", "outputs": ["सातवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "७वीं", "outputs": ["सातवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "8वां", "outputs": ["आठवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "८वीं", "outputs": ["आठवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "9वां", "outputs": ["नौवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "९वीं", "outputs": ["नौवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "11वां", "outputs": ["ग्यारहवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "१२वीं", "outputs": ["बारहवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "14वां", "outputs": ["चौदहवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "१६वीं", "outputs": ["सोलहवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "17वां", "outputs": ["सत्रहवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "१८वीं", "outputs": ["अठारहवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "19वां", "outputs": ["उन्नीसवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "२०वां", "outputs": ["बीसवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "21वां", "outputs": ["इक्कीसवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "२५वीं", "outputs": ["पच्चीसवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "27वें", "outputs": ["सत्ताईसवें"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "३०वीं", "outputs": ["तीसवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "33वां", "outputs": ["तैंतीसवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "४०वीं", "outputs": ["चालीसवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "45वां", "outputs": ["पैंतालीसवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "५०वां", "outputs": ["पचासवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "56वें", "outputs": ["छप्पनवें"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "६०वां", "outputs": ["साठवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "67वीं", "outputs": ["सड़सठवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "७५वीं", "outputs": ["पचहत्तरवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "80वें", "outputs": ["अस्सीवें"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "८८वां", "outputs": ["अट्ठासीवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "91वीं", "outputs": ["इक्यानबेवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "९९वां", "outputs": ["निन्यानबेवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "100वां", "outputs": ["एक सौवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "१०१वां", "outputs": ["एक सौ एकवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "111वीं", "outputs": ["एक सौ ग्यारहवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "१२५वें", "outputs": ["एक सौ पच्चीसवें"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "153वीं", "outputs": ["एक सौ तिरेपनवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "२००वीं", "outputs": ["दो सौवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "219वीं", "outputs": ["दो सौ उन्नीसवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "२४०वां", "outputs": ["दो सौ चालीसवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "329वां", "outputs": ["तीन सौ उनतीसवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "३६५वां", "outputs": ["तीन सौ पैंसठवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "455वां", "outputs": ["चार सौ पचपनवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "५५५वीं", "outputs": ["पाँच सौ पचपनवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "640वीं", "outputs": ["छह सौ चालीसवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "८९०वां", "outputs": ["आठ सौ नब्बेवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "1001वीं", "outputs": ["एक हज़ार एकवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "१०९१वें", "outputs": ["एक हज़ार इक्यानबेवें"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "1782वीं", "outputs": ["सत्रह सौ बयासीवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "१८९०वां", "outputs": ["एक हज़ार आठ सौ नब्बेवां"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "1981वीं", "outputs": ["उन्नीस सौ इक्यासीवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "९८२६वीं", "outputs": ["अट्ठानबे सौ छब्बीसवीं"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "1st", "outputs": ["फ़र्स्ट"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "2nd", "outputs": ["सेकंड"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "3rd", "outputs": ["थर्ड"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "4th", "outputs": ["फ़ोर्थ"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "5th", "outputs": ["फ़िफ्थ"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "6th", "outputs": ["सिक्स्थ"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "7th", "outputs": ["सेवंथ"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "8th", "outputs": ["एटथ"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "9th", "outputs": ["नाइंथ"]}
+{"lang": "hi", "source": "nemo", "class": "ordinal", "input": "10th", "outputs": ["टेंथ"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "भास्कर-II", "outputs": ["भास्कर दो"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "चंद्रयान-III", "outputs": ["चंद्रयान तीन"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "अग्नि-IV", "outputs": ["अग्नि चार"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "श्रेणी-II", "outputs": ["श्रेणी दो"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "कक्षा XII", "outputs": ["कक्षा बारह"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "अध्याय IV", "outputs": ["अध्याय चार"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "भाग III", "outputs": ["भाग तीन"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "खंड V", "outputs": ["खंड पाँच"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "विश्व युद्ध II", "outputs": ["विश्व युद्ध दो"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "विश्व युद्ध-II", "outputs": ["विश्व युद्ध दो"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "प्रथम पंचवर्षीय योजना-I", "outputs": ["प्रथम पंचवर्षीय योजना एक"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "राष्ट्रीय राजमार्ग-IV", "outputs": ["राष्ट्रीय राजमार्ग चार"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "रोहिणी आर एस-I", "outputs": ["रोहिणी आर एस एक"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "पीएसएलवी सी-IV", "outputs": ["पीएसएलवी सी चार"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "ISRO मिशन-III", "outputs": ["ISRO मिशन तीन"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "कक्षा XII की परीक्षा", "outputs": ["कक्षा बारह की परीक्षा"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "XIIवीं कक्षा की परीक्षा", "outputs": ["बारहवीं कक्षा की परीक्षा"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "भाग II का सारांश", "outputs": ["भाग दो का सारांश"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "अध्याय IV के प्रश्न", "outputs": ["अध्याय चार के प्रश्न"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "IVथी कक्षा के विद्यार्थी", "outputs": ["चौथी कक्षा के विद्यार्थी"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "XC विद्यार्थी", "outputs": ["नब्बे विद्यार्थी"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "LIII वा गणतंत्र दिन", "outputs": ["तिरपन वा गणतंत्र दिन"]}
+{"lang": "hi", "source": "nemo", "class": "roman", "input": "भाग-XCIX", "outputs": ["भाग निन्यानवे"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "कोविड-19", "outputs": ["कोविड-उन्नीस"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "कोविड-१९", "outputs": ["कोविड-उन्नीस"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "5जी", "outputs": ["पाँच जी"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "५जी", "outputs": ["पाँच जी"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "2^2", "outputs": ["दो स्क्वेर्ड"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "२^२", "outputs": ["दो स्क्वेर्ड"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "1-800-555", "outputs": ["एक-आठ सौ-पाँच सौ पचपन"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "3जी", "outputs": ["तीन जी"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "4जी", "outputs": ["चार जी"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "कोरोना-2", "outputs": ["कोरोना-दो"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "अग्नि-5", "outputs": ["अग्नि-पाँच"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "ओमिक्रॉन-2", "outputs": ["ओमिक्रॉन-दो"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "3^2", "outputs": ["तीन स्क्वेर्ड"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "2^3", "outputs": ["दो क्यूब"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "5^3", "outputs": ["पाँच क्यूब"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "४^५", "outputs": ["चार टु द पावर पाँच"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "99-1", "outputs": ["निन्यानबे-एक"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "10-20-30", "outputs": ["दस-बीस-तीस"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "1-800-999", "outputs": ["एक-आठ सौ-नौ सौ निन्यानबे"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "पृथ्वी-4", "outputs": ["पृथ्वी-चार"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "ब्रह्मोस-1", "outputs": ["ब्रह्मोस-एक"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "Q1", "outputs": ["क्यू एक"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "A10", "outputs": ["ए दस"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "A12", "outputs": ["ए बारह"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "B-60", "outputs": ["बी-साठ"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "ABC-123", "outputs": ["ए बी सी-एक सौ तेईस"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "FY2024", "outputs": ["एफ वाई दो शून्य दो चार"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "H2O", "outputs": ["एच दो ओ"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "CO2", "outputs": ["सी ओ दो"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "ABCDE1234F", "outputs": ["ए बी सी डी ई एक दो तीन चार एफ"]}
+{"lang": "hi", "source": "nemo", "class": "serial", "input": "F16", "outputs": ["एफ सोलह"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "मेरा पुराना नंबर था 9157114007", "outputs": ["मेरा पुराना नंबर था शून्य नौ एक पाँच सात एक एक चार शून्य शून्य सात"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "इसपे कॉल करो ०३८६२-३५१७९१", "outputs": ["इसपे कॉल करो शून्य तीन आठ छह दो तीन पाँच एक सात नौ एक"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "मेरे इस नंबर पे कॉल करो 1374-309988", "outputs": ["मेरे इस नंबर पे कॉल करो शून्य एक तीन सात चार तीन शून्य नौ नौ आठ आठ"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "इसपे कॉल करो ०१६८९११-४५७३", "outputs": ["इसपे कॉल करो शून्य एक छह आठ नौ एक एक चार पाँच सात तीन"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "+91 7440431083 मेरे इस नंबर पे कॉल करो", "outputs": ["प्लस नौ एक सात चार चार शून्य चार तीन एक शून्य आठ तीन मेरे इस नंबर पे कॉल करो"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "+९१ ९२१०५१५६०६ मेरे इस नंबर पे कॉल करो", "outputs": ["प्लस नौ एक नौ दो एक शून्य पाँच एक पाँच छह शून्य छह मेरे इस नंबर पे कॉल करो"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "भुगतान के लिए कार्ड के आखिरी अंक 1234 दर्ज करें", "outputs": ["भुगतान के लिए कार्ड के आखिरी अंक एक दो तीन चार दर्ज करें"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "मेरा पिन कोड ११००२३ है", "outputs": ["मेरा पिन कोड एक एक शून्य शून्य दो तीन है"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "इसपे कॉल करो 03862-351791", "outputs": ["इसपे कॉल करो शून्य तीन आठ छह दो तीन पाँच एक सात नौ एक"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "मेरे इस नंबर पे कॉल करो 1374 309988", "outputs": ["मेरे इस नंबर पे कॉल करो शून्य एक तीन सात चार तीन शून्य नौ नौ आठ आठ"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "इसपे कॉल करो 0168911-4573", "outputs": ["इसपे कॉल करो शून्य एक छह आठ नौ एक एक चार पाँच सात तीन"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "+91 9210515606 मेरे इस नंबर पे कॉल करो", "outputs": ["प्लस नौ एक नौ दो एक शून्य पाँच एक पाँच छह शून्य छह मेरे इस नंबर पे कॉल करो"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "मेरा पिन कोड 110023 है", "outputs": ["मेरा पिन कोड एक एक शून्य शून्य दो तीन है"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "+1 9210515606 मेरे इस नंबर पे कॉल करो", "outputs": ["प्लस एक नौ दो एक शून्य पाँच एक पाँच छह शून्य छह मेरे इस नंबर पे कॉल करो"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "+४९ ९२१०५१५६०६ मेरे इस नंबर पे कॉल करो", "outputs": ["प्लस चार नौ नौ दो एक शून्य पाँच एक पाँच छह शून्य छह मेरे इस नंबर पे कॉल करो"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "+353 9210515606 मेरे इस नंबर पे कॉल करो", "outputs": ["प्लस तीन पाँच तीन नौ दो एक शून्य पाँच एक पाँच छह शून्य छह मेरे इस नंबर पे कॉल करो"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "+91 9876543210 123", "outputs": ["प्लस नौ एक नौ आठ सात छह पाँच चार तीन दो एक शून्य एक दो तीन"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "+1 6234517890 123", "outputs": ["प्लस एक छह दो तीन चार पाँच एक सात आठ नौ शून्य एक दो तीन"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "+९१ ९८७६५४३२१० १२३", "outputs": ["प्लस नौ एक नौ आठ सात छह पाँच चार तीन दो एक शून्य एक दो तीन"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "(02229) 411128", "outputs": ["शून्य दो दो दो नौ चार एक एक एक दो आठ"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "०२२.२९४१११२८", "outputs": ["शून्य दो दो दो नौ चार एक एक एक दो आठ"]}
+{"lang": "hi", "source": "nemo", "class": "telephone", "input": "0 (80) 26411128", "outputs": ["शून्य आठ शून्य दो छह चार एक एक एक दो आठ"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "12:10:10", "outputs": ["बारह बजकर दस मिनट दस सेकंड"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "५:१२:०१", "outputs": ["पाँच बजकर बारह मिनट एक सेकंड"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "3:18:43", "outputs": ["तीन बजकर अठारह मिनट तैंतालीस सेकंड"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "२:१६", "outputs": ["दो बजकर सोलह मिनट"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "7:21", "outputs": ["सात बजकर इक्कीस मिनट"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "११:५७", "outputs": ["ग्यारह बजकर सत्तावन मिनट"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "8:00", "outputs": ["आठ बजे"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "४:००", "outputs": ["चार बजे"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "9:00", "outputs": ["नौ बजे"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "सुबह के ५:२०:१२", "outputs": ["सुबह के पाँच बजकर बीस मिनट बारह सेकंड"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "सुबह के 6:39", "outputs": ["सुबह के छह बजकर उनतालीस मिनट"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "सुबह के २:००", "outputs": ["सुबह के दो बजे"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "दोपहर के 3:59:36", "outputs": ["दोपहर के तीन बजकर उनसठ मिनट छत्तीस सेकंड"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "दोपहर के १:३६", "outputs": ["दोपहर के एक बजकर छत्तीस मिनट"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "दोपहर के 3:00", "outputs": ["दोपहर के तीन बजे"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "रात के १०:४८:५०", "outputs": ["रात के दस बजकर अड़तालीस मिनट पचास सेकंड"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "रात के 11:50", "outputs": ["रात के ग्यारह बजकर पचास मिनट"]}
+{"lang": "hi", "source": "nemo", "class": "time", "input": "रात के ८:००", "outputs": ["रात के आठ बजे"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "डॉ. अमित", "outputs": ["डॉक्टर अमित"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "प्रो. पूजा", "outputs": ["प्रोफेसर पूजा"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "इं. रेखा", "outputs": ["इंजीनियर रेखा"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "ले. रोहित", "outputs": ["लेफ्टिनेंट रोहित"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "वै. निखिल", "outputs": ["वैज्ञानिक निखिल"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "कु. मेघा", "outputs": ["कुमारी मेघा"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "मा. अंकित", "outputs": ["मास्टर अंकित"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "डॉ. सीमा", "outputs": ["डॉक्टर सीमा"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "प्रो. अरुण", "outputs": ["प्रोफेसर अरुण"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "इं. सुमित", "outputs": ["इंजीनियर सुमित"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "ले. अंजलि", "outputs": ["लेफ्टिनेंट अंजलि"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "वै. प्रिया", "outputs": ["वैज्ञानिक प्रिया"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "कु. रिया", "outputs": ["कुमारी रिया"]}
+{"lang": "hi", "source": "nemo", "class": "whitelist", "input": "मा. विवेक", "outputs": ["मास्टर विवेक"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "नींद", "outputs": ["नींद"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "याहू!", "outputs": ["याहू!"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "।", "outputs": ["।"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "आआआ", "outputs": ["आआआ"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "आकाशगंगा", "outputs": ["आकाशगंगा"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "लटरपटर", "outputs": ["लटरपटर"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "कच्चा-पक्का", "outputs": ["कच्चा-पक्का"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "गुब्बारा", "outputs": ["गुब्बारा"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "चिट्ठी", "outputs": ["चिट्ठी"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "ढूंढना", "outputs": ["ढूंढना"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "लोहे का!", "outputs": ["लोहे का!"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "वाह!", "outputs": ["वाह!"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "टाटा", "outputs": ["टाटा"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "झ", "outputs": ["झ"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "संगीत", "outputs": ["संगीत"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "This is a sentence.", "outputs": ["This is a sentence."]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "google", "outputs": ["google"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "mera email hai", "outputs": ["mera email hai"]}
+{"lang": "hi", "source": "nemo", "class": "word", "input": "user@", "outputs": ["user@"]}
