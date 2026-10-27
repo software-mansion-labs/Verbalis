@@ -21,6 +21,7 @@ using ::verbalis::text::Keys;
 using ::verbalis::numbers::keys_of;
 using ::verbalis::numbers::Notation;
 using ::verbalis::numbers::PhoneFormat;
+using ::verbalis::numbers::RomanCues;
 using ::verbalis::numbers::SuffixFormat;
 
 inline constexpr std::array<std::u32string_view, 20> kOnes = {
@@ -122,6 +123,22 @@ inline const std::unordered_set<std::u32string> kStopWords = {
   U"had", U"do", U"does", U"did", U"get", U"got", U"instead", U"worth", U"today", U"tomorrow", U"tonight",
   U"outside", U"inside", U"apart", U"ahead", U"behind", U"above", U"below", U"long", U"wide", U"high", U"tall",
   U"deep", U"old", U"later", U"earlier", U"overall"
+};
+
+// Henry VIII (the Eighth), Chapter IV (four), the XXI century (twenty-first)
+inline const RomanCues kRomanCues = {
+  .names = {
+    U"henry", U"edward", U"george", U"william", U"richard", U"charles", U"james", U"elizabeth", U"mary", U"victoria",
+    U"anne", U"john", U"paul", U"benedict", U"leo", U"pius", U"gregory", U"clement", U"innocent", U"louis", U"philip",
+    U"frederick", U"alexander", U"nicholas", U"peter", U"ivan", U"catherine", U"napoleon", U"ferdinand", U"alfonso",
+    U"carlos", U"felipe", U"wilhelm", U"ludwig", U"constantine", U"ramesses"
+  },
+  .before = {
+    U"chapter", U"part", U"volume", U"book", U"act", U"scene", U"section", U"article", U"appendix", U"phase",
+    U"stage", U"level", U"war", U"season", U"episode", U"bowl", U"vatican", U"type", U"class", U"grade",
+    U"category", U"tier", U"mark"
+  },
+  .after = {U"century", U"centuries", U"millennium"}
 };
 
 // --- Notation: how numbers are written ---

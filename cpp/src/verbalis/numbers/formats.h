@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <map>
+#include <unordered_set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -47,6 +48,13 @@ struct SuffixFormat {
 // How numbers are written in a language, read by the generic patterns.
 // Fractions with their own words, by numerator and denominator: 1/2 -> half
 using Fractions = std::map<std::pair<uint64_t, uint64_t>, std::u32string>;
+
+// The words which mark a Roman numeral as a number in a language (lowercase, as Context reads them).
+struct RomanCues {
+  std::unordered_set<std::u32string> names;  // A name before it takes a regnal number: Henry VIII, Jan Paweł II
+  std::unordered_set<std::u32string> before; // A noun before it, which it numbers: chapter IV, siglo XXI
+  std::unordered_set<std::u32string> after;  // A noun after it, which it numbers: XXI wieku, II Guerra Mundial
+};
 
 struct Notation {
   std::u32string group_separators;   // 1.000, 1 000, 1,000

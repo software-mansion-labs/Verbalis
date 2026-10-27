@@ -66,6 +66,10 @@ local hi and zh sentences that can't be committed yet.
 
 ## ⚑ Gotchas
 
+- `keys_at` returns views into its `Keys`: pass a lasting table, never a braced list, in a range-for (C++20 destroys
+  the temporary before the loop body). To catch such bugs, build with `-DCMAKE_CXX_FLAGS="-fsanitize=address,undefined"`
+  and run the tests and `tests/compare/run.cpp` on the inputs.
+
 - `tests/parity/baseline/` contains sentences from the Leipzig Corpora Collection. Check their terms before the repo
   or a package containing them goes public (`knowledge/parity-dataset.md`).
 - Some baseline outputs are wrong (inherited from Phonemis); parity means matching the reference, not being correct.

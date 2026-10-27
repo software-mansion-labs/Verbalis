@@ -1,6 +1,15 @@
-import { DatePattern, PhonePattern, SuffixPattern } from "../../numbers/patterns.ts";
+import { DatePattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
 import { Kind, numeral, type Match, type Numeral } from "../../numbers/match.ts";
-import { fitsClock, isSpokenDigits, namedFraction, parseValue, spacedSuffix, value } from "../../numbers/scanning.ts";
+import {
+  fitsClock,
+  isSpokenDigits,
+  namedFraction,
+  parseValue,
+  spacedSuffix,
+  value,
+  romanRole,
+  RomanRole,
+} from "../../numbers/scanning.ts";
 import { join } from "../../text/scan.ts";
 import { contains, size, toLower } from "../../text/strings.ts";
 import { isAlpha, isUpper } from "../../text/unicode.ts";
@@ -29,6 +38,7 @@ import {
   TIME_WORDS,
   UNITS,
   YEAR_CUES,
+  ROMAN_CUES,
 } from "./constants.ts";
 
 // ------------------------
@@ -133,6 +143,7 @@ class English extends PatternLanguage {
     }
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new SuffixPattern(Kind.DECADE, DECADE_SUFFIXES, DECADE_FORMAT));
+    this.addPattern(new RomanPattern());
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
@@ -211,6 +222,20 @@ class English extends PatternLanguage {
 
   protected override readOrdinal(match: Match): string | undefined {
     return ordinal(value(match.numbers[0]));
+  }
+
+  protected override readRoman(match: Match): string | undefined {
+    // Henry the Eighth, the twenty-first century, Chapter four
+    const n = value(match.numbers[0]);
+    const role = romanRole(match, ROMAN_CUES);
+    switch (role ?? RomanRole.BEFORE) {
+      case RomanRole.NAME:
+        return `the ${ordinal(n)}`;
+      case RomanRole.AFTER:
+        return ordinal(n);
+      default:
+        return role !== undefined ? cardinal(n) : undefined;
+    }
   }
 
   protected override readDecade(match: Match): string | undefined {

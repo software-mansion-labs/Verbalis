@@ -65,6 +65,13 @@ export function suffixFormat(fields: Partial<SuffixFormat> = {}): SuffixFormat {
 // Fractions with their own words, keyed "numerator/denominator": "1/2" -> half
 export type Fractions = Readonly<Record<string, string>>;
 
+// The words which mark a Roman numeral as a number in a language (lowercase, as Context reads them).
+export interface RomanCues {
+  readonly names: ReadonlySet<string>; // A name before it takes a regnal number: Henry VIII, Jan Paweł II
+  readonly before: ReadonlySet<string>; // A noun before it, which it numbers: chapter IV, siglo XXI
+  readonly after: ReadonlySet<string>; // A noun after it, which it numbers: XXI wieku, II Guerra Mundial
+}
+
 // How numbers are written in a language, read by the generic patterns.
 export interface Notation {
   groupSeparators: string; // 1.000, 1 000, 1,000

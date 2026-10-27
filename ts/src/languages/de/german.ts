@@ -1,4 +1,4 @@
-import { DatePattern, DotOrdinalPattern, Pattern, SuffixPattern } from "../../numbers/patterns.ts";
+import { DatePattern, DotOrdinalPattern, Pattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
 import { Kind, match as matchOf, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -8,6 +8,8 @@ import {
   namedFraction,
   parseValue,
   value,
+  romanRole,
+  RomanRole,
 } from "../../numbers/scanning.ts";
 import { stripped, wordsOf, type Context } from "../../text/context.ts";
 import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
@@ -43,6 +45,8 @@ import {
   WEAK,
   WEAK_NOMINATIVE,
   YEAR_CUES,
+  ROMAN_CUES,
+  FEMININE_NAMES,
 } from "./constants.ts";
 
 // How the ending of an ordinal follows the word before it: am dritten (weak), ein zweiter (mixed), dritter (strong)
@@ -401,6 +405,7 @@ class German extends PatternLanguage {
     this.addPattern(new AreaCodePattern());
     this.addPattern(new DotOrdinalPattern());
     this.addPattern(new SuffixPattern(Kind.DECADE, DECADE_SUFFIXES, DECADE_FORMAT));
+    this.addPattern(new RomanPattern(true));
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
@@ -472,6 +477,40 @@ class German extends PatternLanguage {
       return undefined;
     }
     return ordinal(value(match.numbers[0]), ending(cuesOf(match)));
+  }
+
+  protected override readRoman(match: Match): string | undefined {
+    const n = value(match.numbers[0]);
+    const role = romanRole(match, ROMAN_CUES);
+    if (role === undefined) {
+      return undefined;
+    }
+    switch (role) {
+      case RomanRole.NAME: {
+        // Ludwig der Vierzehnte, unter Ludwig dem Vierzehnten, für Wilhelm den Zweiten, Elisabeth die Zweite
+        const feminine = FEMININE_NAMES.has(match.context.before());
+        const dative = DATIVE.has(match.context.before(2));
+        const accusative = ACCUSATIVE.has(match.context.before(2));
+        const article = dative
+          ? feminine
+            ? "der"
+            : "dem"
+          : accusative
+            ? feminine
+              ? "die"
+              : "den"
+            : feminine
+              ? "die"
+              : "der";
+        const words = ordinal(n, dative || (accusative && !feminine) ? "en" : "e");
+        return `${article} ${upperFirst(words)}`;
+      }
+      case RomanRole.AFTER:
+        // im XX. Jahrhundert: an ordinal, as im 20. Jahrhundert
+        return this.readOrdinal({ ...match, kind: Kind.ORDINAL });
+      default:
+        return cardinal(n); // Kapitel drei
+    }
   }
 
   protected override readDecade(match: Match): string | undefined {

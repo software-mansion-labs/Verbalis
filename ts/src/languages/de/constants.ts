@@ -1,4 +1,4 @@
-import { dateFormat, keysOf, notation, suffixFormat, type Fractions } from "../../numbers/formats.ts";
+import { dateFormat, keysOf, notation, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import { afterAny, beforeNumber, type Readings } from "../../text/readings.ts";
 import { Gender, type Forms, type Joiners } from "../grammar.ts";
@@ -119,6 +119,29 @@ export const FEMININE_ENDINGS = [
   "e", "ung", "heit", "keit", "schaft", "ion", "tät", "ik", "ur", "enz", "anz", "ei", "in", "ie",
 ];
 export const NEUTER_ENDINGS = ["chen", "lein", "ment", "um", "tum", "ma", "o"];
+
+// Ludwig XIV. (der Vierzehnte), Kapitel III (drei), im XX. Jahrhundert (zwanzigsten)
+export const ROMAN_CUES: RomanCues = {
+  names: new Set([
+    "ludwig", "karl", "friedrich", "wilhelm", "heinrich", "otto", "rudolf", "albrecht", "maximilian", "ferdinand",
+    "leopold", "joseph", "franz", "georg", "eduard", "richard", "johannes", "paul", "benedikt", "leo", "pius",
+    "gregor", "klemens", "innozenz", "elisabeth", "katharina", "maria", "viktoria", "philipp", "napoleon",
+    "alexander", "nikolaus", "peter", "iwan", "konstantin", "ramses",
+  ]),
+  before: new Set([
+    "kapitel", "teil", "band", "buch", "akt", "szene", "abschnitt", "artikel", "anhang", "phase", "stufe", "klasse",
+    "staffel", "folge", "runde", "typ", "liga",
+  ]),
+  after: new Set([
+    "jahrhundert", "jahrhunderts", "jahrhunderte", "jahrhunderten", "jahrtausend", "jahrtausends", "weltkrieg",
+    "weltkriegs", "weltkrieges", "vatikanische", "vatikanischen",
+  ]),
+};
+
+// Names with a regnal number which are feminine: Elisabeth die Zweite
+export const FEMININE_NAMES: ReadonlySet<string> = new Set([
+  "elisabeth", "katharina", "maria", "viktoria",
+]);
 
 // --- Notation: how numbers are written ---
 export const NOTATION = notation({

@@ -290,6 +290,23 @@ private:
   SuffixFormat format_;
 };
 
+// A Roman numeral as a word of its own: VIII, XXI, IV.; one letter only if it is I, V or X. Its number holds its value.
+// Whether it is a number, and how it reads, is left to the reading (see roman_role): CD and MX are mostly not.
+class RomanPattern : public Pattern {
+public:
+  /**
+   * @param dot also takes a dot closing it, as German ordinals do (Ludwig XIV. regierte), unless the text ends there.
+   * @param suffixes words which may follow it, after an optional space, as part of it: XIX w.
+   */
+  explicit RomanPattern(bool dot = false, Keys suffixes = {})
+      : Pattern(Kind::ROMAN), dot_(dot), suffixes_(std::move(suffixes)) {}
+  std::optional<Match> match(std::u32string_view text, size_t position) const override;
+
+private:
+  bool dot_;
+  Keys suffixes_;
+};
+
 // 3. Platz, 55. sesję: an ordinal written as digits with a dot, followed by a word.
 class DotOrdinalPattern : public Pattern {
 public:

@@ -240,6 +240,7 @@ public:
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSigns, kOrdinalSignFormat));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<SuffixPattern>(Kind::DECADE, kDecadeSuffixes, kDecadeFormat));
+    add_pattern(std::make_unique<RomanPattern>());
   }
 
 protected:
@@ -287,6 +288,29 @@ protected:
 
     uint64_t minutes = value(match.numbers[1]);
     return cardinal(value(match.numbers[0]), One::UNA) + (minutes ? U" " + cardinal(minutes) : U"");
+  }
+
+  std::optional<std::u32string> read_roman(const Match& match) const override {
+    uint64_t n = value(match.numbers[0]);
+    auto role = roman_role(match, kRomanCues);
+    if (!role || n >= 1000) {
+      return std::nullopt;
+    }
+    std::u32string previous = match.context.before();
+    switch (*role) {
+      case RomanRole::NAME: // Felipe sexto, Isabel segunda, but Alfonso trece
+        return n <= 10 ? ordinal(n, kFeminineNames.contains(previous)) : cardinal(n);
+      case RomanRole::AFTER: { // la Segunda Guerra, el primer congreso, el vigésimo tercer festival
+        bool feminine = kFeminineRomanNouns.contains(strings::to_lower(match.context.after()));
+        std::u32string words = ordinal(n, feminine);
+        if (!feminine && (words.ends_with(U"primero") || words.ends_with(U"tercero"))) {
+          words.pop_back();
+        }
+        return words;
+      }
+      default: // siglo quinto, Vaticano segundo, but siglo veintiuno; capítulo cuatro
+        return (previous.starts_with(U"siglo") || previous == U"vaticano") && n <= 10 ? ordinal(n, false) : cardinal(n);
+    }
   }
 
   std::optional<std::u32string> read_ordinal(const Match& match) const override {

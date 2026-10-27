@@ -121,6 +121,7 @@ public:
     }
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<SuffixPattern>(Kind::DECADE, kDecadeSuffixes, kDecadeFormat));
+    add_pattern(std::make_unique<RomanPattern>());
   }
 
 protected:
@@ -212,6 +213,19 @@ protected:
 
   std::optional<std::u32string> read_ordinal(const Match& match) const override {
     return ordinal(value(match.numbers[0]));
+  }
+
+  std::optional<std::u32string> read_roman(const Match& match) const override {
+    // Henry the Eighth, the twenty-first century, Chapter four
+    uint64_t n = value(match.numbers[0]);
+    switch (auto role = roman_role(match, kRomanCues); role.value_or(RomanRole::BEFORE)) {
+      case RomanRole::NAME:
+        return U"the " + ordinal(n);
+      case RomanRole::AFTER:
+        return ordinal(n);
+      default:
+        return role ? std::optional(cardinal(n)) : std::nullopt;
+    }
   }
 
   std::optional<std::u32string> read_decade(const Match& match) const override {

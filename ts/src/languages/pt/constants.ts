@@ -1,4 +1,4 @@
-import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions } from "../../numbers/formats.ts";
+import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import { beforeNumber, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
@@ -111,6 +111,39 @@ export const STOP_WORDS: ReadonlySet<string> = new Set([
   "este", "esta", "estes", "estas", "esse", "essa", "esses", "essas", "isso", "isto", "já", "agora",
   "quando", "onde", "muito", "também", "se", "lhe", "me", "te", "ao", "à", "aos", "às", "pelo",
   "pela", "pelos", "pelas", "não", "sim", "meu", "minha", "seu", "sua",
+]);
+
+// D. João Iº: an ordinal marker on a Roman numeral
+export const ROMAN_MARKERS: Keys = ["º", "ª", "°"];
+
+// D. Pedro II (segundo), Bento XVI (dezesseis), século XXI (vinte e um), capítulo IV (quatro), a II Guerra (Segunda)
+export const ROMAN_CUES: RomanCues = {
+  names: new Set([
+    "pedro", "joão", "paulo", "bento", "leão", "pio", "manuel", "afonso", "sebastião", "josé", "luís", "carlos",
+    "filipe", "henrique", "dinis", "maria", "isabel", "jorge", "guilherme", "gregório", "clemente", "napoleão",
+    "fernando", "duarte", "sancho", "eduardo", "elizabeth", "beatriz", "leonor", "teresa",
+  ]),
+  before: new Set([
+    "capítulo", "tomo", "livro", "ato", "título", "parte", "volume", "temporada", "fase", "século", "séculos",
+    "vaticano", "cena", "episódio", "nível", "tipo", "classe",
+  ]),
+  after: new Set([
+    "guerra", "congresso", "encontro", "festival", "edição", "bienal", "feira", "cimeira", "conferência", "jornada",
+    "jornadas", "seminário", "simpósio", "fórum", "campeonato", "república", "olimpíada", "assembleia",
+    "aniversário", "centenário", "reunião", "plano", "prémio", "prêmio", "torneio", "semana", "mostra", "corrida",
+    "marcha", "salão", "colóquio",
+  ]),
+};
+
+// Names with a regnal number, and nouns after a numeral, which are feminine: D. Maria II (segunda), a II Guerra
+export const FEMININE_NAMES: ReadonlySet<string> = new Set([
+  "maria", "isabel", "elizabeth", "beatriz", "leonor", "teresa",
+]);
+
+
+export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
+  "guerra", "edição", "bienal", "feira", "cimeira", "conferência", "jornada", "jornadas", "república", "olimpíada",
+  "assembleia", "reunião", "semana", "mostra", "corrida", "marcha",
 ]);
 
 // --- Notation: how numbers are written ---

@@ -21,6 +21,7 @@ using ::verbalis::text::Keys;
 using ::verbalis::numbers::keys_of;
 using ::verbalis::numbers::Notation;
 using ::verbalis::numbers::PhoneFormat;
+using ::verbalis::numbers::RomanCues;
 using ::verbalis::numbers::SuffixFormat;
 
 // A noun's forms after a number: singular, then plural, each in the order of Case.
@@ -284,6 +285,69 @@ inline const std::unordered_map<std::u32string, Case> kDecadeWords = {
 };
 
 inline const std::unordered_set<std::u32string> kConjunctions = {U"a", U"i", U"lub", U"albo", U"czy", U"oraz"};
+
+// Names which take a regnal number, by case (nominative, genitive, dative, accusative, instrumental, locative)
+// and gender: Jan Paweł II (drugi), Jana Pawła II (drugiego), Elżbiety II (drugiej)
+inline const std::vector<std::pair<std::u32string_view, Gender>> kRegnalNames = {
+  {U"jan jana janowi jana janem janie", Gender::MASCULINE},
+  {U"paweł pawła pawłowi pawła pawłem pawle", Gender::MASCULINE},
+  {U"benedykt benedykta benedyktowi benedykta benedyktem benedykcie", Gender::MASCULINE},
+  {U"leon leona leonowi leona leonem leonie", Gender::MASCULINE},
+  {U"pius piusa piusowi piusa piusem piusie", Gender::MASCULINE},
+  {U"grzegorz grzegorza grzegorzowi grzegorza grzegorzem grzegorzu", Gender::MASCULINE},
+  {U"karol karola karolowi karola karolem karolu", Gender::MASCULINE},
+  {U"henryk henryka henrykowi henryka henrykiem henryku", Gender::MASCULINE},
+  {U"ludwik ludwika ludwikowi ludwika ludwikiem ludwiku", Gender::MASCULINE},
+  {U"kazimierz kazimierza kazimierzowi kazimierza kazimierzem kazimierzu", Gender::MASCULINE},
+  {U"zygmunt zygmunta zygmuntowi zygmunta zygmuntem zygmuncie", Gender::MASCULINE},
+  {U"władysław władysława władysławowi władysława władysławem władysławie", Gender::MASCULINE},
+  {U"bolesław bolesława bolesławowi bolesława bolesławem bolesławie", Gender::MASCULINE},
+  {U"mieszko mieszka mieszkowi mieszka mieszkiem mieszku", Gender::MASCULINE},
+  {U"jerzy jerzego jerzemu jerzego jerzym jerzym", Gender::MASCULINE},
+  {U"edward edwarda edwardowi edwarda edwardem edwardzie", Gender::MASCULINE},
+  {U"ryszard ryszarda ryszardowi ryszarda ryszardem ryszardzie", Gender::MASCULINE},
+  {U"wilhelm wilhelma wilhelmowi wilhelma wilhelmem wilhelmie", Gender::MASCULINE},
+  {U"fryderyk fryderyka fryderykowi fryderyka fryderykiem fryderyku", Gender::MASCULINE},
+  {U"aleksander aleksandra aleksandrowi aleksandra aleksandrem aleksandrze", Gender::MASCULINE},
+  {U"mikołaj mikołaja mikołajowi mikołaja mikołajem mikołaju", Gender::MASCULINE},
+  {U"piotr piotra piotrowi piotra piotrem piotrze", Gender::MASCULINE},
+  {U"napoleon napoleona napoleonowi napoleona napoleonem napoleonie", Gender::MASCULINE},
+  {U"filip filipa filipowi filipa filipem filipie", Gender::MASCULINE},
+  {U"ferdynand ferdynanda ferdynandowi ferdynanda ferdynandem ferdynandzie", Gender::MASCULINE},
+  {U"józef józefa józefowi józefa józefem józefie", Gender::MASCULINE},
+  {U"franciszek franciszka franciszkowi franciszka franciszkiem franciszku", Gender::MASCULINE},
+  {U"leopold leopolda leopoldowi leopolda leopoldem leopoldzie", Gender::MASCULINE},
+  {U"klemens klemensa klemensowi klemensa klemensem klemensie", Gender::MASCULINE},
+  {U"iwan iwana iwanowi iwana iwanem iwanie", Gender::MASCULINE},
+  {U"elżbieta elżbiety elżbiecie elżbietę elżbietą elżbiecie", Gender::FEMININE},
+  {U"katarzyna katarzyny katarzynie katarzynę katarzyną katarzynie", Gender::FEMININE},
+};
+
+// Nouns numbered by a Roman numeral before or after them, with their gender: rozdział IV (czwarty), XXI wieku
+// (dwudziestego pierwszego), II wojna (druga). A form ending with "-" stands for every word it starts.
+inline const std::vector<std::pair<std::u32string_view, Gender>> kRomanNouns = {
+  {U"wiek-", Gender::MASCULINE}, {U"stuleci-", Gender::NEUTER}, {U"tysiącleci-", Gender::NEUTER},
+  {U"wojn-", Gender::FEMININE}, {U"rzeczpospolit-", Gender::FEMININE}, {U"rzeczypospolit-", Gender::FEMININE},
+  {U"kadencj-", Gender::FEMININE}, {U"edycj-", Gender::FEMININE}, {U"połow-", Gender::FEMININE},
+  {U"kwartał-", Gender::MASCULINE}, {U"zjazd-", Gender::MASCULINE}, {U"kongres-", Gender::MASCULINE},
+  {U"sesj-", Gender::FEMININE}, {U"festiwal-", Gender::MASCULINE}, {U"konkurs-", Gender::MASCULINE},
+  {U"piętr-", Gender::NEUTER}, {U"kategori-", Gender::FEMININE}, {U"rozdzia-", Gender::MASCULINE},
+  {U"liga", Gender::FEMININE}, {U"ligi", Gender::FEMININE}, {U"lidze", Gender::FEMININE}, {U"ligę", Gender::FEMININE},
+  {U"klasa", Gender::FEMININE}, {U"klasy", Gender::FEMININE}, {U"klasie", Gender::FEMININE},
+  {U"klasę", Gender::FEMININE}, {U"rok", Gender::MASCULINE}, {U"roku", Gender::MASCULINE},
+  {U"stopnia", Gender::MASCULINE}, {U"stopień", Gender::MASCULINE}, {U"stopniu", Gender::MASCULINE},
+  {U"tura", Gender::FEMININE}, {U"tury", Gender::FEMININE}, {U"turze", Gender::FEMININE}, {U"turę", Gender::FEMININE},
+  {U"etap", Gender::MASCULINE}, {U"etapu", Gender::MASCULINE}, {U"etapie", Gender::MASCULINE},
+  {U"faza", Gender::FEMININE}, {U"fazy", Gender::FEMININE}, {U"fazie", Gender::FEMININE}, {U"fazę", Gender::FEMININE},
+  {U"grupa", Gender::FEMININE}, {U"grupy", Gender::FEMININE}, {U"grupie", Gender::FEMININE},
+  {U"miejsce", Gender::NEUTER}, {U"miejsca", Gender::NEUTER}, {U"miejscu", Gender::NEUTER},
+  {U"część", Gender::FEMININE}, {U"części", Gender::FEMININE}, {U"tom", Gender::MASCULINE}, {U"tomu", Gender::MASCULINE},
+  {U"tomie", Gender::MASCULINE}, {U"sezon", Gender::MASCULINE}, {U"sezonu", Gender::MASCULINE},
+  {U"sezonie", Gender::MASCULINE},
+};
+
+// XIX w.: the abbreviation of wiek after a Roman numeral
+inline const Keys kCenturyAbbreviations = {U"w."};
 
 // --- Notation: how numbers are written ---
 inline const Notation kNotation = {

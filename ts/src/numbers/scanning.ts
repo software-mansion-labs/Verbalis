@@ -3,9 +3,9 @@
  * shared steps of the languages' readings: values of digits, digit-by-digit decisions, and the parts of codes.
  */
 import { digitsEnd, isDigitAfter } from "../text/scan.ts";
-import { contains, str, textOf, type Text } from "../text/strings.ts";
-import { isDigit } from "../text/unicode.ts";
-import type { Fractions } from "./formats.ts";
+import { contains, str, textOf, toLower, type Text } from "../text/strings.ts";
+import { isAlpha, isDigit, isSpace, isUpper } from "../text/unicode.ts";
+import type { Fractions, RomanCues } from "./formats.ts";
 import { numeral, type Match, type Numeral } from "./match.ts";
 
 // The digits starting at a position, as a number.
@@ -112,6 +112,93 @@ export function namedFraction(fractions: Fractions, fraction: Match): string | u
 // The suffix of a match with a space before it, to follow its reading; empty if the match has none.
 export function spacedSuffix(match: Match): string {
   return match.suffix === "" ? "" : ` ${match.suffix}`;
+}
+
+// A value written as digits: 14n -> "14".
+export function toDigits(value: bigint): string {
+  return value.toString();
+}
+
+// prettier-ignore
+const ROMAN_NUMERALS = [
+  [1000n, "M"], [900n, "CM"], [500n, "D"], [400n, "CD"], [100n, "C"], [90n, "XC"], [50n, "L"], [40n, "XL"],
+  [10n, "X"], [9n, "IX"], [5n, "V"], [4n, "IV"], [1n, "I"],
+] as const;
+
+const ROMAN_DIGITS: Readonly<Record<string, number>> = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+
+// The value of a Roman numeral written in its canonical form (XIX, not XVIIII), up to 3999; undefined otherwise.
+export function romanValue(numeral: string): bigint | undefined {
+  if (numeral === "" || numeral.length > 15) {
+    return undefined;
+  }
+  let value = 0;
+  for (let i = 0; i < numeral.length; ++i) {
+    const d = Object.hasOwn(ROMAN_DIGITS, numeral[i]) ? ROMAN_DIGITS[numeral[i]] : 0;
+    if (d === 0) {
+      return undefined;
+    }
+    const next =
+      i + 1 < numeral.length && Object.hasOwn(ROMAN_DIGITS, numeral[i + 1]) ? ROMAN_DIGITS[numeral[i + 1]] : 0;
+    value += i + 1 < numeral.length && d < next ? -d : d;
+  }
+
+  // Only the canonical spelling of its value: IV, not IIII; XC, not LXL
+  let canonical = "";
+  let rest = BigInt(Math.max(value, 0));
+  for (const [numeralValue, symbol] of ROMAN_NUMERALS) {
+    for (; rest >= numeralValue; rest -= numeralValue) {
+      canonical += symbol;
+    }
+  }
+  return value > 0 && value < 4000 && canonical === numeral ? BigInt(value) : undefined;
+}
+
+// What the words around a Roman numeral make it: the number of a name, or of a noun before or after it.
+export const RomanRole = { NAME: 0, BEFORE: 1, AFTER: 2 } as const;
+export type RomanRole = (typeof RomanRole)[keyof typeof RomanRole];
+
+// The role of a Roman numeral match by a language's cues, or undefined if nothing marks it as a number.
+export function romanRole(match: Match, cues: RomanCues): RomanRole | undefined {
+  // A name is capitalized as written: Henry VIII, but not "the henry viii"
+  const head = match.context.head();
+  let start = head.length;
+  while (start > 0 && isSpace(head[start - 1])) {
+    start--;
+  }
+  while (start > 0 && !isSpace(head[start - 1])) {
+    start--;
+  }
+  const capitalized = start < head.length && isUpper(head[start]);
+
+  // A name or noun before it belongs to it only with nothing but spaces between: not "na piętrze, II liga"
+  let last = head.length;
+  while (last > 0 && isSpace(head[last - 1])) {
+    last--;
+  }
+  const adjacent = last > 0 && isAlpha(head[last - 1]);
+
+  // Paul V. Halvorsen: one letter with a dot before a capitalized word is an initial, not a regnal number
+  const tail = match.context.tail();
+  let next = tail.length > 0 && tail[0] === "." ? 1 : 0;
+  while (next < tail.length && isSpace(tail[next])) {
+    next++;
+  }
+  const dotted = match.suffix === "." || (tail.length > 0 && tail[0] === ".");
+  const numeral = match.numbers[0].span;
+  const initial = numeral.end - numeral.begin === 1 && dotted && next < tail.length && isUpper(tail[next]);
+
+  const previous = match.context.before();
+  if (adjacent && capitalized && !initial && cues.names.has(previous)) {
+    return RomanRole.NAME;
+  }
+  if (adjacent && cues.before.has(previous)) {
+    return RomanRole.BEFORE;
+  }
+  if (cues.after.has(toLower(match.context.after()))) {
+    return RomanRole.AFTER;
+  }
+  return undefined;
 }
 
 // The parts of a code (MP3, H.264, F-16s): digits with their decimals, ".digits", runs of other characters, and single

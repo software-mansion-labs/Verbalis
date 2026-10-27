@@ -1,11 +1,30 @@
-import { DatePattern, DotOrdinalPattern, PhonePattern, SuffixPattern } from "../../numbers/patterns.ts";
-import { Kind, numeral, type Match, type Numeral } from "../../numbers/match.ts";
-import { codeValue, fitsClock, isSpokenDigits, parseValue, spacedSuffix, value } from "../../numbers/scanning.ts";
+import {
+  DatePattern,
+  DotOrdinalPattern,
+  PhonePattern,
+  SuffixPattern,
+  Pattern,
+  RomanPattern,
+} from "../../numbers/patterns.ts";
+import { Kind, numeral, type Match, type Numeral, match as matchOf } from "../../numbers/match.ts";
+import {
+  codeValue,
+  fitsClock,
+  isSpokenDigits,
+  parseValue,
+  spacedSuffix,
+  value,
+  digitsAt,
+  romanRole,
+  romanValue,
+  toDigits,
+} from "../../numbers/scanning.ts";
 import { Context, PUNCTUATION, stripped, wordsOf } from "../../text/context.ts";
 import type { Span } from "../../text/document.ts";
-import { digitsEnd, isClearBefore, join } from "../../text/scan.ts";
+import { digitsEnd, isClearBefore, join, isClearAfter, isDigitAfter } from "../../text/scan.ts";
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
-import { isDigit, isLower, isSpace, isWord } from "../../text/unicode.ts";
+import { isDigit, isLower, isSpace, isWord, isAlpha } from "../../text/unicode.ts";
+import type { RomanCues } from "../../numbers/formats.ts";
 import { Case, Gender } from "../grammar.ts";
 import { PatternLanguage } from "../language.ts";
 import {
@@ -52,6 +71,9 @@ import {
   YEAR_PREPOSITIONS,
   YEAR_SUFFIXES,
   type Noun,
+  CENTURY_ABBREVIATIONS,
+  REGNAL_NAMES,
+  ROMAN_NOUNS,
 } from "./constants.ts";
 
 // Whether a number reads as a count or as an ordinal (years, days of a month, headings)
@@ -619,6 +641,71 @@ function cuesOf(match: Match): Cues {
   return cues;
 }
 
+// 5.VI, 5.VI.2024: a date with its month in Roman numerals
+class RomanDatePattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const dayEnd = digitsEnd(text, position);
+    if (
+      !isClearBefore(text, position, ".,") ||
+      dayEnd === position ||
+      dayEnd > position + 2 ||
+      dayEnd >= text.length ||
+      text[dayEnd] !== "."
+    ) {
+      return undefined;
+    }
+    const month = dayEnd + 1;
+    let monthEnd = month;
+    while (monthEnd < text.length && contains("IVX", text[monthEnd])) {
+      monthEnd++;
+    }
+    const monthValue = romanValue(str(text, month, monthEnd));
+    const day = value(digitsAt(text, position));
+    if (monthValue === undefined || monthValue > 12n || day < 1n || day > 31n) {
+      return undefined;
+    }
+
+    const date = matchOf({
+      kind: Kind.DATE,
+      numbers: [
+        digitsAt(text, position),
+        numeral({ span: { begin: month, end: monthEnd }, integer: toDigits(monthValue) }),
+      ],
+      separator: ".",
+    });
+    // With a year first (5.VI.2024), then without it (5.VI)
+    if (
+      monthEnd + 5 <= text.length &&
+      text[monthEnd] === "." &&
+      digitsEnd(text, monthEnd + 1) === monthEnd + 5 &&
+      isClearAfter(text, monthEnd + 5)
+    ) {
+      date.numbers.push(digitsAt(text, monthEnd + 1));
+      date.span = { begin: position, end: monthEnd + 5 };
+      return date;
+    }
+    if (!isClearAfter(text, monthEnd) || isDigitAfter(text, monthEnd, ".")) {
+      return undefined;
+    }
+    date.span = { begin: position, end: monthEnd };
+    return date;
+  }
+}
+
+// Every form of the regnal names, with its case and gender
+const NAME_FORMS: ReadonlyArray<readonly [string, Case, Gender]> = REGNAL_NAMES.flatMap(([line, gender]) =>
+  line.split(" ").map((form, c) => [form, c as Case, gender] as const),
+);
+const NAME_CUES: RomanCues = {
+  names: new Set(NAME_FORMS.map(([form]) => form)),
+  before: new Set(),
+  after: new Set(),
+};
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -632,11 +719,13 @@ class Polish extends PatternLanguage {
   constructor() {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
+    this.addPattern(new RomanDatePattern());
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
     this.addPattern(new DotOrdinalPattern(true, true));
     this.addPattern(new SuffixPattern(Kind.NUMBER, YEAR_SUFFIXES, YEAR_FORMAT));
+    this.addPattern(new RomanPattern(false, CENTURY_ABBREVIATIONS));
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
@@ -664,8 +753,11 @@ class Polish extends PatternLanguage {
     const words = [
       ordinal(value(match.numbers[0]), cuesOf(match).grammaticalCase),
       MONTHS_GENITIVE[Number(value(match.numbers[1])) - 1],
-      ordinal(value(match.numbers[2]), Case.GENITIVE),
     ];
+    if (match.numbers.length === 3) {
+      // 5.VI has no year
+      words.push(ordinal(value(match.numbers[2]), Case.GENITIVE));
+    }
     if (match.suffix !== "") {
       words.push("roku");
     }
@@ -699,6 +791,66 @@ class Polish extends PatternLanguage {
       return hours;
     }
     return `${hours} ${minutes[0] === "0" ? digits(minutes) : cardinal(value(match.numbers[1]))}`;
+  }
+
+  protected override readRoman(match: Match): string | undefined {
+    const n = value(match.numbers[0]);
+    const previous = match.context.before();
+
+    // XIX w.: dziewiętnastego wieku, w dziewiętnastym wieku
+    if (match.suffix === "w.") {
+      return `${ordinal(n, LOCATIVE_PREPOSITIONS.has(previous) ? Case.LOCATIVE : Case.GENITIVE)} wieku`;
+    }
+
+    // Jan Paweł drugi, Jana Pawła drugiego, Elżbiety drugiej: the case of the name
+    if (romanRole(match, NAME_CUES) !== undefined) {
+      for (const [form, c, gender] of NAME_FORMS) {
+        if (form === previous) {
+          return ordinal(n, c, gender);
+        }
+      }
+    }
+
+    // XXI wieku, II wojna, w II połowie; rozdział czwarty, w rozdziale czwartym: agreeing with its noun, after it first
+    const genderOf = (word: string): Gender | undefined => {
+      for (const [form, gender] of ROMAN_NOUNS) {
+        const prefix = form.endsWith("-");
+        if (prefix ? word.startsWith(form.slice(0, -1)) : word === form) {
+          return gender;
+        }
+      }
+      return undefined;
+    };
+    // A locative in -e after its preposition (w rozdziale, na piętrze), and the -ej of an adjective noun (Rzeczypospolitej)
+    const formOf = (noun: string, preposition: string): NounForm => {
+      const form = nounForm(noun, preposition);
+      const locative = LOCATIVE_PREPOSITIONS.has(preposition);
+      if (noun.endsWith("ej")) {
+        // II Rzeczypospolitej
+        return { ...form, grammaticalCase: locative ? Case.LOCATIVE : Case.GENITIVE };
+      }
+      if (form.grammaticalCase === Case.NOMINATIVE && noun.endsWith("e") && locative) {
+        return { ...form, grammaticalCase: Case.LOCATIVE };
+      }
+      return form;
+    };
+    const next = toLower(match.context.after());
+    const after = genderOf(next);
+    if (after !== undefined) {
+      const noun = formOf(next, previous);
+      return ordinal(n, noun.grammaticalCase, after, noun.plural);
+    }
+    const head = match.context.head();
+    let last = head.length;
+    while (last > 0 && isSpace(head[last - 1])) {
+      last--;
+    }
+    const before = genderOf(previous);
+    if (before !== undefined && last > 0 && isAlpha(head[last - 1])) {
+      const noun = formOf(previous, match.context.before(2));
+      return ordinal(n, noun.grammaticalCase, before, noun.plural);
+    }
+    return undefined;
   }
 
   protected override readOrdinal(match: Match): string | undefined {

@@ -1,4 +1,4 @@
-import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions } from "../../numbers/formats.ts";
+import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import { afterName, beforeNumber, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
@@ -102,6 +102,36 @@ export const STOP_WORDS: ReadonlySet<string> = new Set([
   "mediante", "cada", "toda", "todas", "todo", "todos", "esta", "estas", "este", "estos", "esa",
   "esas", "ese", "esos", "otra", "otras", "otro", "otros", "nada", "ya", "ahora", "cuando", "donde",
   "mientras", "muy", "casi", "también", "así", "se", "le", "les", "me", "te", "nos",
+]);
+
+// Felipe VI (sexto), Alfonso XIII (trece), siglo XXI (veintiuno), capítulo IV (cuatro), la II Guerra (Segunda)
+export const ROMAN_CUES: RomanCues = {
+  names: new Set([
+    "felipe", "juan", "carlos", "alfonso", "fernando", "isabel", "enrique", "pedro", "jaime", "sancho", "luis",
+    "benedicto", "pío", "pablo", "león", "gregorio", "clemente", "inocencio", "eduardo", "jorge", "guillermo",
+    "napoleón", "ramsés", "juana", "maría", "catalina", "leonor", "victoria",
+  ]),
+  before: new Set([
+    "capítulo", "tomo", "libro", "acto", "título", "parte", "volumen", "temporada", "fase", "siglo", "siglos",
+    "vaticano", "escena", "episodio", "nivel", "número", "distrito", "región", "tipo", "clase",
+  ]),
+  after: new Set([
+    "guerra", "congreso", "encuentro", "festival", "edición", "jornada", "jornadas", "bienal", "feria", "cumbre",
+    "conferencia", "asamblea", "concurso", "foro", "simposio", "seminario", "campeonato", "olimpiada", "república",
+    "legislatura", "aniversario", "centenario", "reunión", "convención", "gira", "coloquio", "censo", "plan",
+    "informe", "premio", "torneo", "salón", "semana", "carrera", "marcha",
+  ]),
+};
+
+// Names with a regnal number, and nouns after a numeral, which are feminine: Isabel II (segunda), la II Guerra
+export const FEMININE_NAMES: ReadonlySet<string> = new Set([
+  "isabel", "juana", "maría", "catalina", "leonor", "victoria",
+]);
+
+
+export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
+  "guerra", "edición", "jornada", "jornadas", "bienal", "feria", "cumbre", "conferencia", "asamblea", "olimpiada",
+  "república", "legislatura", "reunión", "convención", "gira", "semana", "carrera", "marcha",
 ]);
 
 // --- Notation: how numbers are written ---

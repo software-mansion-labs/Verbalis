@@ -556,6 +556,47 @@ Cues cues_of(const Match& match) {
   return cues;
 }
 
+// 5.VI, 5.VI.2024: a date with its month in Roman numerals
+class RomanDatePattern : public Pattern {
+public:
+  RomanDatePattern() : Pattern(Kind::DATE) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    size_t day_end = digits_end(text, position);
+    if (!is_clear_before(text, position, U".,") || day_end == position || day_end > position + 2 ||
+        day_end >= text.size() || text[day_end] != U'.') {
+      return std::nullopt;
+    }
+    size_t month = day_end + 1;
+    size_t month_end = month;
+    while (month_end < text.size() && strings::contains(std::u32string_view(U"IVX"), text[month_end])) {
+      month_end++;
+    }
+    auto month_value = roman_value(text.substr(month, month_end - month));
+    uint64_t day = value(digits_at(text, position));
+    if (!month_value || *month_value > 12 || day < 1 || day > 31) {
+      return std::nullopt;
+    }
+
+    Match date{.kind = Kind::DATE,
+               .numbers = {digits_at(text, position),
+                           {.span = {month, month_end}, .integer = to_digits(*month_value)}},
+               .separator = U'.'};
+    // With a year first (5.VI.2024), then without it (5.VI)
+    if (month_end + 5 <= text.size() && text[month_end] == U'.' && digits_end(text, month_end + 1) == month_end + 5 &&
+        is_clear_after(text, month_end + 5)) {
+      date.numbers.push_back(digits_at(text, month_end + 1));
+      date.span = {position, month_end + 5};
+      return date;
+    }
+    if (!is_clear_after(text, month_end) || is_digit_after(text, month_end, U".")) {
+      return std::nullopt;
+    }
+    date.span = {position, month_end};
+    return date;
+  }
+};
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -569,11 +610,13 @@ class Polish final : public PatternLanguage {
 public:
   Polish() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
+    add_pattern(std::make_unique<RomanDatePattern>());
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
     add_pattern(std::make_unique<DotOrdinalPattern>(true, true));
     add_pattern(std::make_unique<SuffixPattern>(Kind::NUMBER, kYearSuffixes, kYearFormat));
+    add_pattern(std::make_unique<RomanPattern>(false, kCenturyAbbreviations));
   }
 
 protected:
@@ -600,8 +643,10 @@ protected:
 
   std::optional<std::u32string> read_date(const Match& match) const override {
     std::vector<std::u32string> words = {ordinal(value(match.numbers[0]), cues_of(match).grammatical_case),
-                                         std::u32string(kMonthsGenitive[value(match.numbers[1]) - 1]),
-                                         ordinal(value(match.numbers[2]), Case::GENITIVE)};
+                                         std::u32string(kMonthsGenitive[value(match.numbers[1]) - 1])};
+    if (match.numbers.size() == 3) { // 5.VI has no year
+      words.push_back(ordinal(value(match.numbers[2]), Case::GENITIVE));
+    }
     if (!match.suffix.empty()) {
       words.push_back(U"roku");
     }
@@ -635,6 +680,79 @@ protected:
       return hours;
     }
     return hours + U" " + (minutes[0] == U'0' ? digits(minutes) : cardinal(value(match.numbers[1])));
+  }
+
+  std::optional<std::u32string> read_roman(const Match& match) const override {
+    uint64_t n = value(match.numbers[0]);
+    std::u32string previous = match.context.before();
+
+    // XIX w.: dziewiętnastego wieku, w dziewiętnastym wieku
+    if (match.suffix == U"w.") {
+      return ordinal(n, kLocativePrepositions.contains(previous) ? Case::LOCATIVE : Case::GENITIVE) + U" wieku";
+    }
+
+    // Jan Paweł drugi, Jana Pawła drugiego, Elżbiety drugiej: the case of the name
+    static const auto names = [] {
+      std::vector<std::tuple<std::u32string, Case, Gender>> forms;
+      for (const auto& [line, gender] : kRegnalNames) {
+        auto words = strings::split(line, U' ');
+        for (size_t c = 0; c < words.size(); ++c) {
+          forms.emplace_back(std::u32string(words[c]), static_cast<Case>(c), gender);
+        }
+      }
+      return forms;
+    }();
+    static const RomanCues name_cues = [] {
+      RomanCues cues;
+      for (const auto& [form, c, gender] : names) {
+        cues.names.insert(form);
+      }
+      return cues;
+    }();
+    if (roman_role(match, name_cues)) {
+      for (const auto& [form, c, gender] : names) {
+        if (form == previous) {
+          return ordinal(n, c, gender);
+        }
+      }
+    }
+
+    // XXI wieku, II wojna, w II połowie; rozdział czwarty, w rozdziale czwartym: agreeing with its noun, after it first
+    auto gender_of = [](std::u32string_view word) -> std::optional<Gender> {
+      for (const auto& [form, gender] : kRomanNouns) {
+        bool prefix = form.ends_with(U'-');
+        if (prefix ? word.starts_with(form.substr(0, form.size() - 1)) : word == form) {
+          return gender;
+        }
+      }
+      return std::nullopt;
+    };
+    // A locative in -e after its preposition (w rozdziale, na piętrze), and the -ej of an adjective noun (Rzeczypospolitej)
+    auto form_of = [](std::u32string_view noun, const std::u32string& preposition) {
+      NounForm form = noun_form(noun, preposition);
+      bool locative = kLocativePrepositions.contains(preposition);
+      if (noun.ends_with(U"ej")) { // II Rzeczypospolitej
+        form.grammatical_case = locative ? Case::LOCATIVE : Case::GENITIVE;
+      } else if (form.grammatical_case == Case::NOMINATIVE && noun.ends_with(U'e') && locative) {
+        form.grammatical_case = Case::LOCATIVE;
+      }
+      return form;
+    };
+    std::u32string next = strings::to_lower(match.context.after());
+    if (auto gender = gender_of(next)) {
+      NounForm noun = form_of(next, previous);
+      return ordinal(n, noun.grammatical_case, *gender, noun.plural);
+    }
+    std::u32string_view head = match.context.head();
+    size_t last = head.size();
+    while (last > 0 && unicode::isspace(head[last - 1])) {
+      last--;
+    }
+    if (auto gender = gender_of(previous); gender && last > 0 && unicode::isalpha(head[last - 1])) {
+      NounForm noun = form_of(previous, match.context.before(2));
+      return ordinal(n, noun.grammatical_case, *gender, noun.plural);
+    }
+    return std::nullopt;
   }
 
   std::optional<std::u32string> read_ordinal(const Match& match) const override {

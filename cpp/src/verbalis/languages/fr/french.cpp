@@ -5,7 +5,6 @@
 #include <verbalis/text/scan.h>
 #include <verbalis/text/strings.h>
 #include <verbalis/text/unicode.h>
-#include <verbalis/text/utf8.h>
 
 #include <algorithm>
 #include <array>
@@ -183,42 +182,6 @@ std::u32string scaled(const Number& number, std::u32string_view scale, const Cue
 // ----- Patterns -----
 // --------------------
 
-int roman_digit(char32_t c) {
-  switch (c) {
-    case U'I':
-      return 1;
-    case U'V':
-      return 5;
-    case U'X':
-      return 10;
-    case U'L':
-      return 50;
-    case U'C':
-      return 100;
-    default:
-      return 0;
-  }
-}
-
-// The value of a Roman numeral written in its canonical form (XIX, not XVIIII).
-std::optional<int> roman_value(std::u32string_view numeral) {
-  int value = 0;
-  for (size_t i = 0; i < numeral.size(); ++i) {
-    int digit = roman_digit(numeral[i]);
-    value += i + 1 < numeral.size() && digit < roman_digit(numeral[i + 1]) ? -digit : digit;
-  }
-
-  static constexpr std::array<std::pair<int, std::u32string_view>, 9> kNumerals = {
-      {{100, U"C"}, {90, U"XC"}, {50, U"L"}, {40, U"XL"}, {10, U"X"}, {9, U"IX"}, {5, U"V"}, {4, U"IV"}, {1, U"I"}}};
-  std::u32string canonical;
-  for (int rest = value; const auto& [numeral_value, symbol] : kNumerals) {
-    for (; rest >= numeral_value; rest -= numeral_value) {
-      canonical += symbol;
-    }
-  }
-  return canonical == numeral ? std::optional(value) : std::nullopt;
-}
-
 // XIXe, Ier, IIIe: an ordinal written in Roman numerals.
 class RomanOrdinalPattern : public Pattern {
 public:
@@ -229,13 +192,13 @@ public:
       return std::nullopt;
     }
 
-    // Two Roman digits or more, or a single I (Ier)
+    // Two Roman digits or more, or a single I, V or X (Ier, Ve, Xe): not Ce, De, Le, Me
     size_t end = position;
-    while (end < text.size() && roman_digit(text[end])) {
+    while (end < text.size() && strings::contains(std::u32string_view(U"IVXLCDM"), text[end])) {
       end++;
     }
     std::u32string_view numeral = text.substr(position, end - position);
-    if (numeral.size() < 2 && numeral != U"I") {
+    if (numeral.size() < 2 && numeral != U"I" && numeral != U"V" && numeral != U"X") {
       return std::nullopt;
     }
     auto value = roman_value(numeral);
@@ -243,12 +206,11 @@ public:
       return std::nullopt;
     }
 
-    for (auto suffix : keys_at(text, end, {U"er", U"re", U"ère", U"e", U"ème"})) {
+    for (auto suffix : keys_at(text, end, kRomanOrdinalSuffixes)) {
       if (is_clear_after(text, end + suffix.size())) {
-        std::u32string digits = utf8_to_u32(std::to_string(*value));
         return Match{.kind = Kind::ORDINAL,
                      .span = {position, end + suffix.size()},
-                     .numbers = {{.span = {position, end}, .integer = digits}},
+                     .numbers = {{.span = {position, end}, .integer = to_digits(*value)}},
                      .suffix = suffix};
       }
     }
@@ -267,6 +229,7 @@ public:
     add_pattern(std::make_unique<PhonePattern>(kPhoneFormat));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<RomanOrdinalPattern>());
+    add_pattern(std::make_unique<RomanPattern>());
   }
 
 protected:
@@ -322,6 +285,22 @@ protected:
       words += U" " + cardinal(value(match.numbers[1]), true);
     }
     return words;
+  }
+
+  std::optional<std::u32string> read_roman(const Match& match) const override {
+    uint64_t n = value(match.numbers[0]);
+    auto role = roman_role(match, kRomanCues);
+    if (!role) {
+      return std::nullopt;
+    }
+    switch (*role) {
+      case RomanRole::NAME: // Louis quatorze, but François premier, Élisabeth première
+        return n == 1 ? (kFeminineNames.contains(match.context.before()) ? U"première" : U"premier") : cardinal(n);
+      case RomanRole::AFTER: // le XXI siècle: vingt et unième; la V République: cinquième
+        return ordinal(n, kFeminineRomanNouns.contains(strings::to_lower(match.context.after())));
+      default:
+        return cardinal(n); // chapitre trois
+    }
   }
 
   std::optional<std::u32string> read_ordinal(const Match& match) const override {

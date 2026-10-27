@@ -13,7 +13,7 @@ import { isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
 import type { DateFormat, Notation, PhoneFormat, SuffixFormat } from "./formats.ts";
 import { suffixFormat } from "./formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "./match.ts";
-import { digitsAt, numbersAt } from "./scanning.ts";
+import { digitsAt, numbersAt, romanValue, toDigits } from "./scanning.ts";
 
 /**
  * A pattern of a numeric expression. It finds the structure of a match only; how to read it is a language's decision.
@@ -1049,6 +1049,66 @@ export class SuffixPattern extends Pattern {
       });
     }
     return undefined;
+  }
+}
+
+// A Roman numeral as a word of its own: VIII, XXI, IV.; one letter only if it is I, V or X. Its number holds its value.
+// Whether it is a number, and how it reads, is left to the reading (see romanRole): CD and MX are mostly not.
+export class RomanPattern extends Pattern {
+  readonly #dot: boolean;
+  readonly #suffixes: Keys;
+
+  /**
+   * @param dot also takes a dot closing it, as German ordinals do (Ludwig XIV. regierte), unless the text ends there.
+   * @param suffixes words which may follow it, after an optional space, as part of it: XIX w.
+   */
+  constructor(dot = false, suffixes: Keys = []) {
+    super(Kind.ROMAN);
+    this.#dot = dot;
+    this.#suffixes = suffixes;
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, "'.-/")) {
+      return undefined;
+    }
+    let end = position;
+    while (end < text.length && contains("IVXLCDM", text[end])) {
+      end++;
+    }
+    // Not a part of a longer word or code (XX-lecie, CD-ROM, MXene), unless a suffix follows: Iº is a letter
+    const marked = keysAt(text, end, this.#suffixes).length > 0;
+    if (end === position || (!isClearAfter(text, end, "'-/") && !marked)) {
+      return undefined;
+    }
+    const written = str(text, position, end);
+    const value = romanValue(written);
+    if (value === undefined || (written.length === 1 && written !== "I" && written !== "V" && written !== "X")) {
+      return undefined;
+    }
+
+    const roman = match({
+      kind: Kind.ROMAN,
+      span: { begin: position, end },
+      numbers: [numeral({ span: { begin: position, end }, integer: toDigits(value) })],
+    });
+    if (this.#dot && end < text.length && text[end] === "." && !isSentenceEnd(text, end + 1)) {
+      roman.span.end = end + 1;
+      roman.suffix = ".";
+      return roman;
+    }
+
+    // XIX w.: a dot closing both the suffix and the sentence stays with the sentence
+    const suffix = skipSpace(text, end);
+    for (const key of keysAt(text, suffix, this.#suffixes)) {
+      const suffixEnd = suffix + size(key);
+      if (isClearAfter(text, suffixEnd)) {
+        roman.span.end = key.endsWith(".") && isSentenceEnd(text, suffixEnd, true) ? suffixEnd - 1 : suffixEnd;
+        roman.suffix = key;
+        return roman;
+      }
+    }
+    return roman;
   }
 }
 

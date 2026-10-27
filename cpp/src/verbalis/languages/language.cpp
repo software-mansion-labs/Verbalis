@@ -92,6 +92,8 @@ std::optional<std::u32string> PatternLanguage::read_match(const Match& match) co
       return read_ordinal(match);
     case Kind::DECADE:
       return read_decade(match);
+    case Kind::ROMAN:
+      return read_roman(match);
     case Kind::COMPOUND:
       return read_compound(match);
     case Kind::CODE:
@@ -132,6 +134,10 @@ std::optional<std::u32string> PatternLanguage::read_ordinal(const Match& match) 
 
 std::optional<std::u32string> PatternLanguage::read_decade(const Match& match) const {
   return read_number(match.numbers[0], match);
+}
+
+std::optional<std::u32string> PatternLanguage::read_roman(const Match& /*match*/) const {
+  return std::nullopt;
 }
 
 std::optional<std::u32string> PatternLanguage::read_compound(const Match& match) const {

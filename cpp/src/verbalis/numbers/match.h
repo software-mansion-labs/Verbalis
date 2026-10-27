@@ -40,6 +40,7 @@ enum class Kind {
   // Numbers marked by a suffix or joined to letters
   ORDINAL,  // 21st, 3., 1er, 1º
   DECADE,   // 1990s, 90er, '80
+  ROMAN,    // Henry VIII, XXI wieku, Kapitel III: read only where the words around it mark it as a number
   COMPOUND, // 21-year-old, 45-metrowe
   CODE,     // MP3, A380, COVID-19
 

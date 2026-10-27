@@ -240,6 +240,7 @@ public:
       add_pattern(std::make_unique<PhonePattern>(format));
     }
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSigns, kOrdinalSignFormat));
+    add_pattern(std::make_unique<RomanPattern>(false, kRomanMarkers));
   }
 
 protected:
@@ -294,6 +295,25 @@ protected:
     uint64_t minutes = match.numbers.size() > 1 ? value(match.numbers[1]) : 0;
     std::u32string hour = cardinal(hours, Gender::FEMININE);
     return minutes ? hour + U" e " + cardinal(minutes) : hour + (hours == 1 ? U" hora" : U" horas");
+  }
+
+  std::optional<std::u32string> read_roman(const Match& match) const override {
+    uint64_t n = value(match.numbers[0]);
+    auto role = roman_role(match, kRomanCues);
+    if (!role) {
+      return std::nullopt;
+    }
+    std::u32string previous = match.context.before();
+    switch (*role) {
+      case RomanRole::NAME: { // Dom Pedro segundo, Dona Maria segunda, but Bento dezesseis
+        bool feminine = kFeminineNames.contains(previous);
+        return n <= 10 ? ordinal(n, feminine) : cardinal(n, feminine ? Gender::FEMININE : Gender::MASCULINE);
+      }
+      case RomanRole::AFTER: // a Segunda Guerra, o terceiro congresso
+        return ordinal(n, kFeminineRomanNouns.contains(strings::to_lower(match.context.after())));
+      default: // século quinto, Vaticano segundo, but século vinte e um; capítulo quatro
+        return (previous.starts_with(U"século") || previous == U"vaticano") && n <= 10 ? ordinal(n, false) : cardinal(n);
+    }
   }
 
   std::optional<std::u32string> read_ordinal(const Match& match) const override {

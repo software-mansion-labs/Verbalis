@@ -1,4 +1,4 @@
-import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions } from "../../numbers/formats.ts";
+import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import type { Keys } from "../../text/scan.ts";
 import { beforeNumber, type Readings } from "../../text/readings.ts";
@@ -59,6 +59,40 @@ export const FRACTIONS: Fractions = {
 
 // Words before a time with a dot, which make it a time: alle 21.30
 export const TIME_WORDS: ReadonlySet<string> = new Set(["alle", "ore", "dalle", "le", "verso", "entro", "per"]);
+
+// Umberto I°: an ordinal marker on a Roman numeral
+export const ROMAN_MARKERS: Keys = ["°", "º", "ª"];
+
+// Giovanni XXIII (ventitreesimo), nel XX secolo (ventesimo), capitolo IV (quarto), la II guerra (seconda)
+export const ROMAN_CUES: RomanCues = {
+  names: new Set([
+    "giovanni", "paolo", "benedetto", "pio", "leone", "gregorio", "clemente", "innocenzo", "bonifacio", "emanuele",
+    "umberto", "carlo", "luigi", "enrico", "filippo", "federico", "francesco", "ferdinando", "napoleone",
+    "elisabetta", "giorgio", "guglielmo", "alessandro", "edoardo", "riccardo", "giacomo", "pietro", "amedeo",
+    "ramses", "maria", "vittoria", "caterina", "giovanna",
+  ]),
+  before: new Set([
+    "capitolo", "libro", "tomo", "atto", "scena", "parte", "titolo", "articolo", "secolo", "volume", "stagione",
+    "fase", "legislatura", "canto",
+  ]),
+  after: new Set([
+    "secolo", "secoli", "millennio", "guerra", "congresso", "edizione", "festival", "legislatura", "giornata",
+    "convegno", "conferenza", "assemblea", "concorso", "forum", "simposio", "seminario", "campionato", "olimpiade",
+    "repubblica", "anniversario", "centenario", "premio", "torneo", "salone", "settimana", "municipio",
+    "circoscrizione", "rapporto", "piano", "stagione",
+  ]),
+};
+
+// Names with a regnal number, and nouns around a numeral, which are feminine: Elisabetta II (seconda), parte II
+export const FEMININE_NAMES: ReadonlySet<string> = new Set([
+  "elisabetta", "maria", "vittoria", "caterina", "giovanna",
+]);
+
+
+export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
+  "scena", "parte", "stagione", "fase", "legislatura", "classe", "guerra", "edizione", "giornata", "conferenza",
+  "assemblea", "olimpiade", "repubblica", "settimana", "circoscrizione",
+]);
 
 // --- Notation: how numbers are written ---
 export const NOTATION = notation({

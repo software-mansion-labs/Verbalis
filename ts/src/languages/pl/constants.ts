@@ -2,7 +2,7 @@ import { dateFormat, keysOf, notation, phoneFormat, suffixFormat } from "../../n
 import type { Terms } from "../../steps/terms.ts";
 import { beforeNumber, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
-import { Case, type Joiners } from "../grammar.ts";
+import { Case, Gender, type Joiners } from "../grammar.ts";
 
 // A noun's forms after a number: singular, then plural, each in the order of Case.
 export interface Noun {
@@ -267,6 +267,67 @@ export const DECADE_WORDS: ReadonlyMap<string, Case> = new Map<string, Case>([
 ]);
 
 export const CONJUNCTIONS: ReadonlySet<string> = new Set(["a", "i", "lub", "albo", "czy", "oraz"]);
+
+// XIX w.: the abbreviation of wiek after a Roman numeral
+export const CENTURY_ABBREVIATIONS: Keys = ["w."];
+
+// Names which take a regnal number, by case (nominative, genitive, dative, accusative, instrumental, locative)
+// and gender: Jan Paweł II (drugi), Jana Pawła II (drugiego), Elżbiety II (drugiej)
+export const REGNAL_NAMES: ReadonlyArray<readonly [string, Gender]> = [
+  ["jan jana janowi jana janem janie", Gender.MASCULINE],
+  ["paweł pawła pawłowi pawła pawłem pawle", Gender.MASCULINE],
+  ["benedykt benedykta benedyktowi benedykta benedyktem benedykcie", Gender.MASCULINE],
+  ["leon leona leonowi leona leonem leonie", Gender.MASCULINE],
+  ["pius piusa piusowi piusa piusem piusie", Gender.MASCULINE],
+  ["grzegorz grzegorza grzegorzowi grzegorza grzegorzem grzegorzu", Gender.MASCULINE],
+  ["karol karola karolowi karola karolem karolu", Gender.MASCULINE],
+  ["henryk henryka henrykowi henryka henrykiem henryku", Gender.MASCULINE],
+  ["ludwik ludwika ludwikowi ludwika ludwikiem ludwiku", Gender.MASCULINE],
+  ["kazimierz kazimierza kazimierzowi kazimierza kazimierzem kazimierzu", Gender.MASCULINE],
+  ["zygmunt zygmunta zygmuntowi zygmunta zygmuntem zygmuncie", Gender.MASCULINE],
+  ["władysław władysława władysławowi władysława władysławem władysławie", Gender.MASCULINE],
+  ["bolesław bolesława bolesławowi bolesława bolesławem bolesławie", Gender.MASCULINE],
+  ["mieszko mieszka mieszkowi mieszka mieszkiem mieszku", Gender.MASCULINE],
+  ["jerzy jerzego jerzemu jerzego jerzym jerzym", Gender.MASCULINE],
+  ["edward edwarda edwardowi edwarda edwardem edwardzie", Gender.MASCULINE],
+  ["ryszard ryszarda ryszardowi ryszarda ryszardem ryszardzie", Gender.MASCULINE],
+  ["wilhelm wilhelma wilhelmowi wilhelma wilhelmem wilhelmie", Gender.MASCULINE],
+  ["fryderyk fryderyka fryderykowi fryderyka fryderykiem fryderyku", Gender.MASCULINE],
+  ["aleksander aleksandra aleksandrowi aleksandra aleksandrem aleksandrze", Gender.MASCULINE],
+  ["mikołaj mikołaja mikołajowi mikołaja mikołajem mikołaju", Gender.MASCULINE],
+  ["piotr piotra piotrowi piotra piotrem piotrze", Gender.MASCULINE],
+  ["napoleon napoleona napoleonowi napoleona napoleonem napoleonie", Gender.MASCULINE],
+  ["filip filipa filipowi filipa filipem filipie", Gender.MASCULINE],
+  ["ferdynand ferdynanda ferdynandowi ferdynanda ferdynandem ferdynandzie", Gender.MASCULINE],
+  ["józef józefa józefowi józefa józefem józefie", Gender.MASCULINE],
+  ["franciszek franciszka franciszkowi franciszka franciszkiem franciszku", Gender.MASCULINE],
+  ["leopold leopolda leopoldowi leopolda leopoldem leopoldzie", Gender.MASCULINE],
+  ["klemens klemensa klemensowi klemensa klemensem klemensie", Gender.MASCULINE],
+  ["iwan iwana iwanowi iwana iwanem iwanie", Gender.MASCULINE],
+  ["elżbieta elżbiety elżbiecie elżbietę elżbietą elżbiecie", Gender.FEMININE],
+  ["katarzyna katarzyny katarzynie katarzynę katarzyną katarzynie", Gender.FEMININE],
+];
+
+// Nouns numbered by a Roman numeral before or after them, with their gender: rozdział IV (czwarty), XXI wieku
+// (dwudziestego pierwszego), II wojna (druga). A form ending with "-" stands for every word it starts.
+export const ROMAN_NOUNS: ReadonlyArray<readonly [string, Gender]> = [
+  ["wiek-", Gender.MASCULINE], ["stuleci-", Gender.NEUTER], ["tysiącleci-", Gender.NEUTER],
+  ["wojn-", Gender.FEMININE], ["rzeczpospolit-", Gender.FEMININE], ["rzeczypospolit-", Gender.FEMININE],
+  ["kadencj-", Gender.FEMININE], ["edycj-", Gender.FEMININE], ["połow-", Gender.FEMININE],
+  ["kwartał-", Gender.MASCULINE], ["zjazd-", Gender.MASCULINE], ["kongres-", Gender.MASCULINE],
+  ["sesj-", Gender.FEMININE], ["festiwal-", Gender.MASCULINE], ["konkurs-", Gender.MASCULINE],
+  ["piętr-", Gender.NEUTER], ["kategori-", Gender.FEMININE], ["rozdzia-", Gender.MASCULINE],
+  ["liga", Gender.FEMININE], ["ligi", Gender.FEMININE], ["lidze", Gender.FEMININE], ["ligę", Gender.FEMININE],
+  ["klasa", Gender.FEMININE], ["klasy", Gender.FEMININE], ["klasie", Gender.FEMININE], ["klasę", Gender.FEMININE],
+  ["rok", Gender.MASCULINE], ["roku", Gender.MASCULINE], ["stopnia", Gender.MASCULINE],
+  ["stopień", Gender.MASCULINE], ["stopniu", Gender.MASCULINE], ["tura", Gender.FEMININE], ["tury", Gender.FEMININE],
+  ["turze", Gender.FEMININE], ["turę", Gender.FEMININE], ["etap", Gender.MASCULINE], ["etapu", Gender.MASCULINE],
+  ["etapie", Gender.MASCULINE], ["faza", Gender.FEMININE], ["fazy", Gender.FEMININE], ["fazie", Gender.FEMININE],
+  ["fazę", Gender.FEMININE], ["grupa", Gender.FEMININE], ["grupy", Gender.FEMININE], ["grupie", Gender.FEMININE],
+  ["miejsce", Gender.NEUTER], ["miejsca", Gender.NEUTER], ["miejscu", Gender.NEUTER], ["część", Gender.FEMININE],
+  ["części", Gender.FEMININE], ["tom", Gender.MASCULINE], ["tomu", Gender.MASCULINE], ["tomie", Gender.MASCULINE],
+  ["sezon", Gender.MASCULINE], ["sezonu", Gender.MASCULINE], ["sezonie", Gender.MASCULINE],
+];
 
 // --- Notation: how numbers are written ---
 export const NOTATION = notation({

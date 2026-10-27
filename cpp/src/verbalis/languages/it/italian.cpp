@@ -147,6 +147,7 @@ public:
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSigns, kOrdinalSignFormat));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<DecadePattern>());
+    add_pattern(std::make_unique<RomanPattern>(false, kRomanMarkers));
   }
 
 protected:
@@ -208,6 +209,19 @@ protected:
     // alle 21.30: ventuno e trenta
     std::u32string hour = hours == 1 ? U"una" : cardinal(hours);
     return minutes ? hour + U" e " + cardinal(minutes) : hour;
+  }
+
+  std::optional<std::u32string> read_roman(const Match& match) const override {
+    // Giovanni ventitreesimo, Elisabetta seconda, capitolo quarto, parte seconda, la seconda guerra
+    auto role = roman_role(match, kRomanCues);
+    if (!role) {
+      return std::nullopt;
+    }
+    std::u32string previous = match.context.before();
+    bool feminine = *role == RomanRole::NAME   ? kFeminineNames.contains(previous) :
+                    *role == RomanRole::BEFORE ? kFeminineRomanNouns.contains(previous) :
+                                                 kFeminineRomanNouns.contains(strings::to_lower(match.context.after()));
+    return ordinal(value(match.numbers[0]), feminine ? U'a' : U'o');
   }
 
   std::optional<std::u32string> read_ordinal(const Match& match) const override {

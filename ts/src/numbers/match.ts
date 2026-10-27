@@ -26,10 +26,11 @@ export const Kind = {
   // Numbers marked by a suffix or joined to letters
   ORDINAL: 16, // 21st, 3., 1er, 1º
   DECADE: 17, // 1990s, 90er, '80
-  COMPOUND: 18, // 21-year-old, 45-metrowe
-  CODE: 19, // MP3, A380, COVID-19
+  ROMAN: 18, // Henry VIII, XXI wieku, Kapitel III: read only where the words around it mark it as a number
+  COMPOUND: 19, // 21-year-old, 45-metrowe
+  CODE: 20, // MP3, A380, COVID-19
   // Any other number
-  NUMBER: 20, // 42, 1 000,5, .5, 2020 r.
+  NUMBER: 21, // 42, 1 000,5, .5, 2020 r.
 } as const;
 export type Kind = (typeof Kind)[keyof typeof Kind];
 

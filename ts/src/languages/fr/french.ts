@@ -1,4 +1,4 @@
-import { DatePattern, Pattern, PhonePattern, SuffixPattern } from "../../numbers/patterns.ts";
+import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -8,6 +8,10 @@ import {
   parseValue,
   spacedSuffix,
   value,
+  romanRole,
+  RomanRole,
+  romanValue,
+  toDigits,
 } from "../../numbers/scanning.ts";
 import type { Context } from "../../text/context.ts";
 import { isClearAfter, isClearBefore, join, keysAt } from "../../text/scan.ts";
@@ -37,6 +41,10 @@ import {
   TIME_WORDS,
   UNITS,
   WEEKDAYS,
+  ROMAN_CUES,
+  ROMAN_ORDINAL_SUFFIXES,
+  FEMININE_NAMES,
+  FEMININE_ROMAN_NOUNS,
 } from "./constants.ts";
 
 // What the words around a match say about reading its numbers
@@ -206,46 +214,6 @@ function scaled(number: Numeral, scale: string, cues: Cues): string {
 // ----- Patterns -----
 // --------------------
 
-function romanDigit(c: string | undefined): number {
-  switch (c) {
-    case "I":
-      return 1;
-    case "V":
-      return 5;
-    case "X":
-      return 10;
-    case "L":
-      return 50;
-    case "C":
-      return 100;
-    default:
-      return 0;
-  }
-}
-
-// prettier-ignore
-const ROMAN_NUMERALS = [
-  [100, "C"], [90, "XC"], [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
-] as const;
-
-// The value of a Roman numeral written in its canonical form (XIX, not XVIIII).
-function romanValue(numeral: string): number | undefined {
-  let value = 0;
-  for (let i = 0; i < numeral.length; ++i) {
-    const digit = romanDigit(numeral[i]);
-    value += i + 1 < numeral.length && digit < romanDigit(numeral[i + 1]) ? -digit : digit;
-  }
-
-  let canonical = "";
-  let rest = value;
-  for (const [numeralValue, symbol] of ROMAN_NUMERALS) {
-    for (; rest >= numeralValue; rest -= numeralValue) {
-      canonical += symbol;
-    }
-  }
-  return canonical === numeral ? value : undefined;
-}
-
 // XIXe, Ier, IIIe: an ordinal written in Roman numerals.
 class RomanOrdinalPattern extends Pattern {
   constructor() {
@@ -257,13 +225,13 @@ class RomanOrdinalPattern extends Pattern {
       return undefined;
     }
 
-    // Two Roman digits or more, or a single I (Ier)
+    // Two Roman digits or more, or a single I, V or X (Ier, Ve, Xe): not Ce, De, Le, Me
     let end = position;
-    while (end < text.length && romanDigit(text[end])) {
+    while (end < text.length && contains("IVXLCDM", text[end])) {
       end++;
     }
     const written = str(text, position, end);
-    if (written.length < 2 && written !== "I") {
+    if (written.length < 2 && written !== "I" && written !== "V" && written !== "X") {
       return undefined;
     }
     const roman = romanValue(written);
@@ -271,12 +239,12 @@ class RomanOrdinalPattern extends Pattern {
       return undefined;
     }
 
-    for (const suffix of keysAt(text, end, ["er", "re", "ère", "e", "ème"])) {
+    for (const suffix of keysAt(text, end, ROMAN_ORDINAL_SUFFIXES)) {
       if (isClearAfter(text, end + suffix.length)) {
         return match({
           kind: Kind.ORDINAL,
           span: { begin: position, end: end + suffix.length },
-          numbers: [numeral({ span: { begin: position, end }, integer: String(roman) })],
+          numbers: [numeral({ span: { begin: position, end }, integer: toDigits(roman) })],
           suffix,
         });
       }
@@ -296,6 +264,7 @@ class French extends PatternLanguage {
     this.addPattern(new PhonePattern(PHONE_FORMAT));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new RomanOrdinalPattern());
+    this.addPattern(new RomanPattern());
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
@@ -351,6 +320,22 @@ class French extends PatternLanguage {
       words += ` ${cardinal(value(match.numbers[1]), true)}`;
     }
     return words;
+  }
+
+  protected override readRoman(match: Match): string | undefined {
+    const n = value(match.numbers[0]);
+    const role = romanRole(match, ROMAN_CUES);
+    if (role === undefined) {
+      return undefined;
+    }
+    switch (role) {
+      case RomanRole.NAME: // Louis quatorze, but François premier, Élisabeth première
+        return n === 1n ? (FEMININE_NAMES.has(match.context.before()) ? "première" : "premier") : cardinal(n);
+      case RomanRole.AFTER: // le XXI siècle: vingt et unième; la V République: cinquième
+        return ordinal(n, FEMININE_ROMAN_NOUNS.has(toLower(match.context.after())));
+      default:
+        return cardinal(n); // chapitre trois
+    }
   }
 
   protected override readOrdinal(match: Match): string | undefined {

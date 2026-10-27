@@ -21,6 +21,7 @@ using ::verbalis::numbers::DateFormat;
 using ::verbalis::text::Keys;
 using ::verbalis::numbers::keys_of;
 using ::verbalis::numbers::Notation;
+using ::verbalis::numbers::RomanCues;
 using ::verbalis::numbers::SuffixFormat;
 
 inline constexpr std::array<std::u32string_view, 20> kOnes = {
@@ -141,6 +142,29 @@ inline const std::vector<std::u32string> kFeminineEndings = {
   U"e", U"ung", U"heit", U"keit", U"schaft", U"ion", U"tät", U"ik", U"ur", U"enz", U"anz", U"ei", U"in", U"ie"
 };
 inline const std::vector<std::u32string> kNeuterEndings = {U"chen", U"lein", U"ment", U"um", U"tum", U"ma", U"o"};
+
+// Ludwig XIV. (der Vierzehnte), Kapitel III (drei), im XX. Jahrhundert (zwanzigsten)
+inline const RomanCues kRomanCues = {
+  .names = {
+    U"ludwig", U"karl", U"friedrich", U"wilhelm", U"heinrich", U"otto", U"rudolf", U"albrecht", U"maximilian",
+    U"ferdinand", U"leopold", U"joseph", U"franz", U"georg", U"eduard", U"richard", U"johannes", U"paul", U"benedikt",
+    U"leo", U"pius", U"gregor", U"klemens", U"innozenz", U"elisabeth", U"katharina", U"maria", U"viktoria", U"philipp",
+    U"napoleon", U"alexander", U"nikolaus", U"peter", U"iwan", U"konstantin", U"ramses"
+  },
+  .before = {
+    U"kapitel", U"teil", U"band", U"buch", U"akt", U"szene", U"abschnitt", U"artikel", U"anhang", U"phase", U"stufe",
+    U"klasse", U"staffel", U"folge", U"runde", U"typ", U"liga"
+  },
+  .after = {
+    U"jahrhundert", U"jahrhunderts", U"jahrhunderte", U"jahrhunderten", U"jahrtausend", U"jahrtausends",
+    U"weltkrieg", U"weltkriegs", U"weltkrieges", U"vatikanische", U"vatikanischen"
+  }
+};
+
+// Names with a regnal number which are feminine: Elisabeth die Zweite
+inline const std::unordered_set<std::u32string> kFeminineNames = {
+  U"elisabeth", U"katharina", U"maria", U"viktoria"
+};
 
 // --- Notation: how numbers are written ---
 inline const Notation kNotation = {

@@ -1,4 +1,4 @@
-import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions } from "../../numbers/formats.ts";
+import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import { beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
 import type { Forms, Joiners } from "../grammar.ts";
@@ -100,6 +100,23 @@ export const STOP_WORDS: ReadonlySet<string> = new Set([
   "outside", "inside", "apart", "ahead", "behind", "above", "below", "long", "wide", "high", "tall",
   "deep", "old", "later", "earlier", "overall",
 ]);
+
+// Henry VIII (the Eighth), Chapter IV (four), the XXI century (twenty-first)
+export const ROMAN_CUES: RomanCues = {
+  names: new Set([
+    "henry", "edward", "george", "william", "richard", "charles", "james", "elizabeth", "mary", "victoria", "anne",
+    "john", "paul", "benedict", "leo", "pius", "gregory", "clement", "innocent", "louis", "philip", "frederick",
+    "alexander", "nicholas", "peter", "ivan", "catherine", "napoleon", "ferdinand", "alfonso", "carlos", "felipe",
+    "wilhelm", "ludwig", "constantine", "ramesses",
+  ]),
+  before: new Set([
+    "chapter", "part", "volume", "book", "act", "scene", "section", "article", "appendix", "phase", "stage", "level",
+    "war", "season", "episode", "bowl", "vatican", "type", "class", "grade", "category", "tier", "mark",
+  ]),
+  after: new Set([
+    "century", "centuries", "millennium",
+  ]),
+};
 
 // --- Notation: how numbers are written ---
 export const NOTATION = notation({

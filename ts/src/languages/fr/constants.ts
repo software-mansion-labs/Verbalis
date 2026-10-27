@@ -1,5 +1,6 @@
-import { dateFormat, keysOf, notation, phoneFormat, type Fractions } from "../../numbers/formats.ts";
+import { dateFormat, keysOf, notation, phoneFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
+import type { Keys } from "../../text/scan.ts";
 import { beforeNumber, type Readings } from "../../text/readings.ts";
 import type { Forms, Joiners } from "../grammar.ts";
 
@@ -88,6 +89,37 @@ export const NUMBER_WORDS: ReadonlySet<string> = new Set([
 // Words before a time with a dot, which make it a time: à 18.30
 export const TIME_WORDS: ReadonlySet<string> = new Set([
   "à", "vers", "dès", "de", "jusqu'à", "avant", "après", "entre", "et",
+]);
+
+// XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals
+export const ROMAN_ORDINAL_SUFFIXES: Keys = ["er", "re", "ère", "e", "ème"];
+
+// Louis XIV (quatorze), chapitre III (trois), le XXI siècle (vingt et unième); XIXe and Ier have their own pattern
+export const ROMAN_CUES: RomanCues = {
+  names: new Set([
+    "louis", "henri", "charles", "philippe", "françois", "jean", "paul", "jean-paul", "benoît", "léon", "pie",
+    "grégoire", "clément", "innocent", "napoléon", "élisabeth", "édouard", "george", "georges", "guillaume",
+    "frédéric", "nicolas", "alexandre", "pierre", "ramsès", "ferdinand", "alphonse", "carlos", "felipe",
+    "victor-emmanuel", "emmanuel", "catherine", "marie", "victoria",
+  ]),
+  before: new Set([
+    "chapitre", "tome", "livre", "acte", "scène", "titre", "article", "partie", "volume", "saison", "épisode",
+    "annexe", "phase", "vatican", "niveau", "type", "classe", "catégorie",
+  ]),
+  after: new Set([
+    "siècle", "siècles", "millénaire", "république", "empire", "arrondissement", "congrès", "édition", "festival",
+    "législature", "régiment", "corps", "armée",
+  ]),
+};
+
+// Names with a regnal number which are feminine (Élisabeth Ire), and nouns after a numeral which make it feminine
+export const FEMININE_NAMES: ReadonlySet<string> = new Set([
+  "élisabeth", "catherine", "marie", "victoria",
+]);
+
+
+export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
+  "république", "édition", "législature", "armée",
 ]);
 
 // --- Notation: how numbers are written ---

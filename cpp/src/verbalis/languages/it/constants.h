@@ -22,6 +22,7 @@ using ::verbalis::text::Keys;
 using ::verbalis::numbers::keys_of;
 using ::verbalis::numbers::Notation;
 using ::verbalis::numbers::PhoneFormat;
+using ::verbalis::numbers::RomanCues;
 using ::verbalis::numbers::SuffixFormat;
 
 inline constexpr std::array<std::u32string_view, 20> kOnes = {
@@ -81,6 +82,38 @@ inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions 
 // Words before a time with a dot, which make it a time: alle 21.30
 inline const std::unordered_set<std::u32string> kTimeWords = {
   U"alle", U"ore", U"dalle", U"le", U"verso", U"entro", U"per"
+};
+
+// Giovanni XXIII (ventitreesimo), nel XX secolo (ventesimo), capitolo IV (quarto), la II guerra (seconda)
+inline const RomanCues kRomanCues = {
+  .names = {
+    U"giovanni", U"paolo", U"benedetto", U"pio", U"leone", U"gregorio", U"clemente", U"innocenzo", U"bonifacio",
+    U"emanuele", U"umberto", U"carlo", U"luigi", U"enrico", U"filippo", U"federico", U"francesco", U"ferdinando",
+    U"napoleone", U"elisabetta", U"giorgio", U"guglielmo", U"alessandro", U"edoardo", U"riccardo", U"giacomo",
+    U"pietro", U"amedeo", U"ramses", U"maria", U"vittoria", U"caterina", U"giovanna"
+  },
+  .before = {
+    U"capitolo", U"libro", U"tomo", U"atto", U"scena", U"parte", U"titolo", U"articolo", U"secolo", U"volume",
+    U"stagione", U"fase", U"legislatura", U"canto"
+  },
+  .after = {
+    U"secolo", U"secoli", U"millennio", U"guerra", U"congresso", U"edizione", U"festival", U"legislatura",
+    U"giornata", U"convegno", U"conferenza", U"assemblea", U"concorso", U"forum", U"simposio", U"seminario",
+    U"campionato", U"olimpiade", U"repubblica", U"anniversario", U"centenario", U"premio", U"torneo", U"salone",
+    U"settimana", U"municipio", U"circoscrizione", U"rapporto", U"piano", U"stagione"
+  }
+};
+
+// Umberto I°: an ordinal marker on a Roman numeral
+inline const Keys kRomanMarkers = {U"°", U"º", U"ª"};
+
+// Names with a regnal number, and nouns around a numeral, which are feminine: Elisabetta II (seconda), parte II
+inline const std::unordered_set<std::u32string> kFeminineNames = {
+  U"elisabetta", U"maria", U"vittoria", U"caterina", U"giovanna"
+};
+inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
+  U"scena", U"parte", U"stagione", U"fase", U"legislatura", U"classe", U"guerra", U"edizione", U"giornata",
+  U"conferenza", U"assemblea", U"olimpiade", U"repubblica", U"settimana", U"circoscrizione"
 };
 
 // --- Notation: how numbers are written ---

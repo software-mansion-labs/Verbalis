@@ -88,6 +88,8 @@ protected:
   virtual std::optional<std::u32string> read_ordinal(const Match& match) const;
   virtual std::optional<std::u32string> read_decade(const Match& match) const;
   virtual std::optional<std::u32string> read_compound(const Match& match) const;
+  // A Roman numeral; left as written by default, since most need a language's cues (see roman_role)
+  virtual std::optional<std::u32string> read_roman(const Match& match) const;
   virtual std::optional<std::u32string> read_plain(const Match& match) const; // Any other number
 
   // Amounts: each says the last number of its match; a range (10-15 km) gets its start and the range joiner before it

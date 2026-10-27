@@ -1,4 +1,4 @@
-import { DatePattern, Pattern, PhonePattern, SuffixPattern } from "../../numbers/patterns.ts";
+import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -10,6 +10,8 @@ import {
   parseValue,
   spacedSuffix,
   value,
+  romanRole,
+  RomanRole,
 } from "../../numbers/scanning.ts";
 import { isClearAfter, isClearBefore, join } from "../../text/scan.ts";
 import { split, toLower, type Text } from "../../text/strings.ts";
@@ -33,6 +35,10 @@ import {
   TERMS,
   TIME_WORDS,
   UNITS,
+  ROMAN_CUES,
+  ROMAN_MARKERS,
+  FEMININE_NAMES,
+  FEMININE_ROMAN_NOUNS,
 } from "./constants.ts";
 
 // ------------------------
@@ -166,6 +172,7 @@ class Italian extends PatternLanguage {
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SIGNS, ORDINAL_SIGN_FORMAT));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new DecadePattern());
+    this.addPattern(new RomanPattern(false, ROMAN_MARKERS));
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
@@ -227,6 +234,22 @@ class Italian extends PatternLanguage {
     // alle 21.30: ventuno e trenta
     const hour = hours === 1n ? "una" : cardinal(hours);
     return minutes ? `${hour} e ${cardinal(minutes)}` : hour;
+  }
+
+  protected override readRoman(match: Match): string | undefined {
+    // Giovanni ventitreesimo, Elisabetta seconda, capitolo quarto, parte seconda, la seconda guerra
+    const role = romanRole(match, ROMAN_CUES);
+    if (role === undefined) {
+      return undefined;
+    }
+    const previous = match.context.before();
+    const feminine =
+      role === RomanRole.NAME
+        ? FEMININE_NAMES.has(previous)
+        : role === RomanRole.BEFORE
+          ? FEMININE_ROMAN_NOUNS.has(previous)
+          : FEMININE_ROMAN_NOUNS.has(toLower(match.context.after()));
+    return ordinal(value(match.numbers[0]), feminine ? "a" : "o");
   }
 
   protected override readOrdinal(match: Match): string | undefined {

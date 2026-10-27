@@ -22,6 +22,7 @@ using ::verbalis::text::Keys;
 using ::verbalis::numbers::keys_of;
 using ::verbalis::numbers::Notation;
 using ::verbalis::numbers::PhoneFormat;
+using ::verbalis::numbers::RomanCues;
 using ::verbalis::numbers::SuffixFormat;
 
 // Brazilian forms: dezesseis, bilhão
@@ -136,6 +137,38 @@ inline const std::unordered_set<std::u32string> kStopWords = {
   U"este", U"esta", U"estes", U"estas", U"esse", U"essa", U"esses", U"essas", U"isso", U"isto", U"já", U"agora",
   U"quando", U"onde", U"muito", U"também", U"se", U"lhe", U"me", U"te", U"ao", U"à", U"aos", U"às", U"pelo",
   U"pela", U"pelos", U"pelas", U"não", U"sim", U"meu", U"minha", U"seu", U"sua"
+};
+
+// D. Pedro II (segundo), Bento XVI (dezesseis), século XXI (vinte e um), capítulo IV (quatro), a II Guerra (Segunda)
+inline const RomanCues kRomanCues = {
+  .names = {
+    U"pedro", U"joão", U"paulo", U"bento", U"leão", U"pio", U"manuel", U"afonso", U"sebastião", U"josé", U"luís",
+    U"carlos", U"filipe", U"henrique", U"dinis", U"maria", U"isabel", U"jorge", U"guilherme", U"gregório",
+    U"clemente", U"napoleão", U"fernando", U"duarte", U"sancho", U"eduardo", U"elizabeth", U"beatriz", U"leonor",
+    U"teresa"
+  },
+  .before = {
+    U"capítulo", U"tomo", U"livro", U"ato", U"título", U"parte", U"volume", U"temporada", U"fase", U"século",
+    U"séculos", U"vaticano", U"cena", U"episódio", U"nível", U"tipo", U"classe"
+  },
+  .after = {
+    U"guerra", U"congresso", U"encontro", U"festival", U"edição", U"bienal", U"feira", U"cimeira", U"conferência",
+    U"jornada", U"jornadas", U"seminário", U"simpósio", U"fórum", U"campeonato", U"república", U"olimpíada",
+    U"assembleia", U"aniversário", U"centenário", U"reunião", U"plano", U"prémio", U"prêmio", U"torneio", U"semana",
+    U"mostra", U"corrida", U"marcha", U"salão", U"colóquio"
+  }
+};
+
+// D. João Iº: an ordinal marker on a Roman numeral
+inline const Keys kRomanMarkers = {U"º", U"ª", U"°"};
+
+// Names with a regnal number, and nouns after a numeral, which are feminine: D. Maria II (segunda), a II Guerra
+inline const std::unordered_set<std::u32string> kFeminineNames = {
+  U"maria", U"isabel", U"elizabeth", U"beatriz", U"leonor", U"teresa"
+};
+inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
+  U"guerra", U"edição", U"bienal", U"feira", U"cimeira", U"conferência", U"jornada", U"jornadas", U"república",
+  U"olimpíada", U"assembleia", U"reunião", U"semana", U"mostra", U"corrida", U"marcha"
 };
 
 // --- Notation: how numbers are written ---

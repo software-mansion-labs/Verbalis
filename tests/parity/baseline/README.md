@@ -74,3 +74,23 @@ To see what a change of Phonemis affects, run it on the inputs of these files in
 
 The sentences come from news and web pages collected by the Leipzig Corpora Collection. Check the collection's terms
 before publishing this dataset (for example in a public repository).
+
+## Files by kind (`<lang>.kinds.jsonl`, added 2026-10-27)
+
+3,957 more pairs in all nine languages (de 534, en-us 530, es 464, fr 474, hi 297, it 511, pl 486, pt 517, zh 144),
+chosen to cover what the files above barely do: phone numbers, dates, Roman numerals, and hi and zh, which had no
+committed pairs. Same record format; `category` is the kind of expression the sentence was picked for.
+
+- **Sentences:** Leipzig Corpora Collection news, 100K samples: `deu_news_2023_100K`, `eng_news_2023_100K`,
+  `fra_news_2023_100K`, `spa_news_2023_100K`, `ita_news_2023_100K`, `pol_news_2023_100K`, `por_news_2023_100K`,
+  `hin_news_2022_100K`, `zho_news_2020_100K` (`https://downloads.wortschatz-leipzig.de/corpora/<name>.tar.gz`).
+- **Selection:** in a seeded shuffle, sentences of 20–300 characters, without mis-encoded text, and not already in
+  the files above or in `tests/parity/local/`, were run through the TypeScript port, instrumented to report the kind
+  of every match (`ROMAN`, `PHONE`, `DATE`, …) and whether its reading left it as written (`… (declined)`), and through
+  the terms and symbols steps alone (`TERMS`, `SYMBOLS`). Each sentence went to its least-filled category, up to 25
+  per kind (40 for `ROMAN`, 20 for `ROMAN (declined)`, 10 for `NUMBER` and `CODE`, 8 for other declined kinds).
+  zh has no match kinds; its sentences were picked by shape (`DATE`, `PERCENT`, `MONEY`, `PHONE`, `RANGE`, `DECIMAL`).
+  The selection script was a one-off, outside the repository.
+- **Outputs:** the C++ core at the commit that added them. Like the files above, they are the reference's behaviour,
+  not human-verified readings; the Roman numeral outputs were read and corrected before they were recorded.
+- **Licence:** the same status as the files above: check Leipzig's terms before the repository goes public.

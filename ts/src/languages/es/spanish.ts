@@ -1,5 +1,5 @@
 import type { Context } from "../../text/context.ts";
-import { DatePattern, Pattern, PhonePattern, SuffixPattern } from "../../numbers/patterns.ts";
+import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -11,6 +11,8 @@ import {
   parseValue,
   spacedSuffix,
   value,
+  romanRole,
+  RomanRole,
 } from "../../numbers/scanning.ts";
 import { isClearAfter, isDigitAfter, join } from "../../text/scan.ts";
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
@@ -46,6 +48,9 @@ import {
   TERMS,
   TIME_WORDS,
   UNITS,
+  ROMAN_CUES,
+  FEMININE_NAMES,
+  FEMININE_ROMAN_NOUNS,
 } from "./constants.ts";
 
 // How "uno" ends a number: alone (veintiuno), before a masculine noun (veintiún años) or a feminine one (veintiuna)
@@ -278,6 +283,7 @@ class Spanish extends PatternLanguage {
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SIGNS, ORDINAL_SIGN_FORMAT));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new SuffixPattern(Kind.DECADE, DECADE_SUFFIXES, DECADE_FORMAT));
+    this.addPattern(new RomanPattern());
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
@@ -326,6 +332,27 @@ class Spanish extends PatternLanguage {
 
     const minutes = value(match.numbers[1]);
     return cardinal(value(match.numbers[0]), One.UNA) + (minutes !== 0n ? ` ${cardinal(minutes)}` : "");
+  }
+
+  protected override readRoman(match: Match): string | undefined {
+    const n = value(match.numbers[0]);
+    const role = romanRole(match, ROMAN_CUES);
+    if (role === undefined || n >= 1000n) {
+      return undefined;
+    }
+    const previous = match.context.before();
+    switch (role) {
+      case RomanRole.NAME: // Felipe sexto, Isabel segunda, but Alfonso trece
+        return n <= 10n ? ordinal(n, FEMININE_NAMES.has(previous)) : cardinal(n);
+      case RomanRole.AFTER: {
+        // la Segunda Guerra, el primer congreso, el vigésimo tercer festival
+        const feminine = FEMININE_ROMAN_NOUNS.has(toLower(match.context.after()));
+        const words = ordinal(n, feminine);
+        return !feminine && (words.endsWith("primero") || words.endsWith("tercero")) ? words.slice(0, -1) : words;
+      }
+      default: // siglo quinto, Vaticano segundo, but siglo veintiuno; capítulo cuatro
+        return (previous.startsWith("siglo") || previous === "vaticano") && n <= 10n ? ordinal(n, false) : cardinal(n);
+    }
   }
 
   protected override readOrdinal(match: Match): string | undefined {

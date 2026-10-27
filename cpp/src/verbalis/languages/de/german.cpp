@@ -339,6 +339,7 @@ public:
     add_pattern(std::make_unique<AreaCodePattern>());
     add_pattern(std::make_unique<DotOrdinalPattern>());
     add_pattern(std::make_unique<SuffixPattern>(Kind::DECADE, kDecadeSuffixes, kDecadeFormat));
+    add_pattern(std::make_unique<RomanPattern>(true));
   }
 
 protected:
@@ -421,6 +422,36 @@ protected:
       return std::nullopt;
     }
     return ordinal(value(match.numbers[0]), ending(cues_of(match)));
+  }
+
+  std::optional<std::u32string> read_roman(const Match& match) const override {
+    uint64_t n = value(match.numbers[0]);
+    auto role = roman_role(match, kRomanCues);
+    if (!role) {
+      return std::nullopt;
+    }
+    switch (*role) {
+      case RomanRole::NAME: {
+        // Ludwig der Vierzehnte, unter Ludwig dem Vierzehnten, für Wilhelm den Zweiten, Elisabeth die Zweite
+        bool feminine = kFeminineNames.contains(match.context.before());
+        bool dative = kDative.contains(match.context.before(2));
+        bool accusative = kAccusative.contains(match.context.before(2));
+        std::u32string article = dative     ? (feminine ? U"der" : U"dem") :
+                                 accusative ? (feminine ? U"die" : U"den") :
+                                              (feminine ? U"die" : U"der");
+        std::u32string words = ordinal(n, dative || (accusative && !feminine) ? U"en" : U"e");
+        words[0] = unicode::toupper(words[0]);
+        return article + U" " + words;
+      }
+      case RomanRole::AFTER: {
+        // im XX. Jahrhundert: an ordinal, as im 20. Jahrhundert
+        Match ordinal_match = match;
+        ordinal_match.kind = Kind::ORDINAL;
+        return read_ordinal(ordinal_match);
+      }
+      default:
+        return cardinal(n); // Kapitel drei
+    }
   }
 
   std::optional<std::u32string> read_decade(const Match& match) const override {

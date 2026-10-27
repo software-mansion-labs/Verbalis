@@ -22,6 +22,7 @@ using ::verbalis::text::Keys;
 using ::verbalis::numbers::keys_of;
 using ::verbalis::numbers::Notation;
 using ::verbalis::numbers::PhoneFormat;
+using ::verbalis::numbers::RomanCues;
 
 inline constexpr std::array<std::u32string_view, 20> kOnes = {
   U"zéro", U"un",   U"deux",  U"trois",  U"quatre",   U"cinq",   U"six",   U"sept",     U"huit",     U"neuf",
@@ -111,6 +112,33 @@ inline const std::unordered_set<std::u32string> kNumberWords = {
 // Words before a time with a dot, which make it a time: à 18.30
 inline const std::unordered_set<std::u32string> kTimeWords = {
   U"à", U"vers", U"dès", U"de", U"jusqu'à", U"avant", U"après", U"entre", U"et"
+};
+
+// XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals
+inline const Keys kRomanOrdinalSuffixes = {U"er", U"re", U"ère", U"e", U"ème"};
+
+// Louis XIV (quatorze), chapitre III (trois), le XXI siècle (vingt et unième); XIXe and Ier have their own pattern
+inline const RomanCues kRomanCues = {
+  .names = {
+    U"louis", U"henri", U"charles", U"philippe", U"françois", U"jean", U"paul", U"jean-paul", U"benoît", U"léon",
+    U"pie", U"grégoire", U"clément", U"innocent", U"napoléon", U"élisabeth", U"édouard", U"george", U"georges",
+    U"guillaume", U"frédéric", U"nicolas", U"alexandre", U"pierre", U"ramsès", U"ferdinand", U"alphonse", U"carlos",
+    U"felipe", U"victor-emmanuel", U"emmanuel", U"catherine", U"marie", U"victoria"
+  },
+  .before = {
+    U"chapitre", U"tome", U"livre", U"acte", U"scène", U"titre", U"article", U"partie", U"volume", U"saison",
+    U"épisode", U"annexe", U"phase", U"vatican", U"niveau", U"type", U"classe", U"catégorie"
+  },
+  .after = {
+    U"siècle", U"siècles", U"millénaire", U"république", U"empire", U"arrondissement", U"congrès", U"édition",
+    U"festival", U"législature", U"régiment", U"corps", U"armée"
+  }
+};
+
+// Names with a regnal number which are feminine (Élisabeth Ire), and nouns after a numeral which make it feminine
+inline const std::unordered_set<std::u32string> kFeminineNames = {U"élisabeth", U"catherine", U"marie", U"victoria"};
+inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
+  U"république", U"édition", U"législature", U"armée"
 };
 
 // --- Notation: how numbers are written ---

@@ -55,6 +55,18 @@ std::optional<std::u32string> named_fraction(const Fractions& fractions, const M
 // The suffix of a match with a space before it, to follow its reading; empty if the match has none.
 std::u32string spaced_suffix(const Match& match);
 
+// A value written as digits: 14 -> "14".
+std::u32string to_digits(uint64_t value);
+
+// The value of a Roman numeral written in its canonical form (XIX, not XVIIII), up to 3999; nullopt otherwise.
+std::optional<uint64_t> roman_value(std::u32string_view numeral);
+
+// What the words around a Roman numeral make it: the number of a name, or of a noun before or after it.
+enum class RomanRole { NAME = 0, BEFORE, AFTER };
+
+// The role of a Roman numeral match by a language's cues, or nullopt if nothing marks it as a number.
+std::optional<RomanRole> roman_role(const Match& match, const RomanCues& cues);
+
 // The parts of a code (MP3, H.264, F-16s): digits with their decimals, ".digits", runs of other characters,
 // and single apostrophes, dots and hyphens.
 std::vector<std::u32string_view> code_parts(std::u32string_view code);

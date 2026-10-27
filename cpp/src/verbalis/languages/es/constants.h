@@ -22,6 +22,7 @@ using ::verbalis::text::Keys;
 using ::verbalis::numbers::keys_of;
 using ::verbalis::numbers::Notation;
 using ::verbalis::numbers::PhoneFormat;
+using ::verbalis::numbers::RomanCues;
 using ::verbalis::numbers::SuffixFormat;
 
 // Up to 29, each a single word
@@ -123,6 +124,34 @@ inline const std::unordered_set<std::u32string> kStopWords = {
   U"mediante", U"cada", U"toda", U"todas", U"todo", U"todos", U"esta", U"estas", U"este", U"estos", U"esa",
   U"esas", U"ese", U"esos", U"otra", U"otras", U"otro", U"otros", U"nada", U"ya", U"ahora", U"cuando", U"donde",
   U"mientras", U"muy", U"casi", U"también", U"así", U"se", U"le", U"les", U"me", U"te", U"nos"
+};
+
+// Felipe VI (sexto), Alfonso XIII (trece), siglo XXI (veintiuno), capítulo IV (cuatro), la II Guerra (Segunda)
+inline const RomanCues kRomanCues = {
+  .names = {
+    U"felipe", U"juan", U"carlos", U"alfonso", U"fernando", U"isabel", U"enrique", U"pedro", U"jaime", U"sancho",
+    U"luis", U"benedicto", U"pío", U"pablo", U"león", U"gregorio", U"clemente", U"inocencio", U"eduardo", U"jorge",
+    U"guillermo", U"napoleón", U"ramsés", U"juana", U"maría", U"catalina", U"leonor", U"victoria"
+  },
+  .before = {
+    U"capítulo", U"tomo", U"libro", U"acto", U"título", U"parte", U"volumen", U"temporada", U"fase", U"siglo",
+    U"siglos", U"vaticano", U"escena", U"episodio", U"nivel", U"número", U"distrito", U"región", U"tipo", U"clase"
+  },
+  .after = {
+    U"guerra", U"congreso", U"encuentro", U"festival", U"edición", U"jornada", U"jornadas", U"bienal", U"feria",
+    U"cumbre", U"conferencia", U"asamblea", U"concurso", U"foro", U"simposio", U"seminario", U"campeonato",
+    U"olimpiada", U"república", U"legislatura", U"aniversario", U"centenario", U"reunión", U"convención", U"gira",
+    U"coloquio", U"censo", U"plan", U"informe", U"premio", U"torneo", U"salón", U"semana", U"carrera", U"marcha"
+  }
+};
+
+// Names with a regnal number, and nouns after a numeral, which are feminine: Isabel II (segunda), la II Guerra
+inline const std::unordered_set<std::u32string> kFeminineNames = {
+  U"isabel", U"juana", U"maría", U"catalina", U"leonor", U"victoria"
+};
+inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
+  U"guerra", U"edición", U"jornada", U"jornadas", U"bienal", U"feria", U"cumbre", U"conferencia", U"asamblea",
+  U"olimpiada", U"república", U"legislatura", U"reunión", U"convención", U"gira", U"semana", U"carrera", U"marcha"
 };
 
 // --- Notation: how numbers are written ---

@@ -134,6 +134,11 @@ export abstract class PatternLanguage extends Language {
     return this.readNumber(match.numbers[0], match);
   }
 
+  // A Roman numeral; left as written by default, since most need a language's cues (see romanRole)
+  protected readRoman(_match: Match): string | undefined {
+    return undefined;
+  }
+
   protected readCompound(match: Match): string | undefined {
     return `${this.readNumber(match.numbers[0], match)}-${match.suffix}`;
   }
@@ -223,6 +228,8 @@ export abstract class PatternLanguage extends Language {
         return this.readOrdinal(match);
       case Kind.DECADE:
         return this.readDecade(match);
+      case Kind.ROMAN:
+        return this.readRoman(match);
       case Kind.COMPOUND:
         return this.readCompound(match);
       case Kind.CODE:

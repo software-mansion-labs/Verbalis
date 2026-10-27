@@ -787,6 +787,47 @@ std::optional<Match> SuffixPattern::match(std::u32string_view text, size_t posit
   return std::nullopt;
 }
 
+std::optional<Match> RomanPattern::match(std::u32string_view text, size_t position) const {
+  if (!is_clear_before(text, position, U"'.-/")) {
+    return std::nullopt;
+  }
+  size_t end = position;
+  while (end < text.size() && strings::contains(std::u32string_view(U"IVXLCDM"), text[end])) {
+    end++;
+  }
+  // Not a part of a longer word or code (XX-lecie, CD-ROM, MXene), unless a suffix follows: Iº is a letter
+  bool marked = !keys_at(text, end, suffixes_).empty();
+  if (end == position || (!is_clear_after(text, end, U"'-/") && !marked)) {
+    return std::nullopt;
+  }
+  std::u32string_view numeral = text.substr(position, end - position);
+  auto value = roman_value(numeral);
+  if (!value || (numeral.size() == 1 && numeral != U"I" && numeral != U"V" && numeral != U"X")) {
+    return std::nullopt;
+  }
+
+  Match roman{.kind = Kind::ROMAN,
+              .span = {position, end},
+              .numbers = {{.span = {position, end}, .integer = to_digits(*value)}}};
+  if (dot_ && end < text.size() && text[end] == U'.' && !is_sentence_end(text, end + 1)) {
+    roman.span.end = end + 1;
+    roman.suffix = U".";
+    return roman;
+  }
+
+  // XIX w.: a dot closing both the suffix and the sentence stays with the sentence
+  size_t suffix = skip_space(text, end);
+  for (auto key : keys_at(text, suffix, suffixes_)) {
+    size_t suffix_end = suffix + key.size();
+    if (is_clear_after(text, suffix_end)) {
+      roman.span.end = key.ends_with(U'.') && is_sentence_end(text, suffix_end, true) ? suffix_end - 1 : suffix_end;
+      roman.suffix = key;
+      return roman;
+    }
+  }
+  return roman;
+}
+
 DotOrdinalPattern::DotOrdinalPattern(bool before_punctuation, bool sentence_dot)
     : Pattern(Kind::ORDINAL), before_punctuation_(before_punctuation), sentence_dot_(sentence_dot) {}
 
