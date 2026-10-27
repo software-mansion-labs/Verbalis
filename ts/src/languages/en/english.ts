@@ -1,6 +1,16 @@
-import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
+import {
+  GroupedOrdinalPattern,
+  DatePattern,
+  FractionPattern,
+  Pattern,
+  PhonePattern,
+  ScalePattern,
+  SuffixPattern,
+  RomanPattern,
+} from "../../numbers/patterns.ts";
 import { Kind, match as matchOf, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
+  codeParts,
   digitsAt,
   numbersAt,
   fitsClock,
@@ -15,9 +25,20 @@ import {
   RomanRole,
 } from "../../numbers/scanning.ts";
 import { PUNCTUATION, stripped, wordsOf } from "../../text/context.ts";
-import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join, keysAt, skipSpace } from "../../text/scan.ts";
+import {
+  digitsEnd,
+  isClearAfter,
+  isClearBefore,
+  isDigitAfter,
+  join,
+  keysAt,
+  skipSpace,
+  type Keys,
+} from "../../text/scan.ts";
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isDigit, isUpper } from "../../text/unicode.ts";
+import { keysOf } from "../../numbers/formats.ts";
+import type { Forms } from "../grammar.ts";
 import { PatternLanguage } from "../language.ts";
 import {
   CENTS,
@@ -51,6 +72,7 @@ import {
   UNITS,
   YEAR_CUES,
   ROMAN_CUES,
+  SPELLING_WORDS,
 } from "./constants.ts";
 
 // ------------------------
@@ -154,6 +176,8 @@ interface Cues {
   year: boolean; // in 1999: a year is expected
   era: boolean; // 340 AD: an era follows
   amount: boolean; // $2019, 1980 kg: an amount, never read as a year
+  spelled: boolean; // ending in 8876, PIN 1234: digits to read one by one
+  alone: boolean; // the whole text: 10111 or 31/32 alone is a number, not a code or a date
 }
 
 function cuesOf(match: Match): Cues {
@@ -211,6 +235,12 @@ function cuesOf(match: Match): Cues {
     era: ERAS.has(nextLower),
     amount:
       match.kind === Kind.MONEY || match.kind === Kind.SCALE || match.kind === Kind.PERCENT || match.kind === Kind.UNIT,
+    // PIN 1234, your otp is 9453, ending in 8876
+    spelled:
+      SPELLING_WORDS.has(previous) ||
+      ((previous === "is" || previous === "was") && SPELLING_WORDS.has(match.context.before(2))) ||
+      (previous === "in" && match.context.before(2) === "ending"),
+    alone: match.context.head().length === 0 && tail.length === 0,
   };
 }
 
@@ -327,35 +357,6 @@ class QuarterPattern extends Pattern {
       numbers: [digitsAt(text, position), digitsAt(text, position + 2)],
       separator: letter,
     });
-  }
-}
-
-// 1,000th, 9,000,000th: an ordinal of a grouped number
-class GroupedOrdinalPattern extends Pattern {
-  constructor() {
-    super(Kind.ORDINAL);
-  }
-
-  match(text: Text, position: number): Match | undefined {
-    if (!isClearBefore(text, position, ".,")) {
-      return undefined;
-    }
-    for (const number of numbersAt(text, position, ",", "")) {
-      if (!number.grouped) {
-        continue;
-      }
-      for (const key of keysAt(text, number.span.end, ORDINAL_SUFFIXES)) {
-        if (isClearAfter(text, number.span.end + size(key))) {
-          return matchOf({
-            kind: Kind.ORDINAL,
-            span: { begin: position, end: number.span.end + size(key) },
-            numbers: [number],
-            suffix: key,
-          });
-        }
-      }
-    }
-    return undefined;
   }
 }
 
@@ -596,6 +597,149 @@ class EquationMinusPattern extends Pattern {
   }
 }
 
+// A straight double quote as a unit: 27" monitor
+const INCH_MARK = '"';
+const INCHES: Forms = { one: "inch", many: "inches" };
+
+function unitForms(unit: string): Forms {
+  return unit === INCH_MARK ? INCHES : UNITS[unit];
+}
+
+// Whether a straight double quote right after a number is an inch mark (27" monitor), not the end of a quotation
+// ("67" matters): the quotes before it, other than inch marks, are all closed
+function isInchMark(text: Text, position: number): boolean {
+  if (position >= text.length || text[position] !== '"') {
+    return false;
+  }
+  let open = 0;
+  for (let i = 0; i < position; i++) {
+    const inch = text[i] === '"' && i > 0 && isDigit(text[i - 1]);
+    open += text[i] === "“" || (text[i] === '"' && !inch) ? 1 : 0;
+    open -= text[i] === "”" ? 1 : 0;
+  }
+  return open % 2 === 0;
+}
+
+// 27" monitor, 21.5" iMac: a number of inches, of at most three digits
+class InchPattern extends Pattern {
+  constructor() {
+    super(Kind.UNIT);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,'’′")) {
+      return undefined;
+    }
+    for (const number of numbersAt(text, position, NOTATION.groupSeparators, NOTATION.decimalSeparators)) {
+      if (number.integer.length <= 3 && isInchMark(text, number.span.end)) {
+        return matchOf({
+          kind: Kind.UNIT,
+          span: { begin: position, end: number.span.end + 1 },
+          numbers: [number],
+          unit: INCH_MARK,
+        });
+      }
+    }
+    return undefined;
+  }
+}
+
+// The unit right after a match, of at least two letters after a space, or an inch mark: 4 1/2 lbs, 100 million kg,
+// 3/8"
+const LONG_UNITS: Keys = keysOf(UNITS).filter((key) => size(key) > 1);
+
+function withUnit(text: Text, match: Match): Match | undefined {
+  const start = match.span.end;
+  if (isInchMark(text, start)) {
+    return { ...match, span: { begin: match.span.begin, end: start + 1 }, unit: INCH_MARK };
+  }
+  if (start >= text.length || text[start] !== " ") {
+    return undefined;
+  }
+  for (const unit of keysAt(text, start + 1, LONG_UNITS)) {
+    if (isClearAfter(text, start + 1 + size(unit))) {
+      return { ...match, span: { begin: match.span.begin, end: start + 1 + size(unit) }, unit };
+    }
+  }
+  return undefined;
+}
+
+// 4 1/2 lbs, 1/2 kg: a fraction of a unit
+class FractionUnitPattern extends Pattern {
+  readonly #fractions = new FractionPattern();
+
+  constructor() {
+    super(Kind.FRACTION);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const match = this.#fractions.match(text, position);
+    return match ? withUnit(text, match) : undefined;
+  }
+}
+
+// 100 million kg: an amount of a unit with a scale word
+class ScaleUnitPattern extends Pattern {
+  readonly #scales = new ScalePattern(NOTATION);
+
+  constructor() {
+    super(Kind.SCALE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const match = this.#scales.match(text, position);
+    if (!match || !(match.scale in SCALES) || size(match.scale) < 4) {
+      return undefined;
+    }
+    return withUnit(text, match);
+  }
+}
+
+// 12/kg, 12kg/kg, 3 cc/s: an amount per unit, whose numerator unit is optional. The unit after the slash is the
+// match's suffix.
+class PerUnitPattern extends Pattern {
+  readonly #units: Keys = keysOf(UNITS);
+
+  constructor() {
+    super(Kind.UNIT);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, "./")) {
+      return undefined;
+    }
+    for (const number of numbersAt(text, position, NOTATION.groupSeparators, NOTATION.decimalSeparators)) {
+      let slash = number.span.end;
+      let unit = "";
+      for (const key of keysAt(text, skipSpace(text, slash), this.#units)) {
+        const end = skipSpace(text, slash) + size(key);
+        if (end < text.length && text[end] === "/") {
+          unit = key;
+          slash = end;
+          break;
+        }
+      }
+      if (slash >= text.length || text[slash] !== "/") {
+        continue;
+      }
+      for (const table of [PER_KEYS, this.#units]) {
+        for (const per of keysAt(text, slash + 1, table)) {
+          if (isClearAfter(text, slash + 1 + size(per))) {
+            return matchOf({
+              kind: Kind.UNIT,
+              span: { begin: position, end: slash + 1 + size(per) },
+              numbers: [number],
+              unit,
+              suffix: per,
+            });
+          }
+        }
+      }
+    }
+    return undefined;
+  }
+}
+
 // --------------------
 // ----- Language -----
 // --------------------
@@ -616,7 +760,11 @@ class English extends PatternLanguage {
     this.addPattern(new SecondsPattern());
     this.addPattern(new PricePattern());
     this.addPattern(new SuffixedFractionPattern());
-    this.addPattern(new GroupedOrdinalPattern());
+    this.addPattern(new FractionUnitPattern());
+    this.addPattern(new ScaleUnitPattern());
+    this.addPattern(new PerUnitPattern());
+    this.addPattern(new InchPattern());
+    this.addPattern(new GroupedOrdinalPattern(ORDINAL_SUFFIXES, ","));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new DecadeRangePattern());
     this.addPattern(new SuffixPattern(Kind.DECADE, DECADE_SUFFIXES, DECADE_FORMAT));
@@ -628,9 +776,29 @@ class English extends PatternLanguage {
       return this.#integer(number, cuesOf(match));
     }
 
-    // .5 has no zero before its point
+    // .45 caliber: forty-five; .5 has no zero before its point
+    const next = toLower(match.context.after());
+    if (number.integer === "" && (next === "caliber" || next === "calibre" || next === "cal")) {
+      return cardinal(parseValue(number.fraction) ?? 0n);
+    }
     const head = number.integer === "" ? "" : `${cardinal(value(number))} `;
     return head + (number.fraction === "0" ? "point oh" : `point ${digits(number.fraction)}`);
+  }
+
+  protected override readCode(match: Match): string {
+    if (!cuesOf(match).spelled) {
+      return super.readCode(match);
+    }
+    // otp ab9453: after a spelling cue, digits one by one
+    const words: string[] = [];
+    for (const part of codeParts(match.text)) {
+      if ([...part].every(isDigit)) {
+        words.push(digits(part));
+      } else if (part !== "-" && part !== ".") {
+        words.push(this.readCodeLetters(part));
+      }
+    }
+    return join(words);
   }
 
   protected override readCodeDigits(text: string): string {
@@ -689,8 +857,16 @@ class English extends PatternLanguage {
     // one fifth, two thirds, three quarters, one hundredth
     const [a, b] = fractionOf(match);
     const suffixed = match.suffix !== ""; // 1/4th
-    if (b < 2n || a >= b || !(suffixed || isMarkedFraction(match, FRACTION_WORDS))) {
+    const alone = cuesOf(match).alone; // 22/3 alone: also an improper fraction
+    if (
+      b < 1n ||
+      (a >= b && !alone) ||
+      !(suffixed || alone || match.unit !== "" || isMarkedFraction(match, FRACTION_WORDS))
+    ) {
       return undefined;
+    }
+    if (b === 1n) {
+      return `${cardinal(a)} over one`;
     }
     let denominator = b === 2n ? "half" : b === 4n ? "quarter" : ordinal(b);
     if (a !== 1n) {
@@ -699,10 +875,41 @@ class English extends PatternLanguage {
     return `${cardinal(a)} ${denominator}`;
   }
 
+  protected override readMixedFraction(match: Match): string | undefined {
+    const words = super.readMixedFraction(match);
+    if (words === undefined || match.unit === "") {
+      return words;
+    }
+    const unit = unitForms(match.unit);
+    // a 3/8" bolt: before a noun, the unit stays singular
+    if (cuesOf(match).attributive) {
+      return `${words} ${unit.one}`;
+    }
+    if (match.numbers.length === 3) {
+      return `${words} ${unit.many}`;
+    }
+    // 1/2 kg: half a kilogram; 3/4 in: three quarters of an inch
+    const article = "aeiou".includes(unit.one[0]) ? "an" : "a";
+    return `${words === "one half" ? "half" : `${words} of`} ${article} ${unit.one}`;
+  }
+
   protected override readTime(match: Match): string | undefined {
     const hours = value(match.numbers[0]);
     const suffix = ampm(match.suffix);
 
+    // 10:00:00 p.m.: a clock time, ten p.m. (its a.m. or p.m. stays after it)
+    const next = toLower(match.context.after());
+    const clock = ["a.m.", "p.m.", "am", "pm", "a.m", "p.m"].includes(next);
+    if (
+      match.numbers.length === 3 &&
+      clock &&
+      value(match.numbers[1]) === 0n &&
+      value(match.numbers[2]) === 0n &&
+      hours >= 1n &&
+      hours <= 12n
+    ) {
+      return cardinal(hours);
+    }
     // 2:08:29: two hours eight minutes and twenty-nine seconds, without the parts that are zero
     if (match.numbers.length === 3) {
       const parts: string[] = [];
@@ -758,6 +965,10 @@ class English extends PatternLanguage {
   protected override readRoman(match: Match): string | undefined {
     // Henry the Eighth, the twenty-first century, Chapter four
     const n = value(match.numbers[0]);
+    // IV as the whole text: a number (but I alone is the pronoun)
+    if (match.context.head().length === 0 && match.context.tail().length === 0 && match.text.length > 1) {
+      return cardinal(n);
+    }
     const role = romanRole(match, ROMAN_CUES);
     switch (role ?? RomanRole.BEFORE) {
       case RomanRole.NAME:
@@ -822,7 +1033,8 @@ class English extends PatternLanguage {
     if (match.scale === "K" || match.scale === "b" || match.scale === "B" || match.scale === "m") {
       return undefined;
     }
-    return `${this.readNumber(number, match)} ${SCALES[match.scale]}`;
+    const words = `${this.readNumber(number, match)} ${SCALES[match.scale]}`;
+    return match.unit === "" ? words : `${words} ${unitForms(match.unit).many}`;
   }
 
   protected override readPercent(number: Numeral, match: Match): string | undefined {
@@ -830,9 +1042,17 @@ class English extends PatternLanguage {
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
-    const unit = UNITS[match.unit];
-    const one = number.fraction === "" && value(number) === 1n;
-    return `${this.readNumber(number, match)} ` + (one || cuesOf(match).attributive ? unit.one : unit.many);
+    let words = this.readNumber(number, match);
+    if (match.unit !== "") {
+      const unit = unitForms(match.unit);
+      const one = number.fraction === "" && value(number) === 1n;
+      words += ` ${one || cuesOf(match).attributive ? unit.one : unit.many}`;
+    }
+    // 12 kg/m²: per square meter
+    if (match.suffix !== "") {
+      words += ` per ${PER[match.suffix] ?? UNITS[match.suffix].one}`;
+    }
+    return words;
   }
 
   protected override readJoiner(match: Match): string | undefined {
@@ -896,8 +1116,11 @@ class English extends PatternLanguage {
       return groups(number.integer);
     }
     // 12345: digit by digit, as a code; but 10111 residents, 12345 km
-    const spoken = isSpokenDigits(number, 5) && !(number.integer[0] !== "0" && (cues.counted || cues.amount));
-    if (n === undefined || spoken) {
+    const spoken =
+      isSpokenDigits(number, 5) &&
+      !(number.integer[0] !== "0" && (cues.counted || cues.amount)) &&
+      !(cues.alone && number.integer[0] !== "0" && number.integer.length <= 9);
+    if (n === undefined || spoken || (cues.spelled && number.integer.length > 2 && !number.grouped)) {
       return digits(number.integer);
     }
     if (cues.afterMonth && n >= 1n && n <= 31n) {

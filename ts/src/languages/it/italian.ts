@@ -1,4 +1,11 @@
-import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
+import {
+  SecondsPattern,
+  DatePattern,
+  Pattern,
+  PhonePattern,
+  SuffixPattern,
+  RomanPattern,
+} from "../../numbers/patterns.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -291,38 +298,6 @@ class DecadePattern extends Pattern {
   }
 }
 
-// 17:15:26: hours, minutes, and seconds.
-class SecondsPattern extends Pattern {
-  constructor() {
-    super(Kind.TIME);
-  }
-
-  match(text: Text, position: number): Match | undefined {
-    if (!isClearBefore(text, position, ".,:")) {
-      return undefined;
-    }
-    const numbers: Numeral[] = [];
-    for (let start = position; numbers.length < 3; start = numbers[numbers.length - 1].span.end + 1) {
-      const part = digitsAt(text, start);
-      const length = part.integer.length;
-      if (
-        length === 0 ||
-        length > 2 ||
-        (numbers.length > 0 && length !== 2) ||
-        (numbers.length < 2 && (part.span.end >= text.length || text[part.span.end] !== ":"))
-      ) {
-        return undefined;
-      }
-      numbers.push(part);
-    }
-    const end = numbers[2].span.end;
-    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:")) {
-      return undefined;
-    }
-    return match({ kind: Kind.TIME, span: { begin: position, end }, numbers, separator: ":" });
-  }
-}
-
 // --------------------
 // ----- Language -----
 // --------------------
@@ -343,6 +318,16 @@ class Italian extends PatternLanguage {
 
   protected override readNumber(number: Numeral, match: Match): string {
     if (number.fraction === "") {
+      // 1034500 alone: the whole text is a number, not a code
+      const n = parseValue(number.integer);
+      if (
+        n !== undefined &&
+        number.integer[0] !== "0" &&
+        match.context.head().length === 0 &&
+        match.context.tail().length === 0
+      ) {
+        return cardinal(n);
+      }
       if (number.integer !== "1") {
         return integerWords(number);
       }

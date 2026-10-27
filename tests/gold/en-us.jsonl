@@ -1,12 +1,12 @@
-{"lang": "en-us", "source": "nemo", "class": "address", "input": "2788 San Tomas Expy, Santa Clara, CA 95051", "outputs": ["twenty seven eighty eight San Tomas Expressway, Santa Clara, California nine five zero five one"]}
+{"lang": "en-us", "source": "nemo", "class": "address", "input": "2788 San Tomas Expy, Santa Clara, CA 95051", "outputs": ["twenty seven eighty eight San Tomas Expressway, Santa Clara, California nine five zero five one", "twenty-seven eighty-eight San Tomas Expressway, Santa Clara, California nine five zero five one"]}
 {"lang": "en-us", "source": "nemo", "class": "address", "input": "2 San Tomas hwy, Santa, FL, 95051", "outputs": ["two San Tomas Highway, Santa, Florida, nine five zero five one"]}
-{"lang": "en-us", "source": "nemo", "class": "address", "input": "123 Smth St, City, NY", "outputs": ["one twenty three Smth Street, City, New York"]}
-{"lang": "en-us", "source": "nemo", "class": "address", "input": "123 Laguna Ct, Town", "outputs": ["one twenty three Laguna Court, Town"]}
+{"lang": "en-us", "source": "nemo", "class": "address", "input": "123 Smth St, City, NY", "outputs": ["one twenty three Smth Street, City, New York", "one hundred twenty-three Smth Street, City, New York"]}
+{"lang": "en-us", "source": "nemo", "class": "address", "input": "123 Laguna Ct, Town", "outputs": ["one twenty three Laguna Court, Town", "one hundred twenty-three Laguna Court, Town"]}
 {"lang": "en-us", "source": "nemo", "class": "address", "input": "1211 E Arques Ave", "outputs": ["twelve eleven East Arques Avenue"]}
-{"lang": "en-us", "source": "nemo", "class": "address", "input": "708 N 1st St, San City", "outputs": ["seven zero eight North first Street, San City"]}
+{"lang": "en-us", "source": "nemo", "class": "address", "input": "708 N 1st St, San City", "outputs": ["seven zero eight North first Street, San City", "seven hundred eight North first Street, San City"]}
 {"lang": "en-us", "source": "nemo", "class": "address", "input": "12 S 1st st", "outputs": ["twelve South first Street"]}
 {"lang": "en-us", "source": "nemo", "class": "address", "input": "1990 for the Ata ST", "outputs": ["nineteen ninety for the Ata ST"]}
-{"lang": "en-us", "source": "nemo", "class": "address", "input": "Main St.", "outputs": ["Main St."]}
+{"lang": "en-us", "source": "nemo", "class": "address", "input": "Main St.", "outputs": ["Main St.", "Main Street."]}
 {"lang": "en-us", "source": "nemo", "class": "address", "input": "Nancy lived at 1428 Elm St. It was a strange place.", "outputs": ["Nancy lived at fourteen twenty eight Elm Street. It was a strange place."]}
 {"lang": "en-us", "source": "nemo", "class": "address", "input": "(incorrect normalization) Nancy lived at 1428 Elm St. 4 doors down lived her best friend.", "outputs": ["(incorrect normalization) Nancy lived at fourteen twenty eight Elm Street four doors down lived her best friend."]}
 {"lang": "en-us", "source": "nemo", "class": "cardinal", "input": "1", "outputs": ["one"]}
@@ -110,8 +110,8 @@
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "nvidia.com", "outputs": ["nvidia dot com"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "test.com", "outputs": ["test dot com"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "test.abc", "outputs": ["test dot abc"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "http://www.ourdailynews.com.sm", "outputs": ["HTTP colon slash slash WWW dot ourdailynews dot com dot SM"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://www.ourdailynews.com.sm", "outputs": ["HTTPS colon slash slash WWW dot ourdailynews dot com dot SM"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "http://www.ourdailynews.com.sm", "outputs": ["HTTP colon slash slash WWW dot ourdailynews dot com dot SM", "w w w dot ourdailynews dot com dot sm"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://www.ourdailynews.com.sm", "outputs": ["HTTPS colon slash slash WWW dot ourdailynews dot com dot SM", "w w w dot ourdailynews dot com dot sm"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "www.ourdailynews.com.sm", "outputs": ["WWW dot ourdailynews dot com dot SM"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "www.ourdailynews.com/123-sm", "outputs": ["WWW dot ourdailynews dot com slash one two three dash SM"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "sdf@gmail.com.sm", "outputs": ["sdf at gmail dot com dot SM"]}
@@ -121,17 +121,17 @@
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "ourdailynews.com/12-sm", "outputs": ["ourdailynews dot com slash one two dash sm"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "ourdailynews.abc", "outputs": ["ourdailynews dot abc"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "file:///c/code/NeMo/docs/build/html/processing/intro.html", "outputs": ["file colon slash slash slash c slash code slash nemo slash docs slash build slash html slash processing slash intro dot HTML"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "file:///photos/image.jpg", "outputs": ["file colon slash slash slash photos slash image dot jpeg"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "file:///photos/image.jpg", "outputs": ["file colon slash slash slash photos slash image dot jpeg", "file colon slash slash slash photos slash image dot jpg"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "electronic test.com and test2.uk", "outputs": ["electronic test dot com and test two dot UK"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://developer.nvidia.com/drive-sim-early-access-program", "outputs": ["HTTPS colon slash slash developer dot NVIDIA dot com slash drive dash sim dash early dash access dash program"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://developer.nvidia.com/cv-cuda/early-access", "outputs": ["HTTPS colon slash slash developer dot NVIDIA dot com slash cv dash CUDA slash early dash access"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com/dgx-basepod", "outputs": ["HTTPS colon slash slash WWW dot NVIDIA dot com slash DGX dash BASEPOD"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com/dgx-basepod.sm/3", "outputs": ["HTTPS colon slash slash WWW dot NVIDIA dot com slash DGX dash BASEPOD dot SM slash three"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "http://www.nvidia.com/rtx-6000", "outputs": ["HTTP colon slash slash WWW dot NVIDIA dot com slash RTX dash six thousand"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://developer.nvidia.com/drive-sim-early-access-program", "outputs": ["HTTPS colon slash slash developer dot NVIDIA dot com slash drive dash sim dash early dash access dash program", "developer dot nvidia dot com slash drive dash sim dash early dash access dash program"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://developer.nvidia.com/cv-cuda/early-access", "outputs": ["HTTPS colon slash slash developer dot NVIDIA dot com slash cv dash CUDA slash early dash access", "developer dot nvidia dot com slash cv dash cuda slash early dash access"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com/dgx-basepod", "outputs": ["HTTPS colon slash slash WWW dot NVIDIA dot com slash DGX dash BASEPOD", "w w w dot nvidia dot com slash dgx dash basepod"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com/dgx-basepod.sm/3", "outputs": ["HTTPS colon slash slash WWW dot NVIDIA dot com slash DGX dash BASEPOD dot SM slash three", "w w w dot nvidia dot com slash dgx dash basepod dot sm slash three"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "http://www.nvidia.com/rtx-6000", "outputs": ["HTTP colon slash slash WWW dot NVIDIA dot com slash RTX dash six thousand", "w w w dot nvidia dot com slash rtx dash six zero zero zero"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "rtxprohelp@exchange.nvidia.com", "outputs": ["RTX pro help at exchange dot NVIDIA dot com"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "enterpriseservices@nvidia.com", "outputs": ["enterprise services at NVIDIA dot com"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "enterprise-services@nvidia.com", "outputs": ["enterprise dash services at NVIDIA dot com"]}
-{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com/dgx-basepod/", "outputs": ["HTTPS colon slash slash WWW dot NVIDIA dot com slash DGX dash BASEPOD slash"]}
+{"lang": "en-us", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com/dgx-basepod/", "outputs": ["HTTPS colon slash slash WWW dot NVIDIA dot com slash DGX dash BASEPOD slash", "w w w dot nvidia dot com slash dgx dash basepod slash"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "i can use your card ending in 8876", "outputs": ["i can use your card ending in eight eight seven six"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "upgrade/update", "outputs": ["upgrade slash update"]}
 {"lang": "en-us", "source": "nemo", "class": "electronic", "input": "upgrade / update", "outputs": ["upgrade slash update"]}
@@ -163,7 +163,7 @@
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "12kg/kg", "outputs": ["twelve kilograms per kilogram"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "1 mbps", "outputs": ["one megabit per second"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "3 mbps", "outputs": ["three megabits per second"]}
-{"lang": "en-us", "source": "nemo", "class": "measure", "input": "3 cc/s", "outputs": ["three CC per S"]}
+{"lang": "en-us", "source": "nemo", "class": "measure", "input": "3 cc/s", "outputs": ["three CC per S", "three cubic centimeters per second"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "100 million kg", "outputs": ["one hundred million kilograms"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "a 123.2-millimeters long", "outputs": ["a one hundred and twenty three point two millimeters long", "a one hundred twenty-three point two-millimeters long"]}
 {"lang": "en-us", "source": "nemo", "class": "measure", "input": "covid-19.5", "outputs": ["covid- nineteen point five"]}
@@ -194,15 +194,15 @@
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$15000", "outputs": ["fifteen thousand dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$1", "outputs": ["one dollar"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$1.00", "outputs": ["one dollar"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$2.000", "outputs": ["two dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$2.000", "outputs": ["two dollars", "two point zero zero zero dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20", "outputs": ["twenty dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.506", "outputs": ["twenty point five zero six dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.50", "outputs": ["twenty dollars fifty cents", "twenty dollars and fifty cents"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.500", "outputs": ["twenty dollars fifty cents"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.500", "outputs": ["twenty dollars fifty cents", "twenty point five zero zero dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.5", "outputs": ["twenty dollars fifty cents", "twenty dollars and fifty cents"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.01", "outputs": ["twenty dollars one cent", "twenty dollars and one cent"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.010", "outputs": ["twenty dollars one cent"]}
-{"lang": "en-us", "source": "nemo", "class": "money", "input": "$0.010", "outputs": ["one cent"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$20.010", "outputs": ["twenty dollars one cent", "twenty point zero one zero dollars"]}
+{"lang": "en-us", "source": "nemo", "class": "money", "input": "$0.010", "outputs": ["one cent", "zero point zero one zero dollars"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$0.02", "outputs": ["two cents"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$0.20", "outputs": ["twenty cents"]}
 {"lang": "en-us", "source": "nemo", "class": "money", "input": "$.01", "outputs": ["one cent"]}
@@ -267,7 +267,7 @@
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "401-ks", "outputs": ["four oh one-ks", "four hundred one-ks"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "The box was 25 x 7 m.", "outputs": ["The box was twenty five by seven meters."]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "4567", "outputs": ["four thousand five hundred sixty seven", "four five six seven", "forty five sixty seven", "four thousand five hundred and sixty seven"]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "This example number 15,000 can be a very long one, and can fail to produce valid normalization for such an easy number like 10,125 or dollar value $5349.01, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, 452.", "outputs": ["This example number fifteen thousand can be a very long one, and can fail to produce valid normalization for such an easy number like ten thousand one hundred twenty five or dollar value five thousand three hundred and forty nine dollars and one cent, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, four fifty two."]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "This example number 15,000 can be a very long one, and can fail to produce valid normalization for such an easy number like 10,125 or dollar value $5349.01, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, 452.", "outputs": ["This example number fifteen thousand can be a very long one, and can fail to produce valid normalization for such an easy number like ten thousand one hundred twenty five or dollar value five thousand three hundred and forty nine dollars and one cent, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, four fifty two.", "This example number fifteen thousand can be a very long one, and can fail to produce valid normalization for such an easy number like ten thousand one hundred twenty-five or dollar value five thousand three hundred forty-nine dollars and one cent, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, and can fail to terminate, four hundred fifty-two."]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "$.02", "outputs": ["two cents"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "$17.31", "outputs": ["seventeen dollars and thirty one cents"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "$17.312", "outputs": ["seventeen point three one two dollars"]}
@@ -284,7 +284,7 @@
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "627", "outputs": ["six hundred twenty seven", "six twenty seven", "six two seven"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "3/4", "outputs": ["the fourth of march", "march fourth", "three quarters", "three fourths"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "3/4/1998", "outputs": ["march four nineteen ninety eight", "the fourth of march nineteen ninety eight", "three/four/one nine nine eight", "march fourth nineteen ninety eight"]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "1998-3-4", "outputs": ["nineteen ninety eight - march four", "nineteen ninety eight - march fourth", "nineteen ninety eight - the fourth of march", "one nine nine eight-three-four", "march fourth nineteen ninety eight"]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "1998-3-4", "outputs": ["nineteen ninety eight - march four", "nineteen ninety eight - march fourth", "nineteen ninety eight - the fourth of march", "one nine nine eight-three-four", "march fourth nineteen ninety eight", "the fourth of March nineteen ninety-eight"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "0.004", "outputs": ["zero point zero zero four", "oh point oh oh four"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "[0.4] and [5 and 4]", "outputs": ["[zero point four] and [five and four]"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "Henry III.", "outputs": ["Henry three.", "Henry the third."]}
@@ -294,14 +294,14 @@
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2*8", "outputs": ["two times eight", "two asterisk eight"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2-8", "outputs": ["two minus eight", "two to eight"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2:8", "outputs": ["two to eight"]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2/8", "outputs": ["two divided by eight"]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2/8", "outputs": ["two divided by eight", "two eighths"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "[YI1]", "outputs": ["[YI1]", "[YI one]"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "/ and $", "outputs": ["/ and dollar"]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2,500", "outputs": ["twenty five hundred"]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2,500", "outputs": ["twenty five hundred", "two thousand five hundred"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "A321sam", "outputs": ["A three twenty one sam"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2.5x", "outputs": ["two point five x", "two point five times", "two and a half times"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "10% to 20%", "outputs": ["ten to twenty percent", "ten percent to twenty percent"]}
-{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2%-10%", "outputs": ["two percent-ten percent", "two-ten percent"]}
+{"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "2%-10%", "outputs": ["two percent-ten percent", "two-ten percent", "two percent to ten percent"]}
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "0.5", "outputs": ["half", "zero point five"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "0th", "outputs": ["zeroth"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "11th", "outputs": ["eleventh"]}
@@ -329,8 +329,8 @@
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "121st", "outputs": ["one hundred twenty first"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "111th", "outputs": ["one hundred eleventh"]}
 {"lang": "en-us", "source": "nemo", "class": "ordinal", "input": "111st", "outputs": ["one one one st", "one hundred eleventh"]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a `quote` example", "outputs": ["a `quote` example"]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a `25` example", "outputs": ["a `twenty five` example"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a `quote` example", "outputs": ["a `quote` example", "a 'quote' example"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a `25` example", "outputs": ["a `twenty five` example", "a 'twenty-five' example"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "single quote.'", "outputs": ["single quote.'"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "single quote. '4", "outputs": ["single quote. ' four"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "company's results,' said he:", "outputs": ["company's results,' said he:"]}
@@ -367,8 +367,8 @@
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a: \"b\", \"c\", \"d\", \"e\", \"f\" or \"g\".", "outputs": ["a: \"b\", \"c\", \"d\", \"e\", \"f\" or \"g\"."]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a: \"b\" \"c\" \"d\" \"e\" \"f\" or \"g\".", "outputs": ["a: \"b\" \"c\" \"d\" \"e\" \"f\" or \"g\"."]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "a: ``b``, ``c``, ``d``, ``e``, ``f`` or ``g``.", "outputs": ["a: \"b\", \"c\", \"d\", \"e\", \"f\" or \"g\"."]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "80's", "outputs": ["eighty's"]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "test .b@gmail.com", "outputs": ["test. b at gmail dot com"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "80's", "outputs": ["eighty's", "eighties"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "test .b@gmail.com", "outputs": ["test. b at gmail dot com", "test dot b at gmail dot com"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "123,000012", "outputs": ["one hundred and twenty three, zero zero zero zero one two"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "9000,000th", "outputs": ["nine thousand, zero zero zero th", "nine thousand,oh oh oh th"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "16 July, 1943", "outputs": ["the sixteenth of july, nineteen forty three"]}
@@ -377,8 +377,8 @@
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "11:30...", "outputs": ["eleven thirty..."]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "11:20AM,2:40PM and 10:10PM.", "outputs": ["eleven twenty AM, two forty PM and ten ten PM."]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "dr. Evil", "outputs": ["dr. Evil"]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "1961–1965 and (2006–2012)", "outputs": ["nineteen sixty one– nineteen sixty five and (two thousand six– twenty twelve)"]}
-{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "114...48", "outputs": ["one hundred and fourteen... forty eight"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "1961–1965 and (2006–2012)", "outputs": ["nineteen sixty one– nineteen sixty five and (two thousand six– twenty twelve)", "nineteen sixty-one to nineteen sixty-five and (two thousand six to twenty twelve)"]}
+{"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "114...48", "outputs": ["one hundred and fourteen... forty eight", "one hundred fourteen... forty-eight"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "12kg.", "outputs": ["twelve kilograms."]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "<pitch=-.3>123?123</pitch>", "outputs": ["<pitch=-.3> one hundred and twenty three? one hundred and twenty three </pitch>"]}
 {"lang": "en-us", "source": "nemo", "class": "punctuation", "input": "2!", "outputs": ["two!"]}
@@ -420,7 +420,7 @@
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "25d08A", "outputs": ["twenty five d zero eight A", "twenty-five d oh eight A"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "C24", "outputs": ["C twenty four"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "W2s", "outputs": ["W two s"]}
-{"lang": "en-us", "source": "nemo", "class": "serial", "input": "1-413-te-b-1-5", "outputs": ["one-four hundred thirteen-te-b-one-five"]}
+{"lang": "en-us", "source": "nemo", "class": "serial", "input": "1-413-te-b-1-5", "outputs": ["one-four hundred thirteen-te-b-one-five", "one four thirteen te b one five"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "b-c-1-5-b-s-b", "outputs": ["b-c-one-five-b-s-b"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "MIG-25/235212-asdg", "outputs": ["MIG-twenty five/two three five two one two-asdg"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "1/f-4s", "outputs": ["one/f-four s"]}
@@ -429,11 +429,11 @@
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "7-eleven", "outputs": ["seven eleven"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "2x", "outputs": ["two x"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "31/31/100", "outputs": ["thirty one/thirty one/one hundred"]}
-{"lang": "en-us", "source": "nemo", "class": "serial", "input": "1-8090", "outputs": ["one - eight thousand and ninety"]}
+{"lang": "en-us", "source": "nemo", "class": "serial", "input": "1-8090", "outputs": ["one - eight thousand and ninety", "one-eighty ninety"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "f++", "outputs": ["f plus plus"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "dfsd#sfgsfd$", "outputs": ["dfsd hash sfgsfd dollar"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "dfsd$$sfgsfd$", "outputs": ["dfsd dollar dollar sfgsfd dollar"]}
-{"lang": "en-us", "source": "nemo", "class": "serial", "input": "$12@12%", "outputs": ["dollar twelve at twelve percent"]}
+{"lang": "en-us", "source": "nemo", "class": "serial", "input": "$12@12%", "outputs": ["dollar twelve at twelve percent", "twelve dollars at twelve percent"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "@12", "outputs": ["at twelve"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "12@", "outputs": ["twelve at"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "@mypizza", "outputs": ["at mypizza"]}
@@ -443,8 +443,8 @@
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "55-millimeters long", "outputs": ["fifty five-millimeters long"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "a 4-kilogram bag", "outputs": ["a four-kilogram bag"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "100-car", "outputs": ["one hundred-car"]}
-{"lang": "en-us", "source": "nemo", "class": "serial", "input": "123/261788/2021", "outputs": ["one hundred twenty three/two six one seven eight eight/two thousand twenty one"]}
-{"lang": "en-us", "source": "nemo", "class": "serial", "input": "2*8", "outputs": ["two asterisk eight"]}
+{"lang": "en-us", "source": "nemo", "class": "serial", "input": "123/261788/2021", "outputs": ["one hundred twenty three/two six one seven eight eight/two thousand twenty one", "one hundred twenty-three/two six one seven eight eight/twenty twenty-one"]}
+{"lang": "en-us", "source": "nemo", "class": "serial", "input": "2*8", "outputs": ["two asterisk eight", "two times eight"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "my pnr is t2000", "outputs": ["my pnr is t two thousand"]}
 {"lang": "en-us", "source": "nemo", "class": "serial", "input": "your otp is ab9453", "outputs": ["your otp is ab nine four five three"]}
 {"lang": "en-us", "source": "nemo", "class": "special_text", "input": "[HH AH0 L OW1]", "outputs": ["[HH AH0 L OW1]"]}
@@ -468,11 +468,11 @@
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "123-123-5678-1", "outputs": ["one two three, one two three, five six seven eight, one"]}
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "1-800-GO-U-HAUL", "outputs": ["one, eight hundred, GO U HAUL"]}
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "1-800-GO-2-HAUL", "outputs": ["one, eight hundred, GO two, HAUL"]}
-{"lang": "en-us", "source": "nemo", "class": "telephone", "input": "987.987.0.40", "outputs": ["nine eight seven dot nine eight seven dot zero dot four zero"]}
+{"lang": "en-us", "source": "nemo", "class": "telephone", "input": "987.987.0.40", "outputs": ["nine eight seven dot nine eight seven dot zero dot four zero", "nine hundred eighty-seven dot nine hundred eighty-seven dot zero dot forty"]}
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "call me at +1 123-123-5678", "outputs": ["call me at plus one, one two three, one two three, five six seven eight"]}
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "call me at 123-123-5678", "outputs": ["call me at one two three, one two three, five six seven eight"]}
-{"lang": "en-us", "source": "nemo", "class": "telephone", "input": "123.123.0.40", "outputs": ["one two three dot one two three dot zero dot four zero"]}
-{"lang": "en-us", "source": "nemo", "class": "telephone", "input": "IP address is 123.123.0.40", "outputs": ["IP address is one two three dot one two three dot zero dot four zero"]}
+{"lang": "en-us", "source": "nemo", "class": "telephone", "input": "123.123.0.40", "outputs": ["one two three dot one two three dot zero dot four zero", "one hundred twenty-three dot one hundred twenty-three dot zero dot forty"]}
+{"lang": "en-us", "source": "nemo", "class": "telephone", "input": "IP address is 123.123.0.40", "outputs": ["IP address is one two three dot one two three dot zero dot four zero", "IP address is one hundred twenty-three dot one hundred twenty-three dot zero dot forty"]}
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "111-11-1111", "outputs": ["one one one, one one, one one one one"]}
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "my ssn is 111-11-1111", "outputs": ["my SSN is one one one, one one, one one one one"]}
 {"lang": "en-us", "source": "nemo", "class": "telephone", "input": "555.555.5555", "outputs": ["five five five, five five five, five five five five"]}
@@ -491,7 +491,7 @@
 {"lang": "en-us", "source": "nemo", "class": "time", "input": "1:59 p.m. est", "outputs": ["one fifty nine PM EST"]}
 {"lang": "en-us", "source": "nemo", "class": "time", "input": "1:59 p.m.est", "outputs": ["one fifty nine PM EST"]}
 {"lang": "en-us", "source": "nemo", "class": "time", "input": "1:59 p.m. e.s.t", "outputs": ["one fifty nine PM EST"]}
-{"lang": "en-us", "source": "nemo", "class": "time", "input": "10:00:00 p.m. e.s.t", "outputs": ["ten hours zero minutes and zero seconds PM EST"]}
+{"lang": "en-us", "source": "nemo", "class": "time", "input": "10:00:00 p.m. e.s.t", "outputs": ["ten hours zero minutes and zero seconds PM EST", "ten p.m. e.s.t"]}
 {"lang": "en-us", "source": "nemo", "class": "time", "input": "1:01:01", "outputs": ["one hour one minute and one second"]}
 {"lang": "en-us", "source": "nemo", "class": "time", "input": "14:10:30", "outputs": ["fourteen hours ten minutes and thirty seconds"]}
 {"lang": "en-us", "source": "nemo", "class": "time", "input": "2pm-5pm", "outputs": ["two PM to five PM"]}
@@ -499,7 +499,7 @@
 {"lang": "en-us", "source": "nemo", "class": "time", "input": "21:51:31", "outputs": ["twenty one hours fifty one minutes and thirty one seconds"]}
 {"lang": "en-us", "source": "nemo", "class": "time", "input": "01:01:01", "outputs": ["one hour one minute and one second"]}
 {"lang": "en-us", "source": "nemo", "class": "whitelist", "input": "Dr. Evil", "outputs": ["doctor Evil"]}
-{"lang": "en-us", "source": "nemo", "class": "whitelist", "input": "Mrs. Norris", "outputs": ["misses Norris"]}
+{"lang": "en-us", "source": "nemo", "class": "whitelist", "input": "Mrs. Norris", "outputs": ["misses Norris", "Missus Norris"]}
 {"lang": "en-us", "source": "nemo", "class": "whitelist", "input": "DNA is", "outputs": ["DNA is"]}
 {"lang": "en-us", "source": "nemo", "class": "whitelist", "input": "C. S. Lewis", "outputs": ["CS Lewis"]}
 {"lang": "en-us", "source": "nemo", "class": "whitelist", "input": "tv", "outputs": ["TV"]}
@@ -558,14 +558,14 @@
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1111", "outputs": ["thousand one hundred and eleven"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "2000", "outputs": ["two thousand"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10000", "outputs": ["ten thousand"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10001", "outputs": ["ten thousand and one"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10011", "outputs": ["ten thousand and eleven"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10111", "outputs": ["ten thousand one hundred and eleven"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "11111", "outputs": ["eleven thousand one hundred and eleven"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10001", "outputs": ["ten thousand and one", "ten thousand one"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10011", "outputs": ["ten thousand and eleven", "ten thousand eleven"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10111", "outputs": ["ten thousand one hundred and eleven", "ten thousand one hundred eleven"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "11111", "outputs": ["eleven thousand one hundred and eleven", "eleven thousand one hundred eleven"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "20000", "outputs": ["twenty thousand"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "101111", "outputs": ["one hundred one thousand one hundred and eleven"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1001111", "outputs": ["one million one thousand one hundred and eleven"]}
-{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10001111", "outputs": ["ten million one thousand one hundred and eleven"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "101111", "outputs": ["one hundred one thousand one hundred and eleven", "one hundred one thousand one hundred eleven"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "1001111", "outputs": ["one million one thousand one hundred and eleven", "one million one thousand one hundred eleven"]}
+{"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "10001111", "outputs": ["ten million one thousand one hundred and eleven", "ten million one thousand one hundred eleven"]}
 {"lang": "en-us", "source": "wetext", "class": "cardinal", "input": "4567", "outputs": ["four thousand five hundred and sixty seven"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "1219", "outputs": ["twelve nineteen"]}
 {"lang": "en-us", "source": "wetext", "class": "date", "input": "2999", "outputs": ["twenty nine ninety nine"]}
@@ -596,17 +596,17 @@
 {"lang": "en-us", "source": "wetext", "class": "measure", "input": "1kg", "outputs": ["one kilogram"]}
 {"lang": "en-us", "source": "wetext", "class": "measure", "input": ".5kg", "outputs": ["point five kilograms"]}
 {"lang": "en-us", "source": "wetext", "class": "measure", "input": "3.5 cm²", "outputs": ["three point five square centimeters"]}
-{"lang": "en-us", "source": "wetext", "class": "measure", "input": "2788 San Tomas Expy, Santa Clara, CA 95051", "outputs": ["twenty seven eighty eight San Tomas Expressway, Santa Clara, California nine five oh five one"]}
+{"lang": "en-us", "source": "wetext", "class": "measure", "input": "2788 San Tomas Expy, Santa Clara, CA 95051", "outputs": ["twenty seven eighty eight San Tomas Expressway, Santa Clara, California nine five oh five one", "twenty-seven eighty-eight San Tomas Expressway, Santa Clara, California nine five zero five one"]}
 {"lang": "en-us", "source": "wetext", "class": "measure", "input": "2-3 °C", "outputs": ["two to three degrees Celsius"]}
 {"lang": "en-us", "source": "wetext", "class": "measure", "input": "2 * 10 μm", "outputs": ["two times ten micrometers"]}
-{"lang": "en-us", "source": "wetext", "class": "money", "input": "$12.05", "outputs": ["twelve point oh five dollars"]}
-{"lang": "en-us", "source": "wetext", "class": "money", "input": "$12.0500", "outputs": ["twelve point oh five dollars"]}
+{"lang": "en-us", "source": "wetext", "class": "money", "input": "$12.05", "outputs": ["twelve point oh five dollars", "twelve dollars and five cents"]}
+{"lang": "en-us", "source": "wetext", "class": "money", "input": "$12.0500", "outputs": ["twelve point oh five dollars", "twelve point zero five zero zero dollars"]}
 {"lang": "en-us", "source": "wetext", "class": "money", "input": "$1", "outputs": ["one dollar"]}
 {"lang": "en-us", "source": "wetext", "class": "money", "input": "$1.00", "outputs": ["one dollar"]}
-{"lang": "en-us", "source": "wetext", "class": "money", "input": "$0.05", "outputs": ["zero point oh five dollars"]}
+{"lang": "en-us", "source": "wetext", "class": "money", "input": "$0.05", "outputs": ["zero point oh five dollars", "five cents"]}
 {"lang": "en-us", "source": "wetext", "class": "money", "input": "$1 million", "outputs": ["one million dollars"]}
 {"lang": "en-us", "source": "wetext", "class": "money", "input": "$1.2 million", "outputs": ["one point two million dollars"]}
-{"lang": "en-us", "source": "wetext", "class": "money", "input": "$1.2320", "outputs": ["one point two three two dollars"]}
+{"lang": "en-us", "source": "wetext", "class": "money", "input": "$1.2320", "outputs": ["one point two three two dollars", "one point two three two zero dollars"]}
 {"lang": "en-us", "source": "wetext", "class": "ordinal", "input": "1st", "outputs": ["first"]}
 {"lang": "en-us", "source": "wetext", "class": "ordinal", "input": "2nd", "outputs": ["second"]}
 {"lang": "en-us", "source": "wetext", "class": "ordinal", "input": "3rd", "outputs": ["third"]}
@@ -630,4 +630,4 @@
 {"lang": "en-us", "source": "wetext", "class": "time", "input": "02:00", "outputs": ["two o'clock"]}
 {"lang": "en-us", "source": "wetext", "class": "time", "input": "02:30", "outputs": ["two thirty"]}
 {"lang": "en-us", "source": "wetext", "class": "time", "input": "2:00", "outputs": ["two o'clock"]}
-{"lang": "en-us", "source": "wetext", "class": "time", "input": "10:00:05 a.m.", "outputs": ["ten hours zero minutes and five seconds AM"]}
+{"lang": "en-us", "source": "wetext", "class": "time", "input": "10:00:05 a.m.", "outputs": ["ten hours zero minutes and five seconds AM", "ten hours and five seconds a.m."]}

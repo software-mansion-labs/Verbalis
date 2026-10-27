@@ -311,7 +311,8 @@ inline const Terms kTerms = {
     {U"apr. J.-C.", {U"après Jésus-Christ"}},
   },
   .web = {.dot = U"point", .at = U"arobase", .slash = U"slash", .hyphen = U"tiret", .underscore = U"tiret bas",
-          .digits = {U"zéro", U"un", U"deux", U"trois", U"quatre", U"cinq", U"six", U"sept", U"huit", U"neuf"}}
+          .digits = {U"zéro", U"un", U"deux", U"trois", U"quatre", U"cinq", U"six", U"sept", U"huit", U"neuf"}},
+  .closing = {U"etc."}
 };
 
 } // namespace verbalis::languages::fr

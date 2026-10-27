@@ -37,12 +37,12 @@ export class SymbolReader {
         start = symbol > start ? symbol : start + 1;
         continue;
       }
+      // 2. The words of each symbol in the context of the run, without the spaces around it: "Google+", but "tiene +1"
+      const context = new Context(text, { begin: symbol, end });
       while (end < text.length && isSpace(text[end])) {
         end++;
       }
 
-      // 2. The words of each symbol in the context of the run
-      const context = new Context(text, { begin: start, end });
       const words: string[] = [];
       for (const s of symbols) {
         const word = read(this.#symbols[s], context) ?? s;

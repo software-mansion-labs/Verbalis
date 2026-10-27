@@ -373,39 +373,6 @@ public:
   }
 };
 
-// 14:30:05: a time with seconds
-class SecondsPattern : public Pattern {
-public:
-  SecondsPattern() : Pattern(Kind::TIME) {}
-
-  std::optional<Match> match(std::u32string_view text, size_t position) const override {
-    if (!is_clear_before(text, position, U".,")) {
-      return std::nullopt;
-    }
-    Match time{.kind = Kind::TIME, .separator = U':'};
-    size_t end = position;
-    for (size_t i = 0; i < 3; ++i) {
-      if (i > 0) {
-        if (end >= text.size() || text[end] != U':') {
-          return std::nullopt;
-        }
-        end++;
-      }
-      size_t length = digits_end(text, end) - end;
-      if (length < (i == 0 ? 1 : 2) || length > 2) {
-        return std::nullopt;
-      }
-      time.numbers.push_back(digits_at(text, end));
-      end += length;
-    }
-    if (!is_clear_after(text, end) || is_digit_after(text, end, U".,:") || value(time.numbers[2]) > 59) {
-      return std::nullopt;
-    }
-    time.span = {position, end};
-    return time;
-  }
-};
-
 // --------------------
 // ----- Language -----
 // --------------------
@@ -430,6 +397,11 @@ protected:
     Cues cues = cues_of(match);
     if (number.fraction.empty() && cues.day && number.integer == U"1") {
       return U"primeiro";
+    }
+    // 1234567890 alone: the whole text is a number, not a code
+    if (auto n = parse_value(number.integer); n && number.fraction.empty() && number.integer[0] != U'0' &&
+                                              match.context.head().empty() && match.context.tail().empty()) {
+      return cardinal(*n, Gender::MASCULINE);
     }
     // Em 2020 havia: a year counts nothing after it
     bool year = kYearWords.contains(match.context.before()) && number.integer.size() == 4 && !number.grouped &&

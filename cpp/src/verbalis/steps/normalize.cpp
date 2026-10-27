@@ -37,6 +37,15 @@ std::optional<Document::Edit> read_lost(std::u32string_view text, size_t positio
   return std::nullopt;
 }
 
+// An ellipsis right before a digit, spaced from it so the number reads on its own: 114...48 -> 114... 48
+std::optional<Document::Edit> read_ellipsis(std::u32string_view text, size_t position) {
+  size_t end = text.substr(position).starts_with(U"...") ? position + 3 : position + (text[position] == U'…');
+  if (end == position || end >= text.size() || !unicode::isdigit(text[end])) {
+    return std::nullopt;
+  }
+  return Document::Edit{.span = {position, end}, .text = U"... "};
+}
+
 // A fraction character standing apart, written with digits for the fraction readings: ¾ szklanki -> 3/4, 2½ -> 2 1/2;
 // nullopt next to a letter, where it is likely a mis-encoded letter (dï¿½clarant)
 std::optional<std::u32string> vulgar_fraction(std::u32string_view text, size_t position) {
@@ -96,6 +105,13 @@ std::optional<Document::Edit> read_utf8(std::u32string_view text, size_t positio
   if ((length == 3 && c < 0x800) || (length == 4 && (c < 0x10000 || c > 0x10ffff))) {
     return std::nullopt;
   }
+  // Only what mis-encoded text holds: Latin letters, Devanagari, and punctuation (â€™ -> ’); not a pair which is
+  // itself text (Spaß», ÉTÉ»)
+  bool latin = c >= 0xa0 && c <= 0x24f, devanagari = c >= 0x900 && c <= 0x97f;
+  bool punctuation = (c >= 0x2010 && c <= 0x206f) || c == 0x20ac || c == 0x2122;
+  if (!latin && !devanagari && !punctuation && length < 4) { // and emoji (ðŸ™‚ -> 🙂)
+    return std::nullopt;
+  }
   return Document::Edit{.span = {position, position + length}, .text = std::u32string(1, c)};
 }
 } // namespace
@@ -106,7 +122,6 @@ Normalizer::Normalizer(const Characters& characters) {
       canonical_[c] = canonical;
       if (letter) {
         letters_.insert(c);
-        utf8_ = true;
       }
     }
   }
@@ -116,9 +131,12 @@ void Normalizer::apply(Document& document) const {
   std::u32string_view text = document.text();
 
   for (size_t i = 0; i < text.size();) {
-    auto edit = utf8_ ? read_utf8(text, i) : std::nullopt;
+    auto edit = read_utf8(text, i);
     if (!edit) {
       edit = read_lost(text, i);
+    }
+    if (!edit) {
+      edit = read_ellipsis(text, i);
     }
     if (!edit) {
       edit = read_dash(text, i);
@@ -159,8 +177,19 @@ std::optional<Document::Edit> Normalizer::read_dash(std::u32string_view text, si
     return std::nullopt;
   }
 
-  // 1. Inside a word or a number: Szczurek–Żelazko, 1990–2000, a--b
-  if (position > 0 && unicode::isword(text[position - 1]) && end < text.size() && unicode::isword(text[end])) {
+  // 1. Inside a word or a number: Szczurek–Żelazko, 1990–2000; but an em dash or two hyphens before a word is a
+  // pause, as with spaces around it (case 2): briefs—styles, I--test. A shorter part after them is a clitic
+  // (limitou--se, elegê--los) or a mis-encoded letter (spos—b). An em dash before a number is a pause too.
+  size_t word_end = end;
+  while (word_end < text.size() && unicode::isalpha(text[word_end])) {
+    word_end++;
+  }
+  bool number = end < text.size() && unicode::isdigit(text[end]); // drizzle—0.2 mm
+  bool pause = text[position] == U'—' ? number || word_end - end >= 3 : end - position >= 2 && word_end - end >= 4;
+  bool digits =
+      position > 0 && unicode::isdigit(text[position - 1]) && end < text.size() && unicode::isdigit(text[end]);
+  if (position > 0 && unicode::isword(text[position - 1]) && end < text.size() && unicode::isword(text[end]) &&
+      (!pause || digits)) {
     return Document::Edit{.span = {position, end}, .text = U"-"};
   }
 

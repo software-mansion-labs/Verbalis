@@ -13,6 +13,13 @@
   ("um quilo~um quilograma") into separate readings. `build.py` keeps NeMo's "~" inside the string; es, it, and en-us
   have such cases too.
 
+- `nemo/decimal`: added two decimal digits read as one number ("um vírgula vinte e seis"), as Portuguese speakers
+  usually say them; gold reads each digit ("um vírgula dois seis"): `0,10`, `0,11`, `0,15`, `0,20`, `0,25`,
+  `0,50`, `0,99`, `1,10`, `1,15`, `1,20`, `1,26`, `1,33`, `1,50`, `-1,26`, `1,25 milhões`, `3,75 bilhões`, `3,14`,
+  `12,27`, `87,69`.
+- `nemo/electronic`: added a URL read without its scheme and with its names as words: `https://www.nvidia.com`,
+  `http://site.com.br`, `https://www.amazon.com.br`.
+
 ## Unreachable
 
 - `nemo/time` `14.30`: a bare dot between two numbers is a decimal as often as a time in Portuguese text (the

@@ -272,31 +272,6 @@ public:
   }
 };
 
-// 1 000e, 2 000 000e: an ordinal of a grouped number, which the suffix pattern doesn't read
-class GroupedOrdinalPattern : public Pattern {
-public:
-  GroupedOrdinalPattern() : Pattern(Kind::ORDINAL) {}
-
-  std::optional<Match> match(std::u32string_view text, size_t position) const override {
-    if (!is_clear_before(text, position, U".,")) {
-      return std::nullopt;
-    }
-    for (const Number& number : numbers_at(text, position, U" \u00a0\u202f", U"")) {
-      size_t end = number.span.end;
-      if (!number.grouped) {
-        continue;
-      }
-      for (auto suffix : keys_at(text, end, kOrdinalSuffixes)) {
-        if (is_clear_after(text, end + suffix.size())) {
-          return Match{
-              .kind = Kind::ORDINAL, .span = {position, end + suffix.size()}, .numbers = {number}, .suffix = suffix};
-        }
-      }
-    }
-    return std::nullopt;
-  }
-};
-
 // 3 1/2 km: a whole number and a half before a masculine unit, read "trois kilomètres et demi" (the whole number by
 // read_number, and "et demi" by the joiners)
 class HalfUnitPattern : public Pattern {
@@ -418,7 +393,7 @@ public:
     add_pattern(std::make_unique<EuroCentsPattern>());
     add_pattern(std::make_unique<MetersPattern>());
     add_pattern(std::make_unique<HalfUnitPattern>());
-    add_pattern(std::make_unique<GroupedOrdinalPattern>());
+    add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSuffixes, U" \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<RomanOrdinalPattern>());
     add_pattern(std::make_unique<RomanPattern>());

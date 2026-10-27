@@ -330,7 +330,8 @@ inline const Terms kTerms = {
     {U"Mwst.", {U"Mehrwertsteuer"}},
   },
   .web = {.dot = U"Punkt", .at = U"at", .slash = U"Schrägstrich", .hyphen = U"Bindestrich", .underscore = U"Unterstrich",
-          .digits = {U"null", U"eins", U"zwei", U"drei", U"vier", U"fünf", U"sechs", U"sieben", U"acht", U"neun"}}
+          .digits = {U"null", U"eins", U"zwei", U"drei", U"vier", U"fünf", U"sechs", U"sieben", U"acht", U"neun"}},
+  .closing = {U"usw.", U"etc."}
 };
 
 } // namespace verbalis::languages::de

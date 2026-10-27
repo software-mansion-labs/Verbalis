@@ -244,7 +244,7 @@ export abstract class PatternLanguage extends Language {
       case Kind.COMPOUND:
         return this.readCompound(match);
       case Kind.CODE:
-        return this.#readCode(match);
+        return this.readCode(match);
       case Kind.NUMBER:
         return this.readPlain(match);
     }
@@ -302,7 +302,7 @@ export abstract class PatternLanguage extends Language {
     return `${this.#joiners.plus} ${this.readCountryCode(match.numbers[0].integer)} ${words}`;
   }
 
-  #readCode(match: Match): string {
+  protected readCode(match: Match): string {
     // Letters stay, digit runs read as numbers: MP3, COVID-19, L'A380, F-16s
     const out: string[] = [];
     let glue = false;

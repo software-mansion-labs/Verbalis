@@ -148,22 +148,22 @@
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,01", "outputs": ["zero vírgula zero um"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,02", "outputs": ["zero vírgula zero dois"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,05", "outputs": ["zero vírgula zero cinco"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,10", "outputs": ["zero vírgula um zero"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,11", "outputs": ["zero vírgula um um"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,15", "outputs": ["zero vírgula um cinco"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,20", "outputs": ["zero vírgula dois zero"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,25", "outputs": ["zero vírgula dois cinco"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,50", "outputs": ["zero vírgula cinco zero"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,99", "outputs": ["zero vírgula nove nove"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,10", "outputs": ["zero vírgula um zero", "zero vírgula dez"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,11", "outputs": ["zero vírgula um um", "zero vírgula onze"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,15", "outputs": ["zero vírgula um cinco", "zero vírgula quinze"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,20", "outputs": ["zero vírgula dois zero", "zero vírgula vinte"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,25", "outputs": ["zero vírgula dois cinco", "zero vírgula vinte e cinco"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,50", "outputs": ["zero vírgula cinco zero", "zero vírgula cinquenta"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,99", "outputs": ["zero vírgula nove nove", "zero vírgula noventa e nove"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,1", "outputs": ["um vírgula um"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,2", "outputs": ["um vírgula dois"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,5", "outputs": ["um vírgula cinco"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,10", "outputs": ["um vírgula um zero"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,15", "outputs": ["um vírgula um cinco"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,20", "outputs": ["um vírgula dois zero"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,26", "outputs": ["um vírgula dois seis"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,33", "outputs": ["um vírgula três três"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,50", "outputs": ["um vírgula cinco zero"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,10", "outputs": ["um vírgula um zero", "um vírgula dez"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,15", "outputs": ["um vírgula um cinco", "um vírgula quinze"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,20", "outputs": ["um vírgula dois zero", "um vírgula vinte"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,26", "outputs": ["um vírgula dois seis", "um vírgula vinte e seis"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,33", "outputs": ["um vírgula três três", "um vírgula trinta e três"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,50", "outputs": ["um vírgula cinco zero", "um vírgula cinquenta"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,141", "outputs": ["três vírgula um quatro um"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,256", "outputs": ["três vírgula dois cinco seis"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,999", "outputs": ["três vírgula nove nove nove"]}
@@ -174,14 +174,14 @@
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,1005", "outputs": ["três vírgula um zero zero cinco"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,1050", "outputs": ["três vírgula um zero cinco zero"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "-1,2", "outputs": ["menos um vírgula dois"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "-1,26", "outputs": ["menos um vírgula dois seis"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "-1,26", "outputs": ["menos um vírgula dois seis", "menos um vírgula vinte e seis"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "-3,5", "outputs": ["menos três vírgula cinco"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "-0,5", "outputs": ["menos zero vírgula cinco"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,2 milhões", "outputs": ["um vírgula dois milhões"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,5 milhões", "outputs": ["um vírgula cinco milhões"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,25 milhões", "outputs": ["um vírgula dois cinco milhões"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,25 milhões", "outputs": ["um vírgula dois cinco milhões", "um vírgula vinte e cinco milhões"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "2,5 bilhões", "outputs": ["dois vírgula cinco bilhões"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,75 bilhões", "outputs": ["três vírgula sete cinco bilhões"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,75 bilhões", "outputs": ["três vírgula sete cinco bilhões", "três vírgula setenta e cinco bilhões"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,001", "outputs": ["zero vírgula zero zero um"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "0,0001", "outputs": ["zero vírgula zero zero zero um"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,001", "outputs": ["um vírgula zero zero um"]}
@@ -191,23 +191,23 @@
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "10,001", "outputs": ["dez vírgula zero zero um"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "100,5", "outputs": ["cem vírgula cinco"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "100,05", "outputs": ["cem vírgula zero cinco"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,14", "outputs": ["três vírgula um quatro"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,14", "outputs": ["três vírgula um quatro", "três vírgula catorze"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,14159", "outputs": ["três vírgula um quatro um cinco nove"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "1,1234567", "outputs": ["um vírgula um dois três quatro cinco seis sete"]}
 {"lang": "pt", "source": "nemo", "class": "decimal", "input": "3,1415926535", "outputs": ["três vírgula um quatro um cinco nove dois seis cinco três cinco"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "12,27", "outputs": ["doze vírgula dois sete"]}
-{"lang": "pt", "source": "nemo", "class": "decimal", "input": "87,69", "outputs": ["oitenta e sete vírgula seis nove"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "12,27", "outputs": ["doze vírgula dois sete", "doze vírgula vinte e sete"]}
+{"lang": "pt", "source": "nemo", "class": "decimal", "input": "87,69", "outputs": ["oitenta e sete vírgula seis nove", "oitenta e sete vírgula sessenta e nove"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "test@gmail.com", "outputs": ["t e s t arroba gmail ponto com"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "a.bc@gmail.com", "outputs": ["a ponto b c arroba gmail ponto com"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "admin@company.com.br", "outputs": ["a d m i n arroba c o m p a n y ponto com ponto br"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "www.google.com", "outputs": ["w w w ponto google ponto com"]}
-{"lang": "pt", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com", "outputs": ["h t t p s dois pontos barra barra w w w ponto nvidia ponto com"]}
-{"lang": "pt", "source": "nemo", "class": "electronic", "input": "http://site.com.br", "outputs": ["h t t p dois pontos barra barra s i t e ponto com ponto br"]}
+{"lang": "pt", "source": "nemo", "class": "electronic", "input": "https://www.nvidia.com", "outputs": ["h t t p s dois pontos barra barra w w w ponto nvidia ponto com", "w w w ponto nvidia ponto com"]}
+{"lang": "pt", "source": "nemo", "class": "electronic", "input": "http://site.com.br", "outputs": ["h t t p dois pontos barra barra s i t e ponto com ponto br", "site ponto com ponto br"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "nvidia.com", "outputs": ["nvidia ponto com"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "@usuario", "outputs": ["arroba usuario"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "mail@google.com", "outputs": ["m a i l arroba google ponto com"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "support@microsoft.com", "outputs": ["s u p p o r t arroba microsoft ponto com"]}
-{"lang": "pt", "source": "nemo", "class": "electronic", "input": "https://www.amazon.com.br", "outputs": ["h t t p s dois pontos barra barra w w w ponto amazon ponto com ponto br"]}
+{"lang": "pt", "source": "nemo", "class": "electronic", "input": "https://www.amazon.com.br", "outputs": ["h t t p s dois pontos barra barra w w w ponto amazon ponto com ponto br", "w w w ponto amazon ponto com ponto br"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "u.s.e.r@facebook.com", "outputs": ["u ponto s ponto e ponto r arroba facebook ponto com"]}
 {"lang": "pt", "source": "nemo", "class": "electronic", "input": "api.netflix.com", "outputs": ["a p i ponto netflix ponto com"]}
 {"lang": "pt", "source": "nemo", "class": "fraction", "input": "1/2", "outputs": ["um meio", "meio"]}

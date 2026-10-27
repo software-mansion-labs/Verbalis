@@ -9,7 +9,7 @@ import {
   type Keys,
 } from "../text/scan.ts";
 import { contains, size, startsWith, str, type Text } from "../text/strings.ts";
-import { isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
+import { isAlnum, isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
 import type { DateFormat, Notation, PhoneFormat, SuffixFormat } from "./formats.ts";
 import { suffixFormat } from "./formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "./match.ts";
@@ -62,6 +62,20 @@ function amountsAt(text: Text, position: number, notation: Notation): Numeral[][
   }
   for (const number of firsts) {
     amounts.push([number]);
+  }
+
+  // .5 kg: a fraction without its integer part
+  if (
+    firsts.length === 0 &&
+    (position === 0 || isSpace(text[position - 1])) && // not a sentence dot: (jury).1° Lugar
+    text[position] === "." &&
+    contains(notation.decimalSeparators, ".") &&
+    isDigitAfter(text, position + 1)
+  ) {
+    const end = digitsEnd(text, position + 1);
+    amounts.push([
+      numeral({ span: { begin: position, end }, fraction: str(text, position + 1, end), decimalMark: "." }),
+    ]);
   }
   return amounts;
 }
@@ -252,6 +266,16 @@ export class RangePattern extends Pattern {
     while (start > 0 && isDigit(text[start - 1])) {
       start--;
     }
+    // Not a link of a chain of numbers or single letters: 4-1-4-1, b-c-1-5-b, but 14-29-jährigen
+    const link = (letter: number, outer: number): boolean =>
+      isDigit(text[letter]) || (isAlpha(text[letter]) && (outer >= text.length || !isAlnum(text[outer])));
+    const after = digitsEnd(text, end);
+    if (
+      (start > 1 && text[start - 1] === "-" && link(start - 2, start - 2 > 0 ? start - 3 : text.length)) ||
+      (after + 1 < text.length && text[after] === "-" && link(after + 1, after + 2))
+    ) {
+      return undefined;
+    }
     return match({
       kind: Kind.RANGE,
       span: { begin: position, end },
@@ -318,7 +342,7 @@ export class FractionPattern extends Pattern {
       return undefined;
     }
 
-    // 3 1/2, -4 1/3: a whole number of up to three digits, possibly signed, a space, and a proper fraction
+    // 3 1/2, -4 1/3, 1 5/3: a whole number of up to three digits, possibly signed, a space, and a fraction
     const whole = text[position] === "-" ? position + 1 : position;
     const wholeEnd = digitsEnd(text, whole);
     if (
@@ -330,11 +354,7 @@ export class FractionPattern extends Pattern {
       text[wholeEnd] === " "
     ) {
       const fraction = simpleFraction(text, wholeEnd + 1);
-      if (
-        fraction &&
-        fraction.numbers[0].integer[0] !== "0" &&
-        value(fraction.numbers[0]) < value(fraction.numbers[1])
-      ) {
+      if (fraction && fraction.numbers[0].integer[0] !== "0" && value(fraction.numbers[1]) > 1n) {
         return {
           ...fraction,
           span: { begin: position, end: fraction.span.end },
@@ -363,6 +383,74 @@ function simpleFraction(text: Text, position: number): Match | undefined {
     numbers: [digitsAt(text, position), digitsAt(text, slash + 1)],
     separator: "/",
   });
+}
+
+// 14:30:05: hours, minutes, and seconds
+export class SecondsPattern extends Pattern {
+  constructor() {
+    super(Kind.TIME);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,")) {
+      return undefined;
+    }
+    const time = match({ kind: Kind.TIME, separator: ":" });
+    let end = position;
+    for (let i = 0; i < 3; ++i) {
+      if (i > 0) {
+        if (end >= text.length || text[end] !== ":") {
+          return undefined;
+        }
+        end++;
+      }
+      const length = digitsEnd(text, end) - end;
+      if (length < (i === 0 ? 1 : 2) || length > 2) {
+        return undefined;
+      }
+      time.numbers.push(digitsAt(text, end));
+      end += length;
+    }
+    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:") || value(time.numbers[2]) > 59n) {
+      return undefined;
+    }
+    time.span = { begin: position, end };
+    return time;
+  }
+}
+
+// 1,000th, 1.000.º, 1 001.ᵉʳ: an ordinal of a grouped number
+export class GroupedOrdinalPattern extends Pattern {
+  readonly #suffixes: Keys;
+  readonly #groupSeparators: string;
+
+  constructor(suffixes: Keys, groupSeparators: string) {
+    super(Kind.ORDINAL);
+    this.#suffixes = suffixes;
+    this.#groupSeparators = groupSeparators;
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,")) {
+      return undefined;
+    }
+    for (const number of numbersAt(text, position, this.#groupSeparators, "")) {
+      if (!number.grouped) {
+        continue;
+      }
+      for (const key of keysAt(text, number.span.end, this.#suffixes)) {
+        if (isClearAfter(text, number.span.end + size(key))) {
+          return match({
+            kind: Kind.ORDINAL,
+            span: { begin: position, end: number.span.end + size(key) },
+            numbers: [number],
+            suffix: key,
+          });
+        }
+      }
+    }
+    return undefined;
+  }
 }
 
 // The minus of -5.
@@ -399,7 +487,7 @@ export class TimePattern extends Pattern {
   match(text: Text, position: number): Match | undefined {
     const hoursEnd = digitsEnd(text, position);
     if (
-      !isClearBefore(text, position, NUMBER_BOUNDARIES) ||
+      !(isClearBefore(text, position, NUMBER_BOUNDARIES) || this.#afterSuffix(text, position)) ||
       hoursEnd === position ||
       hoursEnd > position + 2 ||
       hoursEnd >= text.length
@@ -433,7 +521,7 @@ export class TimePattern extends Pattern {
     // With a suffix first (10:30 pm), then without it
     const suffix = skipSpace(text, minutes + 2);
     for (const key of keysAt(text, suffix, this.#suffixes)) {
-      if (this.#endsAt(text, suffix + size(key))) {
+      if (this.#endsAt(text, suffix + size(key), true)) {
         time.span = { begin: position, end: suffix + size(key) };
         time.suffix = key;
         return time;
@@ -446,9 +534,19 @@ export class TimePattern extends Pattern {
     return undefined;
   }
 
-  // Whether a time may end at a position: not a longer number, nor a measure (1.30 min)
-  #endsAt(text: Text, position: number): boolean {
-    if (!isClearAfter(text, position) || isDigitAfter(text, position, ".,:")) {
+  // Whether a comma before a position follows a suffix: 11:20AM,2:40PM
+  #afterSuffix(text: Text, position: number): boolean {
+    if (position === 0 || text[position - 1] !== ",") {
+      return false;
+    }
+    return this.#suffixes.some(
+      (key) => size(key) < position && str(text, position - 1 - size(key), position - 1) === key,
+    );
+  }
+
+  // Whether a time may end at a position: not a longer number, nor a measure (1.30 min), unless a suffix closes it
+  #endsAt(text: Text, position: number, suffixed = false): boolean {
+    if (!isClearAfter(text, position) || (!suffixed && isDigitAfter(text, position, ".,:"))) {
       return false;
     }
     for (const start of [position, skipSpace(text, position)]) {
@@ -1023,6 +1121,9 @@ export class PhonePattern extends Pattern {
           return undefined;
         }
         position = skipSpace(text, position + 1);
+        if (position < text.length && text[position] === "-") {
+          position++; // (123)-123-5678
+        }
       }
     }
 

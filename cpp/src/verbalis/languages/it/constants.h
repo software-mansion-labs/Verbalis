@@ -359,7 +359,8 @@ inline const Terms kTerms = {
     {U"tot.", {{U"totale"}}},
   },
   .web = {.dot = U"punto", .at = U"chiocciola", .slash = U"slash", .hyphen = U"trattino", .underscore = U"trattino basso",
-          .digits = {U"zero", U"uno", U"due", U"tre", U"quattro", U"cinque", U"sei", U"sette", U"otto", U"nove"}}
+          .digits = {U"zero", U"uno", U"due", U"tre", U"quattro", U"cinque", U"sei", U"sette", U"otto", U"nove"}},
+  .closing = {U"ecc.", U"etc."}
 };
 
 } // namespace verbalis::languages::it

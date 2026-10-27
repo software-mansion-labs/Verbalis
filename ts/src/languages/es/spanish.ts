@@ -1,5 +1,7 @@
-import { Context } from "../../text/context.ts";
+import { Context, wordsOf } from "../../text/context.ts";
 import {
+  SecondsPattern,
+  GroupedOrdinalPattern,
   DatePattern,
   FractionPattern as GenericFractionPattern,
   Pattern,
@@ -40,6 +42,7 @@ import { isAlpha, isDigit, isLower, isSpace, isWord } from "../../text/unicode.t
 import type { Forms } from "../grammar.ts";
 import { PatternLanguage } from "../language.ts";
 import {
+  TIME_ZONES,
   CENTS,
   CURRENCIES,
   CURRENCY_WORDS,
@@ -147,6 +150,12 @@ function cardinal(n: bigint, one: One = One.UNO): string {
 // centésima trigésima séptima
 function ordinal(n: bigint, feminine: boolean): string {
   const ending = feminine ? "a" : "o";
+  // milésimo, dosmilésimo, quinientasmilésima primera: the thousands as one word
+  if (n >= 1000n) {
+    const thousands = n / 1000n;
+    const head = `${thousands === 1n ? "" : belowThousand(thousands, feminine ? One.UNA : One.UN).replaceAll(" ", "")}milésim${ending}`;
+    return n % 1000n !== 0n ? `${head} ${ordinal(n % 1000n, feminine)}` : head;
+  }
   const words: string[] = [];
   const h = (n / 100n) % 10n;
   if (h !== 0n) {
@@ -219,10 +228,42 @@ function digits(text: string): string {
   return join([...text].filter((c) => isDigit(c)).map((c) => ONES[Number(c)]));
 }
 
+// A grouped number too long to hold, by its groups of six digits: cien mil trillones dos
+const LONG_SCALES: ReadonlyArray<readonly [string, string]> = [
+  ["", ""],
+  ["millón", "millones"],
+  ["billón", "billones"],
+  ["trillón", "trillones"],
+  ["cuatrillón", "cuatrillones"],
+];
+
+function longCardinal(digits: string, one: One): string {
+  const words: string[] = [];
+  const count = Math.ceil(digits.length / 6);
+  for (let i = count - 1; i >= 0; i--) {
+    const end = digits.length - 6 * i;
+    const group = parseValue(digits.slice(Math.max(0, end - 6), end)) ?? 0n;
+    if (group === 0n) {
+      continue;
+    }
+    if (i === 0) {
+      words.push(cardinal(group, one));
+    } else {
+      const [oneScale, manyScales] = LONG_SCALES[i];
+      words.push(group === 1n ? `un ${oneScale}` : `${cardinal(group, One.UN)} ${manyScales}`);
+    }
+  }
+  return join(words);
+}
+
 // A number ending with a given form of "uno", as before a currency or a unit
 function numberWith(number: Numeral, one: One): string {
   if (number.fraction === "") {
     const n = parseValue(number.integer);
+    // 100 000 000 000 000 000 000 000: written in groups, a number even past what a 64-bit integer holds
+    if (n === undefined && number.grouped && number.integer[0] !== "0" && number.integer.length <= 30) {
+      return longCardinal(number.integer, one);
+    }
     return n === undefined || isSpokenDigits(number, 7) ? digits(number.integer) : cardinal(n, one);
   }
 
@@ -513,8 +554,49 @@ class MonthDatePattern extends Pattern {
   }
 }
 
-// siglo xix, año mcmlxxxix, maría vii: a lowercase Roman numeral, after a century or a year, or of three letters or
-// more after a name ("parte vi" may be "I saw")
+// 12h02m00s, 12h02m: hours, minutes, and optionally seconds, each with its letter
+class CompactTimePattern extends Pattern {
+  constructor() {
+    super(Kind.TIME);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position, ".,:")) {
+      return undefined;
+    }
+    const time = match({ kind: Kind.TIME, separator: "h" });
+    let end = position;
+    for (const letter of "hms") {
+      const digits = digitsEnd(text, end);
+      if (
+        digits === end ||
+        digits - end > 2 ||
+        (letter !== "h" && digits - end !== 2) ||
+        digits >= text.length ||
+        text[digits] !== letter
+      ) {
+        if (letter === "s" && time.numbers.length === 2) {
+          break; // 12h02m: no seconds
+        }
+        return undefined;
+      }
+      time.numbers.push(digitsAt(text, end));
+      end = digits + 1;
+    }
+    if (!isClearAfter(text, end)) {
+      return undefined;
+    }
+    // 12h02m00s: no seconds to say
+    if (time.numbers.length === 3 && value(time.numbers[2]) === 0n) {
+      time.numbers.pop();
+    }
+    time.span = { begin: position, end };
+    return time;
+  }
+}
+
+// siglo xix, año mcmlxxxix, maría vii, cmxcix: a lowercase Roman numeral, after a century or a year, of three
+// letters or more after a name ("parte vi" may be "I saw"), or of three letters or more as the whole text
 class LowerRomanPattern extends Pattern {
   constructor() {
     super(Kind.ROMAN);
@@ -533,10 +615,11 @@ class LowerRomanPattern extends Pattern {
     const previous = new Context(text, { begin: position, end }).before();
     const year = previous.startsWith("siglo") || previous === "año";
     const name = ROMAN_CUES.names.has(previous) && letters.length >= 3;
+    const alone = position === 0 && end === text.length && letters.length >= 3; // cmxcix as the whole text
     if (
       n === undefined ||
       (letters.length === 1 && letters !== "I" && letters !== "V" && letters !== "X") ||
-      !(year || name)
+      !(year || name || alone)
     ) {
       return undefined;
     }
@@ -563,6 +646,9 @@ class Spanish extends PatternLanguage {
     }
     this.addPattern(new FractionPattern());
     this.addPattern(new PrefixedMoneyPattern(NOTATION, CURRENCY_WORDS));
+    this.addPattern(new SecondsPattern());
+    this.addPattern(new CompactTimePattern());
+    this.addPattern(new GroupedOrdinalPattern(ORDINAL_SIGNS, ". \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SIGNS, ORDINAL_SIGN_FORMAT));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new SuffixPattern(Kind.DECADE, DECADE_SUFFIXES, DECADE_FORMAT));
@@ -571,6 +657,10 @@ class Spanish extends PatternLanguage {
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
+    // extensión 12: digit by digit
+    if (match.context.before() === "extensión" && number.fraction === "" && number.integer.length > 1) {
+      return digits(number.integer);
+    }
     return numberWith(number, cuesOf(match).one);
   }
 
@@ -589,6 +679,21 @@ class Spanish extends PatternLanguage {
     const day = value(match.numbers[0]);
     const month = value(match.numbers[1]);
     const slash = match.separator === "/";
+    // 3/2 as the whole text, or 1 5/3: after a whole number, a fraction
+    if (slash && match.numbers.length === 2 && match.context.head().length === 0 && match.context.tail().length === 0) {
+      return undefined;
+    }
+    const head = match.context.head();
+    const before = wordsOf(head);
+    if (
+      slash &&
+      match.numbers.length === 2 &&
+      before.length > 0 &&
+      before[before.length - 1].every((c) => isDigit(c)) &&
+      head[head.length - 1] === " "
+    ) {
+      return undefined;
+    }
     if (!slash && match.separator !== " " && (match.numbers.length < 3 || match.numbers[2].integer.length !== 4)) {
       return undefined;
     }
@@ -614,7 +719,17 @@ class Spanish extends PatternLanguage {
     if (match.kind === Kind.PHONE && match.separator === " " && !PHONE_WORDS.has(match.context.before())) {
       return undefined;
     }
+    // 1990-2000 is a range of years
+    const year = (n: Numeral): boolean => value(n) >= 1000n && value(n) <= 2100n;
+    if (match.numbers.length === 2 && year(match.numbers[0]) && year(match.numbers[1])) {
+      return undefined;
+    }
     return digits(match.text);
+  }
+
+  // +593: a country code of three digits, digit by digit; +58: cincuenta y ocho
+  protected override readCountryCode(text: string): string {
+    return [...text].length > 2 ? digits(text) : this.readCodeDigits(text);
   }
 
   protected override readFraction(match: Match): string | undefined {
@@ -631,7 +746,8 @@ class Spanish extends PatternLanguage {
       match.numbers[match.numbers.length - 2].integer.startsWith("0") ||
       match.context.tail()[0] === "-" ||
       head[head.length - 1] === "-";
-    if (b < 2n || a >= b || year || code || isNumberWord(previous)) {
+    const alone = match.context.head().length === 0 && match.context.tail().length === 0; // 3/2 alone: tres medios
+    if (b < 2n || (a >= b && !alone) || year || code || isNumberWord(previous)) {
       return undefined;
     }
     // medio limón, media taza; el tercio de, but un tercio
@@ -657,7 +773,8 @@ class Spanish extends PatternLanguage {
       return this.readFraction(match);
     }
     const [a, b] = fractionOf(match);
-    if (b < 2n || a >= b) {
+    // 1 5/3: uno y cinco tercios, an improper fraction after a whole number
+    if (b < 2n || (a >= b && !(mixed && match.unit === ""))) {
       return undefined;
     }
 
@@ -688,6 +805,22 @@ class Spanish extends PatternLanguage {
     const hours = value(match.numbers[0]);
     let words = cardinal(hours, One.UNA);
 
+    // 3:02:32: tres horas dos minutos y treinta y dos segundos; 12:00:00: doce
+    if (match.numbers.length === 3) {
+      const minutes = value(match.numbers[1]);
+      const seconds = value(match.numbers[2]);
+      if (hours > 23n || minutes > 59n) {
+        return undefined;
+      }
+      if (minutes === 0n && seconds === 0n) {
+        return words;
+      }
+      const unit = (n: bigint, one: string, many: string): string =>
+        `${cardinal(n, one === "hora" ? One.UNA : One.UN)} ${n === 1n ? one : many}`;
+      words = `${unit(hours, "hora", "horas")} ${unit(minutes, "minuto", "minutos")}`;
+      return seconds !== 0n ? `${words} y ${unit(seconds, "segundo", "segundos")}` : words;
+    }
+
     // 19 h, 80hrs: diecinueve horas; 7 p. m. needs a clock hour
     if (match.numbers.length < 2) {
       if (hour) {
@@ -699,7 +832,10 @@ class Spanish extends PatternLanguage {
       // A dot makes a time only after "a las" or before a suffix: a las 18.30, 18.30 h, a 13.30, but 1.13, a 3.28
       const minutes = value(match.numbers[1]);
       const previous = match.context.before();
-      const cue = TIME_WORDS.has(previous) || (previous === "a" && minutes % 15n === 0n);
+      // A clock time alone, or before a time zone: 12.15, 1.00 EST
+      const zone = TIME_ZONES.includes(toLower(match.context.after()));
+      const alone = match.context.head().length === 0 && match.context.tail().length === 0;
+      const cue = TIME_WORDS.has(previous) || (previous === "a" && minutes % 15n === 0n) || zone || alone;
       const decimal = match.separator === "." && match.suffix === "" && !cue;
       if (!fitsClock(match) || decimal || ((morning || evening) && hours > 12n)) {
         return undefined;
@@ -727,6 +863,10 @@ class Spanish extends PatternLanguage {
 
   protected override readRoman(match: Match): string | undefined {
     const n = value(match.numbers[0]);
+    // V, cmxcix as the whole text: an ordinal
+    if (match.context.head().length === 0 && match.context.tail().length === 0) {
+      return ordinal(n, false);
+    }
     const previous = match.context.before();
     let role = romanRole(match, ROMAN_CUES);
     if (isLower(match.text[0])) {
@@ -760,17 +900,23 @@ class Spanish extends PatternLanguage {
   }
 
   protected override readOrdinal(match: Match): string | undefined {
-    // Ordinal words reach 999
+    // Ordinal words reach 999 999
     const n = value(match.numbers[0]);
-    if (n === 0n || n >= 1000n) {
+    if (n === 0n || n >= 1000000n) {
       return undefined;
     }
 
     // 1.er, 21ᵉʳ: vigesimoprimer; 4.ª, 2da: feminine
     const suffix = match.suffix;
     let words = ordinal(n, suffix.endsWith("a") || suffix.endsWith("ª"));
-    if ((suffix.endsWith("er") || suffix.endsWith("ᵉʳ")) && (words.endsWith("primero") || words.endsWith("tercero"))) {
-      words = words.slice(0, -1);
+    if (suffix.endsWith("er") || suffix.endsWith("ᵉʳ")) {
+      // 11.ᵉʳ: decimoprimer, as undécimo has no short form
+      if (words.endsWith("undécimo")) {
+        words = `${words.slice(0, -8)}decimoprimero`;
+      }
+      if (words.endsWith("primero") || words.endsWith("tercero")) {
+        words = words.slice(0, -1);
+      }
     }
     return words;
   }

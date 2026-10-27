@@ -7,6 +7,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 #include <vector>
 
 namespace verbalis::steps {
@@ -34,6 +35,8 @@ struct Terms {
   // nr -> numer before a number; St. -> Saint before a name, Street otherwise
   Readings abbreviations;
   WebWords web;
+  // Abbreviations whose dot may also close a sentence before a capital: etc. The, 1st St. About
+  std::unordered_set<std::u32string> closing;
 };
 
 /**
@@ -59,6 +62,9 @@ private:
 
   // /home/desktop, C:\Users\HP, home/desktop, report.pdf: a path or a file name, with its separators read
   std::optional<Term> read_path(std::u32string_view text, size_t position) const;
+
+  // @wezyr1986: a handle with digits, which read one by one
+  std::optional<Term> read_handle(std::u32string_view text, size_t position) const;
 
   // 3f2504e0-4f89-11d3-9a0c-0305e82c3301: a UUID, character by character with the names of the digits
   std::optional<Term> read_uuid(std::u32string_view text, size_t position) const;

@@ -285,4 +285,5 @@ export const TERMS: Terms = {
   web: { dot: "point", at: "arobase", slash: "slash", hyphen: "tiret", underscore: "tiret bas",
     digits: ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf"],
   },
+  closing: new Set(["etc."]),
 };

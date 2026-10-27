@@ -221,33 +221,6 @@ public:
   }
 };
 
-// 17:15:26: hours, minutes, and seconds.
-class SecondsPattern : public Pattern {
-public:
-  SecondsPattern() : Pattern(Kind::TIME) {}
-
-  std::optional<Match> match(std::u32string_view text, size_t position) const override {
-    if (!is_clear_before(text, position, U".,:")) {
-      return std::nullopt;
-    }
-    Match time{.kind = Kind::TIME, .separator = U':'};
-    for (size_t start = position; time.numbers.size() < 3; start = time.numbers.back().span.end + 1) {
-      Number part = digits_at(text, start);
-      size_t length = part.integer.size();
-      if (length == 0 || length > 2 || (!time.numbers.empty() && length != 2) ||
-          (time.numbers.size() < 2 && (part.span.end >= text.size() || text[part.span.end] != U':'))) {
-        return std::nullopt;
-      }
-      time.numbers.push_back(part);
-    }
-    time.span = {position, time.numbers.back().span.end};
-    if (!is_clear_after(text, time.span.end) || is_digit_after(text, time.span.end, U".,:")) {
-      return std::nullopt;
-    }
-    return time;
-  }
-};
-
 // --------------------
 // ----- Language -----
 // --------------------
@@ -269,6 +242,11 @@ public:
 protected:
   std::u32string read_number(const Number& number, const Match& match) const override {
     if (number.fraction.empty()) {
+      // 1034500 alone: the whole text is a number, not a code
+      auto n = parse_value(number.integer);
+      if (n && number.integer[0] != U'0' && match.context.head().empty() && match.context.tail().empty()) {
+        return cardinal(*n);
+      }
       if (number.integer != U"1") {
         return integer_words(number);
       }

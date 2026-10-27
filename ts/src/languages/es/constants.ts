@@ -272,6 +272,9 @@ export const DATE_FORMAT = dateFormat({ separators: "/-.", boundaries: ".,/-", y
 export const PHONE_FORMATS = [
   phoneFormat({ groups: [[3, 3], [3, 3], [3, 3]], separators: "-", boundaries: ".,-", closing: "-" }),
   phoneFormat({ groups: [[3, 3], [3, 3], [3, 3]], separators: " ", boundaries: ".,-", closing: "-" }),
+  // 123-123-5678, 1234-5678: Latin American numbers
+  phoneFormat({ groups: [[3, 3], [3, 3], [4, 4]], separators: "-", boundaries: ".,-", closing: "-" }),
+  phoneFormat({ groups: [[4, 4], [4, 4]], separators: "-", boundaries: ".,-/", closing: "-/" }),
 ];
 
 // Words before a phone number written with spaces, which else reads as numbers: llame al 600 123 456
@@ -309,6 +312,17 @@ function afterYear(context: Context): boolean {
   return /^[0-9.]+$/.test(word) || /^[ivxlcdm]+$/.test(word);
 }
 
+// After a clock time: 1.00 est, 2:00 pm gmt-4:30, 10 h utc+1:30
+const TIME_SUFFIXES_BEFORE_ZONE: ReadonlySet<string> = new Set(["am", "pm", "a.m", "p.m", "a.m.", "p.m.", "h", "hrs", "horas"]);
+
+function afterTime(context: Context): boolean {
+  const word = context.before();
+  return (word !== "" && /^[0-9.:]+$/.test(word)) || TIME_SUFFIXES_BEFORE_ZONE.has(word);
+}
+
+// Time zones, in capitals after a clock time, with the sign of an offset: gmt-3 GMT menos tres
+export const TIME_ZONES: readonly string[] = ["gmt", "utc", "est", "pst", "cst", "mst", "edt", "pdt", "cet", "cest"];
+
 // At the start of a sentence: da. ana pérez (not the verb of "se lo da.")
 function sentenceStart(context: Context): boolean {
   const head = context.head();
@@ -324,10 +338,12 @@ function beforeTitle(context: Context): boolean {
   return beforeName(context) || sentenceStart(context);
 }
 
-export const TERMS: Terms = {
+const TERMS_BASE: Terms = {
   abbreviations: {
     // Before a number only: Nº 5
     "Nº": [{ words: "número", when: beforeNumber }],
+    "ext.": [{ words: "extensión", when: beforeNumber }],
+    "Ext.": [{ words: "extensión", when: beforeNumber }],
     "nº": [{ words: "número", when: beforeNumber }],
     "N°": [{ words: "número", when: beforeNumber }],
     "núm.": [{ words: "número", when: beforeNumber }],
@@ -384,4 +400,18 @@ export const TERMS: Terms = {
   web: { dot: "punto", at: "arroba", slash: "barra", hyphen: "guion", underscore: "guion bajo",
     digits: ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"],
   },
+  closing: new Set(["etc."]),
 };
+
+export const TERMS: Terms = (() => {
+  const abbreviations: Record<string, Readings[string]> = { ...TERMS_BASE.abbreviations };
+  for (const zone of TIME_ZONES) {
+    const upper = zone.toUpperCase();
+    for (const form of [zone, upper]) {
+      abbreviations[form] = [{ words: upper, when: afterTime }];
+      abbreviations[`${form}-`] = [{ words: `${upper} menos`, when: afterTime }];
+      abbreviations[`${form}+`] = [{ words: `${upper} más`, when: afterTime }];
+    }
+  }
+  return { ...TERMS_BASE, abbreviations };
+})();

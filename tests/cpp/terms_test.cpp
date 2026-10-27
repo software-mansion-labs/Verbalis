@@ -17,8 +17,8 @@ REGISTER_TEST(terms_address_test) {
   ASSERT_EQUALS(U"Write to jan dot kowalski at firma dot pl!",
                 verbalize("en-us", U"Write to jan.kowalski@firma.pl!", only(&Options::terms)));
 
-  // Not addresses: no known domain, a number, an abbreviation
-  ASSERT_EQUALS(U"file.txt, 3.5 and U.S.", verbalize("en-us", U"file.txt, 3.5 and U.S.", only(&Options::terms)));
+  // Not addresses: a file name, a number, an abbreviation
+  ASSERT_EQUALS(U"file dot txt, 3.5 and U.S.", verbalize("en-us", U"file.txt, 3.5 and U.S.", only(&Options::terms)));
 
   return true;
 }

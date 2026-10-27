@@ -34,12 +34,12 @@ void SymbolReader::apply(Document& document) const {
       start = symbol > start ? symbol : start + 1;
       continue;
     }
+    // 2. The words of each symbol in the context of the run, without the spaces around it: "Google+", but "tiene +1"
+    Context context(text, {symbol, end});
     while (end < text.size() && unicode::isspace(text[end])) {
       end++;
     }
 
-    // 2. The words of each symbol in the context of the run
-    Context context(text, {start, end});
     std::vector<std::u32string> words;
     for (auto s : symbols) {
       auto reading = read(symbols_.at(std::u32string(s)), context);

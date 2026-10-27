@@ -94,6 +94,9 @@ void TermReader::apply(Document& document) const {
         term = read_path(text, position);
       }
       if (!term) {
+        term = read_handle(text, position);
+      }
+      if (!term) {
         term = read_abbreviation(text, position);
       }
     }
@@ -212,13 +215,51 @@ std::optional<TermReader::Term> TermReader::read_address(std::u32string_view tex
   return Term{.span = {position, path_end}, .words = words};
 }
 
+// @wezyr1986: a handle with digits, which read one by one: at wezyr one nine eight six
+std::optional<TermReader::Term> TermReader::read_handle(std::u32string_view text, size_t position) const {
+  const WebWords& web = terms_.web;
+  if (text[position] != U'@' || web.digits.empty() || (position > 0 && unicode::isword(text[position - 1]))) {
+    return std::nullopt;
+  }
+  size_t end = position + 1;
+  while (end < text.size() && unicode::isword(text[end])) {
+    end++;
+  }
+  std::u32string_view handle = text.substr(position + 1, end - position - 1);
+  if (!std::ranges::any_of(handle, unicode::isalpha) || !std::ranges::any_of(handle, unicode::isdigit) ||
+      (end + 1 < text.size() && (text[end] == U'@' || text[end] == U'.') && unicode::isword(text[end + 1]))) {
+    return std::nullopt;
+  }
+  return Term{.span = {position, end}, .words = web.at + U" " + dotted(handle, web)};
+}
+
 std::optional<TermReader::Term> TermReader::read_path(std::u32string_view text, size_t position) const {
   const WebWords& web = terms_.web;
   if (web.backslash.empty()) {
     return std::nullopt;
   }
 
-  // 1. The token, without the punctuation closing it: (see /etc/apache).
+  // upgrade / update: two lowercase words with a spaced slash between them
+  auto word_end = [&](size_t i) {
+    while (i < text.size() && text[i] >= U'a' && text[i] <= U'z') {
+      i++;
+    }
+    return i;
+  };
+  if (size_t first = word_end(position); first - position >= 3 && text.substr(first).starts_with(U" / ") &&
+                                         (position == 0 || unicode::isspace(text[position - 1]))) {
+    size_t second = word_end(first + 3);
+    if (second - first - 3 >= 3 && is_clear_after(text, second)) {
+      return Term{.span = {position, second},
+                  .words = std::u32string(text.substr(position, first - position)) + U" " + web.slash + U" " +
+                           std::u32string(text.substr(first + 3, second - first - 3))};
+    }
+  }
+
+  // 1. The token, from its start, without the punctuation closing it: (see /etc/apache).
+  if (position > 0 && !unicode::isspace(text[position - 1]) && !strings::contains(U"(\"'“‘[", text[position - 1])) {
+    return std::nullopt;
+  }
   size_t end = position;
   while (end < text.size() && !unicode::isspace(text[end])) {
     end++;
@@ -231,7 +272,10 @@ std::optional<TermReader::Term> TermReader::read_path(std::u32string_view text, 
   // 2. An optional drive, then the parts between the separators: C:\Users\HP
   std::vector<std::u32string> words;
   char32_t separator = U'/';
-  if (token.size() > 3 && unicode::is_latin(token[0]) && token[1] == U':' && token[2] == U'\\') {
+  if (token.starts_with(U"file://")) {
+    words = {U"file", web.colon, web.slash, web.slash}; // file:///photos
+    token = token.substr(7);
+  } else if (token.size() > 3 && unicode::is_latin(token[0]) && token[1] == U':' && token[2] == U'\\') {
     words = {std::u32string(1, token[0]), web.colon};
     token = token.substr(2);
     separator = U'\\';
@@ -279,13 +323,20 @@ std::optional<TermReader::Term> TermReader::read_abbreviation(std::u32string_vie
       continue;
     }
 
-    auto words = read(terms_.abbreviations.at(std::u32string(key)), Context(text, {position, end}));
+    const auto& readings = terms_.abbreviations.at(std::u32string(key));
+    Context context(text, {position, end});
+    auto words = read(readings, context);
     if (!words) {
       continue;
     }
 
-    // A dot which also ends the text stays with it; a word right after gets a space: nr5 -> numer 5
-    if (key.ends_with(U'.') && is_sentence_end(text, end)) {
+    // A dot which also ends the text stays with it, and so does the dot of a closing abbreviation before a capital
+    // (1st St. About, etc. The), but not the dot of a title (St. Louis). A word right after gets a space: nr5 -> numer 5
+    auto chosen = std::ranges::find_if(readings, [&](const Reading& r) { return !r.when || r.when(context); });
+    auto condition = chosen->when ? chosen->when.target<bool (*)(const Context&)>() : nullptr;
+    bool title = condition && *condition == &before_name;
+    bool closing = terms_.closing.contains(std::u32string(key)) && !title;
+    if (key.ends_with(U'.') && (is_sentence_end(text, end) || (closing && is_sentence_end(text, end, true)))) {
       *words += U".";
     }
     if (end < text.size() && unicode::isword(text[end])) {

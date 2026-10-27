@@ -1,9 +1,9 @@
 import { Context, PUNCTUATION } from "../text/context.ts";
 import type { Document, Span } from "../text/document.ts";
-import { read, type Readings } from "../text/readings.ts";
+import { beforeName, read, type Readings } from "../text/readings.ts";
 import { isClearAfter, isClearBefore, isSentenceEnd, join, keysAt, type Keys } from "../text/scan.ts";
 import { contains, size, startsWith, str, toLower, type Text } from "../text/strings.ts";
-import { isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
+import { isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
 
 // The words between the parts of a web address.
 export interface WebWords {
@@ -23,6 +23,8 @@ export interface Terms {
   // nr -> numer before a number; St. -> Saint before a name, Street otherwise
   readonly abbreviations: Readings;
   readonly web: WebWords;
+  // Abbreviations whose dot may also close a sentence before a capital: etc. The, 1st St. About
+  readonly closing?: ReadonlySet<string>;
 }
 
 // A term found in a text, with its words
@@ -121,6 +123,7 @@ export class TermReader {
           this.#readUuid(text, position) ??
           this.#readAddress(text, position) ??
           this.#readPath(text, position) ??
+          this.#readHandle(text, position) ??
           this.#readAbbreviation(text, position);
       }
 
@@ -242,6 +245,27 @@ export class TermReader {
     return { span: { begin: position, end: pathEnd }, words };
   }
 
+  // @wezyr1986: a handle with digits, which read one by one
+  #readHandle(text: Text, position: number): Term | undefined {
+    const web = this.#terms.web;
+    if (text[position] !== "@" || !web.digits?.length || (position > 0 && isWord(text[position - 1]))) {
+      return undefined;
+    }
+    let end = position + 1;
+    while (end < text.length && isWord(text[end])) {
+      end++;
+    }
+    const handle = text.slice(position + 1, end);
+    if (
+      !handle.some((c) => isAlpha(c)) ||
+      !handle.some((c) => isDigit(c)) ||
+      (end + 1 < text.length && (text[end] === "@" || text[end] === ".") && isWord(text[end + 1]))
+    ) {
+      return undefined;
+    }
+    return { span: { begin: position, end }, words: `${web.at} ${dotted(handle.join(""), web)}` };
+  }
+
   // /home/desktop, C:\Users\HP, home/desktop, report.pdf: a path or a file name, with its separators read
   #readPath(text: Text, position: number): Term | undefined {
     const web = this.#terms.web;
@@ -249,7 +273,32 @@ export class TermReader {
       return undefined;
     }
 
-    // 1. The token, without the punctuation closing it: (see /etc/apache).
+    // upgrade / update: two lowercase words with a spaced slash between them
+    const wordEnd = (i: number): number => {
+      while (i < text.length && text[i] >= "a" && text[i] <= "z") {
+        i++;
+      }
+      return i;
+    };
+    const first = wordEnd(position);
+    if (
+      first - position >= 3 &&
+      str(text, first, first + 3) === " / " &&
+      (position === 0 || isSpace(text[position - 1]))
+    ) {
+      const second = wordEnd(first + 3);
+      if (second - first - 3 >= 3 && isClearAfter(text, second)) {
+        return {
+          span: { begin: position, end: second },
+          words: `${str(text, position, first)} ${web.slash} ${str(text, first + 3, second)}`,
+        };
+      }
+    }
+
+    // 1. The token, from its start, without the punctuation closing it: (see /etc/apache).
+    if (position > 0 && !isSpace(text[position - 1]) && !contains("(\"'“‘[", text[position - 1])) {
+      return undefined;
+    }
     let end = position;
     while (end < text.length && !isSpace(text[end])) {
       end++;
@@ -262,7 +311,10 @@ export class TermReader {
     // 2. An optional drive, then the parts between the separators: C:\Users\HP
     const words: string[] = [];
     let separator = "/";
-    if (token.length > 3 && isLatin(token[0]) && token[1] === ":" && token[2] === "\\") {
+    if (token.startsWith("file://")) {
+      words.push("file", web.colon ?? "", web.slash, web.slash); // file:///photos
+      token = token.slice(7);
+    } else if (token.length > 3 && isLatin(token[0]) && token[1] === ":" && token[2] === "\\") {
       words.push(token[0], web.colon ?? "");
       token = token.slice(2);
       separator = "\\";
@@ -301,13 +353,20 @@ export class TermReader {
         continue;
       }
 
-      let words = read(this.#terms.abbreviations[key], new Context(text, { begin: position, end }));
+      const readings = this.#terms.abbreviations[key];
+      const context = new Context(text, { begin: position, end });
+      let words = read(readings, context);
       if (words === undefined) {
         continue;
       }
 
-      // A dot which also ends the text stays with it; a word right after gets a space: nr5 -> numer 5
-      if (key.endsWith(".") && isSentenceEnd(text, end)) {
+      // A dot which also ends the text stays with it, and so does the dot of a closing abbreviation before a
+      // capital (1st St. About, etc. The), but not the dot of a title (St. Louis). A word right after gets a space:
+      // nr5 -> numer 5
+      const chosen = readings.find((r) => typeof r === "string" || r.when(context));
+      const title = chosen !== undefined && typeof chosen !== "string" && chosen.when === beforeName;
+      const closing = (this.#terms.closing?.has(key) ?? false) && !title;
+      if (key.endsWith(".") && (isSentenceEnd(text, end) || (closing && isSentenceEnd(text, end, true)))) {
         words += ".";
       }
       if (end < text.length && isWord(text[end])) {

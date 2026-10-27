@@ -252,7 +252,10 @@ inline const DateFormat kDateFormat = {.separators = U"/-.", .boundaries = U".,/
 // 600-123-456, 600 123 456 (after a word of kPhoneWords)
 inline const std::vector<PhoneFormat> kPhoneFormats = {
   {.groups = {{3, 3}, {3, 3}, {3, 3}}, .separators = U"-", .boundaries = U".,-", .closing = U"-"},
-  {.groups = {{3, 3}, {3, 3}, {3, 3}}, .separators = U" ", .boundaries = U".,-", .closing = U"-"}
+  {.groups = {{3, 3}, {3, 3}, {3, 3}}, .separators = U" ", .boundaries = U".,-", .closing = U"-"},
+  // 123-123-5678, 1234-5678: Latin American numbers
+  {.groups = {{3, 3}, {3, 3}, {4, 4}}, .separators = U"-", .boundaries = U".,-", .closing = U"-"},
+  {.groups = {{4, 4}, {4, 4}}, .separators = U"-", .boundaries = U".,-/", .closing = U"-/"}
 };
 
 // Words before a phone number written with spaces, which else reads as numbers: llame al 600 123 456
@@ -300,6 +303,18 @@ inline bool after_year(const Context& context) {
   return digits || roman;
 }
 
+// After a clock time: 1.00 est, 2:00 pm gmt-4:30, 10 h utc+1:30
+inline bool after_time(const Context& context) {
+  static const std::unordered_set<std::u32string> suffixes = {U"am", U"pm", U"a.m", U"p.m", U"a.m.", U"p.m.", U"h",
+                                                              U"hrs", U"horas"};
+  std::u32string word = context.before();
+  return (!word.empty() && word.find_first_not_of(U"0123456789.:") == std::u32string::npos) || suffixes.contains(word);
+}
+
+// Time zones, in capitals after a clock time, with the sign of an offset: gmt-3 GMT menos tres
+inline const std::vector<std::u32string> kTimeZones = {U"gmt", U"utc", U"est", U"pst", U"cst", U"mst",
+                                                       U"edt", U"pdt", U"cet", U"cest"};
+
 // At the start of a sentence: da. ana pérez (not the verb of "se lo da.")
 inline bool sentence_start(const Context& context) {
   std::u32string_view head = context.head();
@@ -312,10 +327,12 @@ inline bool before_title(const Context& context) {
   return before_name(context) || sentence_start(context);
 }
 
-inline const Terms kTerms = {
+inline const Terms kTermsBase = {
   .abbreviations = {
     // Before a number only: Nº 5
     {U"Nº", {{U"número", before_number}}},
+    {U"ext.", {{U"extensión", before_number}}},
+    {U"Ext.", {{U"extensión", before_number}}},
     {U"nº", {{U"número", before_number}}},
     {U"N°", {{U"número", before_number}}},
     {U"núm.", {{U"número", before_number}}},
@@ -370,7 +387,24 @@ inline const Terms kTerms = {
     {U"aprox.", {U"aproximadamente"}},
   },
   .web = {.dot = U"punto", .at = U"arroba", .slash = U"barra", .hyphen = U"guion", .underscore = U"guion bajo",
-          .digits = {U"cero", U"uno", U"dos", U"tres", U"cuatro", U"cinco", U"seis", U"siete", U"ocho", U"nueve"}}
+          .digits = {U"cero", U"uno", U"dos", U"tres", U"cuatro", U"cinco", U"seis", U"siete", U"ocho", U"nueve"}},
+  .closing = {U"etc."}
 };
+
+inline const Terms kTerms = [] {
+  Terms terms = kTermsBase;
+  for (const auto& zone : kTimeZones) {
+    std::u32string upper;
+    for (char32_t c : zone) {
+      upper += c - U'a' + U'A'; // The zones are ASCII
+    }
+    for (const auto& form : {zone, upper}) {
+      terms.abbreviations[form] = {{upper, after_time}};
+      terms.abbreviations[form + U"-"] = {{upper + U" menos", after_time}};
+      terms.abbreviations[form + U"+"] = {{upper + U" más", after_time}};
+    }
+  }
+  return terms;
+}();
 
 } // namespace verbalis::languages::es

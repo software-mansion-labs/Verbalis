@@ -1,5 +1,12 @@
 import type { Context } from "../../text/context.ts";
-import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
+import {
+  SecondsPattern,
+  DatePattern,
+  Pattern,
+  PhonePattern,
+  SuffixPattern,
+  RomanPattern,
+} from "../../numbers/patterns.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -433,40 +440,6 @@ class ReorderedDatePattern extends Pattern {
   }
 }
 
-// 14:30:05: a time with seconds
-class SecondsPattern extends Pattern {
-  constructor() {
-    super(Kind.TIME);
-  }
-
-  match(text: Text, position: number): Match | undefined {
-    if (!isClearBefore(text, position, ".,")) {
-      return undefined;
-    }
-    const time = match({ kind: Kind.TIME, separator: ":" });
-    let end = position;
-    for (let i = 0; i < 3; ++i) {
-      if (i > 0) {
-        if (end >= text.length || text[end] !== ":") {
-          return undefined;
-        }
-        end++;
-      }
-      const length = digitsEnd(text, end) - end;
-      if (length < (i === 0 ? 1 : 2) || length > 2) {
-        return undefined;
-      }
-      time.numbers.push(digitsAt(text, end));
-      end += length;
-    }
-    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:") || value(time.numbers[2]) > 59n) {
-      return undefined;
-    }
-    time.span = { begin: position, end };
-    return time;
-  }
-}
-
 // --------------------
 // ----- Language -----
 // --------------------
@@ -490,6 +463,17 @@ class Portuguese extends PatternLanguage {
     const cues = cuesOf(match);
     if (number.fraction === "" && cues.day && number.integer === "1") {
       return "primeiro";
+    }
+    // 1234567890 alone: the whole text is a number, not a code
+    const n = parseValue(number.integer);
+    if (
+      n !== undefined &&
+      number.fraction === "" &&
+      number.integer[0] !== "0" &&
+      match.context.head().length === 0 &&
+      match.context.tail().length === 0
+    ) {
+      return cardinal(n, Gender.MASCULINE);
     }
     // Em 2020 havia: a year counts nothing after it
     const year =

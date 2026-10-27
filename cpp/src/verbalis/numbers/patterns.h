@@ -112,6 +112,27 @@ private:
   static std::optional<Match> simple(std::u32string_view text, size_t position);
 };
 
+// 14:30:05: hours, minutes, and seconds
+class SecondsPattern : public Pattern {
+public:
+  SecondsPattern() : Pattern(Kind::TIME) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override;
+};
+
+// 1,000th, 1.000.º, 1 001.ᵉʳ: an ordinal of a grouped number
+class GroupedOrdinalPattern : public Pattern {
+public:
+  GroupedOrdinalPattern(Keys suffixes, std::u32string group_separators)
+      : Pattern(Kind::ORDINAL), suffixes_(std::move(suffixes)), group_separators_(std::move(group_separators)) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override;
+
+private:
+  Keys suffixes_;
+  std::u32string group_separators_;
+};
+
 // The minus of -5.
 class SignPattern : public Pattern {
 public:
@@ -128,8 +149,10 @@ public:
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
 
 private:
-  // Whether a time may end at a position: not a longer number, nor a measure (1.30 min)
-  bool ends_at(std::u32string_view text, size_t position) const;
+  // Whether a comma before a position follows a suffix: 11:20AM,2:40PM
+  bool after_suffix(std::u32string_view text, size_t position) const;
+  // Whether a time may end at a position: not a longer number, nor a measure (1.30 min), unless a suffix closes it
+  bool ends_at(std::u32string_view text, size_t position, bool suffixed = false) const;
 
   std::u32string separators_;
   Keys suffixes_;

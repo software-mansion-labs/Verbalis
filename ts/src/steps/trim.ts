@@ -1,14 +1,16 @@
 import type { Document } from "../text/document.ts";
 import { contains, startsWith, str, type Text } from "../text/strings.ts";
-import { isSpace } from "../text/unicode.ts";
+import { isDigit, isSpace } from "../text/unicode.ts";
 
-// Whether a position starts punctuation which takes no space before it: "a ," -> "a,", but "a ..." stays
+// Whether a position starts punctuation which takes no space before it: "a ," -> "a,", but "a ..." and the point of
+// "about .5 kg" stay
 function isClosingPunctuation(text: Text, position: number): boolean {
   if (position >= text.length) {
     return false;
   }
   const ellipsis = startsWith(text, position, "...");
-  return contains(",!?;:", text[position]) || (text[position] === "." && !ellipsis);
+  const decimal = isDigit(text[position + 1]);
+  return contains(",!?;:", text[position]) || (text[position] === "." && !ellipsis && !decimal);
 }
 
 // Single spaces between words, none at the edges or before punctuation; a run with a newline becomes one newline.

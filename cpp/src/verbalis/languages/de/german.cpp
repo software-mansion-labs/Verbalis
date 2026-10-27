@@ -83,6 +83,9 @@ std::u32string year(uint64_t n) {
 std::u32string ordinal(uint64_t n, std::u32string_view ending) {
   std::u32string words = cardinal(n);
   uint64_t r = n % 100;
+  if (n == 0) {
+    return words + U"t" + std::u32string(ending); // nullter
+  }
   if (r > 0 && r < 20) {
     std::u32string one(kOnes[r]);
     auto it = kOrdinalStems.find(one);
@@ -301,6 +304,51 @@ Cues cues_of(const Match& match) {
 // ----- Patterns -----
 // --------------------
 
+// 2.3, 02.03: a day and a month without a dot after them, as the whole text
+class BareDatePattern : public Pattern {
+public:
+  BareDatePattern() : Pattern(Kind::DATE) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    size_t dot = digits_end(text, position);
+    if (position > 0 || dot == position || dot > 2 || dot >= text.size() || text[dot] != U'.') {
+      return std::nullopt;
+    }
+    size_t end = digits_end(text, dot + 1);
+    if (end != text.size() || end - dot - 1 > 2 || end == dot + 1) {
+      return std::nullopt;
+    }
+    Number day = digits_at(text, 0), month = digits_at(text, dot + 1);
+    if (value(day) < 1 || value(day) > 31 || value(month) < 1 || value(month) > 12) {
+      return std::nullopt;
+    }
+    return Match{.kind = Kind::DATE, .span = {0, end}, .numbers = {day, month}, .separator = U'.'};
+  }
+};
+
+// 2003-03: a year and its month; not a range of years, whose end is later (2003-04)
+class YearMonthPattern : public Pattern {
+public:
+  YearMonthPattern() : Pattern(Kind::DATE) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    size_t hyphen = digits_end(text, position);
+    if (!is_clear_before(text, position, U".,-/") || hyphen != position + 4 || hyphen >= text.size() ||
+        text[hyphen] != U'-') {
+      return std::nullopt;
+    }
+    size_t end = digits_end(text, hyphen + 1);
+    if (end != hyphen + 3 || !is_clear_after(text, end) || is_digit_after(text, end, U".-/")) {
+      return std::nullopt;
+    }
+    Number year = digits_at(text, position), month = digits_at(text, hyphen + 1);
+    if (value(month) < 1 || value(month) > 12 || value(month) > value(year) % 100) {
+      return std::nullopt;
+    }
+    return Match{.kind = Kind::DATE, .span = {position, end}, .numbers = {year, month}, .separator = U'-'};
+  }
+};
+
 // 030 1234567, 0800-123 45 67, (0411) 1234-1234: an area code starting with 0, then the number, optionally in groups.
 class AreaCodePattern : public Pattern {
 public:
@@ -433,6 +481,8 @@ class German final : public PatternLanguage {
 public:
   German() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
+    add_pattern(std::make_unique<BareDatePattern>());
+    add_pattern(std::make_unique<YearMonthPattern>());
     add_pattern(std::make_unique<AreaCodePattern>());
     add_pattern(std::make_unique<SecondsPattern>());
     add_pattern(std::make_unique<UnitAfterPattern>(std::make_unique<ScalePattern>(kNotation)));
@@ -458,7 +508,10 @@ protected:
     auto n = parse_value(number.integer);
     bool amount = match.kind == Kind::MONEY || match.kind == Kind::UNIT || match.kind == Kind::PERCENT ||
                   match.kind == Kind::SCALE;
-    if (!n || (is_spoken_digits(number, 5) && !(amount && number.integer[0] != U'0'))) {
+    // 46664 alone, or after its sign: the whole text is a number, not a code
+    std::u32string_view head = match.context.head();
+    bool alone = (head.empty() || head == joiners().minus + U" ") && match.context.tail().empty();
+    if (!n || (is_spoken_digits(number, 5) && !((amount || alone) && number.integer[0] != U'0'))) {
       return digits(number.integer);
     }
     Cues cues = cues_of(match);
@@ -477,6 +530,10 @@ protected:
   }
 
   std::optional<std::u32string> read_date(const Match& match) const override {
+    // 2003-03: März zweitausenddrei
+    if (match.separator == U'-' && match.numbers.size() == 2) {
+      return std::u32string(kMonths[value(match.numbers[1]) - 1]) + U" " + year(value(match.numbers[0]));
+    }
     // "am 12. 3." is a date, "Platz 1. 2 Tore" is not
     if (match.text.find(U' ') != std::u32string_view::npos && !kDateCues.contains(match.context.before())) {
       return std::nullopt;
@@ -498,6 +555,9 @@ protected:
     // A half before a unit or a noun: 1/2 l einen halben Liter, 1/2 Stunde eine halbe Stunde
     Cues cues = cues_of(match);
     auto [a, b] = fraction_of(match);
+    if (match.numbers.size() == 3 && a >= b) {
+      return std::nullopt; // 1 5/3: the whole number and the fraction read apart
+    }
     std::u32string next = match.context.after();
     std::u32string noun = match.unit.empty() ? next : kUnits.at(std::u32string(match.unit)).one;
     if (a == 1 && b == 2 && match.numbers.size() == 2 && capitalized(noun)) {
@@ -549,12 +609,14 @@ protected:
     auto words = words_of(match.context.tail());
     std::u32string_view next = words.empty() ? U"" : words[0];
     bool month = std::ranges::find(kMonths, next) != kMonths.end();
-    bool sentence = capitalized(next) && !month && !inflecting.contains(match.context.before());
+    // 100. Geburtstag, 2.: a text doesn't open with a sentence of a bare number
+    bool start = match.context.head().empty();
+    bool sentence = capitalized(next) && !month && !inflecting.contains(match.context.before()) && !start;
     // Before a comma or the end: only right after an article (in der 79., am 3.), not "Platz 23.," or "von 1983."
     bool word = !next.empty() && !strings::contains(text::kPunctuation, next[0]);
     if (!word) {
       std::u32string previous = match.context.before();
-      if (!kWeak.contains(previous) && !kWeakNominative.contains(previous)) {
+      if (!kWeak.contains(previous) && !kWeakNominative.contains(previous) && !(start && next.empty())) {
         return std::nullopt;
       }
       return ordinal(value(match.numbers[0]), ending(cues_of(match))) + (next.empty() ? U"." : U"");

@@ -48,6 +48,16 @@ std::vector<std::vector<Number>> amounts_at(std::u32string_view text, size_t pos
   for (const Number& number : firsts) {
     amounts.push_back({number});
   }
+
+  // .5 kg: a fraction without its integer part
+  bool apart = position == 0 || unicode::isspace(text[position - 1]); // not a sentence dot: (jury).1° Lugar
+  if (firsts.empty() && apart && text[position] == U'.' && strings::contains(notation.decimal_separators, U'.') &&
+      is_digit_after(text, position + 1)) {
+    size_t end = digits_end(text, position + 1);
+    amounts.push_back({{.span = {position, end},
+                        .fraction = std::u32string(text.substr(position + 1, end - position - 1)),
+                        .decimal_mark = U'.'}});
+  }
   return amounts;
 }
 
@@ -190,6 +200,16 @@ std::optional<Match> RangePattern::match(std::u32string_view text, size_t positi
   while (start > 0 && unicode::isdigit(text[start - 1])) {
     start--;
   }
+  // Not a link of a chain of numbers or single letters: 4-1-4-1, b-c-1-5-b, but 14-29-jährigen
+  auto link = [&](size_t letter, size_t outer) {
+    return unicode::isdigit(text[letter]) ||
+           (unicode::isalpha(text[letter]) && (outer >= text.size() || !unicode::isalnum(text[outer])));
+  };
+  size_t after = digits_end(text, end);
+  if ((start > 1 && text[start - 1] == U'-' && link(start - 2, start - 2 > 0 ? start - 3 : text.size())) ||
+      (after + 1 < text.size() && text[after] == U'-' && link(after + 1, after + 2))) {
+    return std::nullopt;
+  }
   return Match{.kind = Kind::RANGE,
                .span = {position, end},
                .numbers = {digits_at(text, start), digits_at(text, end)},
@@ -239,13 +259,13 @@ std::optional<Match> FractionPattern::match(std::u32string_view text, size_t pos
     return std::nullopt;
   }
 
-  // 3 1/2, -4 1/3: a whole number of up to three digits, possibly signed, a space, and a proper fraction
+  // 3 1/2, -4 1/3, 1 5/3: a whole number of up to three digits, possibly signed, a space, and a fraction
   size_t whole = text[position] == U'-' ? position + 1 : position;
   size_t whole_end = digits_end(text, whole);
   if (whole_end > whole && whole_end <= whole + 3 && text[whole] != U'0' && is_clear_before(text, position, U"./-:,") &&
       whole_end + 1 < text.size() && text[whole_end] == U' ') {
-    if (auto fraction = simple(text, whole_end + 1); fraction && fraction->numbers[0].integer[0] != U'0' &&
-                                                     value(fraction->numbers[0]) < value(fraction->numbers[1])) {
+    if (auto fraction = simple(text, whole_end + 1);
+        fraction && fraction->numbers[0].integer[0] != U'0' && value(fraction->numbers[1]) > 1) {
       fraction->span.begin = position;
       fraction->numbers.insert(fraction->numbers.begin(), digits_at(text, whole));
       return fraction;
@@ -288,8 +308,8 @@ TimePattern::TimePattern(const Notation& notation)
 
 std::optional<Match> TimePattern::match(std::u32string_view text, size_t position) const {
   size_t hours_end = digits_end(text, position);
-  if (!is_clear_before(text, position, kNumberBoundaries) || hours_end == position || hours_end > position + 2 ||
-      hours_end >= text.size()) {
+  if (!(is_clear_before(text, position, kNumberBoundaries) || after_suffix(text, position)) || hours_end == position ||
+      hours_end > position + 2 || hours_end >= text.size()) {
     return std::nullopt;
   }
 
@@ -315,7 +335,7 @@ std::optional<Match> TimePattern::match(std::u32string_view text, size_t positio
   // With a suffix first (10:30 pm), then without it
   size_t suffix = skip_space(text, minutes + 2);
   for (auto key : keys_at(text, suffix, suffixes_)) {
-    if (ends_at(text, suffix + key.size())) {
+    if (ends_at(text, suffix + key.size(), true)) {
       time.span = {position, suffix + key.size()};
       time.suffix = key;
       return time;
@@ -328,8 +348,17 @@ std::optional<Match> TimePattern::match(std::u32string_view text, size_t positio
   return std::nullopt;
 }
 
-bool TimePattern::ends_at(std::u32string_view text, size_t position) const {
-  if (!is_clear_after(text, position) || is_digit_after(text, position, U".,:")) {
+bool TimePattern::after_suffix(std::u32string_view text, size_t position) const {
+  if (position == 0 || text[position - 1] != U',') {
+    return false;
+  }
+  return std::ranges::any_of(suffixes_, [&](auto key) {
+    return key.size() < position && text.substr(position - 1 - key.size(), key.size()) == key;
+  });
+}
+
+bool TimePattern::ends_at(std::u32string_view text, size_t position, bool suffixed) const {
+  if (!is_clear_after(text, position) || (!suffixed && is_digit_after(text, position, U".,:"))) {
     return false;
   }
   for (size_t start : {position, skip_space(text, position)}) {
@@ -760,6 +789,9 @@ std::optional<Match> PhonePattern::groups_at(std::u32string_view text, size_t st
         return std::nullopt;
       }
       position = skip_space(text, position + 1);
+      if (position < text.size() && text[position] == U'-') {
+        position++; // (123)-123-5678
+      }
     }
   }
 
@@ -804,6 +836,53 @@ std::optional<Match> SuffixPattern::match(std::u32string_view text, size_t posit
       suffix_end--;
     }
     return Match{.kind = kind(), .span = {position, suffix_end}, .numbers = {digits_at(text, digits)}, .suffix = key};
+  }
+  return std::nullopt;
+}
+
+std::optional<Match> SecondsPattern::match(std::u32string_view text, size_t position) const {
+  if (!is_clear_before(text, position, U".,")) {
+    return std::nullopt;
+  }
+  Match time{.kind = Kind::TIME, .separator = U':'};
+  size_t end = position;
+  for (size_t i = 0; i < 3; ++i) {
+    if (i > 0) {
+      if (end >= text.size() || text[end] != U':') {
+        return std::nullopt;
+      }
+      end++;
+    }
+    size_t length = digits_end(text, end) - end;
+    if (length < (i == 0 ? 1 : 2) || length > 2) {
+      return std::nullopt;
+    }
+    time.numbers.push_back(digits_at(text, end));
+    end += length;
+  }
+  if (!is_clear_after(text, end) || is_digit_after(text, end, U".,:") || value(time.numbers[2]) > 59) {
+    return std::nullopt;
+  }
+  time.span = {position, end};
+  return time;
+}
+
+std::optional<Match> GroupedOrdinalPattern::match(std::u32string_view text, size_t position) const {
+  if (!is_clear_before(text, position, U".,")) {
+    return std::nullopt;
+  }
+  for (const Number& number : numbers_at(text, position, group_separators_, U"")) {
+    if (!number.grouped) {
+      continue;
+    }
+    for (auto key : keys_at(text, number.span.end, suffixes_)) {
+      if (is_clear_after(text, number.span.end + key.size())) {
+        return Match{.kind = Kind::ORDINAL,
+                     .span = {position, number.span.end + key.size()},
+                     .numbers = {number},
+                     .suffix = key};
+      }
+    }
   }
   return std::nullopt;
 }

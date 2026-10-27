@@ -294,4 +294,5 @@ export const TERMS: Terms = {
   web: { dot: "Punkt", at: "at", slash: "Schrägstrich", hyphen: "Bindestrich", underscore: "Unterstrich",
     digits: ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun"],
   },
+  closing: new Set(["usw.", "etc."]),
 };

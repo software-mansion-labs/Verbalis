@@ -80,6 +80,8 @@ protected:
 
   // The letters of a code (the MP of MP3), as written by default
   virtual std::u32string read_code_letters(std::u32string_view letters) const { return std::u32string(letters); }
+  // A code: letters as read_code_letters, digit runs as read_code_digits (MP3, COVID-19)
+  virtual std::u32string read_code(const Match& match) const;
 
   // The country code of an international phone number (the 48 of +48 600 123 456), as code digits by default
   virtual std::u32string read_country_code(std::u32string_view digits) const { return read_code_digits(digits); }
@@ -125,7 +127,6 @@ private:
   // An amount read as a number followed by a word as written: 5 km, 10 %
   std::u32string with_word(const Number& amount, const Match& match, std::u32string_view word) const;
   std::optional<std::u32string> read_international_phone(const Match& match) const;
-  std::u32string read_code(const Match& match) const;
   std::optional<std::u32string> read_amount(const Match& match, Amount reading) const;
 
   struct Entry {

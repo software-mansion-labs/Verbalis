@@ -35,3 +35,10 @@
 
 - `https://www.nvidia.it/abc/12df/like.py`: the accepted reading without the scheme and with spelled letters reads
   the digits of the address one by one ("uno due df"), as the gold reading does, instead of "dodici df".
+- `Il profilo è @wezyr1986.`: added "chiocciola wezyr uno nove otto sei". The digits of a handle read one by one, as the
+  NeMo case `@wezyr1986` reads them.
+
+## Unreachable
+
+- An email address with characters an address doesn't allow, and a host with "&": `abc.de!f@23d_f.sd.us`,
+  `www.nvidia.file&TN.com`. Gold spells their names letter by letter.

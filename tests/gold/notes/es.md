@@ -8,6 +8,20 @@ written by the Spanish worker as a native-level speaker.
 - Seven readings joined by `~` (NeMo's separator of alternatives, which `build.py` kept in one string) are split into
   separate readings.
 
+## Equally valid readings added
+
+- Decimal digits read one by one, where gold reads them in pairs ("tres coma catorce quince"); both are said:
+  `5.002,132`, `2,33302 millones`, `1,5332`, `1,53322 millones`, `1,53321 millones`, `101,010101 millones`,
+  `3,1415`, `60,2400`, `1,25300`, `1,253002`.
+- A URL read without its scheme and with its names as words: `https://www.nvidia.com`,
+  `http://www.ourdailynews.com.sm`, `https://www.abc.com`.
+- An IP address read as cardinals between the dots: `123.123.0.40`, `la dirección de ip es 123.123.0.40`.
+- "siglo décimo" for "siglo diez"; ordinals are usual for the first ten centuries: `siglo x ec`.
+- A duration read with its units, where gold reads a clock time: `01 h` (una hora), `1.00 h` (una hora), `2 h 30 min`
+  (dos horas treinta minutos), `15 h 10 min 40 seg` (without "y" before the last unit).
+- A time zone offset read as a clock time: `2:00 pm gmt-4:30` (menos cuatro y media), `10 h utc+1:30` (diez horas
+  UTC más una y media).
+
 ## Money
 
 - `$1,50`, `1,50 $`, `€5,50`, `5,50 €`: added "un dólar con cincuenta", "cinco euros con cincuenta". "Con" before the
@@ -38,3 +52,9 @@ written by the Spanish worker as a native-level speaker.
   running text than a date.
 - `1 5/3` (normalize_with_audio, "uno y cinco tercios"): a mixed number with an improper fraction is malformed; the
   bare 5/3 reads as a date (cinco de marzo).
+
+- `1,002`: in Mexico, as in English, a comma groups thousands, so the reading "mil dos" is kept; gold reads a decimal.
+- `nvidia.com/1|2`, `nvidia.com/2^`: "|" and "^" stay unread, since "|" mostly separates the parts of a web page title.
+- `28°`: the degree sign reads "grados"; gold reads it as the ordinal sign º.
+- `+58 (123) 123-5678-12`: a group after a phone number isn't marked as an extension.
+- `3:00 p.m. pyt`: the name of a time zone ("hora estándar de Paraguay") isn't read; zones read in capitals.

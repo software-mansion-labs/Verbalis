@@ -4,7 +4,7 @@ import type { Keys } from "../../text/scan.ts";
 import { wordsOf, type Context } from "../../text/context.ts";
 import { beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
 import { contains, str } from "../../text/strings.ts";
-import { isDigit, isUpper } from "../../text/unicode.ts";
+import { isDigit, isUpper, isWord } from "../../text/unicode.ts";
 import type { Forms, Joiners } from "../grammar.ts";
 
 export const ONES = [
@@ -54,7 +54,7 @@ export const PER: Readonly<Record<string, string>> = {
   hour: "hour", min: "minute", kg: "kilogram", lb: "pound", g: "gram",
   person: "person", night: "night", share: "share", barrel: "barrel", bbl: "barrel",
   oz: "ounce", ton: "ton", tonne: "tonne", gallon: "gallon", kWh: "kilowatt-hour",
-  MWh: "megawatt-hour",
+  MWh: "megawatt-hour", s: "second", sec: "second",
 };
 export const PER_KEYS: Keys = keysOf(PER);
 
@@ -93,7 +93,7 @@ export const UNITS: Readonly<Record<string, Forms>> = {
   "kWh":  { one: "kilowatt-hour", many: "kilowatt-hours" },   "V":    { one: "volt", many: "volts" },
   "mph":  { one: "mile per hour", many: "miles per hour" },   "km/h": { one: "kilometer per hour", many: "kilometers per hour" },
   "°C":   { one: "degree Celsius", many: "degrees Celsius" }, "°F":   { one: "degree Fahrenheit", many: "degrees Fahrenheit" },
-  "°":    { one: "degree", many: "degrees" },
+  "°":    { one: "degree", many: "degrees" }, "″": { one: "inch", many: "inches" },
   "m2":   { one: "square meter", many: "square meters" },     "km2":  { one: "square kilometer", many: "square kilometers" },
   "cm2":  { one: "square centimeter", many: "square centimeters" }, "cm²": { one: "square centimeter", many: "square centimeters" },
   "mm²":  { one: "square millimeter", many: "square millimeters" }, "m3": { one: "cubic meter", many: "cubic meters" },
@@ -116,6 +116,11 @@ export const TIME_SUFFIXES = [
   "a.m.", "p.m.", "a.m", "p.m", "am.", "pm.", "am", "pm", "AM", "PM",
   "EST", "EDT", "CST", "CDT", "MST", "MDT", "PST", "PDT", "GMT", "UTC",
 ];
+
+// Words before a number read digit by digit: PIN 1234, card ending in 8876
+export const SPELLING_WORDS: ReadonlySet<string> = new Set([
+  "pin", "otp", "code", "passcode", "password", "cvv", "cvc", "zip",
+]);
 
 // Months, also abbreviated (lowercase)
 export const MONTH_WORDS: ReadonlySet<string> = new Set([
@@ -163,7 +168,7 @@ export const STOP_WORDS: ReadonlySet<string> = new Set([
 // Henry VIII (the Eighth), Chapter IV (four), the XXI century (twenty-first)
 export const ROMAN_CUES: RomanCues = {
   names: new Set([
-    "henry", "edward", "george", "william", "richard", "charles", "james", "elizabeth", "mary", "victoria", "anne",
+    "henry", "francis", "edward", "george", "william", "richard", "charles", "james", "elizabeth", "mary", "victoria", "anne",
     "john", "paul", "benedict", "leo", "pius", "gregory", "clement", "innocent", "louis", "philip", "frederick",
     "alexander", "nicholas", "peter", "ivan", "catherine", "napoleon", "ferdinand", "alfonso", "carlos", "felipe",
     "wilhelm", "ludwig", "constantine", "ramesses",
@@ -194,6 +199,7 @@ export const DATE_FORMAT = dateFormat({ separators: ".-", boundaries: ".,/-", sh
 
 // 1-555-123-4567, (555) 123-4567, 555.123.4567, 555 123 4567, 555-1234: the longest first, each its own pass
 export const PHONE_FORMATS = [
+  phoneFormat({ groups: [[3, 3], [3, 3], [4, 4], [1, 4]] }), // With an extension: 123-123-5678-1111
   phoneFormat({ groups: [[3, 3], [3, 3], [4, 4]], prefix: "1-" }),
   phoneFormat({ groups: [[3, 3], [3, 3], [4, 4]], parenthesized: true }),
   phoneFormat({ groups: [[3, 3], [3, 3], [4, 4]], separators: "." }),
@@ -213,7 +219,8 @@ export const SYMBOLS: Readings = {
   "&": ["and"],      "+": ["plus"],    "=": ["equals"],  "@": ["at"],      "%": ["percent"],
   "°": ["degrees"],  "#": ["hash"],  "²": ["squared"], "³": ["cubed"],   "π": ["pi"],
   "×": ["times"],    "±": ["plus or minus"], "½": ["one half"],
-  "§": ["section"],
+  "§": ["section"],    "$": ["dollar"], "€": ["euro"],
+  "£": ["pound"],      "¥": ["yen"],      "₩": ["won"],
 };
 
 // After the name of a street: 1428 Elm St., on 5th St.; on Main St. unless a name follows (Ascension St. Joseph),
@@ -240,6 +247,76 @@ function afterNumber(context: Context): boolean {
   }
   return head.length > 0 && isDigit(head[head.length - 1]);
 }
+
+// Between a house number and a capitalized name: 708 N 1st St, 1211 E Arques Ave
+function betweenNumberAndStreet(context: Context): boolean {
+  const tail = context.tail();
+  let next = 0;
+  while (next < tail.length && tail[next] === " ") {
+    next++;
+  }
+  const street = next > 0 && next < tail.length && (isUpper(tail[next]) || isDigit(tail[next]));
+  return afterNumber(context) && street;
+}
+
+// Before a ZIP code, possibly after a comma: Santa Clara, CA 95051
+function beforeZip(context: Context): boolean {
+  const tail = context.tail();
+  const start = tail[0] === "," ? 1 : 0;
+  if (start >= tail.length || tail[start] !== " ") {
+    return false;
+  }
+  const digits = start + 1;
+  let end = digits;
+  while (end < tail.length && isDigit(tail[end])) {
+    end++;
+  }
+  return end - digits === 5 && (end === tail.length || !isWord(tail[end]));
+}
+
+// At the end of an address, after its town: 123 Main St, Springfield, IL.
+function afterTown(context: Context): boolean {
+  const head = context.head();
+  const tail = context.tail();
+  if (str(head, head.length - 2) !== ", " || !(tail.length === 0 || contains(".,;)!?", tail[0]))) {
+    return false;
+  }
+  let comma = head.length - 3;
+  while (comma >= 0 && !(head[comma] === "," && head[comma + 1] === " ")) {
+    comma--;
+  }
+  if (comma < 0 || !isUpper(head[comma + 2])) {
+    return false;
+  }
+  return head.slice(0, comma).some((c) => isDigit(c));
+}
+
+// Two-letter codes of the US states, read before a ZIP code
+const STATES: ReadonlyArray<readonly [string, string]> = [
+  ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"], ["CA", "California"],
+  ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"], ["FL", "Florida"], ["GA", "Georgia"],
+  ["HI", "Hawaii"], ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"], ["KS", "Kansas"],
+  ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"], ["MD", "Maryland"], ["MA", "Massachusetts"],
+  ["MI", "Michigan"], ["MN", "Minnesota"], ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"],
+  ["NE", "Nebraska"], ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"],
+  ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"], ["OK", "Oklahoma"],
+  ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"], ["SC", "South Carolina"], ["SD", "South Dakota"],
+  ["TN", "Tennessee"], ["TX", "Texas"], ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"],
+  ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"], ["DC", "D C"],
+];
+
+// Street types after the name of a street: Laguna Ct, San Tomas Expy
+const STREET_TYPES: ReadonlyArray<readonly [string, string]> = [
+  ["Ave", "Avenue"], ["Blvd", "Boulevard"], ["Rd", "Road"], ["Ct", "Court"], ["Ln", "Lane"], ["Pkwy", "Parkway"],
+  ["Hwy", "Highway"], ["hwy", "Highway"], ["Expy", "Expressway"], ["Dr", "Drive"], ["St", "Street"],
+  ["st", "Street"], ["Pl", "Place"], ["Sq", "Square"], ["Ter", "Terrace"],
+];
+
+// Directions between a house number and its street
+const DIRECTIONS: ReadonlyArray<readonly [string, string]> = [
+  ["N", "North"], ["S", "South"], ["E", "East"], ["W", "West"], ["NE", "Northeast"], ["NW", "Northwest"],
+  ["SE", "Southeast"], ["SW", "Southwest"],
+];
 
 // Month abbreviations and their names
 const MONTH_ABBREVIATIONS: ReadonlyArray<readonly [string, string]> = [
@@ -274,7 +351,7 @@ const TERMS_BASE: Terms = {
     "Dr.": [{ words: "Doctor", when: beforeName }],
     "St.": [{ words: "Street", when: afterStreet }, { words: "Saint", when: beforeName }, "Street"],
   },
-  web: { dot: "dot", at: "at", slash: "slash", hyphen: "dash", underscore: "underscore",
+  web: { dot: "dot", at: "at", slash: "slash", hyphen: "dash", underscore: "underscore", backslash: "backslash", colon: "colon",
     digits: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"],
   },
 };
@@ -294,5 +371,22 @@ export const TERMS: Terms = (() => {
       abbreviations[`${form}-`] = [{ words: name, when: beforeNumber }];
     }
   }
-  return { abbreviations, web: TERMS_BASE.web };
+  for (const [code, state] of STATES) {
+    abbreviations[code] = [
+      { words: state, when: beforeZip },
+      { words: state, when: afterTown },
+    ];
+  }
+  for (const [abbreviation, name] of STREET_TYPES) {
+    for (const key of [abbreviation, `${abbreviation}.`]) {
+      abbreviations[key] = [{ words: name, when: afterStreet }, ...(abbreviations[key] ?? [])];
+    }
+  }
+  for (const [abbreviation, name] of DIRECTIONS) {
+    for (const key of [abbreviation, `${abbreviation}.`]) {
+      abbreviations[key] = [{ words: name, when: betweenNumberAndStreet }];
+    }
+  }
+  const closing = new Set(["etc.", "St.", ...STREET_TYPES.map(([abbreviation]) => `${abbreviation}.`)]);
+  return { abbreviations, web: TERMS_BASE.web, closing };
 })();

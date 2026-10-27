@@ -156,6 +156,9 @@ function year(n: bigint): string {
 function ordinal(n: bigint, ending: string): string {
   const words = cardinal(n);
   const r = n % 100n;
+  if (n === 0n) {
+    return `${words}t${ending}`; // nullter
+  }
   if (r > 0n && r < 20n) {
     const one = ONES[Number(r)];
     const stem = ORDINAL_STEMS[one];
@@ -376,6 +379,59 @@ function cuesOf(match: Match): Cues {
 // ----- Patterns -----
 // --------------------
 
+// 2.3, 02.03: a day and a month without a dot after them, as the whole text
+class BareDatePattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const dot = digitsEnd(text, position);
+    if (position > 0 || dot === position || dot > 2 || dot >= text.length || text[dot] !== ".") {
+      return undefined;
+    }
+    const end = digitsEnd(text, dot + 1);
+    if (end !== text.length || end - dot - 1 > 2 || end === dot + 1) {
+      return undefined;
+    }
+    const day = digitsAt(text, 0);
+    const month = digitsAt(text, dot + 1);
+    if (value(day) < 1n || value(day) > 31n || value(month) < 1n || value(month) > 12n) {
+      return undefined;
+    }
+    return matchOf({ kind: Kind.DATE, span: { begin: 0, end }, numbers: [day, month], separator: "." });
+  }
+}
+
+// 2003-03: a year and its month; not a range of years, whose end is later (2003-04)
+class YearMonthPattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const hyphen = digitsEnd(text, position);
+    if (
+      !isClearBefore(text, position, ".,-/") ||
+      hyphen !== position + 4 ||
+      hyphen >= text.length ||
+      text[hyphen] !== "-"
+    ) {
+      return undefined;
+    }
+    const end = digitsEnd(text, hyphen + 1);
+    if (end !== hyphen + 3 || !isClearAfter(text, end) || isDigitAfter(text, end, ".-/")) {
+      return undefined;
+    }
+    const year = digitsAt(text, position);
+    const month = digitsAt(text, hyphen + 1);
+    if (value(month) < 1n || value(month) > 12n || value(month) > value(year) % 100n) {
+      return undefined;
+    }
+    return matchOf({ kind: Kind.DATE, span: { begin: position, end }, numbers: [year, month], separator: "-" });
+  }
+}
+
 // 030 1234567, 0800-123 45 67, (0411) 1234-1234: an area code starting with 0, then the number, optionally in groups.
 class AreaCodePattern extends Pattern {
   constructor() {
@@ -521,6 +577,8 @@ class German extends PatternLanguage {
   constructor() {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
+    this.addPattern(new BareDatePattern());
+    this.addPattern(new YearMonthPattern());
     this.addPattern(new AreaCodePattern());
     this.addPattern(new SecondsPattern());
     this.addPattern(new UnitAfterPattern(new ScalePattern(NOTATION)));
@@ -545,7 +603,10 @@ class German extends PatternLanguage {
     const n = parseValue(number.integer);
     const amount =
       match.kind === Kind.MONEY || match.kind === Kind.UNIT || match.kind === Kind.PERCENT || match.kind === Kind.SCALE;
-    if (n === undefined || (isSpokenDigits(number, 5) && !(amount && number.integer[0] !== "0"))) {
+    // 46664 alone, or after its sign: the whole text is a number, not a code
+    const head = str(match.context.head());
+    const alone = (head === "" || head === `${this.joiners().minus} `) && match.context.tail().length === 0;
+    if (n === undefined || (isSpokenDigits(number, 5) && !((amount || alone) && number.integer[0] !== "0"))) {
       return digits(number.integer);
     }
     const cues = cuesOf(match);
@@ -564,6 +625,10 @@ class German extends PatternLanguage {
   }
 
   protected override readDate(match: Match): string | undefined {
+    // 2003-03: März zweitausenddrei
+    if (match.separator === "-" && match.numbers.length === 2) {
+      return `${MONTHS[Number(value(match.numbers[1])) - 1]} ${year(value(match.numbers[0]))}`;
+    }
     // "am 12. 3." is a date, "Platz 1. 2 Tore" is not
     if (match.text.includes(" ") && !DATE_CUES.has(match.context.before())) {
       return undefined;
@@ -580,6 +645,9 @@ class German extends PatternLanguage {
     // A half before a unit or a noun: 1/2 l einen halben Liter, 1/2 Stunde eine halbe Stunde
     const cues = cuesOf(match);
     const [a, b] = fractionOf(match);
+    if (match.numbers.length === 3 && a >= b) {
+      return undefined; // 1 5/3: the whole number and the fraction read apart
+    }
     const next = match.context.after();
     const noun = match.unit === "" ? next : UNITS[match.unit].one;
     if (a === 1n && b === 2n && match.numbers.length === 2 && capitalized(noun)) {
@@ -623,12 +691,14 @@ class German extends PatternLanguage {
     const words = wordsOf(match.context.tail());
     const next = words.length === 0 ? "" : str(words[0]);
     const month = (MONTHS as readonly string[]).includes(next);
-    const sentence = capitalized(next) && !month && !INFLECTING.has(match.context.before());
+    // 100. Geburtstag, 2.: a text doesn't open with a sentence of a bare number
+    const start = match.context.head().length === 0;
+    const sentence = capitalized(next) && !month && !INFLECTING.has(match.context.before()) && !start;
     // Before a comma or the end: only right after an article (in der 79., am 3.), not "Platz 23.," or "von 1983."
     const first = next === "" ? "" : String.fromCodePoint(next.codePointAt(0) as number);
     if (next === "" || contains(PUNCTUATION, first)) {
       const previous = match.context.before();
-      if (!WEAK.has(previous) && !WEAK_NOMINATIVE.has(previous)) {
+      if (!WEAK.has(previous) && !WEAK_NOMINATIVE.has(previous) && !(start && next === "")) {
         return undefined;
       }
       return ordinal(value(match.numbers[0]), ending(cuesOf(match))) + (next === "" ? "." : "");

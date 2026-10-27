@@ -332,4 +332,5 @@ export const TERMS: Terms = {
   web: { dot: "punto", at: "chiocciola", slash: "slash", hyphen: "trattino", underscore: "trattino basso",
     digits: ["zero", "uno", "due", "tre", "quattro", "cinque", "sei", "sette", "otto", "nove"],
   },
+  closing: new Set(["ecc.", "etc."]),
 };

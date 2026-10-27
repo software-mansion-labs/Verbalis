@@ -79,6 +79,13 @@ std::u32string cardinal(uint64_t n, One one = One::UNO) {
 // centésima trigésima séptima; undécimo, duodécimo, and one word from 13 to 29: decimoctavo, vigesimoprimera
 std::u32string ordinal(uint64_t n, bool feminine) {
   std::u32string ending = feminine ? U"a" : U"o";
+  // milésimo, dosmilésimo, quinientasmilésima primera: the thousands as one word
+  if (n >= 1000) {
+    std::u32string head = n / 1000 == 1 ? U"" : below_thousand(n / 1000, feminine ? One::UNA : One::UN);
+    std::erase(head, U' ');
+    head += U"milésim" + ending;
+    return n % 1000 ? head + U" " + ordinal(n % 1000, feminine) : head;
+  }
   std::vector<std::u32string> words;
   if (uint64_t h = n / 100 % 10) {
     words.push_back(std::u32string(kOrdinalHundreds[h]) + ending);
@@ -162,10 +169,42 @@ std::u32string digits(std::u32string_view text) {
   return join(words);
 }
 
+// A grouped number too long to hold, by its groups of six digits: cien mil trillones dos
+std::u32string long_cardinal(std::u32string_view digits_, One one) {
+  static constexpr std::array<std::pair<std::u32string_view, std::u32string_view>, 5> scales = {{
+      {U"", U""},
+      {U"millón", U"millones"},
+      {U"billón", U"billones"},
+      {U"trillón", U"trillones"},
+      {U"cuatrillón", U"cuatrillones"},
+  }};
+  std::vector<std::u32string> words;
+  size_t count = (digits_.size() + 5) / 6;
+  for (size_t i = count; i-- > 0;) {
+    size_t end = digits_.size() - 6 * i, start = end >= 6 ? end - 6 : 0;
+    uint64_t group = parse_value(digits_.substr(start, end - start)).value_or(0);
+    if (group == 0) {
+      continue;
+    }
+    if (i == 0) {
+      words.push_back(cardinal(group, one));
+    } else {
+      auto [one_scale, many_scales] = scales[i];
+      words.push_back(group == 1 ? U"un " + std::u32string(one_scale) :
+                                   cardinal(group, One::UN) + U" " + std::u32string(many_scales));
+    }
+  }
+  return join(words);
+}
+
 // A number ending with a given form of "uno", as before a currency or a unit
 std::u32string number_with(const Number& number, One one) {
   if (number.fraction.empty()) {
     auto n = parse_value(number.integer);
+    // 100 000 000 000 000 000 000 000: written in groups, a number even past what a 64-bit integer holds
+    if (!n && number.grouped && number.integer[0] != U'0' && number.integer.size() <= 30) {
+      return long_cardinal(number.integer, one);
+    }
     return !n || is_spoken_digits(number, 7) ? digits(number.integer) : cardinal(*n, one);
   }
 
@@ -436,8 +475,43 @@ private:
   }
 };
 
-// siglo xix, año mcmlxxxix, maría vii: a lowercase Roman numeral, after a century or a year, or of three letters or
-// more after a name ("parte vi" may be "I saw")
+// 12h02m00s, 12h02m: hours, minutes, and optionally seconds, each with its letter
+class CompactTimePattern : public Pattern {
+public:
+  CompactTimePattern() : Pattern(Kind::TIME) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    if (!is_clear_before(text, position, U".,:")) {
+      return std::nullopt;
+    }
+    Match time{.kind = Kind::TIME, .separator = U'h'};
+    size_t end = position;
+    for (char32_t letter : std::u32string_view(U"hms")) {
+      size_t digits = digits_end(text, end);
+      if (digits == end || digits - end > 2 || (letter != U'h' && digits - end != 2) || digits >= text.size() ||
+          text[digits] != letter) {
+        if (letter == U's' && time.numbers.size() == 2) {
+          break; // 12h02m: no seconds
+        }
+        return std::nullopt;
+      }
+      time.numbers.push_back(digits_at(text, end));
+      end = digits + 1;
+    }
+    if (!is_clear_after(text, end)) {
+      return std::nullopt;
+    }
+    // 12h02m00s: no seconds to say
+    if (time.numbers.size() == 3 && value(time.numbers[2]) == 0) {
+      time.numbers.pop_back();
+    }
+    time.span = {position, end};
+    return time;
+  }
+};
+
+// siglo xix, año mcmlxxxix, maría vii, cmxcix: a lowercase Roman numeral, after a century or a year, of three
+// letters or more after a name ("parte vi" may be "I saw"), or of three letters or more as the whole text
 class LowerRomanPattern : public Pattern {
 public:
   LowerRomanPattern() : Pattern(Kind::ROMAN) {}
@@ -456,7 +530,9 @@ public:
     std::u32string previous = Context(text, {position, end}).before();
     bool year = previous.starts_with(U"siglo") || previous == U"año";
     bool name = kRomanCues.names.contains(previous) && numeral.size() >= 3;
-    if (!value || (numeral.size() == 1 && numeral != U"I" && numeral != U"V" && numeral != U"X") || !(year || name)) {
+    bool alone = position == 0 && end == text.size() && numeral.size() >= 3; // cmxcix as the whole text
+    if (!value || (numeral.size() == 1 && numeral != U"I" && numeral != U"V" && numeral != U"X") ||
+        !(year || name || alone)) {
       return std::nullopt;
     }
     return Match{.kind = Kind::ROMAN,
@@ -480,6 +556,9 @@ public:
     }
     add_pattern(std::make_unique<FractionPattern>());
     add_pattern(std::make_unique<PrefixedMoneyPattern>(kNotation, kCurrencyWords));
+    add_pattern(std::make_unique<SecondsPattern>());
+    add_pattern(std::make_unique<CompactTimePattern>());
+    add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSigns, U". \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSigns, kOrdinalSignFormat));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<SuffixPattern>(Kind::DECADE, kDecadeSuffixes, kDecadeFormat));
@@ -489,7 +568,16 @@ public:
 
 protected:
   std::u32string read_number(const Number& number, const Match& match) const override {
+    // extensión 12: digit by digit
+    if (match.context.before() == U"extensión" && number.fraction.empty() && number.integer.size() > 1) {
+      return digits(number.integer);
+    }
     return number_with(number, cues_of(match).one);
+  }
+
+  // +593: a country code of three digits, digit by digit; +58: cincuenta y ocho
+  std::u32string read_country_code(std::u32string_view text) const override {
+    return text.size() > 2 ? digits(text) : read_code_digits(text);
   }
 
   std::u32string read_code_digits(std::u32string_view text) const override {
@@ -506,6 +594,15 @@ protected:
     // 30-2-1990 and 30.2.1990 need a full year (3.8.10 is a version)
     uint64_t day = value(match.numbers[0]), month = value(match.numbers[1]);
     bool slash = match.separator == U'/';
+    // 3/2 as the whole text, or 1 5/3: after a whole number, a fraction
+    if (slash && match.numbers.size() == 2 && match.context.head().empty() && match.context.tail().empty()) {
+      return std::nullopt;
+    }
+    auto before = words_of(match.context.head());
+    if (slash && match.numbers.size() == 2 && !before.empty() && std::ranges::all_of(before.back(), unicode::isdigit) &&
+        match.context.head().ends_with(U' ')) {
+      return std::nullopt;
+    }
     if (!slash && match.separator != U' ' && (match.numbers.size() < 3 || match.numbers[2].integer.size() != 4)) {
       return std::nullopt;
     }
@@ -531,6 +628,11 @@ protected:
     if (match.kind == Kind::PHONE && match.separator == U' ' && !kPhoneWords.contains(match.context.before())) {
       return std::nullopt;
     }
+    // 1990-2000 is a range of years
+    auto year = [](const Number& n) { return value(n) >= 1000 && value(n) <= 2100; };
+    if (match.numbers.size() == 2 && year(match.numbers[0]) && year(match.numbers[1])) {
+      return std::nullopt;
+    }
     return digits(match.text);
   }
 
@@ -545,7 +647,8 @@ protected:
     bool year = a > 1 && b >= 1900 && b < 2100;
     bool code = match.numbers[match.numbers.size() - 2].integer.starts_with(U'0') ||
                 match.context.tail().starts_with(U'-') || match.context.head().ends_with(U'-');
-    if (b < 2 || a >= b || year || code || is_number_word(previous)) {
+    bool alone = match.context.head().empty() && match.context.tail().empty(); // 3/2 alone: tres medios
+    if (b < 2 || (a >= b && !alone) || year || code || is_number_word(previous)) {
       return std::nullopt;
     }
     // medio limón, media taza; el tercio de, but un tercio
@@ -572,7 +675,8 @@ protected:
       return read_fraction(match);
     }
     auto [a, b] = fraction_of(match);
-    if (b < 2 || a >= b) {
+    // 1 5/3: uno y cinco tercios, an improper fraction after a whole number
+    if (b < 2 || (a >= b && !(mixed && match.unit.empty()))) {
       return std::nullopt;
     }
 
@@ -604,6 +708,22 @@ protected:
     uint64_t hours = value(match.numbers[0]);
     std::u32string words = cardinal(hours, One::UNA);
 
+    // 3:02:32: tres horas dos minutos y treinta y dos segundos; 12:00:00: doce
+    if (match.numbers.size() == 3) {
+      uint64_t minutes = value(match.numbers[1]), seconds = value(match.numbers[2]);
+      if (hours > 23 || minutes > 59) {
+        return std::nullopt;
+      }
+      if (minutes == 0 && seconds == 0) {
+        return words;
+      }
+      auto unit = [](uint64_t n, std::u32string_view one, std::u32string_view many) {
+        return cardinal(n, one == U"hora" ? One::UNA : One::UN) + U" " + std::u32string(n == 1 ? one : many);
+      };
+      words = unit(hours, U"hora", U"horas") + U" " + unit(minutes, U"minuto", U"minutos");
+      return seconds ? words + U" y " + unit(seconds, U"segundo", U"segundos") : words;
+    }
+
     // 19 h, 80hrs: diecinueve horas; 7 p. m. needs a clock hour
     if (match.numbers.size() < 2) {
       if (hour) {
@@ -615,7 +735,11 @@ protected:
       // A dot makes a time only after "a las" or before a suffix: a las 18.30, 18.30 h, a 13.30, but 1.13, a 3.28
       uint64_t minutes = value(match.numbers[1]);
       std::u32string previous = match.context.before();
-      bool cue = kTimeWords.contains(previous) || (previous == U"a" && minutes % 15 == 0);
+      // A clock time alone, or before a time zone: 12.15, 1.00 EST
+      std::u32string next = match.context.after();
+      bool zone = std::ranges::any_of(kTimeZones, [&](const auto& z) { return strings::to_lower(next) == z; });
+      bool alone = match.context.head().empty() && match.context.tail().empty();
+      bool cue = kTimeWords.contains(previous) || (previous == U"a" && minutes % 15 == 0) || zone || alone;
       bool decimal = match.separator == U'.' && match.suffix.empty() && !cue;
       if (!fits_clock(match) || decimal || ((morning || evening) && hours > 12)) {
         return std::nullopt;
@@ -643,6 +767,10 @@ protected:
 
   std::optional<std::u32string> read_roman(const Match& match) const override {
     uint64_t n = value(match.numbers[0]);
+    // V, cmxcix as the whole text: an ordinal
+    if (match.context.head().empty() && match.context.tail().empty()) {
+      return ordinal(n, false);
+    }
     std::u32string previous = match.context.before();
     auto role = roman_role(match, kRomanCues);
     if (unicode::islower(match.text[0])) {
@@ -678,18 +806,23 @@ protected:
   }
 
   std::optional<std::u32string> read_ordinal(const Match& match) const override {
-    // Ordinal words reach 999
+    // Ordinal words reach 999 999
     uint64_t n = value(match.numbers[0]);
-    if (n == 0 || n >= 1000) {
+    if (n == 0 || n >= 1000000) {
       return std::nullopt;
     }
 
     // 1.er, 21ᵉʳ: vigesimoprimer; 4.ª, 2da: feminine
     std::u32string_view suffix = match.suffix;
     std::u32string words = ordinal(n, suffix.ends_with(U'a') || suffix.ends_with(U'ª'));
-    if ((suffix.ends_with(U"er") || suffix.ends_with(U"ᵉʳ")) &&
-        (words.ends_with(U"primero") || words.ends_with(U"tercero"))) {
-      words.pop_back();
+    if (suffix.ends_with(U"er") || suffix.ends_with(U"ᵉʳ")) {
+      // 11.ᵉʳ: decimoprimer, as undécimo has no short form
+      if (words.ends_with(U"undécimo")) {
+        words.replace(words.size() - 8, 8, U"decimoprimero");
+      }
+      if (words.ends_with(U"primero") || words.ends_with(U"tercero")) {
+        words.pop_back();
+      }
     }
     return words;
   }

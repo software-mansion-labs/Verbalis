@@ -51,6 +51,15 @@ function readLost(text: Text, position: number): Edit | undefined {
   return undefined;
 }
 
+// An ellipsis right before a digit, spaced from it so the number reads on its own: 114...48 -> 114... 48
+function readEllipsis(text: Text, position: number): Edit | undefined {
+  const end = str(text, position, position + 3) === "..." ? position + 3 : position + (text[position] === "…" ? 1 : 0);
+  if (end === position || end >= text.length || !isDigit(text[end])) {
+    return undefined;
+  }
+  return { span: { begin: position, end }, text: "... " };
+}
+
 // A fraction character standing apart, written with digits for the fraction readings: ¾ szklanki -> 3/4, 2½ -> 2 1/2;
 // undefined next to a letter, where it is likely a mis-encoded letter (dï¿½clarant)
 const VULGAR_FRACTIONS: ReadonlyMap<string, string> = new Map([
@@ -120,6 +129,15 @@ function readUtf8(text: Text, position: number): Edit | undefined {
   if ((length === 3 && c < 0x800) || (length === 4 && (c < 0x10000 || c > 0x10ffff))) {
     return undefined;
   }
+  // Only what mis-encoded text holds: Latin letters, Devanagari, and punctuation (â€™ -> ’); not a pair which is
+  // itself text (Spaß», ÉTÉ»)
+  const latin = c >= 0xa0 && c <= 0x24f;
+  const devanagari = c >= 0x900 && c <= 0x97f;
+  const punctuation = (c >= 0x2010 && c <= 0x206f) || c === 0x20ac || c === 0x2122;
+  if (!latin && !devanagari && !punctuation && length < 4) {
+    // and emoji (ðŸ™‚ -> 🙂)
+    return undefined;
+  }
   return { span: { begin: position, end: position + length }, text: String.fromCodePoint(c) };
 }
 
@@ -128,13 +146,11 @@ function readUtf8(text: Text, position: number): Edit | undefined {
  * quotes as ", apostrophes as ', an ellipsis as ..., dashes as - or " - ", a degree written as an ordinal sign
  * (18ºC) as °, a fraction character apart as digits (¾ -> 3/4), and no invisible or lost characters (ï¿½).
  *
- * A language whose classes have letters read in the wrong encoding also gets UTF-8 read as Windows-1252 repaired:
- * siÄ™ -> się.
+ * UTF-8 read as Windows-1252 is repaired first: siÄ™ -> się, â€™ -> '.
  */
 export class Normalizer {
   readonly #canonical = new Map<string, string>(); // Of each character of the classes: ’ -> '
   readonly #letters = new Set<string>(); // The characters of letter classes
-  #utf8 = false; // Whether UTF-8 read as Windows-1252 is repaired
 
   constructor(characters: Characters = DEFAULT_CHARACTERS) {
     for (const { characters: members, canonical, letter } of characters) {
@@ -142,7 +158,6 @@ export class Normalizer {
         this.#canonical.set(c, canonical);
         if (letter) {
           this.#letters.add(c);
-          this.#utf8 = true;
         }
       }
     }
@@ -151,7 +166,7 @@ export class Normalizer {
   apply(document: Document): void {
     const text = document.text();
     for (let i = 0; i < text.length;) {
-      const edit = (this.#utf8 ? readUtf8(text, i) : undefined) ?? readLost(text, i) ?? readDash(text, i);
+      const edit = readUtf8(text, i) ?? readLost(text, i) ?? readEllipsis(text, i) ?? readDash(text, i);
       if (edit) {
         document.replace(edit.span, edit.text);
         i = edit.span.end;
@@ -196,8 +211,17 @@ function readDash(text: Text, position: number): Edit | undefined {
     return undefined;
   }
 
-  // 1. Inside a word or a number: Szczurek–Żelazko, 1990–2000, a--b
-  if (position > 0 && isWord(text[position - 1]) && end < text.length && isWord(text[end])) {
+  // 1. Inside a word or a number: Szczurek–Żelazko, 1990–2000; but an em dash or two hyphens before a word is a
+  // pause, as with spaces around it (case 2): briefs—styles, I--test. A shorter part after them is a clitic
+  // (limitou--se, elegê--los) or a mis-encoded letter (spos—b). An em dash before a number is a pause too.
+  let wordEnd = end;
+  while (wordEnd < text.length && isAlpha(text[wordEnd])) {
+    wordEnd++;
+  }
+  const number = end < text.length && isDigit(text[end]); // drizzle—0.2 mm
+  const pause = text[position] === "—" ? number || wordEnd - end >= 3 : end - position >= 2 && wordEnd - end >= 4;
+  const digits = position > 0 && isDigit(text[position - 1]) && end < text.length && isDigit(text[end]);
+  if (position > 0 && isWord(text[position - 1]) && end < text.length && isWord(text[end]) && (!pause || digits)) {
     return { span: { begin: position, end }, text: "-" };
   }
 

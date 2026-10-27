@@ -38,8 +38,7 @@ inline constexpr std::u32string_view kDashes = U"—–‒―";
  * quotes as ", apostrophes as ', an ellipsis as ..., dashes as - or " - ", a degree written as an ordinal sign
  * (18ºC) as °, a fraction character apart as digits (¾ -> 3/4), and no invisible or lost characters (ï¿½).
  *
- * A language whose classes have letters read in the wrong encoding also gets UTF-8 read as Windows-1252 repaired:
- * siÄ™ -> się.
+ * UTF-8 read as Windows-1252 is repaired first: siÄ™ -> się, â€™ -> '.
  */
 class Normalizer {
 public:
@@ -52,7 +51,6 @@ private:
   bool is_letter(std::u32string_view text, size_t position) const;
 
   std::unordered_set<char32_t> letters_; // The characters of letter classes
-  bool utf8_ = false;                    // Whether UTF-8 read as Windows-1252 is repaired
   /**
    * A dash at a position: "-" inside a word or a number (1990–2000), and " - " for a run of dashes with
    * the spaces around it elsewhere (a – b), except between numbers, which stay a range (2020 – 2022 -> 2020-2022).

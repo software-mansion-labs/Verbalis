@@ -173,7 +173,7 @@
 {"lang": "it", "source": "verbalis", "class": "electronic", "input": "La pagina è www.museo.nl/collezione.", "outputs": ["La pagina è w w w punto museo punto nl slash collezione."]}
 {"lang": "it", "source": "verbalis", "class": "electronic", "input": "Scrivi a ufficio.stampa@comune.roma.it.", "outputs": ["Scrivi a ufficio punto stampa chiocciola comune punto roma punto it."]}
 {"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il blog è su medium.com.", "outputs": ["Il blog è su medium punto com."]}
-{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il profilo è @wezyr1986.", "outputs": ["Il profilo è chiocciola wezyr millenovecentottantasei."]}
+{"lang": "it", "source": "verbalis", "class": "electronic", "input": "Il profilo è @wezyr1986.", "outputs": ["Il profilo è chiocciola wezyr millenovecentottantasei.", "Il profilo è chiocciola wezyr uno nove otto sei."]}
 {"lang": "it", "source": "verbalis", "class": "measure", "input": "Ho corso 1 km stamattina.", "outputs": ["Ho corso un chilometro stamattina."]}
 {"lang": "it", "source": "verbalis", "class": "measure", "input": "Il sentiero è lungo 12 km.", "outputs": ["Il sentiero è lungo dodici chilometri."]}
 {"lang": "it", "source": "verbalis", "class": "measure", "input": "La stanza misura 4,5 m di lunghezza.", "outputs": ["La stanza misura quattro virgola cinque metri di lunghezza."]}

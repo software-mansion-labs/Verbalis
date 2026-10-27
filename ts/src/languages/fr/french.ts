@@ -1,4 +1,11 @@
-import { DatePattern, Pattern, PhonePattern, SuffixPattern, RomanPattern } from "../../numbers/patterns.ts";
+import {
+  DatePattern,
+  GroupedOrdinalPattern,
+  Pattern,
+  PhonePattern,
+  SuffixPattern,
+  RomanPattern,
+} from "../../numbers/patterns.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -320,36 +327,6 @@ class RomanOrdinalPattern extends Pattern {
   }
 }
 
-// 1 000e, 2 000 000e: an ordinal of a grouped number, which the suffix pattern doesn't read
-class GroupedOrdinalPattern extends Pattern {
-  constructor() {
-    super(Kind.ORDINAL);
-  }
-
-  match(text: Text, position: number): Match | undefined {
-    if (!isClearBefore(text, position, ".,")) {
-      return undefined;
-    }
-    for (const number of numbersAt(text, position, " \u00a0\u202f", "")) {
-      const end = number.span.end;
-      if (!number.grouped) {
-        continue;
-      }
-      for (const suffix of keysAt(text, end, ORDINAL_SUFFIXES)) {
-        if (isClearAfter(text, end + suffix.length)) {
-          return match({
-            kind: Kind.ORDINAL,
-            span: { begin: position, end: end + suffix.length },
-            numbers: [number],
-            suffix,
-          });
-        }
-      }
-    }
-    return undefined;
-  }
-}
-
 // 3 1/2 km: a whole number and a half before a masculine unit, read "trois kilomètres et demi" (the whole number by
 // readNumber, and "et demi" by the joiners)
 class HalfUnitPattern extends Pattern {
@@ -498,7 +475,7 @@ class French extends PatternLanguage {
     this.addPattern(new EuroCentsPattern());
     this.addPattern(new MetersPattern());
     this.addPattern(new HalfUnitPattern());
-    this.addPattern(new GroupedOrdinalPattern());
+    this.addPattern(new GroupedOrdinalPattern(ORDINAL_SUFFIXES, " \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new RomanOrdinalPattern());
     this.addPattern(new RomanPattern());

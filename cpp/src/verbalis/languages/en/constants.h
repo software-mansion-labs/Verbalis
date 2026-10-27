@@ -74,7 +74,7 @@ inline const std::unordered_map<std::u32string, std::u32string> kPer = {
   {U"hour", U"hour"}, {U"min", U"minute"}, {U"kg", U"kilogram"}, {U"lb", U"pound"}, {U"g", U"gram"},
   {U"person", U"person"}, {U"night", U"night"}, {U"share", U"share"}, {U"barrel", U"barrel"}, {U"bbl", U"barrel"},
   {U"oz", U"ounce"}, {U"ton", U"ton"}, {U"tonne", U"tonne"}, {U"gallon", U"gallon"}, {U"kWh", U"kilowatt-hour"},
-  {U"MWh", U"megawatt-hour"}
+  {U"MWh", U"megawatt-hour"}, {U"s", U"second"}, {U"sec", U"second"}
 };
 inline const Keys kPerKeys = keys_of(kPer);
 
@@ -112,7 +112,7 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"kWh",  {U"kilowatt-hour", U"kilowatt-hours"}},   {U"V",    {U"volt", U"volts"}},
   {U"mph",  {U"mile per hour", U"miles per hour"}},   {U"km/h", {U"kilometer per hour", U"kilometers per hour"}},
   {U"°C",   {U"degree Celsius", U"degrees Celsius"}}, {U"°F",   {U"degree Fahrenheit", U"degrees Fahrenheit"}},
-  {U"°",    {U"degree", U"degrees"}},
+  {U"°",    {U"degree", U"degrees"}}, {U"″", {U"inch", U"inches"}},
   {U"m2",   {U"square meter", U"square meters"}},     {U"km2",  {U"square kilometer", U"square kilometers"}},
   {U"cm2",  {U"square centimeter", U"square centimeters"}}, {U"cm²", {U"square centimeter", U"square centimeters"}},
   {U"mm²",  {U"square millimeter", U"square millimeters"}}, {U"m3", {U"cubic meter", U"cubic meters"}},
@@ -134,6 +134,11 @@ inline const std::unordered_set<std::u32string> kFractionWords = {U"of"};
 
 inline const Keys kTimeSuffixes = {U"a.m.", U"p.m.", U"a.m", U"p.m", U"am.", U"pm.", U"am", U"pm", U"AM", U"PM",
                                    U"EST", U"EDT", U"CST", U"CDT", U"MST", U"MDT", U"PST", U"PDT", U"GMT", U"UTC"};
+
+// Words before a number read digit by digit: PIN 1234, card ending in 8876
+inline const std::unordered_set<std::u32string> kSpellingWords = {
+  U"pin", U"otp", U"code", U"passcode", U"password", U"cvv", U"cvc", U"zip"
+};
 
 // Months, also abbreviated (lowercase)
 inline const std::unordered_set<std::u32string> kMonthWords = {
@@ -181,7 +186,7 @@ inline const std::unordered_set<std::u32string> kStopWords = {
 // Henry VIII (the Eighth), Chapter IV (four), the XXI century (twenty-first)
 inline const RomanCues kRomanCues = {
   .names = {
-    U"henry", U"edward", U"george", U"william", U"richard", U"charles", U"james", U"elizabeth", U"mary", U"victoria",
+    U"henry", U"francis", U"edward", U"george", U"william", U"richard", U"charles", U"james", U"elizabeth", U"mary", U"victoria",
     U"anne", U"john", U"paul", U"benedict", U"leo", U"pius", U"gregory", U"clement", U"innocent", U"louis", U"philip",
     U"frederick", U"alexander", U"nicholas", U"peter", U"ivan", U"catherine", U"napoleon", U"ferdinand", U"alfonso",
     U"carlos", U"felipe", U"wilhelm", U"ludwig", U"constantine", U"ramesses"
@@ -211,6 +216,7 @@ inline const DateFormat kDateFormat = {.separators = U".-", .boundaries = U".,/-
 
 // 1-555-123-4567, (555) 123-4567, 555.123.4567, 555 123 4567, 555-1234: the longest first, each its own pass
 inline const std::vector<PhoneFormat> kPhoneFormats = {
+  {.groups = {{3, 3}, {3, 3}, {4, 4}, {1, 4}}}, // With an extension: 123-123-5678-1111
   {.groups = {{3, 3}, {3, 3}, {4, 4}}, .prefix = U"1-"},
   {.groups = {{3, 3}, {3, 3}, {4, 4}}, .parenthesized = true},
   {.groups = {{3, 3}, {3, 3}, {4, 4}}, .separators = U"."},
@@ -232,7 +238,8 @@ inline const Readings kSymbols = {
   {U"&", {U"and"}},      {U"+", {U"plus"}},    {U"=", {U"equals"}},  {U"@", {U"at"}},      {U"%", {U"percent"}},
   {U"°", {U"degrees"}},  {U"#", {U"hash"}},    {U"²", {U"squared"}}, {U"³", {U"cubed"}},   {U"π", {U"pi"}},
   {U"×", {U"times"}},    {U"±", {U"plus or minus"}}, {U"½", {U"one half"}},
-  {U"§", {U"section"}}
+  {U"§", {U"section"}},    {U"$", {U"dollar"}}, {U"€", {U"euro"}},
+  {U"£", {U"pound"}},      {U"¥", {U"yen"}},      {U"₩", {U"won"}}
 };
 
 using ::verbalis::text::before_name;
@@ -264,6 +271,71 @@ inline bool after_number(const ::verbalis::text::Context& context) {
   }
   return !head.empty() && ::verbalis::text::unicode::isdigit(head.back());
 }
+
+// Between a house number and a capitalized name: 708 N 1st St, 1211 E Arques Ave
+inline bool between_number_and_street(const ::verbalis::text::Context& context) {
+  std::u32string_view tail = context.tail();
+  size_t next = tail.find_first_not_of(U' ');
+  bool street = next != std::u32string_view::npos && next > 0 &&
+                (::verbalis::text::unicode::isupper(tail[next]) || ::verbalis::text::unicode::isdigit(tail[next]));
+  return after_number(context) && street;
+}
+
+// Before a ZIP code, possibly after a comma: Santa Clara, CA 95051
+inline bool before_zip(const ::verbalis::text::Context& context) {
+  std::u32string_view tail = context.tail();
+  size_t start = tail.starts_with(U",") ? 1 : 0;
+  if (start >= tail.size() || tail[start] != U' ') {
+    return false;
+  }
+  size_t digits = start + 1, end = digits;
+  while (end < tail.size() && ::verbalis::text::unicode::isdigit(tail[end])) {
+    end++;
+  }
+  return end - digits == 5 && (end == tail.size() || !::verbalis::text::unicode::isword(tail[end]));
+}
+
+// At the end of an address, after its town: 123 Main St, Springfield, IL.
+inline bool after_town(const ::verbalis::text::Context& context) {
+  std::u32string_view head = context.head(), tail = context.tail();
+  if (!head.ends_with(U", ") || !(tail.empty() || ::verbalis::text::strings::contains(std::u32string_view(U".,;)!?"), tail[0]))) {
+    return false;
+  }
+  head.remove_suffix(2);
+  size_t comma = head.rfind(U", ");
+  if (comma == std::u32string_view::npos || !::verbalis::text::unicode::isupper(head[comma + 2])) {
+    return false;
+  }
+  return std::ranges::any_of(head.substr(0, comma), ::verbalis::text::unicode::isdigit);
+}
+
+// Two-letter codes of the US states, read before a ZIP code
+inline const std::vector<std::pair<std::u32string, std::u32string>> kStates = {
+  {U"AL", U"Alabama"}, {U"AK", U"Alaska"}, {U"AZ", U"Arizona"}, {U"AR", U"Arkansas"}, {U"CA", U"California"},
+  {U"CO", U"Colorado"}, {U"CT", U"Connecticut"}, {U"DE", U"Delaware"}, {U"FL", U"Florida"}, {U"GA", U"Georgia"},
+  {U"HI", U"Hawaii"}, {U"ID", U"Idaho"}, {U"IL", U"Illinois"}, {U"IN", U"Indiana"}, {U"IA", U"Iowa"},
+  {U"KS", U"Kansas"}, {U"KY", U"Kentucky"}, {U"LA", U"Louisiana"}, {U"ME", U"Maine"}, {U"MD", U"Maryland"},
+  {U"MA", U"Massachusetts"}, {U"MI", U"Michigan"}, {U"MN", U"Minnesota"}, {U"MS", U"Mississippi"},
+  {U"MO", U"Missouri"}, {U"MT", U"Montana"}, {U"NE", U"Nebraska"}, {U"NV", U"Nevada"}, {U"NH", U"New Hampshire"},
+  {U"NJ", U"New Jersey"}, {U"NM", U"New Mexico"}, {U"NY", U"New York"}, {U"NC", U"North Carolina"},
+  {U"ND", U"North Dakota"}, {U"OH", U"Ohio"}, {U"OK", U"Oklahoma"}, {U"OR", U"Oregon"}, {U"PA", U"Pennsylvania"},
+  {U"RI", U"Rhode Island"}, {U"SC", U"South Carolina"}, {U"SD", U"South Dakota"}, {U"TN", U"Tennessee"},
+  {U"TX", U"Texas"}, {U"UT", U"Utah"}, {U"VT", U"Vermont"}, {U"VA", U"Virginia"}, {U"WA", U"Washington"},
+  {U"WV", U"West Virginia"}, {U"WI", U"Wisconsin"}, {U"WY", U"Wyoming"}, {U"DC", U"D C"}
+};
+
+// Street types after the name of a street: Laguna Ct, San Tomas Expy
+inline const std::vector<std::pair<std::u32string, std::u32string>> kStreetTypes = {
+  {U"Ave", U"Avenue"}, {U"Blvd", U"Boulevard"}, {U"Rd", U"Road"}, {U"Ct", U"Court"}, {U"Ln", U"Lane"},
+  {U"Pkwy", U"Parkway"}, {U"Hwy", U"Highway"}, {U"hwy", U"Highway"}, {U"Expy", U"Expressway"}, {U"Dr", U"Drive"},
+  {U"St", U"Street"}, {U"st", U"Street"}, {U"Pl", U"Place"}, {U"Sq", U"Square"}, {U"Ter", U"Terrace"}
+};
+
+// Directions between a house number and its street
+inline const std::vector<std::pair<std::u32string, std::u32string>> kDirections = {
+  {U"N", U"North"}, {U"S", U"South"}, {U"E", U"East"}, {U"W", U"West"}, {U"NE", U"Northeast"},
+  {U"NW", U"Northwest"}, {U"SE", U"Southeast"}, {U"SW", U"Southwest"}
+};
 
 // Month abbreviations and their names
 inline const std::vector<std::pair<std::u32string, std::u32string>> kMonthAbbreviations = {
@@ -299,6 +371,7 @@ inline const Terms kTermsBase = {
     {U"St.", {{U"Street", after_street}, {U"Saint", before_name}, U"Street"}},
   },
   .web = {.dot = U"dot", .at = U"at", .slash = U"slash", .hyphen = U"dash", .underscore = U"underscore",
+          .backslash = U"backslash", .colon = U"colon",
           .digits = {U"zero", U"one", U"two", U"three", U"four", U"five", U"six", U"seven", U"eight", U"nine"}}
 };
 
@@ -320,6 +393,24 @@ inline const Terms kTerms = [] {
         terms.abbreviations[key] = {{name, before_number}, {name, after_number}};
       }
       terms.abbreviations[form + U"-"] = {{name, before_number}};
+    }
+  }
+  for (const auto& [code, state] : kStates) {
+    terms.abbreviations[code] = {{state, before_zip}, {state, after_town}};
+  }
+  for (const auto& [abbreviation, name] : kStreetTypes) {
+    for (const auto& key : {abbreviation, abbreviation + U"."}) {
+      auto& readings = terms.abbreviations[key];
+      readings.insert(readings.begin(), {name, after_street});
+    }
+  }
+  terms.closing = {U"etc.", U"St."};
+  for (const auto& [abbreviation, name] : kStreetTypes) {
+    terms.closing.insert(abbreviation + U".");
+  }
+  for (const auto& [abbreviation, name] : kDirections) {
+    for (const auto& key : {abbreviation, abbreviation + U"."}) {
+      terms.abbreviations[key] = {{name, between_number_and_street}};
     }
   }
   return terms;
