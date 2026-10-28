@@ -6,6 +6,12 @@
     .venv/bin/python tests/lang/review.py status             # progress and reviewer accuracy per language
     .venv/bin/python tests/lang/review.py report             # confirmed errors by category: build/review/report.md
     .venv/bin/python tests/lang/review.py import-human ~/Downloads/pl-review-results.json
+    .venv/bin/python tests/lang/review.py seed               # expected readings from the verdicts: <lang>/corpus.jsonl
+    .venv/bin/python tests/lang/review.py expect pl          # a batch of unsettled sentences for the expect agent
+    .venv/bin/python tests/lang/review.py ingest-expect pl 3 # check build/review/pl/e03.out.jsonl, record it
+    .venv/bin/python tests/lang/review.py recheck pl         # a blind second expect batch of the written readings
+    .venv/bin/python tests/lang/review.py ingest-expect pl f1 # keep the readings both agents wrote; the rest go to
+                                                             # build/review/pl/disagreements.jsonl
 
 The pool of a language is the sentences of tests/parity/baseline (hi and zh: tests/parity/local, a sample), read by the
 installed package. A batch holds 90 pool sentences and 10 hidden controls: 5 known-good readings, which the reviewer
@@ -14,6 +20,10 @@ once it has 200 reviewed sentences and 20% or more are wrong, or once its pool i
 
 Verdicts go to tests/lang/<lang>/review.jsonl, one line per sentence and pass (the format is in tests/lang/README.md).
 A "wrong" verdict counts as confirmed when a second, blind pass by a fresh agent flags the same sentence.
+
+The verdicts settle the expected reading of a sentence, in tests/lang/<lang>/corpus.jsonl: a person's verdict or
+correction, else an output the first agent passed. The rest (flagged, unsure) goes to the expect agent
+(.claude/agents/expect.md), which writes the whole expected sentence, with the same hidden controls.
 """
 
 import argparse
@@ -23,6 +33,7 @@ import json
 import random
 import re
 import sys
+import unicodedata
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -85,6 +96,10 @@ def changes(source: str, output: str) -> list[str]:
 
 def review_path(lang: str) -> Path:
     return ROOT / lang / "review.jsonl"
+
+
+def corpus_path(lang: str) -> Path:
+    return ROOT / lang / "corpus.jsonl"
 
 
 def batches(lang: str) -> list[Path]:
@@ -155,8 +170,8 @@ def write_batch(lang: str, name: str, items: list[dict], verbalizer: Verbalizer,
     for n, item in enumerate(items, 1):
         item["n"] = n
     write_jsonl(WORK / lang / f"{name}.jsonl",
-                [{"n": i["n"], "input": i["input"], "output": i["output"], "changes": changes(i["input"], i["output"])}
-                 for i in items])
+                [{"n": i["n"], "input": i["input"], "output": i["output"], "changes": changes(i["input"], i["output"]),
+                  **({"notes": i["notes"]} if i.get("notes") else {})} for i in items])
     write_jsonl(WORK / lang / f"{name}.key.jsonl", items)
     print(WORK / lang / f"{name}.jsonl")
 
@@ -201,13 +216,10 @@ def repaired(line: str) -> str:
                       lambda m: m[1] + m[2].replace('\\"', '"').replace('"', '\\"'), line)
 
 
-def cmd_ingest(lang: str, name: str):
-    name = name if name.startswith("c") else f"{int(name):03}"
-    key = {r["n"]: r for r in jsonl(WORK / lang / f"{name}.key.jsonl")}
-    out_path = WORK / lang / f"{name}.out.jsonl"
-    rules, problems, verdicts = rule_ids(lang), [], {}
-    lines, pending = [], ""
-    for line in out_path.read_text(encoding="utf-8").splitlines():
+def answers(path: Path, problems: list[str]) -> list[tuple[str, dict]]:
+    """The JSON lines of an agent's answer file, each with its text; what doesn't parse goes to problems."""
+    lines, pending, rows = [], "", []
+    for line in path.read_text(encoding="utf-8").splitlines():
         pending += line.strip()  # Agents sometimes break one object over several lines
         if pending.startswith("{") and not pending.endswith("}"):
             continue
@@ -217,10 +229,24 @@ def cmd_ingest(lang: str, name: str):
         if not line.strip():
             continue
         try:
-            row = json.loads(repaired(line))
+            rows.append((line, json.loads(repaired(line))))
         except json.JSONDecodeError:
-            problems.append(f"not JSON: {line[:80]}")
-            continue
+            try:  # A stray closing brace: {"n": 22, "outputs": []}}
+                rows.append((line, json.loads(repaired(line.rstrip("}") + "}"))))
+            except json.JSONDecodeError:
+                # Readings with unescaped quotes inside: {"n": 6, "outputs": ["他说"好"."]}
+                if m := re.fullmatch(r'\{"n": (\d+), "outputs": \["(.*)"\]\]?\}+', line):
+                    rows.append((line, {"n": int(m[1]), "outputs": m[2].split('", "')}))
+                else:
+                    problems.append(f"not JSON: {line[:80]}")
+    return rows
+
+
+def cmd_ingest(lang: str, name: str):
+    name = name if name.startswith("c") else f"{int(name):03}"
+    key = {r["n"]: r for r in jsonl(WORK / lang / f"{name}.key.jsonl")}
+    rules, problems, verdicts = rule_ids(lang), [], {}
+    for line, row in answers(WORK / lang / f"{name}.out.jsonl", problems):
         n, item = row.get("n"), key.get(row.get("n"))
         if item is None or row.get("verdict") not in VERDICTS:
             problems.append(f"bad n or verdict: {line[:80]}")
@@ -335,8 +361,150 @@ def cmd_import_human(path: Path):
     print(f"{lang}: {len(rows)} human verdicts from {path.name}")
 
 
+def settled(lang: str) -> dict[str, dict]:
+    """The expected reading of each sentence the verdicts settle: a person's, else an output the first agent passed."""
+    rows = {}
+    for r in jsonl(review_path(lang)):
+        if r["by"] == "haiku" and r["pass"] == 1 and r["verdict"] == "ok" and r["input"] not in rows:
+            rows[r["input"]] = {"outputs": [r["output"]], "by": "haiku", "how": "approved"}
+    for r in jsonl(review_path(lang)):  # A person's verdict wins
+        if r["by"] == "human" and (r["verdict"] == "ok" or r.get("correction")):
+            how = "approved" if r["verdict"] == "ok" else "written"
+            rows[r["input"]] = {"outputs": [r["output"] if how == "approved" else r["correction"]], "by": "human",
+                                "how": how}
+    return rows
+
+
+def cmd_seed():
+    """Writes <lang>/corpus.jsonl from the verdicts, keeping the readings the expect agent wrote."""
+    for lang in LANGS:
+        written = {r["input"]: r for r in jsonl(corpus_path(lang)) if r["by"] == "haiku" and r["how"] == "written"}
+        rows = {**settled(lang), **written}
+        reviewed = {r["input"] for r in jsonl(review_path(lang))}
+        write_jsonl(corpus_path(lang), [{"lang": lang, "input": s, **rows[s]} for s in sorted(rows, key=stable)])
+        print(f"{lang}: {len(rows)} expected readings, {len(reviewed - set(rows))} sentences left for the expect agent")
+
+
+def expect_batches(lang: str) -> list[Path]:
+    return sorted((WORK / lang).glob("e[0-9][0-9].key.jsonl"))
+
+
+def cmd_expect(lang: str):
+    """A batch of sentences without an expected reading, with what the reviewers said about them; and sentences an agent
+    passed whose output has changed since, to settle which reading is right."""
+    verbalizer = Verbalizer(lang)
+    held = {r["input"] for p in expect_batches(lang) for r in jsonl(p)}
+    done, notes = set(), defaultdict(list)
+    for r in jsonl(corpus_path(lang)):
+        output = verbalizer.process(r["input"])
+        if r["by"] == "haiku" and r["how"] == "approved" and score_key(output) != score_key(r["outputs"][0]):
+            notes[r["input"]].append(f"an earlier reviewer passed: {r['outputs'][0]}")
+        else:
+            done.add(r["input"])
+    for r in jsonl(review_path(lang)):
+        for e in r.get("errors") or []:
+            notes[r["input"]].append(f"{e.get('span')} → {e.get('correction')} ({e.get('why', '')})")
+        if r.get("correction"):
+            notes[r["input"]].append(f"→ {r['correction']}")
+    todo = [s for s in dict.fromkeys(r["input"] for r in jsonl(review_path(lang))) if s not in done | held]
+    todo.sort(key=lambda s: not any(n.startswith("an earlier") for n in notes[s]))
+    if not todo:
+        print(f"nothing to settle in {lang}")
+        return
+    rng = random.Random(f"{lang}-expect-{len(expect_batches(lang))}")
+    items = [{"input": s, "output": verbalizer.process(s), "kind": "pool", "notes": list(dict.fromkeys(notes[s]))}
+             for s in todo[:BATCH - 2 * CONTROLS]]
+    write_batch(lang, f"e{1 + len(expect_batches(lang)):02}", items, verbalizer, rng, pool(lang))
+
+
+def cmd_recheck(lang: str):
+    """A blind second expect batch: readings an agent wrote, shown as Verbalis's output without the first answer."""
+    held = {r["input"] for p in sorted((WORK / lang).glob("f[0-9][0-9].key.jsonl")) for r in jsonl(p)}
+    rows = [r for r in jsonl(corpus_path(lang))
+            if r["by"] == "haiku" and r["how"] == "written" and not r.get("checked") and r["input"] not in held]
+    if not rows:
+        print(f"nothing to recheck in {lang}")
+        return
+    verbalizer = Verbalizer(lang)
+    rng = random.Random(f"{lang}-recheck-{len(held)}")
+    items = [{"input": r["input"], "output": verbalizer.process(r["input"]), "kind": "pool"}
+             for r in rows[:BATCH - 2 * CONTROLS]]
+    number = 1 + len(list((WORK / lang).glob("f[0-9][0-9].key.jsonl")))
+    write_batch(lang, f"f{number:02}", items, verbalizer, rng, pool(lang))
+
+
+def cmd_ingest_expect(lang: str, name: str):
+    """Checks the expect agent's readings against the hidden controls, and adds them to <lang>/corpus.jsonl. A second
+    pass (f1) keeps the readings both agents wrote; a sentence they disagree on leaves the corpus."""
+    second = name.startswith("f")
+    name = f"f{int(name[1:]):02}" if second else f"e{int(name):02}"
+    key = {r["n"]: r for r in jsonl(WORK / lang / f"{name}.key.jsonl")}
+    verbalizer, problems, readings = Verbalizer(lang), [], {}
+    for line, row in answers(WORK / lang / f"{name}.out.jsonl", problems):
+        n, item = row.get("n"), key.get(row.get("n"))
+        outputs = row.get("outputs")
+        if item is None or not (isinstance(outputs, list) and all(isinstance(o, str) and o.strip() for o in outputs)):
+            problems.append(f"bad n or outputs: {line[:80]}")
+            continue
+        far = [o for o in outputs if difflib.SequenceMatcher(None, o, item["output"], autojunk=False).ratio() < 0.5]
+        if far:
+            problems.append(f"{n}: a reading far from the output: {far[0][:80]}")
+            continue
+        readings[n] = outputs  # Empty: the agent can't tell
+    missing = sorted(set(key) - set(readings))
+    print(f"{lang} {name}: {len(readings)} answers, {len(missing)} missing, {len(problems)} problems")
+    for problem in problems[:20]:
+        print("  " + problem)
+    if len(missing) + len(problems) > BATCH // 10:
+        print("REJECTED: more than 10% of the batch is missing or malformed; run the batch again with a fresh agent")
+        return
+
+    # A good control must come back as it is, a planted error as the real reading
+    score = defaultdict(Counter)
+    for n, item in key.items():
+        if item["kind"] == "pool" or n not in readings:
+            continue
+        right = item["output"] if item["kind"] == "good" else verbalizer.process(item["input"])
+        score[item["kind"]][any(score_key(o) == score_key(right) for o in readings[n])] += 1
+    print(f"  good readings kept: {score['good'][True]} of {sum(score['good'].values())}; "
+          f"planted errors repaired: {score['planted'][True]} of {sum(score['planted'].values())}")
+    write_jsonl(WORK / lang / f"{name}.controls.jsonl",
+                [{"kind": k, "right": right} for k, c in score.items() for right, m in c.items() for _ in range(m)])
+    rows = {r["input"]: r for r in jsonl(corpus_path(lang))}
+    agreed = dropped = 0
+    for n, item in key.items():
+        if item["kind"] != "pool":
+            continue
+        if second and item["input"] in rows:
+            first = rows[item["input"]]["outputs"]
+            both = [o for o in first if score_key(o) in {score_key(r) for r in readings.get(n, [])}]
+            if both:
+                rows[item["input"]] = {**rows[item["input"]], "outputs": both, "checked": True}
+                agreed += 1
+            else:
+                write_jsonl(WORK / lang / "disagreements.jsonl",
+                            [{"input": item["input"], "first": first, "second": readings.get(n, [])}], mode="a")
+                del rows[item["input"]]
+                dropped += 1
+        elif not second and readings.get(n):
+            rows[item["input"]] = {"lang": lang, "input": item["input"], "outputs": readings[n], "by": "haiku",
+                                   "how": "written"}
+    if second:
+        print(f"  second pass: {agreed} readings agreed, {dropped} dropped")
+    write_jsonl(corpus_path(lang), sorted(rows.values(), key=lambda r: stable(r["input"])))
+    left = len({r["input"] for r in jsonl(review_path(lang))} - set(rows))
+    print(f"  {lang}: {len(rows)} expected readings, {left} left")
+
+
+def score_key(text: str) -> str:
+    """Speech, not spelling: case, spaces, and punctuation ignored, as in score.py."""
+    text = unicodedata.normalize("NFKC", text).casefold()
+    return "".join(c for c in text if not c.isspace() and not unicodedata.category(c).startswith("P"))
+
+
 parser = argparse.ArgumentParser()
-parser.add_argument("command", choices=["next", "ingest", "confirm", "status", "report", "import-human"])
+parser.add_argument("command", choices=["next", "ingest", "confirm", "status", "report", "import-human", "seed",
+                                        "expect", "ingest-expect", "recheck"])
 parser.add_argument("args", nargs="*")
 args = parser.parse_args()
 if args.command == "next":
@@ -349,6 +517,14 @@ elif args.command == "status":
     cmd_status()
 elif args.command == "report":
     cmd_report()
+elif args.command == "seed":
+    cmd_seed()
+elif args.command == "expect":
+    cmd_expect(args.args[0])
+elif args.command == "recheck":
+    cmd_recheck(args.args[0])
+elif args.command == "ingest-expect":
+    cmd_ingest_expect(*args.args[:2])
 else:
     cmd_import_human(Path(args.args[0]).expanduser())
 sys.exit(0)

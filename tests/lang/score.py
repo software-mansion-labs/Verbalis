@@ -4,12 +4,17 @@
     .venv/bin/python tests/lang/score.py --classes    # also per class
     .venv/bin/python tests/lang/score.py --show de    # every failing case of a language
     .venv/bin/python tests/lang/score.py --write      # record the current passing cases in scores.json
+    .venv/bin/python tests/lang/score.py --corpus pl  # every corpus sentence of a language Verbalis misreads
 
 A case passes when the output equals one of its acceptable readings, after normalization: case, whitespace, and
 punctuation are ignored ("twenty-one" = "twenty one"). "exact" counts equality as written. A case with an
 "out_of_scope" reason (markup, malformed input, gold that contradicts itself) is left out of the score and counted
 apart; tests/lang/<lang>/notes.md lists them. Exits 1 if a case that
 passed in scores.json fails now: a behaviour change may fix gold cases, but must not break them.
+
+It also scores the corpus (tests/lang/<lang>/corpus.jsonl): real sentences with readings that reviewers approved or
+wrote, mostly agents. These are not gold, so they only report: "approved" are outputs a reviewer passed, which a
+change since may have broken; "written" are readings a reviewer wrote, which Verbalis may not reach yet.
 """
 
 import argparse
@@ -28,6 +33,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--classes", action="store_true")
 parser.add_argument("--show", metavar="LANG")
 parser.add_argument("--write", action="store_true")
+parser.add_argument("--corpus", metavar="LANG")
 args = parser.parse_args()
 
 
@@ -88,6 +94,27 @@ if args.show:
     for case, output in failures[args.show]:
         print(f"[{case['source']}/{case['class']}] {case['input']}\n   got:      {output}\n   expected: "
               + " | ".join(case["outputs"]))
+
+# The corpus: real sentences with reviewed readings, reported only
+print(f"\n{'corpus':10}{'sentences':>10}{'match':>9}   {'approved':>18}   {'written':>18}   {'by a person':>12}")
+for path in sorted(ROOT.glob("*/corpus.jsonl")):
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
+    if not rows:
+        continue
+    lang, verbalizer = rows[0]["lang"], Verbalizer(rows[0]["lang"])
+    counts = defaultdict(lambda: [0, 0, 0])  # sentences, exact, normalized
+    for row in rows:
+        output = verbalizer.process(row["input"])
+        ok = normalized(output) in {normalized(o) for o in row["outputs"]}
+        for name in ("all", row["how"], row["by"]):
+            counts[name][0] += 1
+            counts[name][2] += ok
+        if not ok and args.corpus == lang:
+            print(f"[{row['by']} {row['how']}] {row['input']}\n   got:      {output}\n   expected: "
+                  + " | ".join(row["outputs"]))
+    n, _, ok = counts["all"]
+    print(f"{lang:10}{n:>10}{100 * ok / n:>8.1f}%   {share(counts['approved']):>18}   {share(counts['written']):>18}"
+          f"   {counts['human'][0] or '-':>12}")
 
 # The ratchet: compare with the recorded passing cases
 recorded = json.loads(SCORES.read_text(encoding="utf-8")) if SCORES.exists() else {}

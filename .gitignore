@@ -18,6 +18,8 @@ CLAUDE.local.md
 tests/parity/local/
 tests/lang/hi/review.jsonl
 tests/lang/zh/review.jsonl
+tests/lang/hi/corpus.jsonl
+tests/lang/zh/corpus.jsonl
 wheelhouse/
 ts/dist/
 

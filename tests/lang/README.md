@@ -74,3 +74,24 @@ the agents' answers, and stops a language at 20% wrong after 200 sentences. Batc
 `correction`). `pass` 2 is the blind second pass that confirms a first-pass `wrong`. Reviewed sentences are not gold:
 `score.py` doesn't count them. `hi/review.jsonl` and `zh/review.jsonl` hold sentences from `tests/parity/local/` and
 stay local.
+
+## Corpus: expected readings of real sentences
+
+`<lang>/corpus.jsonl` holds the expected reading of each reviewed sentence, so a change can be scored without a new
+review. `score.py` reports it after the gold table, and `score.py --corpus <lang>` lists the sentences Verbalis
+reads differently.
+
+```json
+{"lang": "pl", "input": "Mam 2 koty.", "outputs": ["Mam dwa koty."], "by": "haiku", "how": "written"}
+```
+
+- `by`: `human` or `haiku`; a person's verdict wins over an agent's.
+- `how`: `approved` (a reviewer passed Verbalis's output as it stood) or `written` (a reviewer wrote the reading).
+
+`review.py seed` builds it from `review.jsonl`: a person's verdict or correction, else an output the first agent
+passed. The rest goes to the `expect` agent (`.claude/agents/expect.md`, with the rules of `review-<lang>.md`), which
+writes whole sentences (`review.py expect`, `review.py ingest-expect`). When a change moves an output away from a
+reading an agent approved, `review.py expect` sends that sentence back to the agent with both readings.
+
+The corpus is not gold: one agent's "ok" misses errors (it passed "B and B" in Italian and undecoded HTML entities).
+`score.py` reports it and never fails on it. `hi/corpus.jsonl` and `zh/corpus.jsonl` stay local.
