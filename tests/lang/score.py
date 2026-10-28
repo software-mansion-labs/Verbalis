@@ -15,6 +15,7 @@ passed in scores.json fails now: a behaviour change may fix gold cases, but must
 It also scores the corpus (tests/lang/<lang>/corpus.jsonl): real sentences with readings that reviewers approved or
 wrote, mostly agents. These are not gold, so they only report: "approved" are outputs a reviewer passed, which a
 change since may have broken; "written" are readings a reviewer wrote, which Verbalis may not reach yet.
+"cross-checked" readings DeepSeek also wrote, blind; "disputed" ones it reads otherwise, left out of the match.
 """
 
 import argparse
@@ -96,14 +97,19 @@ if args.show:
               + " | ".join(case["outputs"]))
 
 # The corpus: real sentences with reviewed readings, reported only
-print(f"\n{'corpus':10}{'sentences':>10}{'match':>9}   {'approved':>18}   {'written':>18}   {'by a person':>12}")
+print(f"\n{'corpus':10}{'sentences':>10}{'match':>9}   {'approved':>18}   {'written':>18}   {'by a person':>12}"
+      f"{'cross-checked':>15}{'disputed':>10}")
 for path in sorted(ROOT.glob("*/corpus.jsonl")):
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
     if not rows:
         continue
     lang, verbalizer = rows[0]["lang"], Verbalizer(rows[0]["lang"])
     counts = defaultdict(lambda: [0, 0, 0])  # sentences, exact, normalized
+    disputed = sum("disputed" in row for row in rows)
     for row in rows:
+        if "disputed" in row:  # DeepSeek reads it otherwise: no expected reading to score against
+            continue
+        counts["cross"][0] += row.get("deepseek") == "agrees"
         output = verbalizer.process(row["input"])
         ok = normalized(output) in {normalized(o) for o in row["outputs"]}
         for name in ("all", row["how"], row["by"]):
@@ -114,7 +120,7 @@ for path in sorted(ROOT.glob("*/corpus.jsonl")):
                   + " | ".join(row["outputs"]))
     n, _, ok = counts["all"]
     print(f"{lang:10}{n:>10}{100 * ok / n:>8.1f}%   {share(counts['approved']):>18}   {share(counts['written']):>18}"
-          f"   {counts['human'][0] or '-':>12}")
+          f"   {counts['human'][0] or '-':>12}{counts['cross'][0]:>15}{disputed:>10}")
 
 # The ratchet: compare with the recorded passing cases
 recorded = json.loads(SCORES.read_text(encoding="utf-8")) if SCORES.exists() else {}

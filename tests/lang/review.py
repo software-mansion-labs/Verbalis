@@ -12,6 +12,9 @@
     .venv/bin/python tests/lang/review.py recheck pl         # a blind second expect batch of the written readings
     .venv/bin/python tests/lang/review.py ingest-expect pl f1 # keep the readings both agents wrote; the rest go to
                                                              # build/review/pl/disagreements.jsonl
+    .venv/bin/python tests/lang/review.py deepseek pl        # batches of every reviewed sentence for DeepSeek
+    .venv/bin/python tests/lang/review.py ingest-deepseek pl 3  # record build/review/pl/d003.out.jsonl
+    .venv/bin/python tests/lang/review.py cross              # mark corpus readings DeepSeek agrees with or disputes
 
 The pool of a language is the sentences of tests/parity/baseline (hi and zh: tests/parity/local, a sample), read by the
 installed package. A batch holds 90 pool sentences and 10 hidden controls: 5 known-good readings, which the reviewer
@@ -496,6 +499,88 @@ def cmd_ingest_expect(lang: str, name: str):
     print(f"  {lang}: {len(rows)} expected readings, {left} left")
 
 
+def cmd_deepseek(lang: str):
+    """Blind expect batches of every reviewed sentence, for a model of another family (tests/lang/deepseek.sh)."""
+    held = {r["input"] for p in (WORK / lang).glob("d[0-9][0-9][0-9].key.jsonl") for r in jsonl(p)}
+    todo = [s for s in dict.fromkeys(r["input"] for r in jsonl(review_path(lang))) if s not in held]
+    verbalizer = Verbalizer(lang)
+    number = len(list((WORK / lang).glob("d[0-9][0-9][0-9].key.jsonl")))
+    for start in range(0, len(todo), BATCH - 2 * CONTROLS):
+        number += 1
+        items = [{"input": s, "output": verbalizer.process(s), "kind": "pool"}
+                 for s in todo[start:start + BATCH - 2 * CONTROLS]]
+        write_batch(lang, f"d{number:03}", items, verbalizer, random.Random(f"{lang}-deepseek-{number}"), pool(lang))
+
+
+def cmd_ingest_deepseek(lang: str, name: str, model: str = "opencode/deepseek-v4-pro"):
+    """Records DeepSeek's readings of a batch in build/review/<lang>/deepseek.jsonl, with its control scores."""
+    name = f"d{int(name):03}"
+    key = {r["n"]: r for r in jsonl(WORK / lang / f"{name}.key.jsonl")}
+    verbalizer, problems, readings = Verbalizer(lang), [], {}
+    for line, row in answers(WORK / lang / f"{name}.out.jsonl", problems):
+        item, outputs = key.get(row.get("n")), row.get("outputs")
+        if item is None or not (isinstance(outputs, list) and all(isinstance(o, str) and o.strip() for o in outputs)):
+            problems.append(f"bad n or outputs: {line[:80]}")
+            continue
+        readings[row["n"]] = outputs
+    missing = sorted(set(key) - set(readings))
+    score = defaultdict(Counter)
+    for n, item in key.items():
+        if item["kind"] != "pool" and n in readings:
+            right = item["output"] if item["kind"] == "good" else verbalizer.process(item["input"])
+            score[item["kind"]][any(score_key(o) == score_key(right) for o in readings[n])] += 1
+    print(f"{lang} {name}: {len(readings)} answers, {len(missing)} missing, {len(problems)} problems; "
+          f"good kept {score['good'][True]}/{sum(score['good'].values())}, "
+          f"planted repaired {score['planted'][True]}/{sum(score['planted'].values())}")
+    if len(missing) + len(problems) > BATCH // 10:
+        print("REJECTED: more than 10% of the batch is missing or malformed; run it again")
+        return
+    write_jsonl(WORK / lang / f"{name}.controls.jsonl",
+                [{"kind": k, "right": right} for k, c in score.items() for right, m in c.items() for _ in range(m)])
+    path = WORK / lang / "deepseek.jsonl"
+    rows = {r["input"]: r for r in jsonl(path)}
+    for n, item in key.items():
+        if item["kind"] == "pool" and n in readings:
+            rows[item["input"]] = {"input": item["input"], "output": item["output"], "outputs": readings[n],
+                                   "model": model}
+    write_jsonl(path, rows.values())
+
+
+def cmd_cross():
+    """Compares the corpus with DeepSeek's blind readings: a reading DeepSeek also wrote is cross-checked, one it reads
+    otherwise is disputed (and left out of the score); a sentence the two expect agents disagreed on is settled where
+    DeepSeek wrote one of their readings."""
+    for lang in LANGS:
+        deepseek = {r["input"]: r["outputs"] for r in jsonl(WORK / lang / "deepseek.jsonl")}
+        if not deepseek:
+            continue
+        rows = {r["input"]: r for r in jsonl(corpus_path(lang))}
+        for row in rows.values():
+            row.pop("deepseek", None)
+            row.pop("disputed", None)
+            theirs = deepseek.get(row["input"])
+            if theirs is None:
+                continue
+            if not theirs:
+                row["deepseek"] = "unsure"
+            elif {score_key(o) for o in theirs} & {score_key(o) for o in row["outputs"]}:
+                row["deepseek"] = "agrees"
+            else:
+                row["disputed"] = theirs
+        settled = 0
+        for d in jsonl(WORK / lang / "disagreements.jsonl"):
+            theirs = {score_key(o) for o in deepseek.get(d["input"], [])}
+            both = [o for o in d["first"] + d["second"] if score_key(o) in theirs]
+            if both and d["input"] not in rows:
+                rows[d["input"]] = {"lang": lang, "input": d["input"], "outputs": list(dict.fromkeys(both)),
+                                    "by": "haiku", "how": "written", "deepseek": "agrees"}
+                settled += 1
+        write_jsonl(corpus_path(lang), sorted(rows.values(), key=lambda r: stable(r["input"])))
+        counts = Counter("disputed" if "disputed" in r else r.get("deepseek", "not read") for r in rows.values())
+        print(f"{lang}: {counts['agrees']} cross-checked, {counts['disputed']} disputed, {counts['unsure']} unsure, "
+              f"{counts['not read']} not read by DeepSeek; {settled} disagreements settled")
+
+
 def score_key(text: str) -> str:
     """Speech, not spelling: case, spaces, and punctuation ignored, as in score.py."""
     text = unicodedata.normalize("NFKC", text).casefold()
@@ -504,7 +589,8 @@ def score_key(text: str) -> str:
 
 parser = argparse.ArgumentParser()
 parser.add_argument("command", choices=["next", "ingest", "confirm", "status", "report", "import-human", "seed",
-                                        "expect", "ingest-expect", "recheck"])
+                                        "expect", "ingest-expect", "recheck", "deepseek", "ingest-deepseek",
+                                        "cross"])
 parser.add_argument("args", nargs="*")
 args = parser.parse_args()
 if args.command == "next":
@@ -521,6 +607,12 @@ elif args.command == "seed":
     cmd_seed()
 elif args.command == "expect":
     cmd_expect(args.args[0])
+elif args.command == "cross":
+    cmd_cross()
+elif args.command == "deepseek":
+    cmd_deepseek(args.args[0])
+elif args.command == "ingest-deepseek":
+    cmd_ingest_deepseek(*args.args[:3])
 elif args.command == "recheck":
     cmd_recheck(args.args[0])
 elif args.command == "ingest-expect":
