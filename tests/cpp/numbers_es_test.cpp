@@ -29,6 +29,12 @@ REGISTER_TEST(numbers_es_test) {
   ASSERT_EQUALS(
       U"Quedó cuarto en la primera ronda, el primer día, y vigesimoprimero en la decimotercera.",
       verbalize("es", U"Quedó 4.º en la 1.ª ronda, el 1.er día, y 21.º en la 13.ª.", only(&Options::numbers)));
+  // ° is an ordinal by its article or noun, else degrees
+  ASSERT_EQUALS(
+      U"El segundo lugar, la sexta fecha, primer piso, el trigésimo tercer Campeonato, a treinta grados y "
+      U"dieciocho°cincuenta y dos'.",
+      verbalize("es", U"El 2° lugar, la 6° fecha, 1° piso, el 33°Campeonato, a 30° y 18°52'.",
+                only(&Options::numbers)));
   ASSERT_EQUALS(U"Abre de nueve de la mañana a diecinueve horas y cierra a las cinco y dos de la tarde.",
                 verbalize("es", U"Abre de 9 a. m. a 19 h y cierra a las 5:02 p. m.", only(&Options::numbers)));
   ASSERT_EQUALS(U"Costó cincuenta y cinco centavos y tres billones de dólares.",

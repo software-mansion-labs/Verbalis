@@ -26,6 +26,7 @@ import {
   romanValue,
   toDigits,
   RomanRole,
+  isOrdinalDegree,
 } from "../../numbers/scanning.ts";
 import {
   digitsEnd,
@@ -84,6 +85,9 @@ import {
   ROMAN_CUES,
   FEMININE_NAMES,
   FEMININE_ROMAN_NOUNS,
+  ORDINAL_ARTICLES,
+  FEMININE_ORDINAL_ARTICLES,
+  ORDINAL_NOUNS,
 } from "./constants.ts";
 
 // How "uno" ends a number: alone (veintiuno), before a masculine noun (veintiún años) or a feminine one (veintiuna)
@@ -902,14 +906,24 @@ class Spanish extends PatternLanguage {
   protected override readOrdinal(match: Match): string | undefined {
     // Ordinal words reach 999 999
     const n = value(match.numbers[0]);
-    if (n === 0n || n >= 1000000n) {
-      return undefined;
+    if (
+      n === 0n ||
+      n >= 1000000n ||
+      (match.suffix === "°" && !isOrdinalDegree(match, ORDINAL_ARTICLES, ORDINAL_NOUNS))
+    ) {
+      return undefined; // 18°52' are degrees
     }
 
-    // 1.er, 21ᵉʳ: vigesimoprimer; 4.ª, 2da: feminine
+    // 1.er, 21ᵉʳ: vigesimoprimer; 4.ª, 2da: feminine; 2° takes the gender of its article or noun, and 1° piso is
+    // primer piso
     const suffix = match.suffix;
-    let words = ordinal(n, suffix.endsWith("a") || suffix.endsWith("ª"));
-    if (suffix.endsWith("er") || suffix.endsWith("ᵉʳ")) {
+    const after = match.context.after();
+    const degree = suffix.endsWith("°");
+    const article = ORDINAL_ARTICLES.has(match.context.before());
+    const feminineNoun = article ? FEMININE_ORDINAL_ARTICLES.has(match.context.before()) : feminine(after);
+    let words = ordinal(n, suffix.endsWith("a") || suffix.endsWith("ª") || (degree && feminineNoun));
+    const beforeNoun = degree && !feminineNoun && ORDINAL_NOUNS.has(toLower(after));
+    if (suffix.endsWith("er") || suffix.endsWith("ᵉʳ") || beforeNoun) {
       // 11.ᵉʳ: decimoprimer, as undécimo has no short form
       if (words.endsWith("undécimo")) {
         words = `${words.slice(0, -8)}decimoprimero`;
@@ -918,7 +932,8 @@ class Spanish extends PatternLanguage {
         words = words.slice(0, -1);
       }
     }
-    return words;
+    // 33°Campeonato: trigésimo tercer Campeonato
+    return degree && isAlpha(match.context.tail()[0]) ? `${words} ` : words;
   }
 
   protected override readDecade(match: Match): string | undefined {
@@ -979,6 +994,10 @@ class Spanish extends PatternLanguage {
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
+    // el 2° lugar, la 6°: an ordinal, read by its own pattern
+    if (isOrdinalDegree(match, ORDINAL_ARTICLES, ORDINAL_NOUNS)) {
+      return undefined;
+    }
     // 4 s, but 6s and los 60s
     if (match.unit === "s" && !match.text.includes(" ")) {
       return undefined;

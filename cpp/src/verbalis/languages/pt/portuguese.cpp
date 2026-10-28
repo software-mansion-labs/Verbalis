@@ -430,14 +430,16 @@ protected:
   }
 
   std::optional<std::u32string> read_phone(const Match& match) const override {
-    // 2021-2022, 20 2021-2022: a range of years; 500-1000: a range of round numbers; 213 456 789 pessoas: a count
+    // 2021-2022, 20 2021-2022, 1685-1750: a range of years; 500-1000: a range of round numbers; 213 456 789 pessoas:
+    // a count
     if (match.kind == Kind::PHONE) {
       auto year = [](const Number& group) {
-        return group.integer.size() == 4 && value(group) >= 1900 && value(group) <= 2100;
+        return group.integer.size() == 4 && value(group) >= 1000 && value(group) <= 2100;
       };
       const auto& numbers = match.numbers;
       size_t n = numbers.size();
-      bool years = year(numbers[n - 2]) && year(numbers[n - 1]);
+      uint64_t from = value(numbers[n - 2]), to = value(numbers[n - 1]);
+      bool years = year(numbers[n - 2]) && year(numbers[n - 1]) && (from >= 1900 || to > from);
       bool round = n == 2 && numbers[0].integer.ends_with(U'0') && numbers[1].integer.ends_with(U'0');
       bool spaced = match.separator == U' ' && match.text.find(U'-') == std::u32string_view::npos;
       if (years || round || (spaced && !spaced_phone(match))) {
@@ -516,10 +518,16 @@ protected:
 
   std::optional<std::u32string> read_ordinal(const Match& match) const override {
     uint64_t n = value(match.numbers[0]);
-    if (n == 0) {
-      return std::nullopt;
+    if (n == 0 || (match.suffix == U"°" && !is_ordinal_degree(match, kOrdinalArticles, kOrdinalNouns))) {
+      return std::nullopt; // 39° 2' are degrees
     }
-    return n >= 10 && cues_of(match).heading ? cardinal(n) : ordinal(n, match.suffix == U"ª");
+    // 2° takes the gender of its article or noun: na 5° edição
+    bool feminine_degree =
+        match.suffix.ends_with(U'°') &&
+        (kOrdinalArticles.contains(match.context.before()) ? kFeminineOrdinalArticles.contains(match.context.before()) :
+                                                             feminine(match.context.after()));
+    return n >= 10 && cues_of(match).heading ? cardinal(n) :
+                                               ordinal(n, match.suffix.ends_with(U'ª') || feminine_degree);
   }
 
   // anos 90s: anos noventa; anos 1980s: anos mil novecentos e oitenta
@@ -582,6 +590,10 @@ protected:
   }
 
   std::optional<std::u32string> read_unit(const Number& number, const Match& match) const override {
+    // o 2° lugar, na 5° edição: an ordinal, read by its own pattern
+    if (is_ordinal_degree(match, kOrdinalArticles, kOrdinalNouns)) {
+      return std::nullopt;
+    }
     // 45 s, 30s, but anos 90s
     if (match.unit == U"s" && !match.text.ends_with(U" s") && decade(match)) {
       return std::nullopt;

@@ -808,14 +808,20 @@ protected:
   std::optional<std::u32string> read_ordinal(const Match& match) const override {
     // Ordinal words reach 999 999
     uint64_t n = value(match.numbers[0]);
-    if (n == 0 || n >= 1000000) {
-      return std::nullopt;
+    if (n == 0 || n >= 1000000 ||
+        (match.suffix == U"°" && !is_ordinal_degree(match, kOrdinalArticles, kOrdinalNouns))) {
+      return std::nullopt; // 18°52' are degrees
     }
 
-    // 1.er, 21ᵉʳ: vigesimoprimer; 4.ª, 2da: feminine
+    // 1.er, 21ᵉʳ: vigesimoprimer; 4.ª, 2da: feminine; 2° takes the gender of its article or noun, and 1° piso is
+    // primer piso
     std::u32string_view suffix = match.suffix;
-    std::u32string words = ordinal(n, suffix.ends_with(U'a') || suffix.ends_with(U'ª'));
-    if (suffix.ends_with(U"er") || suffix.ends_with(U"ᵉʳ")) {
+    std::u32string after = match.context.after();
+    bool degree = suffix.ends_with(U'°'), article = kOrdinalArticles.contains(match.context.before());
+    bool feminine_noun = article ? kFeminineOrdinalArticles.contains(match.context.before()) : feminine(after);
+    std::u32string words = ordinal(n, suffix.ends_with(U'a') || suffix.ends_with(U'ª') || (degree && feminine_noun));
+    bool before_noun = degree && !feminine_noun && kOrdinalNouns.contains(strings::to_lower(after));
+    if (suffix.ends_with(U"er") || suffix.ends_with(U"ᵉʳ") || before_noun) {
       // 11.ᵉʳ: decimoprimer, as undécimo has no short form
       if (words.ends_with(U"undécimo")) {
         words.replace(words.size() - 8, 8, U"decimoprimero");
@@ -824,7 +830,9 @@ protected:
         words.pop_back();
       }
     }
-    return words;
+    // 33°Campeonato: trigésimo tercer Campeonato
+    std::u32string_view tail = match.context.tail();
+    return degree && !tail.empty() && unicode::isalpha(tail[0]) ? words + U" " : words;
   }
 
   std::optional<std::u32string> read_decade(const Match& match) const override {
@@ -885,6 +893,10 @@ protected:
   }
 
   std::optional<std::u32string> read_unit(const Number& number, const Match& match) const override {
+    // el 2° lugar, la 6°: an ordinal, read by its own pattern
+    if (is_ordinal_degree(match, kOrdinalArticles, kOrdinalNouns)) {
+      return std::nullopt;
+    }
     // 4 s, but 6s and los 60s
     if (match.unit == U"s" && match.text.find(U' ') == std::u32string_view::npos) {
       return std::nullopt;

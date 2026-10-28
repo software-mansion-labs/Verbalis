@@ -6,6 +6,13 @@ namespace verbalis::test {
 // English readings follow the Echo verbalizer; ISO dates are read by Verbalis only.
 REGISTER_TEST(numbers_en_test) {
 
+  // Race times, plural units before an adverb, and four-digit seasons
+  ASSERT_EQUALS(
+      U"won in one minute three point nine one seconds, sixty million dollars annually, twenty kilometers "
+      U"northwest, a three million dollar settlement, the twenty twenty-four to twenty-five budget",
+      verbalize("en-us",
+                U"won in 1:03.91, $60 million annually, 20 km northwest, a $3 million settlement, the 2024-25 "
+                U"budget"));
   ASSERT_EQUALS(U"The meeting is at ten thirty, about twenty to twenty-five minutes.",
                 verbalize("en-us", U"The meeting is at 10:30, about 20-25 minutes.", only(&Options::numbers)));
   ASSERT_EQUALS(U"He was born on March third, nineteen ninety, and paid one point five million dollars.",

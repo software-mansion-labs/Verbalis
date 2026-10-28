@@ -45,6 +45,9 @@ REGISTER_TEST(numbers_it_test) {
   ASSERT_EQUALS(
       U"Il primo gennaio, il secondo posto, la terza edizione, l'undicesima edizione, ma novanta gradi.",
       verbalize("it", U"Il 1° gennaio, il 2° posto, la 3° edizione, l'11° edizione, ma 90°.", only(&Options::numbers)));
+  ASSERT_EQUALS(
+      U"Il diciassettesimo Meeting, terzo lotto, quinta tappa, del secondo battaglione, a trenta gradi.",
+      verbalize("it", U"Il 17° Meeting, 3° lotto, 5° tappa, del 2.° battaglione, a 30°.", only(&Options::numbers)));
   ASSERT_EQUALS(U"Alle diciassette e quindici minuti e ventisei secondi, il ventiquattro marzo duemilaventidue.",
                 verbalize("it", U"Alle 17:15:26, il 24.03.2022.", only(&Options::numbers)));
   ASSERT_EQUALS(

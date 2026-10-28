@@ -263,8 +263,28 @@ inline const std::unordered_set<std::u32string> kPhoneWords = {
   U"al", U"teléfono", U"tel", U"móvil", U"número", U"llame", U"llamar", U"fax", U"whatsapp", U"contacto"
 };
 
-// 1º, 2 ª, 4.º, 1.ª, 1.ᵉʳ: a sign, possibly after a space or a dot
-inline const Keys kOrdinalSigns = {U"º", U"ª", U".º", U".ª", U"ᵉʳ", U".ᵉʳ"};
+// 1º, 2 ª, 4.º, 1.ª, 1.ᵉʳ, 1.°: a sign, possibly after a space or a dot; 2° is an ordinal only by its words
+inline const Keys kOrdinalSigns = {U"º", U"ª", U".º", U".ª", U"ᵉʳ", U".ᵉʳ", U".°", U"°"};
+
+// Articles before 2° which make it an ordinal (el 2° lugar), not degrees (a 30°), and the feminine ones (la 6°)
+inline const std::unordered_set<std::u32string> kOrdinalArticles = {
+  U"el", U"la", U"del", U"al", U"su", U"este", U"esta", U"nuestro",
+  U"nuestra"
+};
+inline const std::unordered_set<std::u32string> kFeminineOrdinalArticles = {
+  U"la", U"esta", U"nuestra"
+};
+// Nouns after 2° which make it an ordinal: 2° lugar, 1° piso
+inline const std::unordered_set<std::u32string> kOrdinalNouns = {
+  U"lugar", U"puesto", U"piso", U"fecha", U"aniversario", U"edición", U"festival", U"congreso",
+  U"concurso", U"encuentro", U"jornada", U"bono", U"año", U"semestre", U"trimestre", U"cuatrimestre",
+  U"bimestre", U"nivel", U"torneo", U"campeonato", U"capítulo", U"lote", U"premio", U"etapa",
+  U"vuelta", U"ronda", U"sección", U"distrito", U"juzgado", U"batallón", U"regimiento", U"grado",
+  U"día", U"semana", U"período", U"periodo", U"ciclo", U"curso", U"tiempo", U"round",
+  U"foro", U"seminario", U"simposio", U"salón", U"certamen", U"convención", U"cumbre", U"sesión",
+  U"división", U"informe"
+};
+
 inline const SuffixFormat kOrdinalSignFormat = {.space = true, .word_end = false};
 
 // 1er, 1.er, 3ero, 2da, 5ta
@@ -335,6 +355,11 @@ inline const Terms kTermsBase = {
     {U"Ext.", {{U"extensión", before_number}}},
     {U"nº", {{U"número", before_number}}},
     {U"N°", {{U"número", before_number}}},
+    {U"n°", {{U"número", before_number}}},
+    {U"n.°", {{U"número", before_number}}},
+    {U"N.°", {{U"número", before_number}}},
+    {U"n.º", {{U"número", before_number}}},
+    {U"N.º", {{U"número", before_number}}},
     {U"núm.", {{U"número", before_number}}},
     {U"pág.", {{U"página", before_number}}},
     {U"art.", {{U"artículo", before_number}}},

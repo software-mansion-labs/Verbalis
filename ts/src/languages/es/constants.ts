@@ -282,8 +282,28 @@ export const PHONE_WORDS: ReadonlySet<string> = new Set([
   "al", "teléfono", "tel", "móvil", "número", "llame", "llamar", "fax", "whatsapp", "contacto",
 ]);
 
-// 1º, 2 ª, 4.º, 1.ª, 1.ᵉʳ: a sign, possibly after a space or a dot
-export const ORDINAL_SIGNS: Keys = ["º", "ª", ".º", ".ª", "ᵉʳ", ".ᵉʳ"];
+// 1º, 2 ª, 4.º, 1.ª, 1.ᵉʳ, 1.°: a sign, possibly after a space or a dot
+export const ORDINAL_SIGNS: Keys = ["º", "ª", ".º", ".ª", "ᵉʳ", ".ᵉʳ", ".°", "°"];
+
+// Articles before 2° which make it an ordinal (el 2° lugar), not degrees (a 30°), and the feminine ones (la 6°)
+export const ORDINAL_ARTICLES: ReadonlySet<string> = new Set([
+  "el", "la", "del", "al", "su", "este", "esta", "nuestro",
+  "nuestra",
+]);
+export const FEMININE_ORDINAL_ARTICLES: ReadonlySet<string> = new Set([
+  "la", "esta", "nuestra",
+]);
+// Nouns after 2° which make it an ordinal: 2° lugar, 1° piso
+export const ORDINAL_NOUNS: ReadonlySet<string> = new Set([
+  "lugar", "puesto", "piso", "fecha", "aniversario", "edición", "festival", "congreso",
+  "concurso", "encuentro", "jornada", "bono", "año", "semestre", "trimestre", "cuatrimestre",
+  "bimestre", "nivel", "torneo", "campeonato", "capítulo", "lote", "premio", "etapa",
+  "vuelta", "ronda", "sección", "distrito", "juzgado", "batallón", "regimiento", "grado",
+  "día", "semana", "período", "periodo", "ciclo", "curso", "tiempo", "round",
+  "foro", "seminario", "simposio", "salón", "certamen", "convención", "cumbre", "sesión",
+  "división", "informe",
+]);
+
 export const ORDINAL_SIGN_FORMAT = suffixFormat({ space: true, wordEnd: false });
 
 // 1er, 1.er, 3ero, 2da, 5ta
@@ -346,6 +366,11 @@ const TERMS_BASE: Terms = {
     "Ext.": [{ words: "extensión", when: beforeNumber }],
     "nº": [{ words: "número", when: beforeNumber }],
     "N°": [{ words: "número", when: beforeNumber }],
+    "n°": [{ words: "número", when: beforeNumber }],
+    "n.°": [{ words: "número", when: beforeNumber }],
+    "N.°": [{ words: "número", when: beforeNumber }],
+    "n.º": [{ words: "número", when: beforeNumber }],
+    "N.º": [{ words: "número", when: beforeNumber }],
     "núm.": [{ words: "número", when: beforeNumber }],
     "pág.": [{ words: "página", when: beforeNumber }],
     "art.": [{ words: "artículo", when: beforeNumber }],

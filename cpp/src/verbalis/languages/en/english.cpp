@@ -102,9 +102,10 @@ std::u32string ampm(std::u32string_view suffix) {
 
 // What the words around a match say about reading its numbers
 struct Cues {
-  bool after_month = false;  // March 3: a day of the month, read as an ordinal
-  bool counted = false;      // 1999 people: a count rather than a year
-  bool attributive = false;  // a $5 bill: before a noun (not a verb in -ed or -ing), the unit stays singular
+  bool after_month = false; // March 3: a day of the month, read as an ordinal
+  bool counted = false;     // 1999 people: a count rather than a year
+  bool attributive =
+      false; // a $5 bill: before a noun (not a verb in -ed or -ing, nor an adverb), the unit stays singular
   bool before_month = false; // 25 July 2012: a day before the name of its month
   bool after_the = false;    // the 25th, 24/25 May: no article before it
   bool year = false;         // in 1999: a year is expected
@@ -113,6 +114,12 @@ struct Cues {
   bool spelled = false;      // ending in 8876, PIN 1234: digits to read one by one
   bool alone = false;        // the whole text: 10111 or 31/32 alone is a number, not a code or a date
 };
+
+// Whether a word is an adverb by its ending: $60 million annually, -7.3°C respectively; not rally, family
+bool is_adverb(std::u32string_view word) {
+  return word.size() > 6 && (word.ends_with(U"ally") || word.ends_with(U"ively") || word.ends_with(U"fully") ||
+                             word.ends_with(U"ously") || word.ends_with(U"ately"));
+}
 
 Cues cues_of(const Match& match) {
   std::u32string previous = match.context.before();
@@ -151,7 +158,8 @@ Cues cues_of(const Match& match) {
   return {.after_month = after_month,
           .counted = plural_noun && !year_cue,
           .attributive = !next.empty() && unicode::isalpha(next[0]) && !kStopWords.contains(next_lower) &&
-                         !tail.starts_with(U" (") && !next_lower.ends_with(U"ed") && !next_lower.ends_with(U"ing"),
+                         !tail.starts_with(U" (") && !next_lower.ends_with(U"ed") && !next_lower.ends_with(U"ing") &&
+                         !is_adverb(next_lower),
           .before_month = month,
           .after_the = previous == U"the" || in_range,
           .year = year_cue,
@@ -359,7 +367,8 @@ public:
   }
 };
 
-// 21:51:31, 2:08:29: hours, minutes, and seconds. Its numbers are the three parts.
+// 21:51:31, 2:08:29: hours, minutes, and seconds. Its numbers are the three parts; a race time (1:03.91) has two,
+// minutes and seconds with their fraction.
 class SecondsPattern : public Pattern {
 public:
   SecondsPattern() : Pattern(Kind::TIME) {}
@@ -371,6 +380,13 @@ public:
     std::vector<Number> parts;
     size_t end = position;
     for (size_t i = 0; i < 3; i++) {
+      if (i == 2 && end + 1 < text.size() && text[end] == U'.' && unicode::isdigit(text[end + 1])) {
+        size_t fraction_end = digits_end(text, end + 1);
+        parts[1].fraction = text.substr(end + 1, fraction_end - end - 1);
+        parts[1].decimal_mark = U'.';
+        parts[1].span.end = end = fraction_end;
+        break;
+      }
       if (i > 0 && (end >= text.size() || text[end] != U':')) {
         return std::nullopt;
       }
@@ -819,6 +835,12 @@ protected:
     uint64_t hours = value(match.numbers[0]);
     std::u32string suffix = ampm(match.suffix);
 
+    // 1:03.91: one minute three point nine one seconds
+    if (match.numbers.size() == 2 && !match.numbers[1].fraction.empty()) {
+      std::u32string minutes = hours ? cardinal(hours) + (hours == 1 ? U" minute " : U" minutes ") : U"";
+      return minutes + read_number(match.numbers[1], match) + U" seconds";
+    }
+
     // 10:00:00 p.m.: a clock time, ten p.m. (its a.m. or p.m. stays after it)
     std::u32string next = strings::to_lower(match.context.after());
     bool clock =
@@ -1011,10 +1033,10 @@ protected:
       return joiners().range;
     }
 
-    // 10-15 is "ten to fifteen", 1960-80 "nineteen sixty to eighty"; but scores and abbreviated seasons keep "-":
-    // 51-44, 2016-17, 21-22
+    // 10-15 is "ten to fifteen", 1960-80 "nineteen sixty to eighty", 2024-25 "twenty twenty-four to twenty-five"; but
+    // scores and two-digit seasons keep "-": 51-44, 21-22
     uint64_t a = value(from), b = value(to);
-    bool season = (from.integer.size() == 2 || from.integer.size() == 4) && b == a % 100 + 1;
+    bool season = from.integer.size() == 2 && b == a + 1;
     bool decades = from.integer.size() == 4 && to.integer.size() == 2 && b > a % 100;
     return ((from.integer.size() == to.integer.size() && b > a) || decades) && !season ? joiners().range : U"-";
   }

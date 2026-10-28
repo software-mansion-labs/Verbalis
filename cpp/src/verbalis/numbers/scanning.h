@@ -48,6 +48,13 @@ bool is_spoken_digits(const Number& number, size_t longest);
 // longest digits, or too long to hold.
 std::optional<uint64_t> code_value(std::u32string_view digits, size_t longest);
 
+/**
+ * Whether a degree sign, as a unit or an ordinal suffix, marks an ordinal (el 2° lugar, il 17° Meeting), not degrees (a 30°): one of a language's
+ * articles before it, one of its nouns after it, or a name after it, which is not a compass point (33° Sur).
+ */
+bool is_ordinal_degree(const Match& unit, const std::unordered_set<std::u32string>& articles,
+                       const std::unordered_set<std::u32string>& nouns);
+
 // Whether a time's hours and minutes fit a clock: at most 24 and 59. An hour alone always fits.
 bool fits_clock(const Match& time);
 

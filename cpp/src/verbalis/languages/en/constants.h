@@ -180,7 +180,9 @@ inline const std::unordered_set<std::u32string> kStopWords = {
   U"all", U"both", U"while", U"because", U"since", U"until", U"though", U"although", U"unless", U"has", U"have",
   U"had", U"do", U"does", U"did", U"get", U"got", U"instead", U"worth", U"today", U"tomorrow", U"tonight",
   U"outside", U"inside", U"apart", U"ahead", U"behind", U"above", U"below", U"long", U"wide", U"high", U"tall",
-  U"deep", U"old", U"later", U"earlier", U"overall", U"last", U"next", U"this"
+  U"deep", U"old", U"later", U"earlier", U"overall", U"last", U"next", U"this",
+  // 6.6 mm thick, 20 km northwest, £12 upfront, £209,474 made up
+  U"thick", U"thin", U"far", U"near", U"nearby", U"north", U"south", U"east", U"west", U"northwest", U"northeast", U"southwest", U"southeast", U"upfront", U"worldwide", U"pa", U"apiece", U"total", U"made", U"paid", U"spent", U"lost", U"won", U"left", U"raised"
 };
 
 // Henry VIII (the Eighth), Chapter IV (four), the XXI century (twenty-first)

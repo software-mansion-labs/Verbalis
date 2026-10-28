@@ -163,6 +163,8 @@ export const STOP_WORDS: ReadonlySet<string> = new Set([
   "had", "do", "does", "did", "get", "got", "instead", "worth", "today", "tomorrow", "tonight",
   "outside", "inside", "apart", "ahead", "behind", "above", "below", "long", "wide", "high", "tall",
   "deep", "old", "later", "earlier", "overall", "last", "next", "this",
+  // 6.6 mm thick, 20 km northwest, £12 upfront, £209,474 made up
+  "thick", "thin", "far", "near", "nearby", "north", "south", "east", "west", "northwest", "northeast", "southwest", "southeast", "upfront", "worldwide", "pa", "apiece", "total", "made", "paid", "spent", "lost", "won", "left", "raised",
 ]);
 
 // Henry VIII (the Eighth), Chapter IV (four), the XXI century (twenty-first)

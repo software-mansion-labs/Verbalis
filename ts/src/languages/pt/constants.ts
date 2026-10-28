@@ -197,8 +197,28 @@ export const PHONE_WORDS: ReadonlySet<string> = new Set([
   "para", "telefone", "tel", "ligue", "contato", "contacto", "número", "whatsapp", "fax",
 ]);
 
-// 1º, 2 ª: a sign, possibly after a space
-export const ORDINAL_SIGNS: Keys = ["º", "ª"];
+// 1º, 2 ª, 3°, 24.º: a sign, possibly after a space; 3° is an ordinal only by its words
+export const ORDINAL_SIGNS: Keys = ["º", "ª", "°", ".º", ".ª", ".°"];
+
+// Articles before 2° which make it an ordinal (o 2° lugar), not degrees (a 30°), and the feminine ones (na 5°)
+export const ORDINAL_ARTICLES: ReadonlySet<string> = new Set([
+  "o", "do", "no", "ao", "pelo", "à", "da", "na",
+  "pela", "seu", "sua", "este", "esta", "nosso", "nossa",
+]);
+export const FEMININE_ORDINAL_ARTICLES: ReadonlySet<string> = new Set([
+  "à", "da", "na", "pela", "sua", "esta", "nossa",
+]);
+// Nouns after 2° which make it an ordinal: 2° lugar, 1° andar
+export const ORDINAL_NOUNS: ReadonlySet<string> = new Set([
+  "lugar", "posto", "andar", "aniversário", "edição", "festival", "congresso", "concurso",
+  "encontro", "jornada", "ano", "semestre", "trimestre", "bimestre", "nível", "torneio",
+  "campeonato", "capítulo", "lote", "prêmio", "prémio", "etapa", "volta", "rodada",
+  "secção", "seção", "distrito", "batalhão", "regimento", "grau", "dia", "semana",
+  "período", "ciclo", "turno", "tempo", "round", "colocado", "colocada", "classificado",
+  "classificada", "ofício", "cartório", "juizado", "vara", "mandato", "sessão", "salão",
+  "simpósio", "seminário", "fórum", "certame", "convenção", "cúpula", "sargento", "tenente",
+]);
+
 // anos 90s, década de 80s, '80s, 1980s; but 30s alone is thirty seconds
 export const DECADE_SUFFIXES: Keys = ["s"];
 export const DECADE_FORMAT = suffixFormat({ apostrophes: true, boundaries: ".,-" });
@@ -221,6 +241,10 @@ export const TERMS: Terms = {
     Nº: [{ words: "número", when: beforeNumber }],
     "n.º": [{ words: "número", when: beforeNumber }],
     "N.º": [{ words: "número", when: beforeNumber }],
+    "n°": [{ words: "número", when: beforeNumber }],
+    "N°": [{ words: "número", when: beforeNumber }],
+    "n.°": [{ words: "número", when: beforeNumber }],
+    "N.°": [{ words: "número", when: beforeNumber }],
     "núm.": [{ words: "número", when: beforeNumber }],
     "art.": [{ words: "artigo", when: beforeNumber }],
     "Art.": [{ words: "artigo", when: beforeNumber }],

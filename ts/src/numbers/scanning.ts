@@ -139,6 +139,37 @@ export function namedFraction(fractions: Fractions, fraction: Match): string | u
  * 3/4 may be a date, a score, or a rating.
  * @param words lowercase; a word with an apostrophe matches up to it (d', dell')
  */
+const NOT_NAMES: ReadonlySet<string> = new Set([
+  "Norte",
+  "Sur",
+  "Sul",
+  "Nord",
+  "Sud",
+  "Este",
+  "Est",
+  "Leste",
+  "Oeste",
+  "Oest",
+  "Ovest",
+  "Ouest",
+  "Celsius",
+  "Fahrenheit",
+  "Kelvin",
+]);
+
+/**
+ * Whether a degree sign, as a unit or an ordinal suffix, marks an ordinal (el 2° lugar, il 17° Meeting), not degrees (a 30°): one of a language's
+ * articles before it, one of its nouns after it, or a name after it, which is not a compass point (33° Sur).
+ */
+export function isOrdinalDegree(unit: Match, articles: ReadonlySet<string>, nouns: ReadonlySet<string>): boolean {
+  if ((unit.unit !== "°" && unit.suffix !== "°") || unit.numbers.length !== 1 || unit.numbers[0].fraction !== "") {
+    return false;
+  }
+  const after = unit.context.after();
+  const name = [...after].length >= 3 && isUpper([...after][0]) && !NOT_NAMES.has(after);
+  return name || articles.has(unit.context.before()) || nouns.has(toLower(after));
+}
+
 export function isMarkedFraction(fraction: Match, words: ReadonlySet<string>): boolean {
   if (fraction.numbers.length === 3) {
     return true;

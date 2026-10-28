@@ -171,7 +171,7 @@ function ampm(suffix: string): string {
 interface Cues {
   afterMonth: boolean; // March 3: a day of the month, read as an ordinal
   counted: boolean; // 1999 people: a count rather than a year
-  attributive: boolean; // a $5 bill: before a noun (not a verb in -ed or -ing), the unit stays singular
+  attributive: boolean; // a $5 bill: before a noun (not a verb in -ed or -ing, nor an adverb), the unit stays singular
   beforeMonth: boolean; // 25 July 2012: a day before the name of its month
   afterThe: boolean; // the 25th, 24/25 May: no article before it
   year: boolean; // in 1999: a year is expected
@@ -179,6 +179,18 @@ interface Cues {
   amount: boolean; // $2019, 1980 kg: an amount, never read as a year
   spelled: boolean; // ending in 8876, PIN 1234: digits to read one by one
   alone: boolean; // the whole text: 10111 or 31/32 alone is a number, not a code or a date
+}
+
+// Whether a word is an adverb by its ending: $60 million annually, -7.3°C respectively; not rally, family
+function isAdverb(word: string): boolean {
+  return (
+    [...word].length > 6 &&
+    (word.endsWith("ally") ||
+      word.endsWith("ively") ||
+      word.endsWith("fully") ||
+      word.endsWith("ously") ||
+      word.endsWith("ately"))
+  );
 }
 
 function cuesOf(match: Match): Cues {
@@ -229,7 +241,8 @@ function cuesOf(match: Match): Cues {
       !STOP_WORDS.has(nextLower) &&
       !(tail[0] === " " && tail[1] === "(") &&
       !nextLower.endsWith("ed") &&
-      !nextLower.endsWith("ing"),
+      !nextLower.endsWith("ing") &&
+      !isAdverb(nextLower),
     beforeMonth: month,
     afterThe: previous === "the" || inRange,
     year: yearCue,
@@ -501,7 +514,8 @@ class DecadeRangePattern extends Pattern {
   }
 }
 
-// 21:51:31, 2:08:29: hours, minutes, and seconds. Its numbers are the three parts.
+// 21:51:31, 2:08:29: hours, minutes, and seconds. Its numbers are the three parts; a race time (1:03.91) has two,
+// minutes and seconds with their fraction.
 class SecondsPattern extends Pattern {
   constructor() {
     super(Kind.TIME);
@@ -514,6 +528,18 @@ class SecondsPattern extends Pattern {
     const parts: Numeral[] = [];
     let end = position;
     for (let i = 0; i < 3; i++) {
+      if (i === 2 && text[end] === "." && isDigit(text[end + 1])) {
+        const fractionEnd = digitsEnd(text, end + 1);
+        const seconds = parts[1];
+        parts[1] = numeral({
+          ...seconds,
+          span: { begin: seconds.span.begin, end: fractionEnd },
+          fraction: str(text, end + 1, fractionEnd),
+          decimalMark: ".",
+        });
+        end = fractionEnd;
+        break;
+      }
       if (i > 0 && (end >= text.length || text[end] !== ":")) {
         return undefined;
       }
@@ -961,6 +987,12 @@ class English extends PatternLanguage {
     const hours = value(match.numbers[0]);
     const suffix = ampm(match.suffix);
 
+    // 1:03.91: one minute three point nine one seconds
+    if (match.numbers.length === 2 && match.numbers[1].fraction !== "") {
+      const minutes = hours ? `${cardinal(hours)} ${hours === 1n ? "minute" : "minutes"} ` : "";
+      return `${minutes}${this.readNumber(match.numbers[1], match)} seconds`;
+    }
+
     // 10:00:00 p.m.: a clock time, ten p.m. (its a.m. or p.m. stays after it)
     const next = toLower(match.context.after());
     const clock = ["a.m.", "p.m.", "am", "pm", "a.m", "p.m"].includes(next);
@@ -1161,11 +1193,11 @@ class English extends PatternLanguage {
       return this.joiners().range;
     }
 
-    // 10-15 is "ten to fifteen", 1960-80 "nineteen sixty to eighty"; but scores and abbreviated seasons keep "-":
-    // 51-44, 2016-17, 21-22
+    // 10-15 is "ten to fifteen", 1960-80 "nineteen sixty to eighty", 2024-25 "twenty twenty-four to twenty-five"; but
+    // scores and two-digit seasons keep "-": 51-44, 21-22
     const a = value(from);
     const b = value(to);
-    const season = (from.integer.length === 2 || from.integer.length === 4) && b === (a % 100n) + 1n;
+    const season = from.integer.length === 2 && b === a + 1n;
     const decades = from.integer.length === 4 && to.integer.length === 2 && b > a % 100n;
     return ((from.integer.length === to.integer.length && b > a) || decades) && !season ? this.joiners().range : "-";
   }

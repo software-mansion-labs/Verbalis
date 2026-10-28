@@ -7,7 +7,7 @@ import type { Terms } from "../steps/terms.ts";
 import { Context } from "../text/context.ts";
 import { Document } from "../text/document.ts";
 import type { Readings } from "../text/readings.ts";
-import { join } from "../text/scan.ts";
+import { digitsEnd, join, skipSpace } from "../text/scan.ts";
 import { str } from "../text/strings.ts";
 import { isDigit } from "../text/unicode.ts";
 import type { Joiners } from "./grammar.ts";
@@ -180,8 +180,12 @@ export abstract class PatternLanguage extends Language {
   protected readJoiner(match: Match): string | undefined {
     const joiners = this.#joiners;
     switch (match.kind) {
-      case Kind.DIFFERENCE:
-        return ` ${joiners.minus} `;
+      case Kind.DIFFERENCE: {
+        // 5 - 3 = 2 is a minus, but 1993 - 1996 a range, read by the range pattern
+        const tail = match.context.tail();
+        const equation = tail[skipSpace(tail, digitsEnd(tail, 0))] === "=";
+        return match.text === " - " && !equation ? "-" : ` ${joiners.minus} `;
+      }
       case Kind.SUM:
         return ` ${joiners.plus} `;
       case Kind.RANGE:

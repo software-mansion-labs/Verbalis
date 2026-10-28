@@ -25,6 +25,12 @@ REGISTER_TEST(numbers_pt_test) {
   ASSERT_EQUALS(U"O primeiro e a segunda, artigo oitenta e o décimo primeiro lugar.",
                 verbalize("pt", U"O 1º e a 2ª, artigo 80º e o 11º lugar.", only(&Options::numbers)));
   ASSERT_EQUALS(
+      U"Bach (mil seiscentos e oitenta e cinco a mil setecentos e cinquenta), de dois mil e vinte e dois a "
+      U"dois mil e vinte e cinco",
+      verbalize("pt", U"Bach (1685-1750), de 2022 - 2025", only(&Options::numbers)));
+  ASSERT_EQUALS(U"O segundo lugar, na quinta edição, artigo vinte e quatro, a primeira vez e trinta graus.",
+                verbalize("pt", U"O 2° lugar, na 5° edição, artigo 24.º, a 1.ª vez e 30°.", only(&Options::numbers)));
+  ASSERT_EQUALS(
       U"Entre dois mil e dezesseis a dois mil e vinte e dois e dez a quinze quilômetros, o placar quatro-três-três e o "
       U"A trezentos e vinte duzentos.",
       verbalize("pt", U"Entre 2016-2022 e 10-15 km, o placar 4-3-3 e o A320-200.", only(&Options::numbers)));

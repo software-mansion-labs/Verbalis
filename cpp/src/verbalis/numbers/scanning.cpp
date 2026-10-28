@@ -122,6 +122,19 @@ std::optional<std::u32string> named_fraction(const Fractions& fractions, const M
   return it->second;
 }
 
+bool is_ordinal_degree(const Match& unit, const std::unordered_set<std::u32string>& articles,
+                       const std::unordered_set<std::u32string>& nouns) {
+  static const std::unordered_set<std::u32string> not_names = {
+      U"Norte", U"Sur",  U"Sul",   U"Nord",  U"Sud",     U"Este",       U"Est",   U"Leste",
+      U"Oeste", U"Oest", U"Ovest", U"Ouest", U"Celsius", U"Fahrenheit", U"Kelvin"};
+  if ((unit.unit != U"°" && unit.suffix != U"°") || unit.numbers.size() != 1 || !unit.numbers[0].fraction.empty()) {
+    return false;
+  }
+  std::u32string after = unit.context.after();
+  bool name = after.size() >= 3 && unicode::isupper(after[0]) && !not_names.contains(after);
+  return name || articles.contains(unit.context.before()) || nouns.contains(strings::to_lower(after));
+}
+
 bool is_marked_fraction(const Match& fraction, const std::unordered_set<std::u32string>& words) {
   if (fraction.numbers.size() == 3) {
     return true;

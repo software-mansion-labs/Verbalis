@@ -21,6 +21,7 @@ import {
   value,
   romanRole,
   RomanRole,
+  isOrdinalDegree,
 } from "../../numbers/scanning.ts";
 import { isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
 import { contains, size, split, toLower, type Text } from "../../text/strings.ts";
@@ -61,6 +62,7 @@ import {
   ROMAN_MARKERS,
   FEMININE_NAMES,
   FEMININE_ROMAN_NOUNS,
+  ORDINAL_NOUNS,
 } from "./constants.ts";
 
 // ------------------------
@@ -440,12 +442,12 @@ class Italian extends PatternLanguage {
     if (value(match.numbers[0]) === 0n) {
       return undefined;
     }
-    // il 3° posto, la 3° edizione: ° takes the gender of the article
-    let ending = match.suffix === "ª" ? "a" : match.suffix === "º" ? "o" : match.suffix.slice(-1);
+    // il 3° posto, la 3° edizione: ° takes the gender of the article, or of the noun (l'11° edizione, 5° tappa)
+    let ending = match.suffix.endsWith("ª") ? "a" : match.suffix.endsWith("º") ? "o" : match.suffix.slice(-1);
     const article = match.context.before();
-    if (match.suffix === "°") {
-      const elided = ELIDED_ARTICLES.has(article);
-      ending = (elided ? isFeminine(match.context.after()) : FEMININE_ARTICLES.has(article)) ? "a" : "o";
+    if (match.suffix.endsWith("°")) {
+      const byArticle = ORDINAL_ARTICLES.has(article) && !ELIDED_ARTICLES.has(article);
+      ending = (byArticle ? FEMININE_ARTICLES.has(article) : isFeminine(match.context.after())) ? "a" : "o";
     }
     return ordinal(value(match.numbers[0]), ending);
   }
@@ -497,11 +499,10 @@ class Italian extends PatternLanguage {
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
-    // il 1° gennaio, al 90° minuto: an ordinal, read by its own pattern
+    // il 1° gennaio, al 90° minuto, 3° lotto: an ordinal, read by its own pattern
     if (
-      match.unit === "°" &&
-      match.numbers.length === 1 &&
-      (ORDINAL_ARTICLES.has(match.context.before()) || MONTHS.includes(toLower(match.context.after())))
+      isOrdinalDegree(match, ORDINAL_ARTICLES, ORDINAL_NOUNS) ||
+      (match.unit === "°" && match.numbers.length === 1 && MONTHS.includes(toLower(match.context.after())))
     ) {
       return undefined;
     }

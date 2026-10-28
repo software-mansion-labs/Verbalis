@@ -347,11 +347,11 @@ protected:
     if (value(match.numbers[0]) == 0) {
       return std::nullopt;
     }
-    // il 3° posto, la 3° edizione: ° takes the gender of the article
-    char32_t ending = match.suffix == U"ª" ? U'a' : (match.suffix == U"º" ? U'o' : match.suffix.back());
-    if (std::u32string article = match.context.before(); match.suffix == U"°") {
-      bool elided = kElidedArticles.contains(article);
-      ending = (elided ? is_feminine(match.context.after()) : kFeminineArticles.contains(article)) ? U'a' : U'o';
+    // il 3° posto, la 3° edizione: ° takes the gender of the article, or of the noun (l'11° edizione, 5° tappa)
+    char32_t ending = match.suffix.ends_with(U'ª') ? U'a' : (match.suffix.ends_with(U'º') ? U'o' : match.suffix.back());
+    if (std::u32string article = match.context.before(); match.suffix.ends_with(U'°')) {
+      bool by_article = kOrdinalArticles.contains(article) && !kElidedArticles.contains(article);
+      ending = (by_article ? kFeminineArticles.contains(article) : is_feminine(match.context.after())) ? U'a' : U'o';
     }
     return ordinal(value(match.numbers[0]), ending);
   }
@@ -399,9 +399,9 @@ protected:
   }
 
   std::optional<std::u32string> read_unit(const Number& number, const Match& match) const override {
-    // il 1° gennaio, al 90° minuto: an ordinal, read by its own pattern
-    if (match.unit == U"°" && match.numbers.size() == 1 &&
-        (kOrdinalArticles.contains(match.context.before()) ||
+    // il 1° gennaio, al 90° minuto, 3° lotto: an ordinal, read by its own pattern
+    if (is_ordinal_degree(match, kOrdinalArticles, kOrdinalNouns) ||
+        (match.unit == U"°" && match.numbers.size() == 1 &&
          std::ranges::find(kMonths, strings::to_lower(match.context.after())) != kMonths.end())) {
       return std::nullopt;
     }

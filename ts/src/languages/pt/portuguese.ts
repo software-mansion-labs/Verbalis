@@ -22,6 +22,7 @@ import {
   value,
   romanRole,
   RomanRole,
+  isOrdinalDegree,
 } from "../../numbers/scanning.ts";
 import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
 import { contains, size, startsWith, str, toLower, type Text } from "../../text/strings.ts";
@@ -68,6 +69,9 @@ import {
   ROMAN_MARKERS,
   FEMININE_NAMES,
   FEMININE_ROMAN_NOUNS,
+  ORDINAL_ARTICLES,
+  FEMININE_ORDINAL_ARTICLES,
+  ORDINAL_NOUNS,
 } from "./constants.ts";
 
 // What the words around a match say about reading its numbers
@@ -506,12 +510,15 @@ class Portuguese extends PatternLanguage {
   }
 
   protected override readPhone(match: Match): string | undefined {
-    // 2021-2022, 20 2021-2022: a range of years; 500-1000: a range of round numbers; 213 456 789 pessoas: a count
+    // 2021-2022, 20 2021-2022, 1685-1750: a range of years; 500-1000: a range of round numbers; 213 456 789 pessoas:
+    // a count
     if (match.kind === Kind.PHONE) {
-      const year = (group: Numeral) => group.integer.length === 4 && value(group) >= 1900n && value(group) <= 2100n;
+      const year = (group: Numeral) => group.integer.length === 4 && value(group) >= 1000n && value(group) <= 2100n;
       const numbers = match.numbers;
       const n = numbers.length;
-      const years = year(numbers[n - 2]) && year(numbers[n - 1]);
+      const from = value(numbers[n - 2]);
+      const to = value(numbers[n - 1]);
+      const years = year(numbers[n - 2]) && year(numbers[n - 1]) && (from >= 1900n || to > from);
       const round = n === 2 && numbers[0].integer.endsWith("0") && numbers[1].integer.endsWith("0");
       const spaced = match.separator === " " && !match.text.includes("-");
       if (years || round || (spaced && !spacedPhone(match))) {
@@ -590,10 +597,15 @@ class Portuguese extends PatternLanguage {
 
   protected override readOrdinal(match: Match): string | undefined {
     const n = value(match.numbers[0]);
-    if (n === 0n) {
-      return undefined;
+    if (n === 0n || (match.suffix === "°" && !isOrdinalDegree(match, ORDINAL_ARTICLES, ORDINAL_NOUNS))) {
+      return undefined; // 39° 2' are degrees
     }
-    return n >= 10n && cuesOf(match).heading ? cardinal(n) : ordinal(n, match.suffix === "ª");
+    // 2° takes the gender of its article or noun: na 5° edição
+    const before = match.context.before();
+    const feminineDegree =
+      match.suffix.endsWith("°") &&
+      (ORDINAL_ARTICLES.has(before) ? FEMININE_ORDINAL_ARTICLES.has(before) : feminine(match.context.after()));
+    return n >= 10n && cuesOf(match).heading ? cardinal(n) : ordinal(n, match.suffix.endsWith("ª") || feminineDegree);
   }
 
   // anos 90s: anos noventa; anos 1980s: anos mil novecentos e oitenta
@@ -670,6 +682,10 @@ class Portuguese extends PatternLanguage {
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
+    // o 2° lugar, na 5° edição: an ordinal, read by its own pattern
+    if (isOrdinalDegree(match, ORDINAL_ARTICLES, ORDINAL_NOUNS)) {
+      return undefined;
+    }
     // 45 s, 30s, but anos 90s
     if (match.unit === "s" && !match.text.endsWith(" s") && isDecade(match)) {
       return undefined;

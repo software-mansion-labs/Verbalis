@@ -175,8 +175,8 @@ inline const std::vector<PhoneFormat> kPhoneFormats = {
   {.groups = {{2, 4}, {5, 8}}, .separators = U"-/.", .leading_zero = true}
 };
 
-// 1º, 2 ª, 3°: a sign, possibly after a space
-inline const Keys kOrdinalSigns = {U"º", U"ª", U"°"};
+// 1º, 2 ª, 3°, 2.°: a sign, possibly after a space
+inline const Keys kOrdinalSigns = {U"º", U"ª", U"°", U".°", U".º", U".ª"};
 
 // Articles and articulated prepositions before 3° which make it an ordinal (il 3° posto), not degrees (a 30°)
 inline const std::unordered_set<std::u32string> kOrdinalArticles = {
@@ -189,6 +189,15 @@ inline const std::unordered_set<std::u32string> kOrdinalArticles = {
 inline const std::unordered_set<std::u32string> kFeminineArticles = {
   U"la", U"alla", U"della", U"nella", U"dalla", U"sulla", U"una", U"questa", U"sua", U"mia", U"tua", U"nostra",
   U"vostra"
+};
+// Nouns after 3° which make it an ordinal: 3° lotto, 17° Meeting
+inline const std::unordered_set<std::u32string> kOrdinalNouns = {
+  U"posto", U"lotto", U"anno", U"semestre", U"trimestre", U"tasto", U"giorno", U"anniversario",
+  U"edizione", U"piano", U"classificato", U"classificata", U"livello", U"torneo", U"campionato", U"capitolo",
+  U"premio", U"tappa", U"giro", U"sezione", U"distretto", U"battaglione", U"reggimento", U"stormo",
+  U"grado", U"meeting", U"festival", U"congresso", U"concorso", U"incontro", U"giornata", U"turno",
+  U"tempo", U"round", U"circolo", U"municipio", U"reparto", U"corso", U"convegno", U"raduno",
+  U"trofeo", U"memorial", U"salone", U"forum", U"secolo", U"movimento"
 };
 inline const std::unordered_set<std::u32string> kElidedArticles = {U"l", U"all", U"dell", U"nell", U"dall", U"sull"};
 
@@ -248,9 +257,9 @@ inline const Keys kOrdinalSuffixes = {U"esimo", U"esima", U"esimi", U"esime"};
 
 using ::verbalis::text::Readings;
 
-// "&" only joins English names: AT&T, R&B
+// "&" reads as "e", in names too: Gratta&Vinci, H&M
 inline const Readings kSymbols = {
-  {U"&", {U"and"}},         {U"+", {U"più"}},       {U"=", {U"uguale a"}}, {U"@", {U"chiocciola"}}, {U"%", {U"per cento"}},
+  {U"&", {U"e"}},           {U"+", {U"più"}},       {U"=", {U"uguale a"}}, {U"@", {U"chiocciola"}}, {U"%", {U"per cento"}},
   {U"°", {U"gradi"}},       {U"#", {U"hashtag"}},   {U"²", {U"al quadrato"}}, {U"³", {U"al cubo"}}, {U"π", {U"pi greco"}},
   {U"×", {U"per"}},         {U"€", {U"euro"}},      {U"$", {U"dollari"}},  {U"£", {U"sterline"}},   {U"§", {U"paragrafo"}}
 };
@@ -267,6 +276,12 @@ inline const Terms kTerms = {
     {U"nr.", {{U"numero", before_number}}},
     {U"n°", {{U"numero", before_number}}},
     {U"N°", {{U"numero", before_number}}},
+    {U"n.°", {{U"numero", before_number}}},
+    {U"N.°", {{U"numero", before_number}}},
+    {U"nº", {{U"numero", before_number}}},
+    {U"Nº", {{U"numero", before_number}}},
+    {U"n.º", {{U"numero", before_number}}},
+    {U"N.º", {{U"numero", before_number}}},
     {U"art.", {{U"articolo", before_number}}},
     {U"Art.", {{U"articolo", before_number}}},
     {U"pag.", {{U"pagina", before_number}}},

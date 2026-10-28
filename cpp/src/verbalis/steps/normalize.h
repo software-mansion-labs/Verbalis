@@ -38,7 +38,7 @@ inline constexpr std::u32string_view kDashes = U"—–‒―";
  * quotes as ", apostrophes as ', an ellipsis as ..., dashes as - or " - ", a degree written as an ordinal sign
  * (18ºC) as °, a fraction character apart as digits (¾ -> 3/4), and no invisible or lost characters (ï¿½).
  *
- * UTF-8 read as Windows-1252 is repaired first: siÄ™ -> się, â€™ -> '.
+ * UTF-8 read as Windows-1252 is repaired first: siÄ™ -> się, â€™ -> '; then HTML entities: &oacute; -> ó.
  */
 class Normalizer {
 public:
@@ -47,6 +47,8 @@ public:
   void apply(Document& document) const;
 
 private:
+  // An HTML entity at a position, written as the character it stands for (&eacute; -> é), or std::nullopt
+  std::optional<Document::Edit> entity(std::u32string_view text, size_t position) const;
   // A letter class character at a position stands for a letter: next to a letter, but not after a metric unit (m³)
   bool is_letter(std::u32string_view text, size_t position) const;
 

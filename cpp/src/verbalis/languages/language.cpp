@@ -188,8 +188,12 @@ std::optional<std::u32string> PatternLanguage::read_unit(const Number& amount, c
 
 std::optional<std::u32string> PatternLanguage::read_joiner(const Match& match) const {
   switch (match.kind) {
-    case Kind::DIFFERENCE:
-      return U" " + joiners_.minus + U" ";
+    case Kind::DIFFERENCE: {
+      // 5 - 3 = 2 is a minus, but 1993 - 1996 a range, read by the range pattern
+      std::u32string_view tail = match.context.tail();
+      bool equation = tail.substr(text::skip_space(tail, text::digits_end(tail, 0))).starts_with(U'=');
+      return match.text == U" - " && !equation ? U"-" : U" " + joiners_.minus + U" ";
+    }
     case Kind::SUM:
       return U" " + joiners_.plus + U" ";
     case Kind::RANGE:

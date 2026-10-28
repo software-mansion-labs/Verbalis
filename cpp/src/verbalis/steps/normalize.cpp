@@ -46,6 +46,15 @@ std::optional<Document::Edit> read_ellipsis(std::u32string_view text, size_t pos
   return Document::Edit{.span = {position, end}, .text = U"... "};
 }
 
+// A hyphen spaced from the number before it only, which is a range, not a minus: 1989 -1990 -> 1989-1990
+std::optional<Document::Edit> read_spaced_range(std::u32string_view text, size_t position) {
+  if (position == 0 || position + 2 >= text.size() || text[position] != U' ' || text[position + 1] != U'-' ||
+      !unicode::isdigit(text[position - 1]) || !unicode::isdigit(text[position + 2])) {
+    return std::nullopt;
+  }
+  return Document::Edit{.span = {position, position + 2}, .text = U"-"};
+}
+
 // A fraction character standing apart, written with digits for the fraction readings: ¾ szklanki -> 3/4, 2½ -> 2 1/2;
 // nullopt next to a letter, where it is likely a mis-encoded letter (dï¿½clarant)
 std::optional<std::u32string> vulgar_fraction(std::u32string_view text, size_t position) {
@@ -61,13 +70,36 @@ std::optional<std::u32string> vulgar_fraction(std::u32string_view text, size_t p
   return (digit_before ? U" " : U"") + it->second;
 }
 
-// Whether an ordinal sign at a position is a degree: 18ºC, 12 ºF
+// A power written as a digit after a unit after a number, as its superscript: 345m2 -> 345m², 900 cm3 -> 900 cm³
+std::optional<Document::Edit> read_power(std::u32string_view text, size_t position) {
+  if ((text[position] != U'2' && text[position] != U'3') ||
+      (position + 1 < text.size() && unicode::isalnum(text[position + 1]))) {
+    return std::nullopt;
+  }
+  for (std::u32string_view unit : {U"km", U"cm", U"mm", U"dm", U"ft", U"m"}) {
+    size_t start = position - std::min(position, unit.size());
+    if (text.substr(start, position - start) != unit) {
+      continue;
+    }
+    size_t before = start > 0 && text[start - 1] == U' ' ? start - 1 : start;
+    if (before > 0 && unicode::isdigit(text[before - 1])) {
+      return Document::Edit{.span = {position, position + 1}, .text = text[position] == U'2' ? U"²" : U"³"};
+    }
+    return std::nullopt;
+  }
+  return std::nullopt;
+}
+
+// Whether an ordinal sign at a position is a degree: 18ºC, 12 ºF; a ring after a number is one too: 180˚C
 bool is_degree(std::u32string_view text, size_t position) {
   size_t before = position;
   while (before > 0 && unicode::isspace(text[before - 1])) {
     before--;
   }
   size_t unit = position + 1;
+  if (text[position] == U'˚') {
+    return before > 0 && unicode::isdigit(text[before - 1]);
+  }
   return text[position] == U'º' && before > 0 && unicode::isdigit(text[before - 1]) && unit < text.size() &&
          (text[unit] == U'C' || text[unit] == U'F') && (unit + 1 == text.size() || !unicode::isword(text[unit + 1]));
 }
@@ -114,6 +146,77 @@ std::optional<Document::Edit> read_utf8(std::u32string_view text, size_t positio
   }
   return Document::Edit{.span = {position, position + length}, .text = std::u32string(1, c)};
 }
+
+// The characters of named HTML entities, as the canonical forms of this step: &nbsp; is a space, &rsquo; is '
+// clang-format off
+const std::unordered_map<std::u32string, std::u32string> kEntities = {
+    {U"amp", U"&"}, {U"lt", U"<"}, {U"gt", U">"}, {U"quot", U"\""}, {U"apos", U"'"}, {U"nbsp", U" "},
+    {U"ndash", U"-"}, {U"mdash", U"-"}, {U"hellip", U"..."}, {U"laquo", U"\""}, {U"raquo", U"\""}, {U"ldquo", U"\""},
+    {U"rdquo", U"\""}, {U"bdquo", U"\""}, {U"lsquo", U"'"}, {U"rsquo", U"'"}, {U"euro", U"€"}, {U"pound", U"£"},
+    {U"yen", U"¥"}, {U"cent", U"¢"}, {U"deg", U"°"}, {U"sup1", U"¹"}, {U"sup2", U"²"}, {U"sup3", U"³"},
+    {U"middot", U"·"}, {U"times", U"×"}, {U"divide", U"÷"}, {U"plusmn", U"±"}, {U"frac12", U"1/2"}, {U"frac14", U"1/4"},
+    {U"frac34", U"3/4"}, {U"copy", U"©"}, {U"reg", U"®"}, {U"trade", U"™"}, {U"sect", U"§"}, {U"para", U"¶"},
+    {U"ordm", U"º"}, {U"ordf", U"ª"}, {U"iexcl", U"¡"}, {U"iquest", U"¿"}, {U"szlig", U"ß"}, {U"ccedil", U"ç"},
+    {U"Ccedil", U"Ç"}, {U"aelig", U"æ"}, {U"AElig", U"Æ"}, {U"oslash", U"ø"}, {U"Oslash", U"Ø"}, {U"aring", U"å"},
+    {U"Aring", U"Å"}, {U"oelig", U"œ"}, {U"OElig", U"Œ"}, {U"eth", U"ð"}, {U"thorn", U"þ"},
+    // Accented letters: &eacute; -> é
+    {U"Aacute", U"Á"}, {U"Agrave", U"À"}, {U"Acirc", U"Â"}, {U"Auml", U"Ä"}, {U"Atilde", U"Ã"}, {U"Eacute", U"É"},
+    {U"Egrave", U"È"}, {U"Ecirc", U"Ê"}, {U"Euml", U"Ë"}, {U"Iacute", U"Í"}, {U"Igrave", U"Ì"}, {U"Icirc", U"Î"},
+    {U"Iuml", U"Ï"}, {U"Oacute", U"Ó"}, {U"Ograve", U"Ò"}, {U"Ocirc", U"Ô"}, {U"Ouml", U"Ö"}, {U"Otilde", U"Õ"},
+    {U"Uacute", U"Ú"}, {U"Ugrave", U"Ù"}, {U"Ucirc", U"Û"}, {U"Uuml", U"Ü"}, {U"aacute", U"á"}, {U"agrave", U"à"},
+    {U"acirc", U"â"}, {U"auml", U"ä"}, {U"atilde", U"ã"}, {U"eacute", U"é"}, {U"egrave", U"è"}, {U"ecirc", U"ê"},
+    {U"euml", U"ë"}, {U"iacute", U"í"}, {U"igrave", U"ì"}, {U"icirc", U"î"}, {U"iuml", U"ï"}, {U"oacute", U"ó"},
+    {U"ograve", U"ò"}, {U"ocirc", U"ô"}, {U"ouml", U"ö"}, {U"otilde", U"õ"}, {U"uacute", U"ú"}, {U"ugrave", U"ù"},
+    {U"ucirc", U"û"}, {U"uuml", U"ü"}, {U"Ntilde", U"Ñ"}, {U"ntilde", U"ñ"}, {U"Yacute", U"Ý"}, {U"Yuml", U"Ÿ"},
+    {U"yacute", U"ý"}, {U"yuml", U"ÿ"},
+};
+// clang-format on
+
+// An HTML entity at a position, as its character: &iacute; -> í, &#8217; -> ', &nbsp -> " ". Corpora drop the
+// semicolon (Computaci&oacuten), so a name of four letters and more reads without it.
+std::optional<Document::Edit> read_entity(std::u32string_view text, size_t position) {
+  if (text[position] != U'&' || position + 2 >= text.size()) {
+    return std::nullopt;
+  }
+  size_t end = position + 1;
+  std::u32string decoded;
+  if (text[end] == U'#') {
+    bool hex = text[end + 1] == U'x' || text[end + 1] == U'X';
+    size_t digits = end = end + 1 + hex;
+    char32_t c = 0;
+    while (end < text.size() && end - digits < 7 &&
+           (unicode::isdigit(text[end]) ||
+            (hex && std::u32string_view(U"abcdefABCDEF").find(text[end]) != std::u32string_view::npos)) &&
+           text[end] < 0x80) {
+      c = c * (hex ? 16 : 10) + (text[end] <= U'9' ? text[end] - U'0' : (text[end] | 0x20) - U'a' + 10);
+      end++;
+    }
+    if (end == digits || end == text.size() || text[end] != U';' || c == 0 || c > 0x10ffff ||
+        (c >= 0xd800 && c <= 0xdfff)) {
+      return std::nullopt;
+    }
+    end++;
+    decoded = std::u32string(1, c);
+  } else {
+    size_t name_end = end;
+    while (name_end < text.size() && name_end - end < 8 && text[name_end] < 0x80 && unicode::isalnum(text[name_end])) {
+      name_end++;
+    }
+    for (; name_end > end + 1; --name_end) { // The longest name: &oacuten -> ó + n
+      auto it = kEntities.find(std::u32string(text.substr(end, name_end - end)));
+      bool semicolon = name_end < text.size() && text[name_end] == U';';
+      if (it != kEntities.end() && (semicolon || name_end - end >= 4)) {
+        decoded = it->second;
+        end = name_end + semicolon;
+        break;
+      }
+    }
+    if (decoded.empty()) {
+      return std::nullopt;
+    }
+  }
+  return Document::Edit{.span = {position, end}, .text = decoded};
+}
 } // namespace
 
 Normalizer::Normalizer(const Characters& characters) {
@@ -133,6 +236,9 @@ void Normalizer::apply(Document& document) const {
   for (size_t i = 0; i < text.size();) {
     auto edit = read_utf8(text, i);
     if (!edit) {
+      edit = entity(text, i);
+    }
+    if (!edit) {
       edit = read_lost(text, i);
     }
     if (!edit) {
@@ -140,6 +246,12 @@ void Normalizer::apply(Document& document) const {
     }
     if (!edit) {
       edit = read_dash(text, i);
+    }
+    if (!edit) {
+      edit = read_spaced_range(text, i);
+    }
+    if (!edit) {
+      edit = read_power(text, i);
     }
     if (edit) {
       document.replace(edit->span, std::move(edit->text));
@@ -156,6 +268,21 @@ void Normalizer::apply(Document& document) const {
     }
     i++;
   }
+}
+
+std::optional<Document::Edit> Normalizer::entity(std::u32string_view text, size_t position) const {
+  auto edit = read_entity(text, position);
+  if (edit && edit->text.size() == 1) { // A character by number in its canonical form: &#8217; -> '
+    char32_t c = edit->text[0];
+    if (auto it = canonical_.find(c); it != canonical_.end() && !letters_.contains(c)) {
+      edit->text = it->second;
+    } else if (strings::contains(kDashes, c)) {
+      edit->text = U"-";
+    } else if (c == 0xa0) {
+      edit->text = U" ";
+    }
+  }
+  return edit;
 }
 
 bool Normalizer::is_letter(std::u32string_view text, size_t position) const {

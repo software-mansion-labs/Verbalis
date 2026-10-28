@@ -182,6 +182,15 @@ export const MASCULINE_IN_IONE: ReadonlySet<string> = new Set([
   "milione", "campione", "padiglione", "battaglione", "scorpione", "rione", "bastione",
 ]);
 
+// Nouns after 3° which make it an ordinal: 3° lotto, 17° Meeting
+export const ORDINAL_NOUNS: ReadonlySet<string> = new Set([
+  "posto", "lotto", "anno", "semestre", "trimestre", "tasto", "giorno", "anniversario",
+  "edizione", "piano", "classificato", "classificata", "livello", "torneo", "campionato", "capitolo",
+  "premio", "tappa", "giro", "sezione", "distretto", "battaglione", "reggimento", "stormo",
+  "grado", "meeting", "festival", "congresso", "concorso", "incontro", "giornata", "turno",
+  "tempo", "round", "circolo", "municipio", "reparto", "corso", "convegno", "raduno",
+  "trofeo", "memorial", "salone", "forum", "secolo", "movimento",
+]);
 export const ELIDED_ARTICLES: ReadonlySet<string> = new Set([
   "l", "all", "dell", "nell", "dall", "sull",
 ]);
@@ -216,16 +225,16 @@ export const PHONE_FORMATS = [
   phoneFormat({ groups: [[2, 4], [5, 8]], separators: "-/.", leadingZero: true }),
 ];
 
-// 1º, 2 ª, 3°: a sign, possibly after a space
-export const ORDINAL_SIGNS: Keys = ["º", "ª", "°"];
+// 1º, 2 ª, 3°, 2.°: a sign, possibly after a space
+export const ORDINAL_SIGNS: Keys = ["º", "ª", "°", ".°", ".º", ".ª"];
 export const ORDINAL_SIGN_FORMAT = suffixFormat({ space: true });
 
 // 21esimo, 33esima
 export const ORDINAL_SUFFIXES: Keys = ["esimo", "esima", "esimi", "esime"];
 
-// "&" only joins English names: AT&T, R&B
+// "&" reads as "e", in names too: Gratta&Vinci, H&M
 export const SYMBOLS: Readings = {
-  "&": ["and"],     "+": ["più"],     "=": ["uguale a"],    "@": ["chiocciola"], "%": ["per cento"],
+  "&": ["e"],       "+": ["più"],     "=": ["uguale a"],    "@": ["chiocciola"], "%": ["per cento"],
   "°": ["gradi"],   "#": ["hashtag"], "²": ["al quadrato"], "³": ["al cubo"],    "π": ["pi greco"],
   "×": ["per"],     "€": ["euro"],    "$": ["dollari"],     "£": ["sterline"],   "§": ["paragrafo"],
 };
@@ -238,6 +247,12 @@ export const TERMS: Terms = {
     "nr.": [{ words: "numero", when: beforeNumber }],
     "n°": [{ words: "numero", when: beforeNumber }],
     "N°": [{ words: "numero", when: beforeNumber }],
+    "n.°": [{ words: "numero", when: beforeNumber }],
+    "N.°": [{ words: "numero", when: beforeNumber }],
+    "nº": [{ words: "numero", when: beforeNumber }],
+    "Nº": [{ words: "numero", when: beforeNumber }],
+    "n.º": [{ words: "numero", when: beforeNumber }],
+    "N.º": [{ words: "numero", when: beforeNumber }],
     "art.": [{ words: "articolo", when: beforeNumber }],
     "Art.": [{ words: "articolo", when: beforeNumber }],
     "pag.": [{ words: "pagina", when: beforeNumber }],
