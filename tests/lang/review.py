@@ -75,6 +75,9 @@ def jsonl(path: Path) -> list[dict]:
 
 
 def write_jsonl(path: Path, rows, mode="w"):
+    if path.name == "corpus.jsonl":
+        sys.exit(f"{path} is frozen (tag corpus-v1, tests/lang/corpus.sha256): it is the target, not a draft. A new "
+                 "corpus needs the user's decision.")
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, mode, encoding="utf-8") as file:
         file.writelines(json.dumps(row, ensure_ascii=False) + "\n" for row in rows)

@@ -53,6 +53,8 @@ local hi and zh sentences that can't be committed yet.
 - Offsets in `process_with_changes` count Unicode code points in every implementation.
 - `tests/lang/` measures correctness against readings written by people (`knowledge/gold-set.md`). A behaviour change
   must keep every case in `tests/lang/scores.json` passing; record newly passing cases with `score.py --write`.
+- `tests/lang/<lang>/corpus.jsonl` is the target: the expected reading of every reviewed real sentence, frozen at tag
+  `corpus-v1` (never edit it). Its passing sentences are in the same ratchet; `score.py --corpus <lang>` lists the rest.
 
 ## Code style
 

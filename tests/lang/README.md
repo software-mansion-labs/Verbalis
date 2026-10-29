@@ -77,6 +77,11 @@ stay local.
 
 ## Corpus: expected readings of real sentences
 
+**Decision (the user, 2026-10-29):** the corpus is the target Verbalis must reach, and it is frozen: its files never
+change (tag `corpus-v1`, checksums in `corpus.sha256`, checked by `tests/python/test_gold.py`; `review.py` refuses to
+write them). `score.py` adds its passing sentences to the ratchet in `scores.json`: a change may make more of them pass,
+never fewer. A new corpus needs the user's decision.
+
 `<lang>/corpus.jsonl` holds the expected reading of each reviewed sentence, so a change can be scored without a new
 review. `score.py` reports it after the gold table, and `score.py --corpus <lang>` lists the sentences Verbalis
 reads differently.

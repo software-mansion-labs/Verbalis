@@ -13,12 +13,14 @@ apart; tests/lang/<lang>/notes.md lists them. Exits 1 if a case that
 passed in scores.json fails now: a behaviour change may fix gold cases, but must not break them.
 
 It also scores the corpus (tests/lang/<lang>/corpus.jsonl): real sentences with readings that reviewers approved or
-wrote, mostly agents. These are not gold, so they only report: "approved" are outputs a reviewer passed, which a
-change since may have broken; "written" are readings a reviewer wrote, which Verbalis may not reach yet.
+wrote, mostly agents. It is the target Verbalis must reach, frozen at tag corpus-v1 (tests/lang/corpus.sha256): its
+passing sentences join the ratchet. "approved" are outputs a reviewer passed; "written" are readings a reviewer or
+judge wrote, which Verbalis may not reach yet.
 "cross-checked" readings DeepSeek also wrote, blind; "disputed" ones it reads otherwise, left out of the match.
 """
 
 import argparse
+import hashlib
 import json
 import sys
 import unicodedata
@@ -96,7 +98,9 @@ if args.show:
         print(f"[{case['source']}/{case['class']}] {case['input']}\n   got:      {output}\n   expected: "
               + " | ".join(case["outputs"]))
 
-# The corpus: real sentences with reviewed readings, reported only
+# The corpus: real sentences with reviewed readings, the target (frozen at tag corpus-v1). Its passing sentences join
+# the ratchet under "corpus/<lang>", by a hash of the input; hi and zh count only where their local corpus exists.
+corpus_passing = {}
 print(f"\n{'corpus':10}{'sentences':>10}{'match':>9}   {'approved':>18}   {'written':>18}   {'by a person':>12}"
       f"{'cross-checked':>15}{'disputed':>10}")
 for path in sorted(ROOT.glob("*/corpus.jsonl")):
@@ -105,6 +109,7 @@ for path in sorted(ROOT.glob("*/corpus.jsonl")):
         continue
     lang, verbalizer = rows[0]["lang"], Verbalizer(rows[0]["lang"])
     counts = defaultdict(lambda: [0, 0, 0])  # sentences, exact, normalized
+    passing_inputs = []
     disputed = sum("disputed" in row for row in rows)
     for row in rows:
         if "disputed" in row:  # DeepSeek reads it otherwise: no expected reading to score against
@@ -115,15 +120,20 @@ for path in sorted(ROOT.glob("*/corpus.jsonl")):
         for name in ("all", row["how"], row["by"]):
             counts[name][0] += 1
             counts[name][2] += ok
+        if ok:
+            passing_inputs.append(hashlib.sha1(row["input"].encode()).hexdigest()[:12])
         if not ok and args.corpus == lang:
             print(f"[{row['by']} {row['how']}] {row['input']}\n   got:      {output}\n   expected: "
                   + " | ".join(row["outputs"]))
     n, _, ok = counts["all"]
+    corpus_passing[f"corpus/{lang}"] = passing_inputs
     print(f"{lang:10}{n:>10}{100 * ok / n:>8.1f}%   {share(counts['approved']):>18}   {share(counts['written']):>18}"
           f"   {counts['human'][0] or '-':>12}{counts['cross'][0]:>15}{disputed:>10}")
 
 # The ratchet: compare with the recorded passing cases
+passing.update(corpus_passing)
 recorded = json.loads(SCORES.read_text(encoding="utf-8")) if SCORES.exists() else {}
+recorded = {key: keys for key, keys in recorded.items() if not key.startswith("corpus/") or key in corpus_passing}
 broken = {lang: sorted(set(keys) - set(passing.get(lang, []))) for lang, keys in recorded.items()}
 fixed = {lang: sorted(set(keys) - set(recorded.get(lang, []))) for lang, keys in passing.items()}
 for lang in sorted(set(broken) | set(fixed)):
