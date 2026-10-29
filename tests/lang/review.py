@@ -15,6 +15,10 @@
     .venv/bin/python tests/lang/review.py deepseek pl        # batches of every reviewed sentence for DeepSeek
     .venv/bin/python tests/lang/review.py ingest-deepseek pl 3  # record build/review/pl/d003.out.jsonl
     .venv/bin/python tests/lang/review.py cross              # mark corpus readings DeepSeek agrees with or disputes
+    .venv/bin/python tests/lang/review.py dispute-page pl     # build/review/pl-disputes.html: a person picks the readings
+    .venv/bin/python tests/lang/review.py prefer pl          # settle the remaining disputes with DeepSeek's reading
+    .venv/bin/python tests/lang/review.py judge de           # batches of the disputes with their readings, for a judge
+    .venv/bin/python tests/lang/review.py ingest-judge de j001 MODEL  # settle them with the judge's picks
 
 The pool of a language is the sentences of tests/parity/baseline (hi and zh: tests/parity/local, a sample), read by the
 installed package. A batch holds 90 pool sentences and 10 hidden controls: 5 known-good readings, which the reviewer
@@ -343,9 +347,17 @@ def cmd_report():
 
 def cmd_import_human(path: Path):
     """A clicker export: review pages give "verdict" and "correct"; A/B pages give "choice" between two readings."""
-    lang = path.name.split("-review-")[0].split("-ab-")[0]
+    lang = path.name.split("-review-")[0].split("-ab-")[0].split("-disputes-")[0]
     rows = []
     for item in json.loads(path.read_text(encoding="utf-8")):
+        if "accepted" in item:  # The dispute page: every right reading
+            if not item["accepted"]:
+                continue
+            ok = item["verbalis"] in item["accepted"]
+            row = {"lang": lang, "input": item["input"], "output": item["verbalis"], "by": "human", "pass": 1,
+                   "batch": path.stem, "verdict": "ok" if ok else "wrong", "errors": [], "corrections": item["accepted"]}
+            rows.append(row)
+            continue
         if "choice" in item:
             if item["choice"] is None:
                 continue
@@ -371,18 +383,24 @@ def settled(lang: str) -> dict[str, dict]:
         if r["by"] == "haiku" and r["pass"] == 1 and r["verdict"] == "ok" and r["input"] not in rows:
             rows[r["input"]] = {"outputs": [r["output"]], "by": "haiku", "how": "approved"}
     for r in jsonl(review_path(lang)):  # A person's verdict wins
-        if r["by"] == "human" and (r["verdict"] == "ok" or r.get("correction")):
+        # Picking Verbalis's reading over another on an A/B page says it is the better one, not that it is right
+        if r["by"] != "human" or (r["verdict"] == "ok" and "-ab-" in r["batch"]):
+            continue
+        written = r.get("corrections") or ([r["correction"]] if r.get("correction") else [])
+        if r["verdict"] == "ok" or written:
             how = "approved" if r["verdict"] == "ok" else "written"
-            rows[r["input"]] = {"outputs": [r["output"] if how == "approved" else r["correction"]], "by": "human",
-                                "how": how}
+            rows[r["input"]] = {"outputs": written or [r["output"]], "by": "human", "how": how, "batch": r["batch"]}
     return rows
 
 
 def cmd_seed():
-    """Writes <lang>/corpus.jsonl from the verdicts, keeping the readings the expect agent wrote."""
+    """Writes <lang>/corpus.jsonl from the verdicts, keeping the readings models wrote (the expect agent, DeepSeek)."""
     for lang in LANGS:
-        written = {r["input"]: r for r in jsonl(corpus_path(lang)) if r["by"] == "haiku" and r["how"] == "written"}
-        rows = {**settled(lang), **written}
+        written = {r["input"]: r for r in jsonl(corpus_path(lang)) if r["by"] != "human" and r["how"] == "written"}
+        verdicts = settled(lang)
+        # A person's verdict wins over a model's reading, unless the person chose that model for the sentence (prefer)
+        people = {s: r for s, r in verdicts.items() if r["by"] == "human" and not written.get(s, {}).get("preferred")}
+        rows = {**verdicts, **written, **people}
         reviewed = {r["input"] for r in jsonl(review_path(lang))}
         write_jsonl(corpus_path(lang), [{"lang": lang, "input": s, **rows[s]} for s in sorted(rows, key=stable)])
         print(f"{lang}: {len(rows)} expected readings, {len(reviewed - set(rows))} sentences left for the expect agent")
@@ -499,22 +517,33 @@ def cmd_ingest_expect(lang: str, name: str):
     print(f"  {lang}: {len(rows)} expected readings, {left} left")
 
 
-def cmd_deepseek(lang: str):
-    """Blind expect batches of every reviewed sentence, for a model of another family (tests/lang/deepseek.sh)."""
-    held = {r["input"] for p in (WORK / lang).glob("d[0-9][0-9][0-9].key.jsonl") for r in jsonl(p)}
-    todo = [s for s in dict.fromkeys(r["input"] for r in jsonl(review_path(lang))) if s not in held]
+# Opinions from models of other families: d batches (deepseek.jsonl) read every reviewed sentence; t batches
+# (third.jsonl) read the sentences the corpus and DeepSeek dispute, to break the tie
+OPINIONS = {"d": "deepseek", "t": "third"}
+
+
+def cmd_deepseek(lang: str, prefix: str = "d"):
+    """Blind expect batches for a model of another family (tests/lang/deepseek.py): every reviewed sentence (d), or the
+    disputed ones (t)."""
+    held = {r["input"] for p in (WORK / lang).glob(f"{prefix}[0-9][0-9][0-9].key.jsonl") for r in jsonl(p)}
+    if prefix == "t":
+        todo = [r["input"] for r in jsonl(corpus_path(lang)) if "disputed" in r and r["input"] not in held]
+    else:
+        todo = [s for s in dict.fromkeys(r["input"] for r in jsonl(review_path(lang))) if s not in held]
     verbalizer = Verbalizer(lang)
-    number = len(list((WORK / lang).glob("d[0-9][0-9][0-9].key.jsonl")))
+    number = len(list((WORK / lang).glob(f"{prefix}[0-9][0-9][0-9].key.jsonl")))
     for start in range(0, len(todo), BATCH - 2 * CONTROLS):
         number += 1
         items = [{"input": s, "output": verbalizer.process(s), "kind": "pool"}
                  for s in todo[start:start + BATCH - 2 * CONTROLS]]
-        write_batch(lang, f"d{number:03}", items, verbalizer, random.Random(f"{lang}-deepseek-{number}"), pool(lang))
+        write_batch(lang, f"{prefix}{number:03}", items, verbalizer, random.Random(f"{lang}-{OPINIONS[prefix]}-{number}"),
+                    pool(lang))
 
 
 def cmd_ingest_deepseek(lang: str, name: str, model: str = "opencode/deepseek-v4-pro"):
     """Records DeepSeek's readings of a batch in build/review/<lang>/deepseek.jsonl, with its control scores."""
-    name = f"d{int(name):03}"
+    prefix = name[0] if name[0] in OPINIONS else "d"
+    name = f"{prefix}{int(name.lstrip('dt')):03}"
     key = {r["n"]: r for r in jsonl(WORK / lang / f"{name}.key.jsonl")}
     verbalizer, problems, readings = Verbalizer(lang), [], {}
     for line, row in answers(WORK / lang / f"{name}.out.jsonl", problems):
@@ -537,7 +566,7 @@ def cmd_ingest_deepseek(lang: str, name: str, model: str = "opencode/deepseek-v4
         return
     write_jsonl(WORK / lang / f"{name}.controls.jsonl",
                 [{"kind": k, "right": right} for k, c in score.items() for right, m in c.items() for _ in range(m)])
-    path = WORK / lang / "deepseek.jsonl"
+    path = WORK / lang / f"{OPINIONS[prefix]}.jsonl"
     rows = {r["input"]: r for r in jsonl(path)}
     for n, item in key.items():
         if item["kind"] == "pool" and n in readings:
@@ -556,10 +585,13 @@ def cmd_cross():
             continue
         rows = {r["input"]: r for r in jsonl(corpus_path(lang))}
         for row in rows.values():
+            if row.get("by") == "deepseek" or row.get("preferred"):  # Settled by a third opinion, a judge, or a person
+                continue
             row.pop("deepseek", None)
             row.pop("disputed", None)
+            row.pop("third", None)
             theirs = deepseek.get(row["input"])
-            if theirs is None:
+            if theirs is None or "-disputes-" in row.get("batch", ""):  # A person settled the dispute
                 continue
             if not theirs:
                 row["deepseek"] = "unsure"
@@ -567,6 +599,16 @@ def cmd_cross():
                 row["deepseek"] = "agrees"
             else:
                 row["disputed"] = theirs
+        third = {r["input"]: {score_key(o) for o in r["outputs"]} for r in jsonl(WORK / lang / "third.jsonl")}
+        for row in rows.values():  # A disputed sentence where a third family sides with one reading: 2 of 3
+            votes = third.get(row["input"])
+            if "disputed" not in row or not votes:
+                continue
+            if votes & {score_key(o) for o in row["outputs"]}:
+                row["third"] = "corpus"
+                del row["disputed"]
+            elif votes & {score_key(o) for o in row["disputed"]}:
+                row.update(outputs=row.pop("disputed"), by="deepseek", how="written", third="deepseek")
         settled = 0
         for d in jsonl(WORK / lang / "disagreements.jsonl"):
             theirs = {score_key(o) for o in deepseek.get(d["input"], [])}
@@ -576,9 +618,169 @@ def cmd_cross():
                                     "by": "haiku", "how": "written", "deepseek": "agrees"}
                 settled += 1
         write_jsonl(corpus_path(lang), sorted(rows.values(), key=lambda r: stable(r["input"])))
-        counts = Counter("disputed" if "disputed" in r else r.get("deepseek", "not read") for r in rows.values())
-        print(f"{lang}: {counts['agrees']} cross-checked, {counts['disputed']} disputed, {counts['unsure']} unsure, "
-              f"{counts['not read']} not read by DeepSeek; {settled} disagreements settled")
+        counts = Counter("disputed" if "disputed" in r else "chosen" if r.get("preferred") else
+                         "third" if "third" in r else r.get("deepseek", "not read") for r in rows.values())
+        print(f"{lang}: {counts['agrees']} cross-checked, {counts['third']} settled by a third family, "
+              f"{counts['chosen']} by a judge or a person's choice, {counts['disputed']} disputed, "
+              f"{counts['unsure']} unsure, {counts['not read']} not read by DeepSeek; {settled} disagreements settled")
+
+
+DISPUTE_PAGE = """<!doctype html><html><head><meta charset="utf-8"><title>Verbalis: LANG disputes</title><style>
+body{font:16px/1.5 -apple-system,system-ui,sans-serif;max-width:900px;margin:2em auto;padding:0 1em;color:#222}
+.box{border:1px solid #ddd;border-radius:8px;padding:.8em 1em;margin:.5em 0;background:#fafafa}
+label.box{display:flex;gap:.7em;cursor:pointer;background:#fff} label.box.on{border-color:#2a8a3e;background:#eef8f0}
+mark{background:#ffe58a;border-radius:3px;padding:0 2px} .meta{color:#777;font-size:.85em}
+textarea{width:100%;font:inherit;min-height:3.5em;box-sizing:border-box;padding:.5em}
+button{font:inherit;padding:.4em 1em;margin-right:.5em}
+</style></head><body><h1>LANG: which readings are right?</h1>
+<p class="meta">Tick every right reading (keys 1-3), or write the right one. Enter: next. Answers stay in this browser;
+Export saves them for <code>review.py import-human</code>.</p>
+<div class="meta" id="count"></div><div class="box" id="input"></div><div id="choices"></div>
+<textarea id="own" placeholder="The right reading, if none above is"></textarea>
+<p><button onclick="go(-1)">Back</button><button onclick="go(1)">Next</button><button onclick="exportAll()">Export</button></p>
+<script>
+const items = ITEMS, key = "verbalis-disputes-LANG";
+const answers = JSON.parse(localStorage.getItem(key) || "{}");
+let i = Math.min(Object.keys(answers).length, items.length - 1);
+const esc = s => s.replace(/[&<>]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;"})[c]);
+function marked(text, others) {
+  const seen = new Set(others.flatMap(o => o.split(" ")));
+  return text.split(" ").map(w => seen.has(w) && others.every(o => o.split(" ").includes(w)) ? esc(w) : "<mark>" + esc(w) + "</mark>").join(" ");
+}
+function save() {
+  const it = items[i], picked = [...document.querySelectorAll("#choices input:checked")].map(c => it.readings[+c.value]);
+  const own = document.getElementById("own").value.trim();
+  if (picked.length || own) answers[it.input] = {picked, own}; else delete answers[it.input];
+  localStorage.setItem(key, JSON.stringify(answers));
+}
+function show() {
+  const it = items[i], a = answers[it.input] || {picked: [], own: ""};
+  document.getElementById("count").textContent = (i + 1) + " / " + items.length + " · answered " + Object.keys(answers).length;
+  document.getElementById("input").textContent = it.input;
+  document.getElementById("choices").innerHTML = it.readings.map((r, n) =>
+    `<label class="box${a.picked.includes(r) ? " on" : ""}"><input type="checkbox" value="${n}" ${a.picked.includes(r) ? "checked" : ""}
+      onchange="this.parentNode.classList.toggle('on', this.checked); save()"><span><b>${n + 1}</b> ${marked(r, it.readings.filter(o => o !== r))}</span></label>`).join("");
+  document.getElementById("own").value = a.own;
+}
+function go(d) { save(); i = Math.max(0, Math.min(items.length - 1, i + d)); show(); }
+function exportAll() {
+  save();
+  const out = items.filter(it => answers[it.input]).map(it => ({input: it.input, verbalis: it.verbalis,
+    accepted: [...answers[it.input].picked, ...(answers[it.input].own ? [answers[it.input].own] : [])]}));
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 1)], {type: "application/json"}));
+  a.download = "LANG-disputes-results.json"; a.click();
+}
+document.getElementById("own").addEventListener("input", save);
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "TEXTAREA") return;
+  if (e.key === "Enter") go(1);
+  const box = document.querySelectorAll("#choices input")[+e.key - 1];
+  if (box) { box.checked = !box.checked; box.onchange(); }
+});
+show();
+</script></body></html>
+"""
+
+
+def cmd_prefer(lang: str):
+    """Settles a language's remaining disputes with DeepSeek's reading, where a person found DeepSeek the most right."""
+    rows = jsonl(corpus_path(lang))
+    for row in rows:
+        if "disputed" in row:
+            row.update(outputs=row.pop("disputed"), by="deepseek", how="written", preferred=True)
+    write_jsonl(corpus_path(lang), rows)
+    print(f"{lang}: {sum(bool(r.get('preferred')) for r in rows)} disputes settled with DeepSeek's reading")
+
+
+def cmd_judge(lang: str):
+    """Batches of the disputed sentences with their proposed readings (the corpus, DeepSeek, a third family), shuffled,
+    for a judge model (.claude/agents/judge.md); with controls: a right reading among two planted errors."""
+    verbalizer = Verbalizer(lang)
+    third = {r["input"]: r["outputs"] for r in jsonl(WORK / lang / "third.jsonl")}
+    held = {r["input"] for p in (WORK / lang).glob("j[0-9][0-9][0-9].key.jsonl") for r in jsonl(p)}
+    todo = [r for r in jsonl(corpus_path(lang)) if "disputed" in r and r["input"] not in held]
+    number = len(list((WORK / lang).glob("j[0-9][0-9][0-9].key.jsonl")))
+    for start in range(0, len(todo), BATCH - 2 * CONTROLS):
+        number += 1
+        rng = random.Random(f"{lang}-judge-{number}")
+        items = []
+        for row in todo[start:start + BATCH - 2 * CONTROLS]:
+            readings = list(dict.fromkeys(row["outputs"][:1] + row["disputed"][:1] + third.get(row["input"], [])[:1]))
+            items.append({"input": row["input"], "kind": "pool", "readings": readings})
+        for control in good_controls(lang, verbalizer, rng):
+            wrong = []
+            for _ in range(20):
+                planted = plant(lang, control["input"], verbalizer, rng)
+                if planted and planted != control["output"] and planted not in wrong:
+                    wrong.append(planted)
+                if len(wrong) == 2:
+                    break
+            if wrong:
+                items.append({"input": control["input"], "kind": "good", "readings": [control["output"], *wrong],
+                              "right": control["output"]})
+        rng.shuffle(items)
+        for n, item in enumerate(items, 1):
+            item["n"] = n
+            readings = item["readings"][:]
+            rng.shuffle(readings)
+            item["options"] = dict(zip("ABC", readings))
+        name = f"j{number:03}"
+        write_jsonl(WORK / lang / f"{name}.jsonl",
+                    [{"n": i["n"], "input": i["input"], "options": i["options"]} for i in items])
+        write_jsonl(WORK / lang / f"{name}.key.jsonl", items)
+        print(WORK / lang / f"{name}.jsonl")
+
+
+def cmd_ingest_judge(lang: str, name: str, model: str):
+    """Settles the disputes of a judge batch with the reading the judge picked or wrote, after checking its controls."""
+    key = {r["n"]: r for r in jsonl(WORK / lang / f"{name}.key.jsonl")}
+    problems, chosen = [], {}
+    for line, row in answers(WORK / lang / f"{name}.out.jsonl", problems):
+        item = key.get(row.get("n"))
+        if item is None:
+            problems.append(f"bad n: {line[:80]}")
+        elif row.get("pick") in item["options"]:
+            chosen[row["n"]] = ("pick", item["options"][row["pick"]])
+        elif isinstance(row.get("write"), str) and row["write"].strip() and max(
+                difflib.SequenceMatcher(None, row["write"], o, autojunk=False).ratio() for o in item["options"].values()) >= 0.5:
+            chosen[row["n"]] = ("write", row["write"])
+        else:
+            problems.append(f"{row.get('n')}: no valid pick or reading: {line[:80]}")
+    missing = sorted(set(key) - set(chosen))
+    controls = [chosen.get(n, ("", ""))[1] == item["right"] for n, item in key.items() if item["kind"] == "good"]
+    writes = sum(how == "write" for how, _ in chosen.values())
+    print(f"{lang} {name}: {len(chosen)} answers ({writes} written), {len(missing)} missing, {len(problems)} problems; "
+          f"controls picked right {sum(controls)}/{len(controls)}")
+    for problem in problems[:10]:
+        print("  " + problem)
+    if len(missing) + len(problems) > BATCH // 10:
+        print("REJECTED: more than 10% of the batch is missing or malformed; run it again")
+        return
+    write_jsonl(WORK / lang / f"{name}.controls.jsonl", [{"kind": "good", "right": c} for c in controls])
+    rows = jsonl(corpus_path(lang))
+    by_input = {item["input"]: chosen[n] for n, item in key.items() if item["kind"] == "pool" and n in chosen}
+    for row in rows:
+        if row["input"] in by_input and "disputed" in row:
+            how, reading = by_input[row["input"]]
+            row.pop("disputed")
+            row.update(outputs=[reading], by=model.split("/")[-1], how="written", preferred=True, judged=how)
+    write_jsonl(corpus_path(lang), rows)
+
+
+def cmd_dispute_page(lang: str):
+    """A page where a person picks the right readings of the disputed sentences: Verbalis's, the corpus's, DeepSeek's."""
+    verbalizer = Verbalizer(lang)
+    items = []
+    for row in jsonl(corpus_path(lang)):
+        if "disputed" in row:
+            output = verbalizer.process(row["input"])
+            readings = list(dict.fromkeys([output, *row["outputs"], *row["disputed"]]))
+            items.append({"input": row["input"], "verbalis": output, "readings": readings})
+    path = WORK / f"{lang}-disputes.html"
+    path.write_text(DISPUTE_PAGE.replace("LANG", lang).replace("ITEMS", json.dumps(items, ensure_ascii=False)),
+                    encoding="utf-8")
+    print(f"{path}: {len(items)} sentences")
 
 
 def score_key(text: str) -> str:
@@ -590,7 +792,7 @@ def score_key(text: str) -> str:
 parser = argparse.ArgumentParser()
 parser.add_argument("command", choices=["next", "ingest", "confirm", "status", "report", "import-human", "seed",
                                         "expect", "ingest-expect", "recheck", "deepseek", "ingest-deepseek",
-                                        "cross"])
+                                        "cross", "dispute-page", "prefer", "judge", "ingest-judge"])
 parser.add_argument("args", nargs="*")
 args = parser.parse_args()
 if args.command == "next":
@@ -607,10 +809,18 @@ elif args.command == "seed":
     cmd_seed()
 elif args.command == "expect":
     cmd_expect(args.args[0])
+elif args.command == "judge":
+    cmd_judge(args.args[0])
+elif args.command == "ingest-judge":
+    cmd_ingest_judge(*args.args[:3])
+elif args.command == "prefer":
+    cmd_prefer(args.args[0])
+elif args.command == "dispute-page":
+    cmd_dispute_page(args.args[0])
 elif args.command == "cross":
     cmd_cross()
 elif args.command == "deepseek":
-    cmd_deepseek(args.args[0])
+    cmd_deepseek(*args.args[:2])
 elif args.command == "ingest-deepseek":
     cmd_ingest_deepseek(*args.args[:3])
 elif args.command == "recheck":
