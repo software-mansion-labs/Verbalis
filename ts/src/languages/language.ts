@@ -19,8 +19,16 @@ export interface Tables {
   readonly symbols?: Readings; // Its symbol words, if any
 }
 
+declare const opaque: unique symbol;
+
+/** A language for the Verbalizer of "verbalis/core", from an entry point's `language()`. Its contents are internal. */
+export interface LanguageHandle {
+  readonly [opaque]: true;
+}
+
 // What the pipeline needs from a language: the tables of its steps, and how it reads numbers.
-export abstract class Language {
+export abstract class Language implements LanguageHandle {
+  declare readonly [opaque]: true;
   readonly tables: Tables;
 
   protected constructor(tables: Tables) {

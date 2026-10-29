@@ -22,7 +22,7 @@ import {
 import { isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
 import { type Text } from "../../text/strings.ts";
 import { isAlnum, isAlpha, isDigit, isSpace } from "../../text/unicode.ts";
-import { PatternLanguage } from "../language.ts";
+import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CARDINALS,
   CENTS,
@@ -499,6 +499,6 @@ class Hindi extends PatternLanguage {
 
 let instance: Hindi | undefined;
 
-export function language(): PatternLanguage {
+export function language(): LanguageHandle {
   return (instance ??= new Hindi());
 }

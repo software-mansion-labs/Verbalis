@@ -37,7 +37,7 @@ import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
 import { isDigit, isLower, isSpace, isUpper, isWord, isAlpha } from "../../text/unicode.ts";
 import { keysOf, type RomanCues } from "../../numbers/formats.ts";
 import { Case, Gender } from "../grammar.ts";
-import { PatternLanguage } from "../language.ts";
+import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   ADJECTIVE_ENDINGS,
   AMOUNT_NOUNS,
@@ -1424,6 +1424,6 @@ class Polish extends PatternLanguage {
 
 let instance: Polish | undefined;
 
-export function language(): PatternLanguage {
+export function language(): LanguageHandle {
   return (instance ??= new Polish());
 }

@@ -40,7 +40,7 @@ import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isDigit, isUpper } from "../../text/unicode.ts";
 import { keysOf } from "../../numbers/formats.ts";
 import type { Forms } from "../grammar.ts";
-import { PatternLanguage } from "../language.ts";
+import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CENTS,
   CURRENCIES,
@@ -1249,6 +1249,6 @@ class English extends PatternLanguage {
 
 let instance: English | undefined;
 
-export function language(): PatternLanguage {
+export function language(): LanguageHandle {
   return (instance ??= new English());
 }

@@ -1,6 +1,6 @@
 import { Document } from "../../text/document.ts";
 import { contains, startsWith, str, type Text } from "../../text/strings.ts";
-import { Language } from "../language.ts";
+import { Language, type LanguageHandle } from "../language.ts";
 import {
   AFTERNOON,
   ANNO_DOMINI,
@@ -1017,6 +1017,6 @@ class Mandarin extends Language {
 
 let instance: Mandarin | undefined;
 
-export function language(): Language {
+export function language(): LanguageHandle {
   return (instance ??= new Mandarin());
 }

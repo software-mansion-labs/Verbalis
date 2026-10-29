@@ -41,7 +41,7 @@ import {
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isDigit, isLower, isSpace, isWord } from "../../text/unicode.ts";
 import type { Forms } from "../grammar.ts";
-import { PatternLanguage } from "../language.ts";
+import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   TIME_ZONES,
   CENTS,
@@ -1018,6 +1018,6 @@ class Spanish extends PatternLanguage {
 
 let instance: Spanish | undefined;
 
-export function language(): PatternLanguage {
+export function language(): LanguageHandle {
   return (instance ??= new Spanish());
 }

@@ -28,7 +28,7 @@ import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join } from "../.
 import { contains, size, startsWith, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isDigit, isLower } from "../../text/unicode.ts";
 import { Gender } from "../grammar.ts";
-import { PatternLanguage } from "../language.ts";
+import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CURRENCIES,
   DATE_FORMAT,
@@ -706,6 +706,6 @@ class Portuguese extends PatternLanguage {
 
 let instance: Portuguese | undefined;
 
-export function language(): PatternLanguage {
+export function language(): LanguageHandle {
   return (instance ??= new Portuguese());
 }

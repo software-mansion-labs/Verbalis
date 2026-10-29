@@ -27,7 +27,7 @@ import { isClearAfter, isClearBefore, join } from "../../text/scan.ts";
 import { contains, size, split, toLower, type Text } from "../../text/strings.ts";
 import { isDigit, isLower, isSpace, isUpper } from "../../text/unicode.ts";
 import type { Forms } from "../grammar.ts";
-import { PatternLanguage } from "../language.ts";
+import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CENTS,
   COUNT_WORDS,
@@ -530,6 +530,6 @@ class Italian extends PatternLanguage {
 
 let instance: Italian | undefined;
 
-export function language(): PatternLanguage {
+export function language(): LanguageHandle {
   return (instance ??= new Italian());
 }

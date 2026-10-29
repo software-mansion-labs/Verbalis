@@ -27,7 +27,7 @@ import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join, keysAt, ski
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isLower, isUpper } from "../../text/unicode.ts";
 import type { Forms } from "../grammar.ts";
-import { PatternLanguage } from "../language.ts";
+import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CODE_WORDS,
   CURRENCIES,
@@ -657,6 +657,6 @@ class French extends PatternLanguage {
 
 let instance: French | undefined;
 
-export function language(): PatternLanguage {
+export function language(): LanguageHandle {
   return (instance ??= new French());
 }

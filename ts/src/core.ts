@@ -5,7 +5,7 @@
  *   import { language } from "verbalis/pl";
  *   new Verbalizer(language()).process("Mam 2 koty.");
  */
-import type { Language } from "./languages/language.ts";
+import type { Language, LanguageHandle } from "./languages/language.ts";
 import { DEFAULT_CHARACTERS, Normalizer } from "./steps/normalize.ts";
 import { SymbolReader } from "./steps/symbols.ts";
 import { TermReader } from "./steps/terms.ts";
@@ -60,8 +60,9 @@ export class Verbalizer {
   readonly #terms: TermReader | undefined;
   readonly #symbols: SymbolReader | undefined;
 
-  /** @param language a language's `language()`, from its entry point, for example "verbalis/pl". */
-  constructor(language: Language, options: Options = {}) {
+  /** @param handle a language's `language()`, from its entry point, for example "verbalis/pl". */
+  constructor(handle: LanguageHandle, options: Options = {}) {
+    const language = handle as Language;
     this.#language = language;
     this.#options = {
       normalize: options.normalize ?? true,
@@ -130,4 +131,4 @@ export class Verbalizer {
   }
 }
 
-export type { Language };
+export type { LanguageHandle };
