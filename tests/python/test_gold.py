@@ -20,5 +20,4 @@ def test_corpus_is_frozen():
     for line in (root / "corpus.sha256").read_text().splitlines():
         digest, name = line.split()
         path = root / name
-        if path.exists():  # hi and zh are local
-            assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, f"{name} changed; it is frozen"
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == digest, f"{name} changed; it is frozen"

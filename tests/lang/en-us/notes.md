@@ -1,6 +1,6 @@
 # en-us gold notes
 
-Edits to `tests/gold/en-us.jsonl`, and the cases that stay failing, each with its reason.
+Edits to `tests/lang/en-us/gold.jsonl`, and the cases that stay failing, each with its reason.
 
 ## Equally valid readings added
 

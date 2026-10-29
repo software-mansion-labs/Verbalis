@@ -14,11 +14,10 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
   - `numbers/`: the number engine: matches, formats, patterns, and the scanners and helpers they share.
   - `languages/`: `language.h` (`Language`, and `PatternLanguage` with its default readings), `grammar.h` (joiners,
     noun forms, case, gender), the registry, and one folder per language: `<xx>/constants.h` (tables) and `<xx>/<name>.cpp` (the class).
-- `tests/cpp/`: C++ tests, through the public API (`verbalize.h`), and the parity runner. `tests/compare/`: the
-  reference comparison. `tests/parity/outputs/`: the parity outputs, one JSONL file per language.
+- `tests/cpp/`: C++ tests, through the public API (`verbalize.h`), and the parity runner.
+  `tests/parity/outputs/`: the parity outputs, one JSONL file per language.
 - `tests/lang/`: the test data. `<lang>/corpus.jsonl` is the target (below); `<lang>/gold.jsonl` holds the NeMo and
-  WeTextProcessing cases; `score.py` scores both. `tools/review/` built the corpus with review agents
-  (`.claude/agents/`), and stays for new sentences or a new language.
+  WeTextProcessing cases; `score.py` scores both. The scripts and agents that built the corpus are at tag `corpus-v1`.
 - `knowledge/`: what was decided and why. Read `knowledge/provenance.md` before changing the core.
 - `python/`: the Python package. `src/bindings.cpp` binds the public C++ API with nanobind (module
   `verbalis._verbalis`, typed stubs generated at build time); `verbalis/` is the package; `CMakeLists.txt` builds it
@@ -39,11 +38,9 @@ uv venv && uv pip install ".[test]" && .venv/bin/pytest     # Python package: bu
 (cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format and types, API and parity tests
 .venv/bin/python tests/parity/regen.py                      # regenerate the parity outputs after a behaviour change
 .venv/bin/python tests/lang/score.py [--corpus pl]        # accuracy against the corpus and the gold set, as a ratchet
-tests/compare/cross.sh [lang ...]                           # TypeScript outputs identical to the C++ working tree
-tests/compare/compare.sh [commit]                           # outputs identical to a reference commit (default 3143074)
 ```
 
-A refactor must keep `compare.sh` at 100% identical, on the inputs of the parity outputs.
+A refactor must keep every parity output identical.
 
 ## Parity
 
@@ -70,13 +67,13 @@ A refactor must keep `compare.sh` at 100% identical, on the inputs of the parity
   match say (a case, a gender, a year rather than a count) is the language's `Cues`, from `cues_of(match)`. Helpers
   more than one language needs go in `numbers/scanning.h`.
 - To add a language: add `cpp/src/verbalis/languages/<xx>/` (copy the closest language), declare its `language()` and
-  add it to `kLanguages` in `languages/registry.cpp`, add `tests/cpp/numbers_<xx>_test.cpp`, and add a baseline file.
+  add it to `kLanguages` in `languages/registry.cpp`, add `tests/cpp/numbers_<xx>_test.cpp`, and regenerate the parity outputs.
 
 ## ⚑ Gotchas
 
 - `keys_at` returns views into its `Keys`: pass a lasting table, never a braced list, in a range-for (C++20 destroys
   the temporary before the loop body). To catch such bugs, build with `-DCMAKE_CXX_FLAGS="-fsanitize=address,undefined"`
-  and run the tests and `tests/compare/run.cpp` on the inputs.
+  and run `ctest`, which covers every parity input.
 
 - The corpus (and so the parity outputs) contains sentences from the Leipzig Corpora Collection. Check their terms
   before the repo or a package containing them goes public (`knowledge/test-data.md`).

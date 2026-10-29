@@ -86,7 +86,6 @@ ctest --test-dir cpp/build --output-on-failure
 
 uv venv && uv pip install ".[test]" && .venv/bin/pytest   # Python: build the extension, run tests/python
 (cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format, types, and tests/ts
-tests/compare/cross.sh                                    # TypeScript output identical to the C++
 ```
 
 The parity tests check the C++, Python, and TypeScript output against `tests/parity/outputs/`, which every implementation must match.

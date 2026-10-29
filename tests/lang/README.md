@@ -7,8 +7,7 @@ parity outputs from their inputs, and `score.py` scores Verbalis against their r
 ## Corpus: the target
 
 **Decision (the user, 2026-10-29):** the corpus is the target Verbalis must reach, and it is frozen: its files never
-change (tag `corpus-v1`, checksums in `corpus.sha256`, checked by `tests/python/test_gold.py`; `tools/review/review.py`
-refuses to write them). A new corpus (`corpus-v2`, with plain sentences) needs the user's decision.
+change (tag `corpus-v1`, checksums in `corpus.sha256`, checked by `tests/python/test_gold.py`). A new corpus (`corpus-v2`, with plain sentences) needs the user's decision.
 
 `<lang>/corpus.jsonl` holds 19,772 real sentences, all with digits or symbols, from the Leipzig Corpora Collection
 (news and web; check its terms before the repo goes public, `knowledge/test-data.md`), each with its expected
@@ -26,8 +25,8 @@ readings:
 
 How it was built (2026-10-28): Haiku agents reviewed every sentence and wrote readings for the ones they flagged; a
 blind second Haiku pass, DeepSeek (every sentence), GPT-6 Luna (disputes), and Gemini 3.8 Flash (the last disputes, as
-a judge) cross-checked them; the user settled 257 Polish sentences. `tools/review/` holds the scripts, and the agent
-files are in `.claude/agents/`.
+a judge) cross-checked them; the user settled 257 Polish sentences. The scripts and agent files are at tag `corpus-v1`
+(`tools/review/`, `.claude/agents/`).
 
 ## Gold set: NeMo and WeTextProcessing cases
 

@@ -1,6 +1,6 @@
 # Hindi gold set: edits and unreachable cases
 
-Edits to `tests/gold/hi.jsonl`, each with its reason. Verbalis's reading is added to a case's `outputs` only where a
+Edits to `tests/lang/hi/gold.jsonl`, each with its reason. Verbalis's reading is added to a case's `outputs` only where a
 native speaker accepts it as equally correct; a reading that is plainly wrong is corrected.
 
 ## Spelling variants
