@@ -618,10 +618,11 @@ function abbreviationCase(context: Context): Case {
 // a condition holds, if any
 function declined(forms: string, when?: Condition): Reading[] {
   const parts = forms.split("|");
-  const readings: Reading[] = [];
-  for (let c = 1; c < 6; ++c) {
-    readings.push({ words: parts[c], when: (context) => (!when || when(context)) && abbreviationCase(context) === c });
-  }
+  // A callback, not a loop: Hermes shares one binding of a loop's let among the closures made in it
+  const readings: Reading[] = [1, 2, 3, 4, 5].map((c) => ({
+    words: parts[c],
+    when: (context: Context) => (!when || when(context)) && abbreviationCase(context) === c,
+  }));
   readings.push(when ? { words: parts[0], when } : parts[0]);
   return readings;
 }
