@@ -15,8 +15,10 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
   - `languages/`: `language.h` (`Language`, and `PatternLanguage` with its default readings), `grammar.h` (joiners,
     noun forms, case, gender), the registry, and one folder per language: `<xx>/constants.h` (tables) and `<xx>/<name>.cpp` (the class).
 - `tests/cpp/`: C++ tests, through the public API (`verbalize.h`), and the parity runner. `tests/compare/`: the
-  reference comparison. `tests/parity/baseline/`: the shared parity baseline,
-  one JSONL file per language.
+  reference comparison. `tests/parity/outputs/`: the parity outputs, one JSONL file per language.
+- `tests/lang/`: the test data. `<lang>/corpus.jsonl` is the target (below); `<lang>/gold.jsonl` holds the NeMo and
+  WeTextProcessing cases; `score.py` scores both. `tools/review/` built the corpus with review agents
+  (`.claude/agents/`), and stays for new sentences or a new language.
 - `knowledge/`: what was decided and why. Read `knowledge/provenance.md` before changing the core.
 - `python/`: the Python package. `src/bindings.cpp` binds the public C++ API with nanobind (module
   `verbalis._verbalis`, typed stubs generated at build time); `verbalis/` is the package; `CMakeLists.txt` builds it
@@ -32,29 +34,30 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
 ```bash
 cmake -S cpp -B cpp/build -DVERBALIS_BUILD_TESTS=ON && cmake --build cpp/build -j
 ctest --test-dir cpp/build --output-on-failure             # unit tests and parity
-cpp/build/tests/verbalis_parity tests/parity/baseline       # parity summary per language and category
+cpp/build/tests/verbalis_parity tests/parity/outputs        # parity summary per language and category
 uv venv && uv pip install ".[test]" && .venv/bin/pytest     # Python package: build, API and parity tests
 (cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format and types, API and parity tests
-.venv/bin/python tests/lang/score.py [--classes]          # accuracy against hand-written readings (tests/lang/)
+.venv/bin/python tests/parity/regen.py                      # regenerate the parity outputs after a behaviour change
+.venv/bin/python tests/lang/score.py [--corpus pl]        # accuracy against the corpus and the gold set, as a ratchet
 tests/compare/cross.sh [lang ...]                           # TypeScript outputs identical to the C++ working tree
 tests/compare/compare.sh [commit]                           # outputs identical to a reference commit (default 3143074)
 ```
 
-A refactor must keep `compare.sh` at 100% identical. It also runs on any `tests/parity/local/*.jsonl` (gitignored):
-local hi and zh sentences that can't be committed yet.
+A refactor must keep `compare.sh` at 100% identical, on the inputs of the parity outputs.
 
 ## Parity
 
-- The C++ output is the reference. Every implementation must reproduce `tests/parity/baseline/` (outputs of
-  `process`) and `tests/parity/api.jsonl` (options, and the changes of `process_with_changes`) exactly.
-- A change to the C++ that changes any baseline output is a behaviour change: update the baseline in the same change,
-  and say in the commit which outputs changed and why.
+- One set of sentences feeds every test: the corpus, plus the gold cases. `tests/parity/outputs/` holds what the C++
+  says for each input; every implementation must reproduce it, and `tests/parity/api.jsonl` (options, and the changes
+  of `process_with_changes`), exactly.
+- A change to the C++ that changes any output is a behaviour change: regenerate the outputs (`regen.py`) in the same
+  change, and say in the commit which outputs changed and why.
   Regenerate `api.jsonl` with `.venv/bin/python tests/parity/api.py`.
 - Offsets in `process_with_changes` count Unicode code points in every implementation.
-- `tests/lang/` measures correctness against readings written by people (`knowledge/gold-set.md`). A behaviour change
-  must keep every case in `tests/lang/scores.json` passing; record newly passing cases with `score.py --write`.
-- `tests/lang/<lang>/corpus.jsonl` is the target: the expected reading of every reviewed real sentence, frozen at tag
-  `corpus-v1` (never edit it). Its passing sentences are in the same ratchet; `score.py --corpus <lang>` lists the rest.
+- Correctness: `tests/lang/<lang>/corpus.jsonl` is the target, the expected reading of every reviewed real sentence,
+  frozen at tag `corpus-v1` (never edit it); the gold set adds NeMo's and WeTextProcessing's cases. A behaviour change
+  must keep every case in `tests/lang/scores.json` passing; record newly passing ones with `score.py --write`.
+  `score.py --corpus <lang>` lists the sentences Verbalis still misreads.
 
 ## Code style
 
@@ -75,8 +78,8 @@ local hi and zh sentences that can't be committed yet.
   the temporary before the loop body). To catch such bugs, build with `-DCMAKE_CXX_FLAGS="-fsanitize=address,undefined"`
   and run the tests and `tests/compare/run.cpp` on the inputs.
 
-- `tests/parity/baseline/` contains sentences from the Leipzig Corpora Collection. Check their terms before the repo
-  or a package containing them goes public (`knowledge/parity-dataset.md`).
-- Some baseline outputs are wrong (inherited from Phonemis); parity means matching the reference, not being correct.
+- The corpus (and so the parity outputs) contains sentences from the Leipzig Corpora Collection. Check their terms
+  before the repo or a package containing them goes public (`knowledge/test-data.md`).
+- Parity outputs are what the C++ says, right or wrong; parity means matching the reference, not being correct.
 - `knowledge/code_style.md` describes Phonemis. Its naming, formatting, and comment rules apply; its architecture and
   layout sections don't (the layout is in this file).

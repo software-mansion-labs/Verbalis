@@ -14,12 +14,6 @@ CLAUDE.local.md
 
 .DS_Store
 
-# Local, unlicensed test inputs for the refactor comparison
-tests/parity/local/
-tests/lang/hi/review.jsonl
-tests/lang/zh/review.jsonl
-tests/lang/hi/corpus.jsonl
-tests/lang/zh/corpus.jsonl
 wheelhouse/
 ts/dist/
 

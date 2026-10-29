@@ -27,7 +27,7 @@ cmake.source-dir = "python"
 wheel.packages = ["python/verbalis"]
 wheel.py-api = "cp312"
 minimum-version = "build-system.requires"
-# The sdist ships only what a build needs, and never tests/: the parity baseline's licence is unchecked
+# The sdist ships only what a build needs, and never tests/: the corpus's licence is unchecked
 sdist.exclude = [
   "*",
   "!cpp/include/**", "!cpp/src/**", "!cpp/CMakeLists.txt", "!python/**",

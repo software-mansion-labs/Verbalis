@@ -1,4 +1,4 @@
-"""The parity contract: tests/parity/baseline/*.jsonl (outputs) and tests/parity/api.jsonl (options and changes)."""
+"""The parity contract: tests/parity/outputs/*.jsonl (outputs) and tests/parity/api.jsonl (options and changes)."""
 
 import json
 from pathlib import Path
@@ -8,11 +8,11 @@ import pytest
 from verbalis import Options, Verbalizer
 
 PARITY = Path(__file__).parents[1] / "parity"
-BASELINE = PARITY / "baseline"
+OUTPUTS = PARITY / "outputs"
 
 
-@pytest.mark.parametrize("path", sorted(BASELINE.glob("*.jsonl")), ids=lambda path: path.stem)
-def test_baseline(path):
+@pytest.mark.parametrize("path", sorted(OUTPUTS.glob("*.jsonl")), ids=lambda path: path.stem)
+def test_outputs(path):
     records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
     verbalizers = {}
     mismatches = []

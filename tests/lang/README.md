@@ -1,45 +1,46 @@
-# Language tests: gold readings and reviews
+# Language tests: the corpus and the gold set
 
-One folder per language: `gold.jsonl` (the gold set), `notes.md` (its edits and unreachable cases), and
-`review.jsonl` (verdicts on Verbalis's output for real sentences, by people and by review agents).
+One folder per language: `corpus.jsonl` (the target), `gold.jsonl` (NeMo and WeTextProcessing cases, not in pl), and
+`notes.md` (edits and unreachable gold cases). These two sets feed every test: `tests/parity/regen.py` writes the
+parity outputs from their inputs, and `score.py` scores Verbalis against their readings.
 
-## Gold set: inputs with readings written by people
+## Corpus: the target
 
-Unlike the parity baseline (`tests/parity/`), which records what the C++ core does, every reading here was written by
-a person: the gold set measures whether Verbalis reads text right, not whether it changed. 3,197 cases in de, en-us,
-es, fr, hi, it, pt, and zh from NeMo and WeTextProcessing, and cases written for Verbalis (`"source": "verbalis"`),
-the only ones in pl. `<lang>/notes.md` records edited readings and unreachable cases.
+**Decision (the user, 2026-10-29):** the corpus is the target Verbalis must reach, and it is frozen: its files never
+change (tag `corpus-v1`, checksums in `corpus.sha256`, checked by `tests/python/test_gold.py`; `tools/review/review.py`
+refuses to write them). A new corpus (`corpus-v2`, with plain sentences) needs the user's decision.
 
-### Files
+`<lang>/corpus.jsonl` holds 19,772 real sentences, all with digits or symbols, from the Leipzig Corpora Collection
+(news and web; check its terms before the repo goes public, `knowledge/test-data.md`), each with its expected
+readings:
 
-`<lang>/gold.jsonl`, one case per line; every reading in `outputs` is acceptable:
+```json
+{"lang": "pl", "input": "Mam 2 koty.", "outputs": ["Mam dwa koty."], "by": "haiku", "how": "written"}
+```
+
+- `by`: who settled the reading: `human` (the user's verdicts, for Polish), a model (`haiku`, `deepseek`,
+  `gemini-3.8-flash`). A person's verdict wins.
+- `how`: `approved` (a reviewer passed Verbalis's output as it stood) or `written` (a reviewer wrote the reading).
+- `deepseek: "agrees"`: DeepSeek wrote the same reading, blind; `third`, `preferred`, `judged`: how a dispute between
+  models was settled (a third family, the user's choice of model, or a judge).
+
+How it was built (2026-10-28): Haiku agents reviewed every sentence and wrote readings for the ones they flagged; a
+blind second Haiku pass, DeepSeek (every sentence), GPT-6 Luna (disputes), and Gemini 3.8 Flash (the last disputes, as
+a judge) cross-checked them; the user settled 257 Polish sentences. `tools/review/` holds the scripts, and the agent
+files are in `.claude/agents/`.
+
+## Gold set: NeMo and WeTextProcessing cases
+
+`<lang>/gold.jsonl` holds 3,197 short cases written by those projects, each with its acceptable readings:
 
 ```json
 {"lang": "en-us", "source": "nemo", "class": "normalize_with_audio", "input": "$123", "outputs": ["one hundred twenty three dollars", "one hundred and twenty three dollars"]}
 ```
 
-Cases with `"source": "verbalis"` were written for Verbalis by the same model that wrote its readings, so a mistake
-can sit in both and pass ("mieszkania" for "mieszkanie" did). `score.py` reports them apart from the independent
-NeMo and WeTextProcessing cases ("own" and "independent"); count them as evidence only once a person has checked
-them (`review/`).
-
 A case with an `"out_of_scope"` reason (markup, malformed input, gold that contradicts itself, inputs gold leaves as
-written) is left out of the score; `score.py` counts these apart ("excluded"), and `notes/<lang>.md` lists them.
-
-`scores.json` lists the cases Verbalis passes. `score.py` reports accuracy per language (and `--classes`), shows the
-failing cases (`--show <lang>`), and exits 1 if a recorded case no longer passes: a change may fix gold cases but not
-break them (`tests/python/test_gold.py`). After a change that fixes cases, record them with `--write`.
-
-```bash
-.venv/bin/python tests/lang/score.py --classes
-```
-
-A case passes when the output equals one of its readings, ignoring case, whitespace, and punctuation: "twenty-one"
-and "twenty one", "einhundertdreiundzwanzig" and "ein hundert drei und zwanzig" are the same speech. The cases are
-short fragments, often without a sentence around them, so some are ambiguous: Verbalis leaves a German `11.` as
-written unless a noun follows, where the gold reading is "elfter".
-
-### Sources
+written) is left out of the score; `<lang>/notes.md` lists them. The cases are short fragments, often without a
+sentence around them, so some are ambiguous: Verbalis leaves a German `11.` as written unless a noun follows, where
+the gold reading is "elfter".
 
 Built by `build.py` from two checkouts, both Apache-2.0 (`licenses/`):
 
@@ -57,46 +58,15 @@ git clone --depth 1 https://github.com/wenet-e2e/WeTextProcessing.git /tmp/wetex
 python3 tests/lang/build.py /tmp/nemo /tmp/wetext
 ```
 
-## Reviews: verdicts on real sentences
+## Scoring and the ratchet
 
-`review.py` runs the agent review: it cuts the sentences of `tests/parity/baseline/` into batches of 100 for the
-`review-<lang>` agents (`.claude/agents/`), hides 10 controls in each (5 known-good readings, 5 planted errors), checks
-the agents' answers, and stops a language at 20% wrong after 200 sentences. Batches and answers live in
-`build/review/<lang>/`; the docstring of `review.py` lists the commands.
+A case passes when the output equals one of its readings, ignoring case, whitespace, and punctuation: "twenty-one"
+and "twenty one" are the same speech. `scores.json` lists every passing gold case and corpus sentence (the latter by a
+hash of the input). `score.py` exits 1 if one no longer passes: a change may fix cases, never break them
+(`tests/python/test_gold.py`). After a change that fixes cases, record them with `--write`.
 
-`<lang>/review.jsonl` holds one verdict per line, for the output it judged (a later change of Verbalis makes it stale):
-
-```json
-{"lang": "pl", "input": "Mam 2 koty.", "output": "Mam dwie koty.", "by": "haiku", "pass": 1, "batch": "pl-003", "verdict": "wrong", "errors": [{"span": "dwie koty", "correction": "dwa koty", "category": "agreement", "rule": "PL-LICZ-1", "why": "kot jest rodzaju męskiego"}]}
+```bash
+.venv/bin/python tests/lang/score.py              # both tables, and changes since scores.json
+.venv/bin/python tests/lang/score.py --corpus pl  # every corpus sentence Verbalis still misreads
+.venv/bin/python tests/lang/score.py --show de    # every failing gold case
 ```
-
-`by` is `haiku` or `human` (clicker exports, `review.py import-human`, which may add a whole corrected sentence as
-`correction`). `pass` 2 is the blind second pass that confirms a first-pass `wrong`. Reviewed sentences are not gold:
-`score.py` doesn't count them. `hi/review.jsonl` and `zh/review.jsonl` hold sentences from `tests/parity/local/` and
-stay local.
-
-## Corpus: expected readings of real sentences
-
-**Decision (the user, 2026-10-29):** the corpus is the target Verbalis must reach, and it is frozen: its files never
-change (tag `corpus-v1`, checksums in `corpus.sha256`, checked by `tests/python/test_gold.py`; `review.py` refuses to
-write them). `score.py` adds its passing sentences to the ratchet in `scores.json`: a change may make more of them pass,
-never fewer. A new corpus needs the user's decision.
-
-`<lang>/corpus.jsonl` holds the expected reading of each reviewed sentence, so a change can be scored without a new
-review. `score.py` reports it after the gold table, and `score.py --corpus <lang>` lists the sentences Verbalis
-reads differently.
-
-```json
-{"lang": "pl", "input": "Mam 2 koty.", "outputs": ["Mam dwa koty."], "by": "haiku", "how": "written"}
-```
-
-- `by`: `human` or `haiku`; a person's verdict wins over an agent's.
-- `how`: `approved` (a reviewer passed Verbalis's output as it stood) or `written` (a reviewer wrote the reading).
-
-`review.py seed` builds it from `review.jsonl`: a person's verdict or correction, else an output the first agent
-passed. The rest goes to the `expect` agent (`.claude/agents/expect.md`, with the rules of `review-<lang>.md`), which
-writes whole sentences (`review.py expect`, `review.py ingest-expect`). When a change moves an output away from a
-reading an agent approved, `review.py expect` sends that sentence back to the agent with both readings.
-
-The corpus is not gold: one agent's "ok" misses errors (it passed "B and B" in Italian and undecoded HTML entities).
-`score.py` reports it and never fails on it. `hi/corpus.jsonl` and `zh/corpus.jsonl` stay local.

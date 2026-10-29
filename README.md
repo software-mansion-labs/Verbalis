@@ -89,7 +89,7 @@ uv venv && uv pip install ".[test]" && .venv/bin/pytest   # Python: build the ex
 tests/compare/cross.sh                                    # TypeScript output identical to the C++
 ```
 
-The parity tests check the C++, Python, and TypeScript output against `tests/parity/baseline/`, which every implementation must match.
+The parity tests check the C++, Python, and TypeScript output against `tests/parity/outputs/`, which every implementation must match.
 
 ## License
 

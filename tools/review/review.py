@@ -1,31 +1,32 @@
 """Agent review of Verbalis on real sentences: batches for the review-<lang> agents, their verdicts, and the report.
 
-    .venv/bin/python tests/lang/review.py next pl            # write the next batch of 100, or print STOP
-    .venv/bin/python tests/lang/review.py ingest pl 3        # check build/review/pl/003.out.jsonl, record it
-    .venv/bin/python tests/lang/review.py confirm pl         # a blind second-pass batch of the sentences flagged wrong
-    .venv/bin/python tests/lang/review.py status             # progress and reviewer accuracy per language
-    .venv/bin/python tests/lang/review.py report             # confirmed errors by category: build/review/report.md
-    .venv/bin/python tests/lang/review.py import-human ~/Downloads/pl-review-results.json
-    .venv/bin/python tests/lang/review.py seed               # expected readings from the verdicts: <lang>/corpus.jsonl
-    .venv/bin/python tests/lang/review.py expect pl          # a batch of unsettled sentences for the expect agent
-    .venv/bin/python tests/lang/review.py ingest-expect pl 3 # check build/review/pl/e03.out.jsonl, record it
-    .venv/bin/python tests/lang/review.py recheck pl         # a blind second expect batch of the written readings
-    .venv/bin/python tests/lang/review.py ingest-expect pl f1 # keep the readings both agents wrote; the rest go to
+    .venv/bin/python tools/review/review.py next pl            # write the next batch of 100, or print STOP
+    .venv/bin/python tools/review/review.py ingest pl 3        # check build/review/pl/003.out.jsonl, record it
+    .venv/bin/python tools/review/review.py confirm pl         # a blind second-pass batch of the sentences flagged wrong
+    .venv/bin/python tools/review/review.py status             # progress and reviewer accuracy per language
+    .venv/bin/python tools/review/review.py report             # confirmed errors by category: build/review/report.md
+    .venv/bin/python tools/review/review.py import-human ~/Downloads/pl-review-results.json
+    .venv/bin/python tools/review/review.py seed               # expected readings from the verdicts: <lang>/corpus.jsonl
+    .venv/bin/python tools/review/review.py expect pl          # a batch of unsettled sentences for the expect agent
+    .venv/bin/python tools/review/review.py ingest-expect pl 3 # check build/review/pl/e03.out.jsonl, record it
+    .venv/bin/python tools/review/review.py recheck pl         # a blind second expect batch of the written readings
+    .venv/bin/python tools/review/review.py ingest-expect pl f1 # keep the readings both agents wrote; the rest go to
                                                              # build/review/pl/disagreements.jsonl
-    .venv/bin/python tests/lang/review.py deepseek pl        # batches of every reviewed sentence for DeepSeek
-    .venv/bin/python tests/lang/review.py ingest-deepseek pl 3  # record build/review/pl/d003.out.jsonl
-    .venv/bin/python tests/lang/review.py cross              # mark corpus readings DeepSeek agrees with or disputes
-    .venv/bin/python tests/lang/review.py dispute-page pl     # build/review/pl-disputes.html: a person picks the readings
-    .venv/bin/python tests/lang/review.py prefer pl          # settle the remaining disputes with DeepSeek's reading
-    .venv/bin/python tests/lang/review.py judge de           # batches of the disputes with their readings, for a judge
-    .venv/bin/python tests/lang/review.py ingest-judge de j001 MODEL  # settle them with the judge's picks
+    .venv/bin/python tools/review/review.py deepseek pl        # batches of every reviewed sentence for DeepSeek
+    .venv/bin/python tools/review/review.py ingest-deepseek pl 3  # record build/review/pl/d003.out.jsonl
+    .venv/bin/python tools/review/review.py cross              # mark corpus readings DeepSeek agrees with or disputes
+    .venv/bin/python tools/review/review.py dispute-page pl     # build/review/pl-disputes.html: a person picks the readings
+    .venv/bin/python tools/review/review.py prefer pl          # settle the remaining disputes with DeepSeek's reading
+    .venv/bin/python tools/review/review.py judge de           # batches of the disputes with their readings, for a judge
+    .venv/bin/python tools/review/review.py ingest-judge de j001 MODEL  # settle them with the judge's picks
 
-The pool of a language is the sentences of tests/parity/baseline (hi and zh: tests/parity/local, a sample), read by the
+This built the frozen corpus (tag corpus-v1). It stays for new sentences: corpus-v2 (plain sentences), or a new language.
+The pool of a language is the sentences of build/review/<lang>/pool.jsonl (one {"input": ...} per line), read by the
 installed package. A batch holds 90 pool sentences and 10 hidden controls: 5 known-good readings, which the reviewer
 must pass, and 5 planted errors, which it must catch. Their score says how far to trust the verdicts. A language stops
 once it has 200 reviewed sentences and 20% or more are wrong, or once its pool is spent.
 
-Verdicts go to tests/lang/<lang>/review.jsonl, one line per sentence and pass (the format is in tests/lang/README.md).
+Verdicts go to tests/lang/<lang>/review.jsonl, one line per sentence and pass (the format is in cmd_ingest).
 A "wrong" verdict counts as confirmed when a second, blind pass by a fresh agent flags the same sentence.
 
 The verdicts settle the expected reading of a sentence, in tests/lang/<lang>/corpus.jsonl: a person's verdict or
@@ -46,15 +47,14 @@ from pathlib import Path
 
 from verbalis import Verbalizer
 
-ROOT = Path(__file__).parent
-REPO = ROOT.parents[1]
+REPO = Path(__file__).resolve().parents[2]
+ROOT = REPO / "tests" / "lang"
 WORK = REPO / "build" / "review"
 LANGS = ["de", "en-us", "es", "fr", "hi", "it", "pl", "pt", "zh"]
 CATEGORIES = {"agreement", "cardinal", "ordinal", "date", "time", "money", "unit", "percent", "range", "decimal",
               "fraction", "phone", "code", "web", "abbreviation", "roman", "symbol", "unread", "misread", "other"}
 VERDICTS = {"ok", "wrong", "unsure"}
-READABLE = re.compile(r"[0-9०-९%$€£¥₹@&+=°§#]")  # A sentence with something for Verbalis to read
-BATCH, CONTROLS, MIN_REVIEWED, STOP_RATE, LOCAL_SAMPLE = 100, 5, 200, 0.20, 2200
+BATCH, CONTROLS, MIN_REVIEWED, STOP_RATE = 100, 5, 200, 0.20
 
 # Planted grammar errors: a correct form and a wrong one that replaces it as a whole word
 FORM_SWAPS = {
@@ -88,12 +88,9 @@ def stable(text: str) -> str:
 
 
 def pool(lang: str) -> list[str]:
-    """Every pool input in a fixed shuffled order."""
-    base = REPO / "tests/parity/baseline"
-    inputs = [r["input"] for name in (f"{lang}.jsonl", f"{lang}.kinds.jsonl") for r in jsonl(base / name)]
-    local = [r for r in jsonl(REPO / "tests/parity/local" / f"{lang}.jsonl") if READABLE.search(r["input"])]
-    inputs += [r["input"] for r in sorted(local, key=lambda r: stable(r["input"]))[:LOCAL_SAMPLE]]
-    return sorted((s for s in dict.fromkeys(inputs) if READABLE.search(s)), key=stable)
+    """Every pool input (build/review/<lang>/pool.jsonl) in a fixed shuffled order."""
+    inputs = [r["input"] for r in jsonl(WORK / lang / "pool.jsonl")]
+    return sorted(dict.fromkeys(inputs), key=stable)
 
 
 def changes(source: str, output: str) -> list[str]:
@@ -526,7 +523,7 @@ OPINIONS = {"d": "deepseek", "t": "third"}
 
 
 def cmd_deepseek(lang: str, prefix: str = "d"):
-    """Blind expect batches for a model of another family (tests/lang/deepseek.py): every reviewed sentence (d), or the
+    """Blind expect batches for a model of another family (tools/review/deepseek.py): every reviewed sentence (d), or the
     disputed ones (t)."""
     held = {r["input"] for p in (WORK / lang).glob(f"{prefix}[0-9][0-9][0-9].key.jsonl") for r in jsonl(p)}
     if prefix == "t":

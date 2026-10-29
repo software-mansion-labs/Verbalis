@@ -1,4 +1,4 @@
-// The parity contract: tests/parity/baseline/*.jsonl (outputs of process) and tests/parity/api.jsonl (options and the
+// The parity contract: tests/parity/outputs/*.jsonl (outputs of process) and tests/parity/api.jsonl (options and the
 // changes of processWithChanges), for every language the TypeScript port supports so far.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -9,7 +9,7 @@ import { Verbalizer, type Options } from "../../ts/src/index.ts";
 const PARITY = join(import.meta.dirname, "..", "parity");
 const SUPPORTED = new Set(Verbalizer.languages());
 
-interface BaselineRecord {
+interface OutputRecord {
   lang: string;
   category: string;
   input: string;
@@ -34,12 +34,12 @@ function lines<T>(path: string): T[] {
     .map((line) => JSON.parse(line) as T);
 }
 
-describe("baseline", () => {
-  const files = readdirSync(join(PARITY, "baseline")).filter((file) =>
+describe("outputs", () => {
+  const files = readdirSync(join(PARITY, "outputs")).filter((file) =>
     file.endsWith(".jsonl"),
   );
   for (const file of files) {
-    const records = lines<BaselineRecord>(join(PARITY, "baseline", file));
+    const records = lines<OutputRecord>(join(PARITY, "outputs", file));
     test.skipIf(!SUPPORTED.has(records[0].lang))(file, () => {
       const verbalizer = new Verbalizer(records[0].lang);
       const mismatches = records.filter(

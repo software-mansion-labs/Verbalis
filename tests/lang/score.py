@@ -1,4 +1,4 @@
-"""Scores Verbalis against the gold test set (tests/lang/<lang>/gold.jsonl): how many inputs it reads as a person would.
+"""Scores Verbalis against the corpus (the target) and the gold set (NeMo and WeTextProcessing cases), as a ratchet.
 
     .venv/bin/python tests/lang/score.py              # accuracy per language, and changes since scores.json
     .venv/bin/python tests/lang/score.py --classes    # also per class
@@ -12,11 +12,10 @@ punctuation are ignored ("twenty-one" = "twenty one"). "exact" counts equality a
 apart; tests/lang/<lang>/notes.md lists them. Exits 1 if a case that
 passed in scores.json fails now: a behaviour change may fix gold cases, but must not break them.
 
-It also scores the corpus (tests/lang/<lang>/corpus.jsonl): real sentences with readings that reviewers approved or
-wrote, mostly agents. It is the target Verbalis must reach, frozen at tag corpus-v1 (tests/lang/corpus.sha256): its
-passing sentences join the ratchet. "approved" are outputs a reviewer passed; "written" are readings a reviewer or
-judge wrote, which Verbalis may not reach yet.
-"cross-checked" readings DeepSeek also wrote, blind; "disputed" ones it reads otherwise, left out of the match.
+The corpus (tests/lang/<lang>/corpus.jsonl) holds real sentences with reviewed readings: the target Verbalis must reach,
+frozen at tag corpus-v1 (tests/lang/corpus.sha256). Its passing sentences join the ratchet. "approved" are outputs a
+reviewer passed; "written" are readings a reviewer or judge wrote, which Verbalis may not reach yet; "cross-checked"
+readings DeepSeek also wrote, blind.
 """
 
 import argparse
@@ -62,8 +61,7 @@ for path in sorted(ROOT.glob("*/gold.jsonl")):
         output = verbalizer.process(case["input"])
         exact = output in case["outputs"]
         ok = exact or normalized(output) in {normalized(o) for o in case["outputs"]}
-        origin = "own" if case["source"] == "verbalis" else "independent"
-        for name in (case["class"], "all", origin):
+        for name in (case["class"], "all"):
             counts = by_class[name]
             counts[0] += 1
             counts[1] += exact
@@ -78,16 +76,13 @@ def share(counts):
     return f"{100 * counts[2] / counts[0]:.1f}% of {counts[0]}" if counts[0] else "-"
 
 
-# "independent": cases from NeMo and WeTextProcessing; "own": cases written for Verbalis (source "verbalis"),
-# which are only as right as their author, until a native speaker has checked them
-print(f"{'language':10}{'cases':>7}{'exact':>9}{'normalized':>12}   {'independent':>18}   {'own':>18}   {'excluded':>8}")
+print(f"{'gold':10}{'cases':>7}{'exact':>9}{'normalized':>12}   {'excluded':>8}")
 for lang, by_class in totals.items():
     n, exact, ok = by_class["all"]
-    print(f"{lang:10}{n:>7}{100 * exact / n:>8.1f}%{100 * ok / n:>11.1f}%   "
-          f"{share(by_class['independent']):>18}   {share(by_class['own']):>18}   {excluded[lang] or '-':>8}")
+    print(f"{lang:10}{n:>7}{100 * exact / n:>8.1f}%{100 * ok / n:>11.1f}%   {excluded[lang] or '-':>8}")
     if args.classes:
         for name, (n, exact, ok) in sorted(by_class.items()):
-            if name not in ("all", "independent", "own"):
+            if name != "all":
                 print(f"  {name:24}{n:>5}{100 * exact / n:>8.1f}%{100 * ok / n:>11.1f}%")
 all_n = sum(t["all"][0] for t in totals.values())
 all_ok = sum(t["all"][2] for t in totals.values())
@@ -99,7 +94,7 @@ if args.show:
               + " | ".join(case["outputs"]))
 
 # The corpus: real sentences with reviewed readings, the target (frozen at tag corpus-v1). Its passing sentences join
-# the ratchet under "corpus/<lang>", by a hash of the input; hi and zh count only where their local corpus exists.
+# the ratchet under "corpus/<lang>", by a hash of the input.
 corpus_passing = {}
 print(f"\n{'corpus':10}{'sentences':>10}{'match':>9}   {'approved':>18}   {'written':>18}   {'by a person':>12}"
       f"{'cross-checked':>15}{'disputed':>10}")
@@ -133,7 +128,6 @@ for path in sorted(ROOT.glob("*/corpus.jsonl")):
 # The ratchet: compare with the recorded passing cases
 passing.update(corpus_passing)
 recorded = json.loads(SCORES.read_text(encoding="utf-8")) if SCORES.exists() else {}
-recorded = {key: keys for key, keys in recorded.items() if not key.startswith("corpus/") or key in corpus_passing}
 broken = {lang: sorted(set(keys) - set(passing.get(lang, []))) for lang, keys in recorded.items()}
 fixed = {lang: sorted(set(keys) - set(recorded.get(lang, []))) for lang, keys in passing.items()}
 for lang in sorted(set(broken) | set(fixed)):

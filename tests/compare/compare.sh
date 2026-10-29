@@ -4,9 +4,8 @@
 #
 #   tests/compare/compare.sh [reference-commit]     (default: 3143074, the extraction from Phonemis)
 #
-# Inputs: the inputs of tests/parity/baseline/*.jsonl, plus any tests/parity/local/*.jsonl (gitignored, uncommitted).
+# Inputs: the inputs of tests/parity/outputs/*.jsonl (the corpus and the gold set).
 set -euo pipefail
-shopt -s nullglob # tests/parity/local/ may be missing or empty
 
 ROOT=$(git -C "$(dirname "$0")" rev-parse --show-toplevel)
 REFERENCE=${1:-3143074}
@@ -27,7 +26,7 @@ fi
 build "$WORK/reference-$REFERENCE" "$WORK/reference-$REFERENCE-build"
 build "$ROOT" "$WORK/current-build"
 
-cat "$ROOT"/tests/parity/baseline/*.jsonl "$ROOT"/tests/parity/local/*.jsonl 2>/dev/null \
+cat "$ROOT"/tests/parity/outputs/*.jsonl \
   | python3 -c 'import json,sys; [print(json.dumps({"lang": r["lang"], "input": r["input"]}, ensure_ascii=False)) for r in map(json.loads, sys.stdin)]' \
   > "$WORK/inputs.jsonl"
 

@@ -1,4 +1,4 @@
-// Checks that Verbalis reproduces the parity baseline: every input of tests/parity/baseline/*.jsonl must verbalize
+// Checks that Verbalis reproduces the parity outputs: every input of tests/parity/outputs/*.jsonl must verbalize
 // to exactly its recorded output, and every case of tests/parity/api.jsonl (options, offsets, and changes) must
 // produce exactly its recorded text and changes. Prints a summary per language and category, and the first mismatches.
 #include <verbalis/verbalizer.h>
@@ -57,7 +57,7 @@ int check_api(const std::filesystem::path& path) {
 
 int main(int argc, char** argv) {
   if (argc != 2 && argc != 3) {
-    std::cerr << "usage: verbalis_parity <baseline directory> [api cases .jsonl]\n";
+    std::cerr << "usage: verbalis_parity <outputs directory> [api cases .jsonl]\n";
     return 2;
   }
 

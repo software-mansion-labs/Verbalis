@@ -1,9 +1,9 @@
 """Runs the blind expect task with DeepSeek, through opencode, as an opinion from a model of another family.
 
-    .venv/bin/python tests/lang/deepseek.py zh               # every unanswered batch of a language
-    .venv/bin/python tests/lang/deepseek.py --all            # every language
-    .venv/bin/python tests/lang/deepseek.py zh --limit 1     # one batch, to try the setup
-    .venv/bin/python tests/lang/deepseek.py --disputes --model opencode/gpt-6-luna de   # a third family on disputes
+    .venv/bin/python tools/review/deepseek.py zh               # every unanswered batch of a language
+    .venv/bin/python tools/review/deepseek.py --all            # every language
+    .venv/bin/python tools/review/deepseek.py zh --limit 1     # one batch, to try the setup
+    .venv/bin/python tools/review/deepseek.py --disputes --model opencode/gpt-6-luna de   # a third family on disputes
 
 For each language it writes the batches (review.py deepseek: every reviewed sentence, with hidden controls), sends
 each batch with the expect task and the language's rules to the model, keeps the JSON lines of the answer, and records
@@ -41,7 +41,7 @@ STOP = threading.Event()
 
 
 def review(*args: str) -> str:
-    result = subprocess.run([sys.executable, str(REPO / "tests/lang/review.py"), *args], cwd=REPO,
+    result = subprocess.run([sys.executable, str(REPO / "tools/review/review.py"), *args], cwd=REPO,
                             capture_output=True, text=True)
     return result.stdout + result.stderr
 
