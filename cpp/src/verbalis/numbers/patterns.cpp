@@ -871,7 +871,7 @@ std::optional<Match> SuffixPattern::match(std::u32string_view text, size_t posit
 }
 
 std::optional<Match> SecondsPattern::match(std::u32string_view text, size_t position) const {
-  if (!is_clear_before(text, position, U".,")) {
+  if (!is_clear_before(text, position, loose_ ? U".,:" : U".,")) {
     return std::nullopt;
   }
   Match time{.kind = Kind::TIME, .separator = U':'};
@@ -890,11 +890,43 @@ std::optional<Match> SecondsPattern::match(std::u32string_view text, size_t posi
     time.numbers.push_back(digits_at(text, end));
     end += length;
   }
-  if (!is_clear_after(text, end) || is_digit_after(text, end, U".,:") || value(time.numbers[2]) > 59) {
+  if (!is_clear_after(text, end) || is_digit_after(text, end, U".,:") || (!loose_ && value(time.numbers[2]) > 59)) {
     return std::nullopt;
   }
   time.span = {position, end};
+  size_t word = skip_space(text, end);
+  for (auto key : keys_at(text, word, suffixes_)) {
+    if (is_clear_after(text, word + key.size())) {
+      time.span.end = word + key.size();
+      time.suffix = key;
+      break;
+    }
+  }
   return time;
+}
+
+std::optional<Match> RomanOrdinalPattern::match(std::u32string_view text, size_t position) const {
+  if (!is_clear_before(text, position)) {
+    return std::nullopt;
+  }
+  size_t end = position;
+  while (end < text.size() && strings::contains(std::u32string_view(U"IVXLCDM"), text[end])) {
+    end++;
+  }
+  std::u32string_view numeral = text.substr(position, end - position);
+  auto value = roman_value(numeral);
+  if (!value || (numeral.size() == 1 && numeral != U"I" && numeral != U"V" && numeral != U"X")) {
+    return std::nullopt;
+  }
+  for (auto suffix : keys_at(text, end, suffixes_)) {
+    if (is_clear_after(text, end + suffix.size())) {
+      return Match{.kind = Kind::ORDINAL,
+                   .span = {position, end + suffix.size()},
+                   .numbers = {{.span = {position, end}, .integer = to_digits(*value)}},
+                   .suffix = suffix};
+    }
+  }
+  return std::nullopt;
 }
 
 std::optional<Match> GroupedOrdinalPattern::match(std::u32string_view text, size_t position) const {

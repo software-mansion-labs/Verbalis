@@ -3,7 +3,7 @@ import { contains, str, type Text } from "../text/strings.ts";
 import { isAlnum, isAlpha, isDigit, isSpace, isWord } from "../text/unicode.ts";
 
 // A class of characters written in one canonical form: all quotes as ".
-export interface CharacterClass {
+interface CharacterClass {
   readonly characters: string; // « » „ “ ” ‟ ˝
   readonly canonical: string; // "; empty to remove them
   readonly letter?: boolean; // A letter read in the wrong encoding (zupe³nie): replaced only next to a letter
@@ -20,7 +20,7 @@ export const DEFAULT_CHARACTERS: Characters = [
 ];
 
 // Dashes besides "-": em, en, figure dash, horizontal bar
-export const DASHES = "—–‒―";
+const DASHES = "—–‒―";
 
 // Whether a character is a dash or a hyphen
 function isDash(c: string | undefined): boolean {

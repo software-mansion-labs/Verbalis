@@ -6,7 +6,7 @@ import { contains, size, startsWith, str, toLower, type Text } from "../text/str
 import { isAlnum, isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
 
 // The words between the parts of a web address.
-export interface WebWords {
+interface WebWords {
   readonly dot: string; // example dot com
   readonly at: string; // jan at example dot com
   readonly slash: string; // example dot com slash news

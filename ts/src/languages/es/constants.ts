@@ -1,4 +1,4 @@
-import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
+import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import type { Context } from "../../text/context.ts";
 import { afterName, beforeName, beforeNumber, type Readings } from "../../text/readings.ts";

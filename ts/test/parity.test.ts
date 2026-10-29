@@ -4,9 +4,9 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
-import { Verbalizer, type Options } from "../../ts/src/index.ts";
+import { Verbalizer, type Options } from "../src/index.ts";
 
-const PARITY = join(import.meta.dirname, "..", "parity");
+const PARITY = join(import.meta.dirname, "..", "..", "tests", "parity");
 const SUPPORTED = new Set(Verbalizer.languages());
 
 interface OutputRecord {
@@ -35,21 +35,16 @@ function lines<T>(path: string): T[] {
 }
 
 describe("outputs", () => {
-  const files = readdirSync(join(PARITY, "outputs")).filter((file) =>
-    file.endsWith(".jsonl"),
-  );
+  const files = readdirSync(join(PARITY, "outputs")).filter((file) => file.endsWith(".jsonl"));
   for (const file of files) {
     const records = lines<OutputRecord>(join(PARITY, "outputs", file));
     test.skipIf(!SUPPORTED.has(records[0].lang))(file, () => {
       const verbalizer = new Verbalizer(records[0].lang);
-      const mismatches = records.filter(
-        (record) => verbalizer.process(record.input) !== record.output,
-      );
+      const mismatches = records.filter((record) => verbalizer.process(record.input) !== record.output);
       const first = mismatches[0];
       expect(
         mismatches.length,
-        first &&
-          `first: ${first.input}\n  expected: ${first.output}\n  got:      ${verbalizer.process(first.input)}`,
+        first && `first: ${first.input}\n  expected: ${first.output}\n  got:      ${verbalizer.process(first.input)}`,
       ).toBe(0);
     });
   }
@@ -57,26 +52,19 @@ describe("outputs", () => {
 
 describe("api", () => {
   for (const [i, c] of lines<ApiCase>(join(PARITY, "api.jsonl")).entries()) {
-    test.skipIf(!SUPPORTED.has(c.lang))(
-      `${i + 1} ${c.lang}: ${c.input.slice(0, 30)}`,
-      () => {
-        const { symbol_words: symbolWords, ...rest } = c.options;
-        const options: Options = {
-          ...rest,
-          ...(symbolWords && { symbolWords }),
-        };
-        const result = new Verbalizer(c.lang, options).processWithChanges(
-          c.input,
-        );
-        expect(result.text).toBe(c.output);
-        expect(
-          result.changes.map((change) => [
-            change.start,
-            change.end,
-            change.replacement,
-          ]),
-        ).toEqual(c.changes);
-      },
-    );
+    test.skipIf(!SUPPORTED.has(c.lang))(`${i + 1} ${c.lang}: ${c.input.slice(0, 30)}`, () => {
+      const { symbol_words: symbolWords, ...rest } = c.options;
+      const options: Options = {
+        ...rest,
+        ...(symbolWords && { symbolWords }),
+      };
+      const result = new Verbalizer(c.lang, options).processWithChanges(c.input);
+      // The cases count code points; TypeScript counts UTF-16 units
+      const units = (points: number) => [...c.input].slice(0, points).join("").length;
+      expect(result.text).toBe(c.output);
+      expect(result.changes.map((change) => [change.start, change.end, change.replacement])).toEqual(
+        c.changes.map(([start, end, replacement]) => [units(start), units(end), replacement]),
+      );
+    });
   }
 });

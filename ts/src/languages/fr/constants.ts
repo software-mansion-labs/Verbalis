@@ -193,7 +193,7 @@ export const SYMBOLS: Readings = {
 };
 
 // Days of a month, the word before a month abbreviation in a date: 2 janv. 2003, 1er févr.
-export const DAYS: readonly string[] = [
+const DAYS: readonly string[] = [
   "1er", ...Array.from({ length: 31 }, (_, i) => [String(i + 1), String(i + 1).padStart(2, "0")]).flat(),
 ];
 

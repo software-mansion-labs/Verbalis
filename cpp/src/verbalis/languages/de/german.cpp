@@ -411,41 +411,6 @@ public:
   }
 };
 
-// 02:02:23 Uhr, 2:08:29, 13:46:36 Stunden: hours, minutes, and seconds, with an optional word after them.
-class SecondsPattern : public Pattern {
-public:
-  SecondsPattern() : Pattern(Kind::TIME) {}
-
-  std::optional<Match> match(std::u32string_view text, size_t position) const override {
-    size_t hours = digits_end(text, position);
-    if (!is_clear_before(text, position, U".,:") || hours == position || hours > position + 2) {
-      return std::nullopt;
-    }
-    Match time{.kind = Kind::TIME, .numbers = {digits_at(text, position)}, .separator = U':'};
-    size_t end = hours;
-    for (int part = 0; part < 2; part++) {
-      if (end >= text.size() || text[end] != U':' || digits_end(text, end + 1) != end + 3) {
-        return std::nullopt;
-      }
-      time.numbers.push_back(digits_at(text, end + 1));
-      end += 3;
-    }
-    if (!is_clear_after(text, end) || is_digit_after(text, end, U".,:")) {
-      return std::nullopt;
-    }
-    time.span = {position, end};
-    size_t word = skip_space(text, end);
-    for (auto key : keys_at(text, word, kSecondsSuffixes)) {
-      if (is_clear_after(text, word + key.size())) {
-        time.span.end = word + key.size();
-        time.suffix = key;
-        break;
-      }
-    }
-    return time;
-  }
-};
-
 // 90 Millionen g, 1 1/2 ft: a scale or a fraction, then a unit after an optional space.
 class UnitAfterPattern : public Pattern {
 public:
@@ -484,7 +449,7 @@ public:
     add_pattern(std::make_unique<BareDatePattern>());
     add_pattern(std::make_unique<YearMonthPattern>());
     add_pattern(std::make_unique<AreaCodePattern>());
-    add_pattern(std::make_unique<SecondsPattern>());
+    add_pattern(std::make_unique<SecondsPattern>(kSecondsSuffixes, true));
     add_pattern(std::make_unique<UnitAfterPattern>(std::make_unique<ScalePattern>(kNotation)));
     add_pattern(std::make_unique<UnitAfterPattern>(std::make_unique<FractionPattern>()));
     add_pattern(std::make_unique<DotOrdinalPattern>(true));

@@ -5,6 +5,7 @@ import {
   PhonePattern,
   SuffixPattern,
   RomanPattern,
+  RomanOrdinalPattern,
 } from "../../numbers/patterns.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
@@ -15,14 +16,11 @@ import {
   fractionOf,
   isMarkedFraction,
   namedFraction,
-  numbersAt,
   parseValue,
   spacedSuffix,
   value,
   romanRole,
   RomanRole,
-  romanValue,
-  toDigits,
 } from "../../numbers/scanning.ts";
 import { stripped, wordsOf, type Context } from "../../text/context.ts";
 import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join, keysAt, skipSpace } from "../../text/scan.ts";
@@ -288,45 +286,6 @@ function scaled(number: Numeral, scale: string, cues: Cues): string {
 // ----- Patterns -----
 // --------------------
 
-// XIXe, Ier, IIIe: an ordinal written in Roman numerals.
-class RomanOrdinalPattern extends Pattern {
-  constructor() {
-    super(Kind.ORDINAL);
-  }
-
-  match(text: Text, position: number): Match | undefined {
-    if (!isClearBefore(text, position)) {
-      return undefined;
-    }
-
-    // Two Roman digits or more, or a single I, V or X (Ier, Ve, Xe): not Ce, De, Le, Me
-    let end = position;
-    while (end < text.length && contains("IVXLCDM", text[end])) {
-      end++;
-    }
-    const written = str(text, position, end);
-    if (written.length < 2 && written !== "I" && written !== "V" && written !== "X") {
-      return undefined;
-    }
-    const roman = romanValue(written);
-    if (roman === undefined) {
-      return undefined;
-    }
-
-    for (const suffix of keysAt(text, end, ROMAN_ORDINAL_SUFFIXES)) {
-      if (isClearAfter(text, end + suffix.length)) {
-        return match({
-          kind: Kind.ORDINAL,
-          span: { begin: position, end: end + suffix.length },
-          numbers: [numeral({ span: { begin: position, end }, integer: toDigits(roman) })],
-          suffix,
-        });
-      }
-    }
-    return undefined;
-  }
-}
-
 // 3 1/2 km: a whole number and a half before a masculine unit, read "trois kilomètres et demi" (the whole number by
 // readNumber, and "et demi" by the joiners)
 class HalfUnitPattern extends Pattern {
@@ -477,7 +436,7 @@ class French extends PatternLanguage {
     this.addPattern(new HalfUnitPattern());
     this.addPattern(new GroupedOrdinalPattern(ORDINAL_SUFFIXES, " \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
-    this.addPattern(new RomanOrdinalPattern());
+    this.addPattern(new RomanOrdinalPattern(ROMAN_ORDINAL_SUFFIXES));
     this.addPattern(new RomanPattern());
   }
 

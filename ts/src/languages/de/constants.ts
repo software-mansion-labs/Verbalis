@@ -218,7 +218,7 @@ export const ORDINAL_SUFFIXES: Keys = ["te", "ten", "tem", "ter", "tes", "ste", 
 export const DECADE_FORMAT = suffixFormat({ boundaries: ".,-" });
 
 // Words before "§" which take its plural: im § 5 (in dem Paragrafen)
-export const PARAGRAPH_PLURALS: ReadonlySet<string> = new Set([
+const PARAGRAPH_PLURALS: ReadonlySet<string> = new Set([
   "im", "vom", "zum", "beim", "dem", "des", "den",
 ]);
 
@@ -230,7 +230,7 @@ export const SYMBOLS: Readings = {
 };
 
 // Days of a month, the word before a month abbreviation in a date: 2. Jan. 2003
-export const DAYS: readonly string[] = Array.from({ length: 31 }, (_, i) => [String(i + 1), String(i + 1).padStart(2, "0")]).flat();
+const DAYS: readonly string[] = Array.from({ length: 31 }, (_, i) => [String(i + 1), String(i + 1).padStart(2, "0")]).flat();
 
 export const TERMS: Terms = {
   abbreviations: {

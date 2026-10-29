@@ -124,7 +124,7 @@ export function genericPatterns(notation: Notation): Pattern[] {
 }
 
 // 2024-05-12: an ISO date. Its numbers are ordered as day, month, year.
-export class IsoDatePattern extends Pattern {
+class IsoDatePattern extends Pattern {
   constructor() {
     super(Kind.DATE);
   }
@@ -161,7 +161,7 @@ export class IsoDatePattern extends Pattern {
 }
 
 // 3.8.10, 10.0.0.51; a chain of thousands groups (1.000.000) is left to numbers.
-export class VersionPattern extends Pattern {
+class VersionPattern extends Pattern {
   readonly #group: string;
 
   constructor(notation: Notation) {
@@ -201,7 +201,7 @@ export class VersionPattern extends Pattern {
 }
 
 // The " - " of 5 - 3.
-export class DifferencePattern extends Pattern {
+class DifferencePattern extends Pattern {
   constructor() {
     super(Kind.DIFFERENCE);
   }
@@ -221,7 +221,7 @@ export class DifferencePattern extends Pattern {
 }
 
 // The "+" of 2 + 2 or 90+6, with the spaces around it.
-export class SumPattern extends Pattern {
+class SumPattern extends Pattern {
   constructor() {
     super(Kind.SUM);
   }
@@ -246,7 +246,7 @@ export class SumPattern extends Pattern {
 }
 
 // The "-" of 10-15 and 2020-2022. Its numbers are the digits on both sides.
-export class RangePattern extends Pattern {
+class RangePattern extends Pattern {
   constructor() {
     super(Kind.RANGE);
   }
@@ -287,7 +287,7 @@ export class RangePattern extends Pattern {
 }
 
 // The "x" of 1920x1080, or of 3 m x 4 m (the units are left to UnitPattern).
-export class DimensionPattern extends Pattern {
+class DimensionPattern extends Pattern {
   readonly #units: Keys;
 
   constructor(notation: Notation) {
@@ -388,12 +388,21 @@ function simpleFraction(text: Text, position: number): Match | undefined {
 
 // 14:30:05: hours, minutes, and seconds
 export class SecondsPattern extends Pattern {
-  constructor() {
+  readonly #suffixes: Keys;
+  readonly #loose: boolean;
+
+  /**
+   * @param suffixes words which may follow it, after an optional space, as part of it: 02:02:23 Uhr.
+   * @param loose takes seconds above 59, but no time right after a colon.
+   */
+  constructor(suffixes: Keys = [], loose = false) {
     super(Kind.TIME);
+    this.#suffixes = suffixes;
+    this.#loose = loose;
   }
 
   match(text: Text, position: number): Match | undefined {
-    if (!isClearBefore(text, position, ".,")) {
+    if (!isClearBefore(text, position, this.#loose ? ".,:" : ".,")) {
       return undefined;
     }
     const time = match({ kind: Kind.TIME, separator: ":" });
@@ -412,11 +421,55 @@ export class SecondsPattern extends Pattern {
       time.numbers.push(digitsAt(text, end));
       end += length;
     }
-    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:") || value(time.numbers[2]) > 59n) {
+    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:") || (!this.#loose && value(time.numbers[2]) > 59n)) {
       return undefined;
     }
     time.span = { begin: position, end };
+    const word = skipSpace(text, end);
+    for (const key of keysAt(text, word, this.#suffixes)) {
+      if (isClearAfter(text, word + key.length)) {
+        time.span = { begin: position, end: word + key.length };
+        time.suffix = key;
+        break;
+      }
+    }
     return time;
+  }
+}
+
+// XIXe, XIIवीं: an ordinal written in Roman numerals, with a suffix; one letter only if it is I, V or X.
+export class RomanOrdinalPattern extends Pattern {
+  readonly #suffixes: Keys;
+
+  constructor(suffixes: Keys) {
+    super(Kind.ORDINAL);
+    this.#suffixes = suffixes;
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    if (!isClearBefore(text, position)) {
+      return undefined;
+    }
+    let end = position;
+    while (end < text.length && contains("IVXLCDM", text[end])) {
+      end++;
+    }
+    const written = str(text, position, end);
+    const roman = romanValue(written);
+    if (roman === undefined || (written.length === 1 && written !== "I" && written !== "V" && written !== "X")) {
+      return undefined;
+    }
+    for (const suffix of keysAt(text, end, this.#suffixes)) {
+      if (isClearAfter(text, end + suffix.length)) {
+        return match({
+          kind: Kind.ORDINAL,
+          span: { begin: position, end: end + suffix.length },
+          numbers: [numeral({ span: { begin: position, end }, integer: toDigits(roman) })],
+          suffix,
+        });
+      }
+    }
+    return undefined;
   }
 }
 
@@ -455,7 +508,7 @@ export class GroupedOrdinalPattern extends Pattern {
 }
 
 // The "/" of 4,2/5 and 4.5/10: a rating, a decimal out of 5, 10, 20, or 100.
-export class RatingPattern extends Pattern {
+class RatingPattern extends Pattern {
   readonly #decimals: string;
 
   constructor(notation: Notation) {
@@ -497,7 +550,7 @@ export class RatingPattern extends Pattern {
 }
 
 // The minus of -5.
-export class SignPattern extends Pattern {
+class SignPattern extends Pattern {
   constructor() {
     super(Kind.SIGN);
   }
@@ -515,7 +568,7 @@ export class SignPattern extends Pattern {
 }
 
 // 18:30, 10.30 pm, 21h30: hours and minutes, with an optional suffix.
-export class TimePattern extends Pattern {
+class TimePattern extends Pattern {
   readonly #separators: string;
   readonly #suffixes: Keys;
   readonly #measures: Keys;
@@ -604,7 +657,7 @@ export class TimePattern extends Pattern {
 }
 
 // 7pm, 18 Uhr, 21h: an hour marked by its suffix.
-export class HourPattern extends Pattern {
+class HourPattern extends Pattern {
   readonly #suffixes: Keys;
 
   constructor(notation: Notation) {
@@ -634,7 +687,7 @@ export class HourPattern extends Pattern {
 }
 
 // The ":" of 2:1.
-export class ScorePattern extends Pattern {
+class ScorePattern extends Pattern {
   constructor() {
     super(Kind.SCORE);
   }
@@ -693,7 +746,7 @@ export class PrefixedMoneyPattern extends Pattern {
 }
 
 // 50$, 12,99 zł, 10-15 €, 3 mln zł: an amount, possibly a range, followed by its currency.
-export class MoneyPattern extends Pattern {
+class MoneyPattern extends Pattern {
   readonly #notation: Notation;
 
   constructor(notation: Notation) {
@@ -760,7 +813,7 @@ export class ScalePattern extends Pattern {
 }
 
 // 20%, 10-15 %, 8%ige
-export class PercentPattern extends Pattern {
+class PercentPattern extends Pattern {
   readonly #notation: Notation;
 
   constructor(notation: Notation) {
@@ -792,7 +845,7 @@ export class PercentPattern extends Pattern {
 }
 
 // 5 kg, 10-15 km, 230 V; a unit of a single capital letter only after a space.
-export class UnitPattern extends Pattern {
+class UnitPattern extends Pattern {
   readonly #notation: Notation;
   readonly #letters: Keys; // Units of a single capital letter (W, V)
 
@@ -840,7 +893,7 @@ export class UnitPattern extends Pattern {
 }
 
 // 21-year-old, 45-metrowe: a number joined to a word by a hyphen.
-export class CompoundPattern extends Pattern {
+class CompoundPattern extends Pattern {
   readonly #notation: Notation;
 
   constructor(notation: Notation) {
@@ -874,7 +927,7 @@ export class CompoundPattern extends Pattern {
 }
 
 // MP3, A380, COVID-19, H.264: a token mixing letters and digits.
-export class CodePattern extends Pattern {
+class CodePattern extends Pattern {
   constructor() {
     super(Kind.CODE);
   }
@@ -916,7 +969,7 @@ export class CodePattern extends Pattern {
 }
 
 // 42, 1 000,5, .5: any other number.
-export class NumberPattern extends Pattern {
+class NumberPattern extends Pattern {
   readonly #notation: Notation;
 
   constructor(notation: Notation) {
@@ -1043,7 +1096,7 @@ export class DatePattern extends Pattern {
 }
 
 // +48 600 123 456, +1 (555) 123-4567: a phone number with a country code. Its numbers are the code, then the groups.
-export class InternationalPhonePattern extends Pattern {
+class InternationalPhonePattern extends Pattern {
   constructor() {
     super(Kind.INTERNATIONAL_PHONE);
   }

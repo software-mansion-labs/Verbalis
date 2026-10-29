@@ -126,65 +126,6 @@ public:
   }
 };
 
-// 12:10:10: hours, minutes and seconds
-class SecondsPattern : public Pattern {
-public:
-  SecondsPattern() : Pattern(Kind::TIME) {}
-
-  std::optional<Match> match(std::u32string_view text, size_t position) const override {
-    size_t hours_end = digits_end(text, position);
-    if (!is_clear_before(text, position, U".,:") || hours_end == position || hours_end > position + 2) {
-      return std::nullopt;
-    }
-    Match time{.kind = Kind::TIME, .numbers = {digits_at(text, position)}, .separator = U':'};
-    for (size_t start = hours_end; time.numbers.size() < 3; start += 3) {
-      if (start + 2 >= text.size() || text[start] != U':' || digits_end(text, start + 1) != start + 3) {
-        return std::nullopt;
-      }
-      time.numbers.push_back(digits_at(text, start + 1));
-    }
-    size_t end = time.numbers.back().span.end;
-    if (!is_clear_after(text, end) || is_digit_after(text, end, U".,:")) {
-      return std::nullopt;
-    }
-    time.span = {position, end};
-    return time;
-  }
-};
-
-// XIIवीं, IVथी: an ordinal written in Roman numerals, with the suffix of its form
-class RomanOrdinalPattern : public Pattern {
-public:
-  RomanOrdinalPattern() : Pattern(Kind::ORDINAL), suffixes_(keys_of(kOrdinalSuffixes)) {}
-
-  std::optional<Match> match(std::u32string_view text, size_t position) const override {
-    if (!is_clear_before(text, position)) {
-      return std::nullopt;
-    }
-    size_t end = position;
-    while (end < text.size() && strings::contains(std::u32string_view(U"IVXLCDM"), text[end])) {
-      end++;
-    }
-    std::u32string_view numeral = text.substr(position, end - position);
-    auto value = roman_value(numeral);
-    if (!value || (numeral.size() == 1 && numeral != U"I" && numeral != U"V" && numeral != U"X")) {
-      return std::nullopt;
-    }
-    for (auto suffix : keys_at(text, end, suffixes_)) {
-      if (is_clear_after(text, end + suffix.size())) {
-        return Match{.kind = Kind::ORDINAL,
-                     .span = {position, end + suffix.size()},
-                     .numbers = {{.span = {position, end}, .integer = to_digits(*value)}},
-                     .suffix = suffix};
-      }
-    }
-    return std::nullopt;
-  }
-
-private:
-  Keys suffixes_;
-};
-
 // चंद्रयान-III, भाग-XCIX: a Roman numeral joined to the word it numbers by a hyphen
 class HyphenRomanPattern : public Pattern {
 public:
@@ -239,11 +180,11 @@ public:
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
-    add_pattern(std::make_unique<SecondsPattern>());
+    add_pattern(std::make_unique<SecondsPattern>(Keys{}, true));
     add_pattern(std::make_unique<PowerPattern>());
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, keys_of(kOrdinalSuffixes)));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kEnglishOrdinalSuffixes));
-    add_pattern(std::make_unique<RomanOrdinalPattern>());
+    add_pattern(std::make_unique<RomanOrdinalPattern>(keys_of(kOrdinalSuffixes)));
     add_pattern(std::make_unique<HyphenRomanPattern>());
     add_pattern(std::make_unique<RomanPattern>(false, kRomanOrdinalSuffixes));
     add_pattern(std::make_unique<JoinedNumberPattern>());

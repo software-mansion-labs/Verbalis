@@ -115,9 +115,29 @@ private:
 // 14:30:05: hours, minutes, and seconds
 class SecondsPattern : public Pattern {
 public:
-  SecondsPattern() : Pattern(Kind::TIME) {}
+  /**
+   * @param suffixes words which may follow it, after an optional space, as part of it: 02:02:23 Uhr.
+   * @param loose takes seconds above 59, but no time right after a colon.
+   */
+  explicit SecondsPattern(Keys suffixes = {}, bool loose = false)
+      : Pattern(Kind::TIME), suffixes_(std::move(suffixes)), loose_(loose) {}
 
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
+
+private:
+  Keys suffixes_;
+  bool loose_;
+};
+
+// XIXe, XIIवीं: an ordinal written in Roman numerals, with a suffix; one letter only if it is I, V or X.
+class RomanOrdinalPattern : public Pattern {
+public:
+  explicit RomanOrdinalPattern(Keys suffixes) : Pattern(Kind::ORDINAL), suffixes_(std::move(suffixes)) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override;
+
+private:
+  Keys suffixes_;
 };
 
 // 1,000th, 1.000.º, 1 001.ᵉʳ: an ordinal of a grouped number

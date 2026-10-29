@@ -1,5 +1,13 @@
-import { DatePattern, Pattern, PhonePattern, RomanPattern, SuffixPattern } from "../../numbers/patterns.ts";
-import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
+import {
+  DatePattern,
+  Pattern,
+  PhonePattern,
+  RomanOrdinalPattern,
+  RomanPattern,
+  SecondsPattern,
+  SuffixPattern,
+} from "../../numbers/patterns.ts";
+import { Kind, match, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
   digitsAt,
@@ -9,12 +17,10 @@ import {
   numbersAt,
   parseValue,
   romanRole,
-  romanValue,
-  toDigits,
   value,
 } from "../../numbers/scanning.ts";
-import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join, keysAt } from "../../text/scan.ts";
-import { contains, str, type Text } from "../../text/strings.ts";
+import { isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
+import { type Text } from "../../text/strings.ts";
 import { isAlnum, isAlpha, isDigit, isSpace } from "../../text/unicode.ts";
 import { PatternLanguage } from "../language.ts";
 import {
@@ -156,67 +162,6 @@ class JoinedNumberPattern extends Pattern {
   }
 }
 
-// 12:10:10: hours, minutes and seconds
-class SecondsPattern extends Pattern {
-  constructor() {
-    super(Kind.TIME);
-  }
-
-  match(text: Text, position: number): Match | undefined {
-    const hoursEnd = digitsEnd(text, position);
-    if (!isClearBefore(text, position, ".,:") || hoursEnd === position || hoursEnd > position + 2) {
-      return undefined;
-    }
-    const numbers = [digitsAt(text, position)];
-    for (let start = hoursEnd; numbers.length < 3; start += 3) {
-      if (start + 2 >= text.length || text[start] !== ":" || digitsEnd(text, start + 1) !== start + 3) {
-        return undefined;
-      }
-      numbers.push(digitsAt(text, start + 1));
-    }
-    const end = numbers[2].span.end;
-    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:")) {
-      return undefined;
-    }
-    return match({ kind: Kind.TIME, span: { begin: position, end }, numbers, separator: ":" });
-  }
-}
-
-// XIIवीं, IVथी: an ordinal written in Roman numerals, with the suffix of its form
-class RomanOrdinalPattern extends Pattern {
-  readonly #suffixes = [...ORDINAL_SUFFIXES.keys()];
-
-  constructor() {
-    super(Kind.ORDINAL);
-  }
-
-  match(text: Text, position: number): Match | undefined {
-    if (!isClearBefore(text, position)) {
-      return undefined;
-    }
-    let end = position;
-    while (end < text.length && contains("IVXLCDM", text[end])) {
-      end++;
-    }
-    const written = str(text, position, end);
-    const roman = romanValue(written);
-    if (roman === undefined || (written.length === 1 && written !== "I" && written !== "V" && written !== "X")) {
-      return undefined;
-    }
-    for (const suffix of keysAt(text, end, this.#suffixes)) {
-      if (isClearAfter(text, end + suffix.length)) {
-        return match({
-          kind: Kind.ORDINAL,
-          span: { begin: position, end: end + suffix.length },
-          numbers: [numeral({ span: { begin: position, end }, integer: toDigits(roman) })],
-          suffix,
-        });
-      }
-    }
-    return undefined;
-  }
-}
-
 // चंद्रयान-III, भाग-XCIX: a Roman numeral joined to the word it numbers by a hyphen
 class HyphenRomanPattern extends Pattern {
   readonly #roman = new RomanPattern();
@@ -277,11 +222,11 @@ class Hindi extends PatternLanguage {
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
-    this.addPattern(new SecondsPattern());
+    this.addPattern(new SecondsPattern([], true));
     this.addPattern(new PowerPattern());
     this.addPattern(new SuffixPattern(Kind.ORDINAL, [...ORDINAL_SUFFIXES.keys()]));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ENGLISH_ORDINAL_SUFFIXES));
-    this.addPattern(new RomanOrdinalPattern());
+    this.addPattern(new RomanOrdinalPattern([...ORDINAL_SUFFIXES.keys()]));
     this.addPattern(new HyphenRomanPattern());
     this.addPattern(new RomanPattern(false, ROMAN_ORDINAL_SUFFIXES));
     this.addPattern(new JoinedNumberPattern());

@@ -23,7 +23,7 @@ import {
   RomanRole,
   isOrdinalDegree,
 } from "../../numbers/scanning.ts";
-import { isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
+import { isClearAfter, isClearBefore, join } from "../../text/scan.ts";
 import { contains, size, split, toLower, type Text } from "../../text/strings.ts";
 import { isDigit, isLower, isSpace, isUpper } from "../../text/unicode.ts";
 import type { Forms } from "../grammar.ts";

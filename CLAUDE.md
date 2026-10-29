@@ -26,7 +26,7 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
 - `tests/python/`: pytest: the API (`test_verbalizer.py`) and the parity baseline (`test_parity.py`).
 - `ts/`: the TypeScript package, a pure port of the C++ (`src/` mirrors `cpp/src/verbalis/`). Read
   `knowledge/ts-port.md` before porting or changing it.
-- `tests/ts/`: vitest: the API (`verbalizer.test.ts`) and the parity contract (`parity.test.ts`).
+- `ts/test/`: vitest: the API (`verbalizer.test.ts`) and the parity contract (`parity.test.ts`).
 
 ## Commands
 
@@ -50,7 +50,8 @@ A refactor must keep every parity output identical.
 - A change to the C++ that changes any output is a behaviour change: regenerate the outputs (`regen.py`) in the same
   change, and say in the commit which outputs changed and why.
   Regenerate `api.jsonl` with `.venv/bin/python tests/parity/api.py`.
-- Offsets in `process_with_changes` count Unicode code points in every implementation.
+- Offsets in `process_with_changes` count Unicode code points in C++ and Python, and UTF-16 code units in TypeScript
+  (converted in `ts/src/core.ts`, so they index JavaScript strings); `api.jsonl` records code points.
 - Correctness: `tests/lang/<lang>/corpus.jsonl` is the target, the expected reading of every reviewed real sentence,
   frozen at tag `corpus-v1` (never edit it); the gold set adds NeMo's and WeTextProcessing's cases. A behaviour change
   must keep every case in `tests/lang/scores.json` passing; record newly passing ones with `score.py --write`.

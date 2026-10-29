@@ -86,7 +86,7 @@ export const CURRENCY_WORDS: ReadonlySet<string> = new Set([
 ]);
 
 // Scales written as words after an amount: ₹ 5 लाख
-export const SCALES: Keys = ["हज़ार", "लाख", "करोड़", "अरब", "खरब", "मिलियन", "बिलियन", "ट्रिलियन"];
+const SCALES: Keys = ["हज़ार", "लाख", "करोड़", "अरब", "खरब", "मिलियन", "बिलियन", "ट्रिलियन"];
 
 // Units, invariable like the currencies: 5 km, 5 किमी -> पाँच किलोमीटर
 export const UNITS: Readonly<Record<string, string>> = {

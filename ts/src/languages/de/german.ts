@@ -6,6 +6,7 @@ import {
   ScalePattern,
   SuffixPattern,
   RomanPattern,
+  SecondsPattern,
 } from "../../numbers/patterns.ts";
 import { keysOf } from "../../numbers/formats.ts";
 import { Kind, match as matchOf, numeral, type Match, type Numeral } from "../../numbers/match.ts";
@@ -500,42 +501,6 @@ class AreaCodePattern extends Pattern {
   }
 }
 
-// 02:02:23 Uhr, 2:08:29, 13:46:36 Stunden: hours, minutes, and seconds, with an optional word after them.
-class SecondsPattern extends Pattern {
-  constructor() {
-    super(Kind.TIME);
-  }
-
-  match(text: Text, position: number): Match | undefined {
-    const hours = digitsEnd(text, position);
-    if (!isClearBefore(text, position, ".,:") || hours === position || hours > position + 2) {
-      return undefined;
-    }
-    const time = matchOf({ kind: Kind.TIME, numbers: [digitsAt(text, position)], separator: ":" });
-    let end = hours;
-    for (let part = 0; part < 2; part++) {
-      if (end >= text.length || text[end] !== ":" || digitsEnd(text, end + 1) !== end + 3) {
-        return undefined;
-      }
-      time.numbers.push(digitsAt(text, end + 1));
-      end += 3;
-    }
-    if (!isClearAfter(text, end) || isDigitAfter(text, end, ".,:")) {
-      return undefined;
-    }
-    time.span = { begin: position, end };
-    const word = skipSpace(text, end);
-    for (const key of keysAt(text, word, SECONDS_SUFFIXES)) {
-      if (isClearAfter(text, word + key.length)) {
-        time.span = { begin: position, end: word + key.length };
-        time.suffix = key;
-        break;
-      }
-    }
-    return time;
-  }
-}
-
 // 90 Millionen g, 1 1/2 ft: a scale or a fraction, then a unit after an optional space.
 class UnitAfterPattern extends Pattern {
   readonly #base: Pattern;
@@ -580,7 +545,7 @@ class German extends PatternLanguage {
     this.addPattern(new BareDatePattern());
     this.addPattern(new YearMonthPattern());
     this.addPattern(new AreaCodePattern());
-    this.addPattern(new SecondsPattern());
+    this.addPattern(new SecondsPattern(SECONDS_SUFFIXES, true));
     this.addPattern(new UnitAfterPattern(new ScalePattern(NOTATION)));
     this.addPattern(new UnitAfterPattern(new FractionPattern()));
     this.addPattern(new DotOrdinalPattern(true));

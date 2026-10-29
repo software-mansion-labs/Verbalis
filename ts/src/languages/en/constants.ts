@@ -112,7 +112,7 @@ export const FRACTIONS: Fractions = {
 // Words after a fraction which mark it as one: 1/3 of
 export const FRACTION_WORDS: ReadonlySet<string> = new Set(["of"]);
 
-export const TIME_SUFFIXES = [
+const TIME_SUFFIXES = [
   "a.m.", "p.m.", "a.m", "p.m", "am.", "pm.", "am", "pm", "AM", "PM",
   "EST", "EDT", "CST", "CDT", "MST", "MDT", "PST", "PDT", "GMT", "UTC",
 ];

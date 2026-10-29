@@ -15,21 +15,58 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "default": "./dist/core.js"
+    },
+    "./de": {
+      "types": "./dist/de.d.ts",
+      "default": "./dist/de.js"
+    },
+    "./en": {
+      "types": "./dist/en.d.ts",
+      "default": "./dist/en.js"
+    },
+    "./es": {
+      "types": "./dist/es.d.ts",
+      "default": "./dist/es.js"
+    },
+    "./fr": {
+      "types": "./dist/fr.d.ts",
+      "default": "./dist/fr.js"
+    },
+    "./hi": {
+      "types": "./dist/hi.d.ts",
+      "default": "./dist/hi.js"
+    },
+    "./it": {
+      "types": "./dist/it.d.ts",
+      "default": "./dist/it.js"
+    },
+    "./pl": {
+      "types": "./dist/pl.d.ts",
+      "default": "./dist/pl.js"
+    },
+    "./pt": {
+      "types": "./dist/pt.d.ts",
+      "default": "./dist/pt.js"
+    },
+    "./zh": {
+      "types": "./dist/zh.d.ts",
+      "default": "./dist/zh.js"
     }
   },
   "files": [
     "dist"
   ],
-  "engines": {
-    "node": ">=20"
-  },
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "format": "prettier --write src ../tests/ts *.config.ts",
-    "lint": "prettier --check src ../tests/ts *.config.ts && tsc --noEmit"
+    "format": "prettier --write src test *.config.ts",
+    "lint": "prettier --check src test *.config.ts && tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

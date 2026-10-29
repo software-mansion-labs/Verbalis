@@ -236,42 +236,6 @@ std::u32string scaled(const Number& number, std::u32string_view scale, const Cue
 // ----- Patterns -----
 // --------------------
 
-// XIXe, Ier, IIIe: an ordinal written in Roman numerals.
-class RomanOrdinalPattern : public Pattern {
-public:
-  RomanOrdinalPattern() : Pattern(Kind::ORDINAL) {}
-
-  std::optional<Match> match(std::u32string_view text, size_t position) const override {
-    if (!is_clear_before(text, position)) {
-      return std::nullopt;
-    }
-
-    // Two Roman digits or more, or a single I, V or X (Ier, Ve, Xe): not Ce, De, Le, Me
-    size_t end = position;
-    while (end < text.size() && strings::contains(std::u32string_view(U"IVXLCDM"), text[end])) {
-      end++;
-    }
-    std::u32string_view numeral = text.substr(position, end - position);
-    if (numeral.size() < 2 && numeral != U"I" && numeral != U"V" && numeral != U"X") {
-      return std::nullopt;
-    }
-    auto value = roman_value(numeral);
-    if (!value) {
-      return std::nullopt;
-    }
-
-    for (auto suffix : keys_at(text, end, kRomanOrdinalSuffixes)) {
-      if (is_clear_after(text, end + suffix.size())) {
-        return Match{.kind = Kind::ORDINAL,
-                     .span = {position, end + suffix.size()},
-                     .numbers = {{.span = {position, end}, .integer = to_digits(*value)}},
-                     .suffix = suffix};
-      }
-    }
-    return std::nullopt;
-  }
-};
-
 // 3 1/2 km: a whole number and a half before a masculine unit, read "trois kilomètres et demi" (the whole number by
 // read_number, and "et demi" by the joiners)
 class HalfUnitPattern : public Pattern {
@@ -395,7 +359,7 @@ public:
     add_pattern(std::make_unique<HalfUnitPattern>());
     add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSuffixes, U" \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
-    add_pattern(std::make_unique<RomanOrdinalPattern>());
+    add_pattern(std::make_unique<RomanOrdinalPattern>(kRomanOrdinalSuffixes));
     add_pattern(std::make_unique<RomanPattern>());
   }
 

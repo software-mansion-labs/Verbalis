@@ -71,8 +71,18 @@ english.process("I bought 3 tickets for $49."); // "I bought three tickets for f
 // Turn steps off, or add readings of your own
 const custom = new Verbalizer("en-us", { numbers: false, abbreviations: { "approx.": "approximately" } });
 
-// Offsets count code points: slice [...text], not text, when the text may hold emoji
+// Offsets count UTF-16 code units, like every JavaScript string index: text.slice(start, end)
 const { changes } = english.processWithChanges("5 apples & pears");
+```
+
+`"verbalis"` includes every language. To bundle only the ones you use, import the core and each language's entry
+point (`verbalis/de`, `en`, `es`, `fr`, `hi`, `it`, `pl`, `pt`, `zh`):
+
+```ts
+import { Verbalizer } from "verbalis/core";
+import { language } from "verbalis/pl";
+
+new Verbalizer(language()).process("Mam 2 koty."); // "Mam dwa koty."
 ```
 
 A pure TypeScript port with no dependencies, for Node.js 20 and later and browsers. It produces exactly the C++
@@ -85,7 +95,7 @@ cmake -S cpp -B cpp/build -DVERBALIS_BUILD_TESTS=ON && cmake --build cpp/build -
 ctest --test-dir cpp/build --output-on-failure
 
 uv venv && uv pip install ".[test]" && .venv/bin/pytest   # Python: build the extension, run tests/python
-(cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format, types, and tests/ts
+(cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format, types, and ts/test
 ```
 
 The parity tests check the C++, Python, and TypeScript output against `tests/parity/outputs/`, which every implementation must match.

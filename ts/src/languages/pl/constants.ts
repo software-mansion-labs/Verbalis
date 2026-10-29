@@ -29,7 +29,7 @@ export function noun(forms: string): Noun {
 }
 
 // A regular masculine noun from its stem and its locative: metr, metrze.
-export function masculine(stem: string, locative: string): Noun {
+function masculine(stem: string, locative: string): Noun {
   const s = stem;
   return {
     singular: [s, `${s}a`, `${s}owi`, s, `${s}em`, locative],
@@ -135,15 +135,15 @@ export const ORDINAL_SUFFIXES: ReadonlyMap<string, string> = new Map([
 export const THOUSAND = noun("tysiąc tysiąca tysiącowi tysiąc tysiącem tysiącu tysiące tysięcy tysiącom tysiące tysiącami tysiącach");
 export const MILLION = masculine("milion", "milionie");
 export const BILLION = masculine("miliard", "miliardzie");
-export const ZLOTY = noun("złoty złotego złotemu złoty złotym złotym złote złotych złotym złote złotymi złotych");
+const ZLOTY = noun("złoty złotego złotemu złoty złotym złotym złote złotych złotym złote złotymi złotych");
 export const GROSZ = noun("grosz grosza groszowi grosz groszem groszu grosze groszy groszom grosze groszami groszach");
 export const PERCENT = noun("procent procent procentowi procent procentem procencie procent procent procentom procent procentami procentach");
-export const EURO = noun("euro euro euro euro euro euro euro euro euro euro euro euro");
-export const DOLLAR = masculine("dolar", "dolarze");
-export const DEGREE = "stopień stopnia stopniowi stopień stopniem stopniu stopnie stopni stopniom stopnie stopniami stopniach";
+const EURO = noun("euro euro euro euro euro euro euro euro euro euro euro euro");
+const DOLLAR = masculine("dolar", "dolarze");
+const DEGREE = "stopień stopnia stopniowi stopień stopniem stopniu stopnie stopni stopniom stopnie stopniami stopniach";
 
 // A noun followed by words which don't inflect: złotych za metr kwadratowy
-export function followed(base: Noun, words: string): Noun {
+function followed(base: Noun, words: string): Noun {
   return {
     singular: base.singular.map((form) => `${form} ${words}`),
     plural: base.plural.map((form) => `${form} ${words}`),
@@ -167,7 +167,7 @@ export const SCALES: Readonly<Record<string, Noun>> = {
 };
 
 // A noun with an adjective after it, from the adjective's twelve forms: metr kwadratowy, metrów kwadratowych.
-export function qualified(base: Noun, adjective: string): Noun {
+function qualified(base: Noun, adjective: string): Noun {
   const forms = noun(adjective);
   return {
     singular: base.singular.map((form, c) => `${form} ${forms.singular[c]}`),
@@ -175,12 +175,12 @@ export function qualified(base: Noun, adjective: string): Noun {
   };
 }
 
-export const SQUARE = "kwadratowy kwadratowego kwadratowemu kwadratowy kwadratowym kwadratowym kwadratowe kwadratowych kwadratowym kwadratowe kwadratowymi kwadratowych";
-export const CUBIC = "sześcienny sześciennego sześciennemu sześcienny sześciennym sześciennym sześcienne sześciennych sześciennym sześcienne sześciennymi sześciennych";
-export const METRE = masculine("metr", "metrze");
-export const KILOMETRE = masculine("kilometr", "kilometrze");
-export const CENTIMETRE = masculine("centymetr", "centymetrze");
-export const POINT = noun("punkt punktu punktowi punkt punktem punkcie punkty punktów punktom punkty punktami punktach");
+const SQUARE = "kwadratowy kwadratowego kwadratowemu kwadratowy kwadratowym kwadratowym kwadratowe kwadratowych kwadratowym kwadratowe kwadratowymi kwadratowych";
+const CUBIC = "sześcienny sześciennego sześciennemu sześcienny sześciennym sześciennym sześcienne sześciennych sześciennym sześcienne sześciennymi sześciennych";
+const METRE = masculine("metr", "metrze");
+const KILOMETRE = masculine("kilometr", "kilometrze");
+const CENTIMETRE = masculine("centymetr", "centymetrze");
+const POINT = noun("punkt punktu punktowi punkt punktem punkcie punkty punktów punktom punkty punktami punktach");
 
 export const UNITS: Readonly<Record<string, Noun>> = {
   "km": KILOMETRE,   "m": METRE,
@@ -571,14 +571,14 @@ export const SYMBOLS: Readings = {
 };
 
 // Prepositions before an inflected abbreviation, by the case they give it: przy ul. Długiej, od ul. Długiej
-export const LOCATIVE_WORDS: ReadonlySet<string> = new Set(["w", "we", "na", "o", "po", "przy"]);
-export const GENITIVE_WORDS: ReadonlySet<string> = new Set([
+const LOCATIVE_WORDS: ReadonlySet<string> = new Set(["w", "we", "na", "o", "po", "przy"]);
+const GENITIVE_WORDS: ReadonlySet<string> = new Set([
   "od", "do", "z", "ze", "u", "obok", "koło", "około", "ok", "wzdłuż", "dla", "spod", "sprzed", "zza",
   "naprzeciwko", "blisko", "niedaleko", "wokół", "bez", "róg", "rogu", "okolicach", "okolice",
   // A title after the name of a street or a patron: ul. ks. Popiełuszki, im. prof. Nowaka
   "ul", "al", "pl", "os", "ulica", "ulicy", "aleja", "alei", "plac", "placu", "im", "imienia", "pw",
 ]);
-export const INSTRUMENTAL_WORDS: ReadonlySet<string> = new Set(["pod", "nad", "przed", "między", "pomiędzy"]);
+const INSTRUMENTAL_WORDS: ReadonlySet<string> = new Set(["pod", "nad", "przed", "między", "pomiędzy"]);
 
 /**
  * The case of an abbreviated noun: from the preposition before it, or the ending of the word after it.
@@ -586,7 +586,7 @@ export const INSTRUMENTAL_WORDS: ReadonlySet<string> = new Set(["pod", "nad", "p
  * (instrumental), do dyr. Kowalskiego (genitive). A comma or a bracket right before it ends the phrase of the word
  * before: Camping Plus sp. z o. o., ul. Kuropatwia
  */
-export function abbreviationCase(context: Context): Case {
+function abbreviationCase(context: Context): Case {
   const head = context.head();
   let last = head.length - 1;
   while (last >= 0 && (head[last] === " " || head[last] === " ")) {
@@ -616,7 +616,7 @@ export function abbreviationCase(context: Context): Case {
 
 // The readings of an abbreviated noun from its six forms (in the order of Case), separated by "|"; each one only when
 // a condition holds, if any
-export function declined(forms: string, when?: Condition): Reading[] {
+function declined(forms: string, when?: Condition): Reading[] {
   const parts = forms.split("|");
   const readings: Reading[] = [];
   for (let c = 1; c < 6; ++c) {
@@ -627,7 +627,7 @@ export function declined(forms: string, when?: Condition): Reading[] {
 }
 
 // The readings of an abbreviation which mostly ends a sentence, with its dot when a capitalized word follows: itd. Potem
-export function closing(words: string): Reading[] {
+function closing(words: string): Reading[] {
   return [{ words: `${words}.`, when: beforeName }, words];
 }
 
@@ -662,13 +662,13 @@ function beforeAlias(context: Context): boolean {
 }
 
 // Between numbers: the "m." of mieszkanie in ul. Mickiewicza 3 m. 4
-export function afterNumberBeforeNumber(context: Context): boolean {
+function afterNumberBeforeNumber(context: Context): boolean {
   const before = context.before();
   return beforeNumber(context) && before !== "" && isDigit(before[before.length - 1]);
 }
 
 // The word after it ends with one of given endings (lowercase): św. Anny
-export function beforeEnding(endings: readonly string[]): Condition {
+function beforeEnding(endings: readonly string[]): Condition {
   return (context) => {
     const next = toLower(context.after());
     return endings.some((ending) => next.endsWith(ending));
@@ -676,20 +676,20 @@ export function beforeEnding(endings: readonly string[]): Condition {
 }
 
 // The word before it is one of given words (lowercase): Msza św.
-export function afterWord(words: readonly string[]): Condition {
+function afterWord(words: readonly string[]): Condition {
   const set = new Set(words);
   return (context) => set.has(context.before());
 }
 
 // Saints whose names end with -a in the nominative (św. Anna), unlike the genitive of the others (św. Jana)
-export const FEMALE_SAINTS: ReadonlySet<string> = new Set([
+const FEMALE_SAINTS: ReadonlySet<string> = new Set([
   "anna", "maria", "barbara", "teresa", "katarzyna", "jadwiga", "faustyna", "małgorzata", "elżbieta",
   "zofia", "agnieszka", "kinga", "łucja", "monika", "cecylia", "helena", "weronika", "rozalia", "klara",
   "joanna", "magdalena", "urszula", "marta", "brygida", "apolonia", "genowefa",
 ]);
 
 // św. after a noun it describes (Msza św.), then before the name of a saint, by its ending
-export const SAINT: readonly Reading[] = [
+const SAINT: readonly Reading[] = [
   { words: "święta", when: afterWord(["msza"]) },
   { words: "świętej", when: afterWord(["mszy"]) },
   { words: "świętą", when: afterWord(["mszę", "mszą"]) },
