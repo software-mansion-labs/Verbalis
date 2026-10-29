@@ -8,19 +8,41 @@ version = "0.1.0"
 description = "Rewrites text the way it is read aloud: numbers, dates, symbols, abbreviations, and web addresses as words."
 readme = "README.md"
 license = "MIT"
-license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "licenses/*"]
+# Only the licences of code in the package: the others cover test code and data, which no package ships
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "licenses/cn2an-MIT.txt", "licenses/Unicode-3.0.txt"]
 authors = [{ name = "Software Mansion" }]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = ["tts", "text-normalization", "verbalization", "speech"]
 classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Natural Language :: Chinese (Simplified)",
+  "Natural Language :: English",
+  "Natural Language :: French",
+  "Natural Language :: German",
+  "Natural Language :: Hindi",
+  "Natural Language :: Italian",
+  "Natural Language :: Polish",
+  "Natural Language :: Portuguese",
+  "Natural Language :: Spanish",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
   "Programming Language :: C++",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Multimedia :: Sound/Audio :: Speech",
   "Topic :: Text Processing :: Linguistic",
+  "Typing :: Typed",
 ]
 
 [project.optional-dependencies]
-test = ["pytest>=8"]
+test = ["pytest>=8", "nanobind>=2.4"]
 
 [tool.scikit-build]
 cmake.source-dir = "python"
@@ -38,7 +60,7 @@ sdist.exclude = [
 testpaths = ["tests/python"]
 
 [tool.cibuildwheel]
-build = "cp39-* cp310-* cp311-* cp312-*"
+build = "cp310-* cp311-* cp312-*"
 skip = "*-musllinux_i686 *-win32 *-manylinux_i686"
 test-extras = ["test"]
 test-command = "pytest {project}/tests/python"

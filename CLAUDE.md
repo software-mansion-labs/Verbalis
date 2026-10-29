@@ -20,7 +20,7 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
   WeTextProcessing cases; `score.py` scores both. The scripts and agents that built the corpus are at tag `corpus-v1`.
 - `knowledge/`: what was decided and why. Read `knowledge/provenance.md` before changing the core.
 - `python/`: the Python package. `src/bindings.cpp` binds the public C++ API with nanobind (module
-  `verbalis._verbalis`, typed stubs generated at build time); `verbalis/` is the package; `CMakeLists.txt` builds it
+  `verbalis._verbalis`; its stub `verbalis/_verbalis.pyi` is committed and checked by `test_stub.py`); `verbalis/` is the package; `CMakeLists.txt` builds it
   from `cpp/`. `pyproject.toml` (repository root, scikit-build-core) also sets what the sdist ships: the C++ sources,
   the bindings, and licences, never `tests/`.
 - `tests/python/`: pytest: the API (`test_verbalizer.py`) and the parity baseline (`test_parity.py`).
