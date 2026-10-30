@@ -444,7 +444,8 @@ class Hindi extends PatternLanguage {
         (head.length > a + 1 && head[head.length - a - 1] === "-" && isDigit(head[head.length - a - 2])) ||
         (tail.length > b + 1 && tail[b] === "-" && isDigit(tail[b + 1]));
       const down = value(to) < value(from) && b < a && !(a === 4 && b === 2);
-      if (chain || down) {
+      const tied = value(to) === value(from); // 12-12 अंक: a tie, बारह-बारह
+      if (chain || down || tied) {
         return "-";
       }
     }
@@ -455,7 +456,10 @@ class Hindi extends PatternLanguage {
   // 43210), a code after its word (पिन कोड 110023), or the postal code ending an address (रांची, झारखंड 736557)
   #isSpokenDigits(number: Numeral, match: Match): boolean {
     const i = number.integer;
-    if (isSpokenDigits(number, 12)) {
+    // 04 जून: a day before a month, despite its leading zero
+    const next = match.context.after();
+    const day = i.length === 2 && next !== "" && MONTHS.includes(next);
+    if (!day && isSpokenDigits(number, 12)) {
       return true;
     }
     if (match.kind !== Kind.NUMBER || number.grouped || i.length < 4) {

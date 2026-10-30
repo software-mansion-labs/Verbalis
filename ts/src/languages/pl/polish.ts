@@ -564,14 +564,13 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   if (((MONTHS_GENITIVE as readonly string[]).includes(noun) || monthAfterRange) && n >= 1n && n <= 31n) {
     // 11 listopada to Święto: a date opening its sentence before a copula is its subject
     const subject = before.length === 0 && after.length >= 2 && COPULAS.has(toLower(str(stripped(after[1]))));
-    // od pierwszego kwietnia, po pierwszym maja, przed dwudziestym czwartym grudnia, na szósty grudnia, był
+    // od pierwszego kwietnia, po pierwszym maja, przed dwudziestym czwartym grudnia, na szóstego grudnia, był
     // dwudziestego października
     // prettier-ignore
     const c =
       subject ? Case.NOMINATIVE
       : w1 === "po" ? Case.LOCATIVE
       : w1 === "przed" ? Case.INSTRUMENTAL
-      : w1 === "na" ? Case.ACCUSATIVE
       : Case.GENITIVE;
     return inflection(Form.ORDINAL, c);
   }

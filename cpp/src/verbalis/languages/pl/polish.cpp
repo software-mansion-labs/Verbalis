@@ -453,13 +453,12 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
       noun == U"do" && after.size() >= 3 && made_of(stripped(after[1]), kDigits) &&
       std::ranges::find(kMonthsGenitive, strings::to_lower(stripped(after[2]))) != kMonthsGenitive.end();
   if ((std::ranges::find(kMonthsGenitive, noun) != kMonthsGenitive.end() || month_after_range) && n >= 1 && n <= 31) {
-    // od pierwszego kwietnia, po pierwszym maja, przed dwudziestym czwartym grudnia, na szósty grudnia, był
+    // od pierwszego kwietnia, po pierwszym maja, przed dwudziestym czwartym grudnia, na szóstego grudnia, był
     // dwudziestego października; 11 listopada to Święto: a date opening its sentence before a copula is its subject
     bool subject = before.empty() && after.size() >= 2 && kCopulas.contains(strings::to_lower(stripped(after[1])));
     Case c = subject        ? Case::NOMINATIVE :
              w1 == U"po"    ? Case::LOCATIVE :
              w1 == U"przed" ? Case::INSTRUMENTAL :
-             w1 == U"na"    ? Case::ACCUSATIVE :
                               Case::GENITIVE;
     return {Form::ORDINAL, c};
   }

@@ -396,6 +396,10 @@ const TERMS_BASE: Terms = {
     pp: [{ words: "páginas", when: beforeNumber }],
     "Km.": [{ words: "kilómetro", when: beforeNumber }],
     "Tel.": [{ words: "teléfono", when: beforeNumber }],
+    "No.": [{ words: "número", when: beforeNumber }],
+    "p.": [{ words: "página", when: beforeNumber }],
+    "Av.": [{ words: "avenida", when: beforeName }, { words: "avenida", when: beforeNumber }],
+    "Col.": [{ words: "colonia", when: beforeName }],
     // Before a day: vier. 10 de mayo
     "lun.": [{ words: "lunes", when: beforeNumber }],
     "mié.": [{ words: "miércoles", when: beforeNumber }],

@@ -265,6 +265,10 @@ export const TERMS: Terms = {
     // Anywhere
     "cfr.": ["conforme"],
     "Telef.": ["telefone"],
+    "Tel.": ["telefone"],
+    "p.": [{ words: "página", when: beforeNumber }],
+    "pp.": [{ words: "páginas", when: beforeNumber }],
+    "Dr.": [{ words: "Doutor", when: beforeName }],
     Tlm: ["telemóvel"],
     "Arq.": ["arquiteto"],
   },

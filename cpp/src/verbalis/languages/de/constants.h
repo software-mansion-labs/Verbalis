@@ -4,6 +4,7 @@
 #include <verbalis/numbers/formats.h>
 #include <verbalis/steps/terms.h>
 #include <verbalis/text/readings.h>
+#include <verbalis/text/unicode.h>
 
 #include <array>
 #include <cstdint>
@@ -45,7 +46,7 @@ inline const std::unordered_map<std::u32string, std::u32string> kOrdinalStems = 
 
 // Currencies, and prices per unit (12 €/m²): their reading after "pro" follows the whole price
 inline const std::unordered_map<std::u32string, std::u32string> kCurrencies = {
-  {U"€", U"Euro"}, {U"Euro", U"Euro"}, {U"$", U"Dollar"}, {U"Dollar", U"Dollar"}, {U"£", U"Pfund"},
+  {U"€", U"Euro"}, {U"Euro", U"Euro"}, {U"EUR", U"Euro"}, {U"$", U"Dollar"}, {U"Dollar", U"Dollar"}, {U"£", U"Pfund"},
   {U"CHF", U"Franken"},
   {U"€/m²", U"Euro pro Quadratmeter"},
   {U"€/qm", U"Euro pro Quadratmeter"},
@@ -305,6 +306,13 @@ inline const Readings kSymbols = {
 
 using ::verbalis::text::before_number;
 
+// St. Pauli: Sankt before a name, but not after a number (5 St. Äpfel counts pieces)
+inline bool saint(const ::verbalis::text::Context& context) {
+  std::u32string before = context.before();
+  return ::verbalis::text::before_name(context) &&
+         (before.empty() || !::verbalis::text::unicode::isdigit(before.back()));
+}
+
 // Days of a month, the word before a month abbreviation in a date: 2. Jan. 2003
 inline const std::unordered_set<std::u32string> kDays = [] {
   std::unordered_set<std::u32string> days;
@@ -322,6 +330,10 @@ inline const Terms kTerms = {
     // Before a number only: Abs. 5
     {U"Abs.", {{U"Absatz", before_number}}},
     {U"Nr.", {{U"Nummer", before_number}}},
+    {U"Tel.", {U"Telefon"}},
+    {U"i.V.m.", {U"in Verbindung mit"}},
+    {U"incl.", {U"inklusive"}},
+    {U"St.", {{U"Sankt", saint}}},
     {U"S.", {{U"Seite", before_number}}},
     {U"Art.", {{U"Artikel", before_number}}},
     {U"Kap.", {{U"Kapitel", before_number}}},

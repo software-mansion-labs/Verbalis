@@ -1,7 +1,9 @@
 import { dateFormat, keysOf, notation, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import type { Keys } from "../../text/scan.ts";
-import { afterAny, beforeNumber, type Readings } from "../../text/readings.ts";
+import type { Context } from "../../text/context.ts";
+import { afterAny, beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
+import { isDigit } from "../../text/unicode.ts";
 import { Gender, type Forms, type Joiners } from "../grammar.ts";
 
 export const ONES = [
@@ -23,7 +25,7 @@ export const ORDINAL_STEMS: Readonly<Record<string, string>> = {
 
 // Currencies, and prices per unit (12 €/m²): their reading after "pro" follows the whole price
 export const CURRENCIES: Readonly<Record<string, string>> = {
-  "€": "Euro", "Euro": "Euro", "$": "Dollar", "Dollar": "Dollar", "£": "Pfund",
+  "€": "Euro", "Euro": "Euro", "EUR": "Euro", "$": "Dollar", "Dollar": "Dollar", "£": "Pfund",
   "CHF": "Franken",
   "€/m²": "Euro pro Quadratmeter",
   "€/qm": "Euro pro Quadratmeter",
@@ -279,11 +281,21 @@ export const SYMBOLS: Readings = {
 // Days of a month, the word before a month abbreviation in a date: 2. Jan. 2003
 const DAYS: readonly string[] = Array.from({ length: 31 }, (_, i) => [String(i + 1), String(i + 1).padStart(2, "0")]).flat();
 
+// St. Pauli: Sankt before a name, but not after a number (5 St. Äpfel counts pieces)
+function saint(context: Context): boolean {
+  const before = context.before();
+  return beforeName(context) && (before === "" || !isDigit(before.at(-1)!));
+}
+
 export const TERMS: Terms = {
   abbreviations: {
     // Before a number only: Abs. 5
     "Abs.": [{ words: "Absatz", when: beforeNumber }],
     "Nr.": [{ words: "Nummer", when: beforeNumber }],
+    "Tel.": ["Telefon"],
+    "i.V.m.": ["in Verbindung mit"],
+    "incl.": ["inklusive"],
+    "St.": [{ words: "Sankt", when: saint }],
     "S.": [{ words: "Seite", when: beforeNumber }],
     "Art.": [{ words: "Artikel", when: beforeNumber }],
     "Kap.": [{ words: "Kapitel", when: beforeNumber }],

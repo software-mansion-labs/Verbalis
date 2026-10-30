@@ -397,8 +397,8 @@ protected:
   }
 
   std::u32string read_range(const Number& from, const Number& to, const Match& match) const override {
-    // 10-20-30, 1-800-555: a chain of numbers, and 66-4: no range down; but 297-272 ई. पू. is one, and 1920-26, with a
-    // shortened year
+    // 10-20-30, 1-800-555: a chain of numbers, 66-4: no range down, and 12-12: a tie; but 297-272 ई. पू. is one, and
+    // 1920-26, with a shortened year
     if (match.kind == Kind::RANGE) {
       std::u32string_view head = match.context.head();
       std::u32string_view tail = match.context.tail();
@@ -407,7 +407,8 @@ protected:
           (head.size() > a + 1 && head[head.size() - a - 1] == U'-' && unicode::isdigit(head[head.size() - a - 2])) ||
           (tail.size() > b + 1 && tail[b] == U'-' && unicode::isdigit(tail[b + 1]));
       bool down = value(to) < value(from) && b < a && !(a == 4 && b == 2);
-      if (chain || down) {
+      bool tied = value(to) == value(from); // 12-12 अंक: a tie, बारह-बारह
+      if (chain || down || tied) {
         return U"-";
       }
     }
@@ -419,7 +420,10 @@ private:
   // 43210), a code after its word (पिन कोड 110023), or the postal code ending an address (रांची, झारखंड 736557)
   static bool is_spoken_digits(const Number& number, const Match& match) {
     const auto& i = number.integer;
-    if (numbers::is_spoken_digits(number, 12)) {
+    // 04 जून: a day before a month, despite its leading zero
+    std::u32string next = match.context.after();
+    bool day = i.size() == 2 && !next.empty() && std::ranges::find(kMonths, next) != kMonths.end();
+    if (!day && numbers::is_spoken_digits(number, 12)) {
       return true;
     }
     if (match.kind != Kind::NUMBER || number.grouped || i.size() < 4) {

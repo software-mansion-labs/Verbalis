@@ -382,6 +382,10 @@ inline const Terms kTermsBase = {
     {U"pp", {{U"páginas", before_number}}},
     {U"Km.", {{U"kilómetro", before_number}}},
     {U"Tel.", {{U"teléfono", before_number}}},
+    {U"No.", {{U"número", before_number}}},
+    {U"p.", {{U"página", before_number}}},
+    {U"Av.", {{U"avenida", before_name}, {U"avenida", before_number}}},
+    {U"Col.", {{U"colonia", before_name}}},
     // Before a day: vier. 10 de mayo
     {U"lun.", {{U"lunes", before_number}}},
     {U"mié.", {{U"miércoles", before_number}}},

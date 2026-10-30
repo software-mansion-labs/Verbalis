@@ -294,6 +294,10 @@ inline const Terms kTerms = {
     // Anywhere
     {U"cfr.", {U"conforme"}},
     {U"Telef.", {U"telefone"}},
+    {U"Tel.", {U"telefone"}},
+    {U"p.", {{U"página", before_number}}},
+    {U"pp.", {{U"páginas", before_number}}},
+    {U"Dr.", {{U"Doutor", before_name}}},
     {U"Tlm", {U"telemóvel"}},
     {U"Arq.", {U"arquiteto"}},
   },
