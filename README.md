@@ -25,10 +25,13 @@ verbalis::Verbalizer custom("en-us", {.numbers = false, .abbreviations = {{"appr
 verbalis::Result result = english.process_with_changes("5 apples & pears");
 ```
 
-Add it to a CMake project:
+Add it to a CMake project from source, or install it (`cmake -S cpp -B build && cmake --install build`) and find
+it. The header needs C++17; the library builds as C++20 without changing your project's standard. Invalid UTF-8 input
+bytes become U+FFFD.
 
 ```cmake
-add_subdirectory(verbalis/cpp)   # or FetchContent
+add_subdirectory(verbalis/cpp)   # or FetchContent_Declare(verbalis ... SOURCE_SUBDIR cpp)
+# or: find_package(verbalis 0.1 REQUIRED)
 target_link_libraries(your_target PRIVATE verbalis::verbalis)
 ```
 

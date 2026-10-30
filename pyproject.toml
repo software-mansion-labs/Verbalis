@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "verbalis"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Rewrites text the way it is read aloud: numbers, dates, symbols, abbreviations, and web addresses as words."
 readme = "README.md"
 license = "MIT"
@@ -49,6 +49,10 @@ cmake.source-dir = "python"
 wheel.packages = ["python/verbalis"]
 wheel.py-api = "cp312"
 minimum-version = "build-system.requires"
+# The version is project(VERSION) in cpp/CMakeLists.txt, the one source for every package
+metadata.version.provider = "scikit_build_core.metadata.regex"
+metadata.version.input = "cpp/CMakeLists.txt"
+metadata.version.regex = 'project\(verbalis VERSION (?P<value>[0-9.]+)'
 # The sdist ships only what a build needs, and never tests/: the corpus's licence is unchecked
 sdist.exclude = [
   "*",

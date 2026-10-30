@@ -17,6 +17,5 @@ CLAUDE.local.md
 wheelhouse/
 ts/dist/
 
-# Local only: notes and third-party licence texts, added back before release
+# Local only: notes
 knowledge/
-licenses/

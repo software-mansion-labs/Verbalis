@@ -3,53 +3,41 @@
 namespace verbalis::text {
 
 std::u32string utf8_to_u32(std::string_view utf8) {
+  // By the length of a sequence: the payload bits of its lead byte, and the smallest code point it may encode
+  constexpr char32_t kLeadBits[] = {0, 0x7F, 0x1F, 0x0F, 0x07};
+  constexpr char32_t kMinimum[] = {0, 0, 0x80, 0x800, 0x10000};
+
   std::u32string result;
   result.reserve(utf8.size());
-
   for (size_t i = 0; i < utf8.size();) {
-    // We read utf8 string byte by byte.
-    auto byte = static_cast<unsigned char>(utf8[i]);
+    auto lead = static_cast<unsigned char>(utf8[i]);
+    size_t length = lead < 0x80           ? 1 :
+                    (lead & 0xE0) == 0xC0 ? 2 :
+                    (lead & 0xF0) == 0xE0 ? 3 :
+                    (lead & 0xF8) == 0xF0 ? 4 :
+                                            0;
+    char32_t codepoint = lead & kLeadBits[length];
+    size_t read = 1;
+    for (; read < length && i + read < utf8.size(); read++) {
+      auto byte = static_cast<unsigned char>(utf8[i + read]);
+      if ((byte & 0xC0) != 0x80) { // Not a '10xxxxxx' continuation byte
+        break;
+      }
+      codepoint = (codepoint << 6) | (byte & 0x3Fu);
+    }
 
-    char32_t codepoint = 0;
-    size_t extra = 0;
-
-    // Read the information byte
-    if (byte <= 0x7F) {
-      codepoint = byte;
-      extra = 0;
-    } else if ((byte & 0xE0) == 0xC0) { // '110xxxxx' pattern
-      codepoint = byte & 0x1F;
-      extra = 1;
-    } else if ((byte & 0xF0) == 0xE0) { // '1110xxxx' pattern
-      codepoint = byte & 0x0F;
-      extra = 2;
-    } else if ((byte & 0xF8) == 0xF0) { // '11110xxx' pattern
-      codepoint = byte & 0x07;
-      extra = 3;
-    } else {                    // Invalid, not a utf-8 byte
-      result.push_back(0xFFFD); // Emit unicode replacement character
+    // A bad lead byte, a cut-off or overlong sequence, a surrogate, or a code point past U+10FFFF: one replacement
+    // character for the first byte, and decoding resumes at the next one, so no valid character is lost
+    bool valid = length > 0 && read == length && codepoint >= kMinimum[length] && codepoint <= 0x10FFFF &&
+                 (codepoint < 0xD800 || codepoint > 0xDFFF);
+    if (!valid) {
+      result.push_back(0xFFFD);
       i++;
       continue;
     }
-
-    if (i + extra >= utf8.size()) { // truncated
-      break;
-    }
-
-    // Read all the traling '10xxxxxx' bytes
-    for (size_t j = 1; j <= extra; j++) {
-      auto c = static_cast<unsigned char>(utf8[i + j]);
-      if ((c & 0xC0) != 0x80) { // invalid continuation (not a '10xxxxxx' byte)
-        break;
-      }
-
-      codepoint = (codepoint << 6) | (c & 0x3F);
-    }
-
     result.push_back(codepoint);
-    i += extra + 1;
+    i += length;
   }
-
   return result;
 }
 

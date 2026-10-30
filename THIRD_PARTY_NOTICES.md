@@ -30,3 +30,13 @@ distributed under their own terms, listed below. The full license texts are in [
   by `tests/lang/build.py` (German cases swapped to written → spoken; acceptable readings of an input merged).
 - **License:** Apache License 2.0, see [`licenses/NeMo-text-processing-Apache-2.0.txt`](licenses/NeMo-text-processing-Apache-2.0.txt)
   and [`licenses/WeTextProcessing-Apache-2.0.txt`](licenses/WeTextProcessing-Apache-2.0.txt).
+
+## Leipzig Corpora Collection
+
+- **Files:** the inputs of `tests/lang/*/corpus.jsonl`, and so of `tests/parity/outputs/*.jsonl`; test data only,
+  never in a package.
+- **Source:** sentences from the news and Wikipedia corpora of the [Leipzig Corpora Collection](https://wortschatz.uni-leipzig.de/en/download),
+  © Universität Leipzig / Sächsische Akademie der Wissenschaften / InfAI. Changed: selected sentences that contain
+  digits or symbols, with expected spoken readings added.
+- **License:** the downloadable corpora are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+  ([terms of usage](https://wortschatz.uni-leipzig.de/en/usage)).

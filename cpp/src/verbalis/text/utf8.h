@@ -12,7 +12,8 @@
 namespace verbalis::text {
 
 /**
- * Converts a UTF-8 string to a UTF-32 string.
+ * Converts a UTF-8 string to a UTF-32 string. Each byte that doesn't start a valid sequence becomes U+FFFD, the
+ * replacement character, and decoding resumes at the next byte.
  * @param utf8 The UTF-8 string to convert.
  * @return A UTF-32 encoded string.
  */
