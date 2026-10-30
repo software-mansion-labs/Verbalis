@@ -85,7 +85,7 @@ uint64_t value_of(std::u32string_view digits) {
   uint64_t value = 0;
   for (char32_t c : digits) {
     if (is_digit(c)) {
-      value = value * 10 + digit_value(c);
+      value = value * 10 + static_cast<uint64_t>(digit_value(c));
     }
   }
   return value;
@@ -138,7 +138,7 @@ std::optional<std::u32string> integer_to_words(std::u32string_view digits) {
         zero = false;
       }
       bool two = digit == 2 && (power == 3 || (g == 0 && group.size() == 1 && groups > 1));
-      words += two ? kTwo : std::u32string(1, kDigits[digit]);
+      words += two ? kTwo : std::u32string(1, kDigits[static_cast<size_t>(digit)]);
       words += kDigitUnits[power];
     }
     words += kGroupUnits[groups - 1 - g];
@@ -175,7 +175,7 @@ std::optional<std::u32string> to_cardinal(std::u32string_view number) {
   if (point != std::u32string_view::npos && point + 1 < number.size()) {
     *words += kPoint;
     for (char32_t c : number.substr(point + 1, kMaxDecimals)) {
-      *words += kDigits[digit_value(c)];
+      *words += kDigits[static_cast<size_t>(digit_value(c))];
     }
   }
   return words;
@@ -195,7 +195,7 @@ std::u32string to_digits(std::u32string_view number) {
     } else if (c == U'.') {
       words += kPoint;
     } else if (is_digit(c)) {
-      words += kDigits[digit_value(c)];
+      words += kDigits[static_cast<size_t>(digit_value(c))];
     }
   }
   return words;
@@ -428,9 +428,9 @@ std::optional<Clock> clock_at(std::u32string_view s, size_t i) {
 
 // A time, not a ratio such as "1:50,000"
 bool is_time(std::u32string_view s, const Clock& clock) {
-  return number_at(s, clock.minutes.data() - s.data()) == clock.minutes.size() && clock.hours.size() <= 2 &&
-         value_of(clock.hours) <= 24 && clock.minutes.size() == 2 && value_of(clock.minutes) <= 59 &&
-         (clock.seconds.empty() || value_of(clock.seconds) <= 59);
+  return number_at(s, static_cast<size_t>(clock.minutes.data() - s.data())) == clock.minutes.size() &&
+         clock.hours.size() <= 2 && value_of(clock.hours) <= 24 && clock.minutes.size() == 2 &&
+         value_of(clock.minutes) <= 59 && (clock.seconds.empty() || value_of(clock.seconds) <= 59);
 }
 
 std::u32string time_words(const Clock& clock) {
@@ -477,7 +477,7 @@ std::optional<Reading> read_time(std::u32string_view s, size_t i) {
     if (!clock->seconds.empty() || clock->hours.size() > 3 || clock->minutes.size() > 3) {
       return std::nullopt;
     }
-    size_t minutes = clock->minutes.data() - s.data();
+    auto minutes = static_cast<size_t>(clock->minutes.data() - s.data());
     j = minutes + number_at(s, minutes); // "1:300,000"
     auto second = to_cardinal(s.substr(minutes, j - minutes));
     return second ? std::optional(Reading{j - i, *to_cardinal(clock->hours) + kRatio + *second}) : std::nullopt;

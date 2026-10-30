@@ -308,7 +308,8 @@ std::optional<Case> governed(const std::vector<std::u32string>& before) {
     }
   }
 
-  std::vector<std::u32string> window(before.end() - std::min<size_t>(before.size(), 3), before.end());
+  std::vector<std::u32string> window(before.end() - static_cast<std::ptrdiff_t>(std::min<size_t>(before.size(), 3)),
+                                     before.end());
   std::vector<std::u32string> verbs;
   std::ranges::copy_if(window, std::back_inserter(verbs), [](const auto& w) { return !kClitics.contains(w); });
   if (!verbs.empty() && starts_with_any(verbs.back(), kGenitiveVerbs)) {
@@ -475,7 +476,8 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
     result.grammatical_case = Case::NOMINATIVE; // zadzwoń pod sto dwanaście: a number to call
   } else if (auto it = kPrepositionCases.find(w1); it != kPrepositionCases.end()) {
     result.grammatical_case = it->second;
-  } else if (auto it = kComplexPrepositions.find(w1); it != kComplexPrepositions.end() && it->second == w2) {
+  } else if (auto complex = kComplexPrepositions.find(w1);
+             complex != kComplexPrepositions.end() && complex->second == w2) {
     result.grammatical_case = Case::GENITIVE;
   } else if (auto governing = decimal || kCopulas.contains(noun) ? std::nullopt : governed(before)) {
     result.grammatical_case = *governing;

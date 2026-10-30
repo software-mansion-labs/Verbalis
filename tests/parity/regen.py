@@ -1,7 +1,11 @@
 """Writes the parity outputs: what the C++ core (through the installed Python package) says for every input of the
 corpus (tests/lang/<lang>/corpus.jsonl) and of the gold set (tests/lang/<lang>/gold.jsonl), one file per language in
-tests/parity/outputs/. Every implementation must reproduce them exactly. Run after a behaviour change, and commit the
-outputs with it; prints each changed output.
+tests/parity/outputs/, and the expected text and changes of every case in tests/parity/api.jsonl. Every
+implementation must reproduce them exactly. Run after a behaviour change, and commit the outputs with it; prints each
+changed output.
+
+An API case is {"lang", "options", "input"}; the script sets "output" and "changes" ([start, end, replacement],
+offsets in code points). A new case needs only the first three keys.
 
     .venv/bin/python tests/parity/regen.py [-q]
 """
@@ -10,7 +14,7 @@ import json
 import sys
 from pathlib import Path
 
-from verbalis import Verbalizer
+from verbalis import Options, Verbalizer
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "parity" / "outputs"
@@ -40,4 +44,16 @@ for folder in sorted(p for p in (ROOT / "lang").iterdir() if (p / "corpus.jsonl"
         rows.append({"lang": lang, "category": category, "input": text, "output": output})
     OUT.mkdir(parents=True, exist_ok=True)
     path.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8")
+
+api = ROOT / "parity" / "api.jsonl"
+cases = jsonl(api)
+for case in cases:
+    result = Verbalizer(case["lang"], Options(**case.get("options", {}))).process_with_changes(case["input"])
+    changes = [[change.start, change.end, change.replacement] for change in result.changes]
+    if "output" in case and (case["output"], case["changes"]) != (result.text, changes):
+        changed += 1
+        if "-q" not in sys.argv:
+            print(f"[api {case['lang']}] {case['input'][:200]}\n  - {case['output'][:200]}\n  + {result.text[:200]}")
+    case["output"], case["changes"] = result.text, changes
+api.write_text("".join(json.dumps(case, ensure_ascii=False) + "\n" for case in cases), encoding="utf-8")
 print("changed:", changed)

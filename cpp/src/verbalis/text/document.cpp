@@ -123,7 +123,7 @@ void Document::commit() {
 
   // 3. The rest of the text after the last group, and its pieces
   text.append(text_, position);
-  pieces.insert(pieces.end(), old.begin() + next, old.end());
+  pieces.insert(pieces.end(), old.begin() + static_cast<std::ptrdiff_t>(next), old.end());
 
   text_ = std::move(text);
   pieces_ = std::move(pieces);

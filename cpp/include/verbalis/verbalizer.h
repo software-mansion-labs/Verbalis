@@ -36,7 +36,8 @@ struct Result {
 
 /**
  * Rewrites text the way it is read aloud: numbers, dates, symbols, abbreviations, and web addresses as words.
- * Text is UTF-8. A Verbalizer is immutable after construction, so one instance can serve many threads.
+ * Text is UTF-8. A Verbalizer is immutable after construction, so one instance can serve many threads. process and
+ * process_with_changes throw only on a bug in Verbalis (a std::logic_error from conflicting edits), never on input.
  */
 class Verbalizer {
 public:

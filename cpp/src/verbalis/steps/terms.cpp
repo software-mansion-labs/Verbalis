@@ -129,7 +129,7 @@ std::optional<TermReader::Term> TermReader::read_uuid(std::u32string_view text, 
   }
   auto hex = [](char32_t c) { return unicode::isdigit(c) || (c >= U'a' && c <= U'f') || (c >= U'A' && c <= U'F'); };
   size_t end = position;
-  for (size_t length : {8, 4, 4, 4, 12}) {
+  for (size_t length : {8U, 4U, 4U, 4U, 12U}) {
     if (end > position && (end >= text.size() || text[end++] != U'-')) {
       return std::nullopt;
     }
@@ -313,7 +313,7 @@ std::optional<TermReader::Term> TermReader::read_path(std::u32string_view text, 
   auto named = [](std::u32string_view part) {
     return part.size() >= 3 && std::ranges::all_of(part, [](char32_t c) { return c >= U'a' && c <= U'z'; });
   };
-  size_t named_parts = std::ranges::count_if(parts, [](auto part) { return !part.empty(); });
+  auto named_parts = static_cast<size_t>(std::ranges::count_if(parts, [](auto part) { return !part.empty(); }));
   bool path = rooted ? named_parts >= 2 : parts.size() >= 2 && std::ranges::all_of(parts, named);
   bool file = parts.size() == 1 && is_file(parts[0]) && unicode::is_latin(parts[0][0]);
   if (!valid || !(path || file)) {

@@ -7,7 +7,7 @@ parity outputs from their inputs, and `score.py` scores Verbalis against their r
 ## Corpus: the target
 
 **Decision (the user, 2026-10-29):** the corpus is the target Verbalis must reach, and it is frozen: its files never
-change (tag `corpus-v1`, checksums in `corpus.sha256`, checked by `tests/python/test_gold.py`). A new corpus (`corpus-v2`, with plain sentences) needs the user's decision.
+change (tag `corpus-v1`, checksums in `corpus.sha256`, checked by `tests/python/test_lang.py`). A new corpus (`corpus-v2`, with plain sentences) needs the user's decision.
 
 `<lang>/corpus.jsonl` holds 19,772 real sentences, all with digits or symbols, from the Leipzig Corpora Collection
 (news and web; check its terms before the repo goes public, `knowledge/test-data.md`), each with its expected
@@ -62,7 +62,7 @@ python3 tests/lang/build.py /tmp/nemo /tmp/wetext
 A case passes when the output equals one of its readings, ignoring case, whitespace, and punctuation: "twenty-one"
 and "twenty one" are the same speech. `scores.json` lists every passing gold case and corpus sentence (the latter by a
 hash of the input). `score.py` exits 1 if one no longer passes: a change may fix cases, never break them
-(`tests/python/test_gold.py`). After a change that fixes cases, record them with `--write`.
+(`tests/python/test_lang.py`). After a change that fixes cases, record them with `--write`.
 
 ```bash
 .venv/bin/python tests/lang/score.py              # both tables, and changes since scores.json

@@ -8,7 +8,7 @@ std::u32string utf8_to_u32(std::string_view utf8) {
 
   for (size_t i = 0; i < utf8.size();) {
     // We read utf8 string byte by byte.
-    unsigned char byte = utf8[i];
+    auto byte = static_cast<unsigned char>(utf8[i]);
 
     char32_t codepoint = 0;
     size_t extra = 0;
@@ -38,7 +38,7 @@ std::u32string utf8_to_u32(std::string_view utf8) {
 
     // Read all the traling '10xxxxxx' bytes
     for (size_t j = 1; j <= extra; j++) {
-      unsigned char c = utf8[i + j];
+      auto c = static_cast<unsigned char>(utf8[i + j]);
       if ((c & 0xC0) != 0x80) { // invalid continuation (not a '10xxxxxx' byte)
         break;
       }

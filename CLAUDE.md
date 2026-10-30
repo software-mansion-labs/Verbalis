@@ -23,7 +23,9 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
   `verbalis._verbalis`; its stub `verbalis/_verbalis.pyi` is committed and checked by `test_stub.py`); `verbalis/` is the package; `CMakeLists.txt` builds it
   from `cpp/`. `pyproject.toml` (repository root, scikit-build-core) also sets what the sdist ships: the C++ sources,
   the bindings, and licences, never `tests/`.
-- `tests/python/`: pytest: the API (`test_verbalizer.py`) and the parity baseline (`test_parity.py`).
+- `tests/python/`: pytest: the API (`test_verbalizer.py`), the parity outputs (`test_parity.py`), the corpus and gold
+  ratchet (`test_lang.py`), and the committed stub (`test_stub.py`). `tools/unicode-table.py` writes the TypeScript
+  Unicode table from the C++ one.
 - `ts/`: the TypeScript package, a pure port of the C++ (`src/` mirrors `cpp/src/verbalis/`). Read
   `knowledge/ts-port.md` before porting or changing it.
 - `ts/test/`: vitest: the API (`verbalizer.test.ts`) and the parity contract (`parity.test.ts`).
@@ -48,8 +50,7 @@ A refactor must keep every parity output identical.
   says for each input; every implementation must reproduce it, and `tests/parity/api.jsonl` (options, and the changes
   of `process_with_changes`), exactly.
 - A change to the C++ that changes any output is a behaviour change: regenerate the outputs (`regen.py`) in the same
-  change, and say in the commit which outputs changed and why.
-  Regenerate `api.jsonl` with `.venv/bin/python tests/parity/api.py`.
+  change, and say in the commit which outputs changed and why. `regen.py` also rewrites `api.jsonl`.
 - Offsets in `process_with_changes` count Unicode code points in C++ and Python, and UTF-16 code units in TypeScript
   (converted in `ts/src/core.ts`, so they index JavaScript strings); `api.jsonl` records code points.
 - Correctness: `tests/lang/<lang>/corpus.jsonl` is the target, the expected reading of every reviewed real sentence,
@@ -67,8 +68,8 @@ A refactor must keep every parity output identical.
   calls a private helper, not the other reading, so each kind's acceptance checks run once. What the words around a
   match say (a case, a gender, a year rather than a count) is the language's `Cues`, from `cues_of(match)`. Helpers
   more than one language needs go in `numbers/scanning.h`.
-- To add a language: add `cpp/src/verbalis/languages/<xx>/` (copy the closest language), declare its `language()` and
-  add it to `kLanguages` in `languages/registry.cpp`, add `tests/cpp/numbers_<xx>_test.cpp`, and regenerate the parity outputs.
+- To add a language: add `cpp/src/verbalis/languages/<xx>/` (copy the closest language) and list its `.cpp` in
+  `cpp/CMakeLists.txt`, declare its `language()` and add it to `kLanguages` in `languages/registry.cpp`, add `tests/cpp/numbers_<xx>_test.cpp`, and regenerate the parity outputs.
 
 ## ⚑ Gotchas
 

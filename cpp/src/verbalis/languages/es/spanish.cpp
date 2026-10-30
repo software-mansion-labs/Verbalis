@@ -101,7 +101,7 @@ std::u32string ordinal(uint64_t n, bool feminine) {
     }
     words.push_back(head + unit);
   } else {
-    for (auto [scale, stems] : {std::pair{10, &kOrdinalTens}, std::pair{1, &kOrdinalOnes}}) {
+    for (auto [scale, stems] : {std::pair{uint64_t{10}, &kOrdinalTens}, std::pair{uint64_t{1}, &kOrdinalOnes}}) {
       if (uint64_t digit = r / scale % 10) {
         words.push_back(std::u32string((*stems)[digit]) + ending);
       }

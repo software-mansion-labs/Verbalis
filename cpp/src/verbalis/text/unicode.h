@@ -11,7 +11,7 @@
 namespace verbalis::text::unicode {
 
 constexpr inline bool is_ascii(char32_t c) {
-  return (c & ~0x7F) == 0;
+  return c < 0x80;
 }
 
 // A Latin letter, accented ones included

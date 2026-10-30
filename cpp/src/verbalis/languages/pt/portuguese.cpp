@@ -105,8 +105,8 @@ std::u32string ordinal(uint64_t n, bool feminine) {
   if (uint64_t thousands = n / 1000) {
     words.push_back((thousands == 1 ? U"" : cardinal(thousands) + U" ") + U"milésim" + ending);
   }
-  for (auto [scale, stems] :
-       {std::pair{100, &kOrdinalHundreds}, std::pair{10, &kOrdinalTens}, std::pair{1, &kOrdinalOnes}}) {
+  for (auto [scale, stems] : {std::pair{uint64_t{100}, &kOrdinalHundreds}, std::pair{uint64_t{10}, &kOrdinalTens},
+                              std::pair{uint64_t{1}, &kOrdinalOnes}}) {
     if (uint64_t digit = n / scale % 10) {
       words.push_back(std::u32string((*stems)[digit]) + ending);
     }
