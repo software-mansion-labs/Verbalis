@@ -41,7 +41,7 @@ REGISTER_TEST(numbers_es_test) {
                 verbalize("es", U"Costó $0,55 y US$3 billones.", only(&Options::numbers)));
   ASSERT_EQUALS(U"En los ochentas y los noventas hubo cambios.",
                 verbalize("es", U"En los 80s y los 90's hubo cambios.", only(&Options::numbers)));
-  ASSERT_EQUALS(U"La versión tres punto ocho punto diez y el resultado dos-uno, el marcador tres a dos.",
+  ASSERT_EQUALS(U"La versión tres punto ocho punto diez y el resultado dos a uno, el marcador tres a dos.",
                 verbalize("es", U"La versión 3.8.10 y el resultado 2-1, el marcador 3:2.", only(&Options::numbers)));
   ASSERT_EQUALS(U"En el minuto noventa más seis y dos más dos.",
                 verbalize("es", U"En el minuto 90+6 y 2 + 2.", only(&Options::numbers)));
@@ -66,6 +66,10 @@ REGISTER_TEST(numbers_es_test) {
                 verbalize("es", U"1/1.000.000, 1/2000, 1/101 y la tesis 117/2004.", only(&Options::numbers)));
   ASSERT_EQUALS(U"Hizo nueve coma cinco segundos a ciento veinte kilómetros por hora y menos ocho grados centígrados.",
                 verbalize("es", U"Hizo 9,5 s a 120 kph y -8° c.", only(&Options::numbers)));
+
+  // A falling or tied range among words of sport is a score; any other keeps its hyphen
+  ASSERT_EQUALS(U"Argentina ganó dos a cero y empató uno a uno; vivió diez-diecisiete años.",
+                verbalize("es", U"Argentina ganó 2-0 y empató 1-1; vivió 10-17 años.", only(&Options::numbers)));
 
   return true;
 }

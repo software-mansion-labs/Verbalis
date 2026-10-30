@@ -50,7 +50,8 @@ function readingsOf(words: Readonly<Record<string, string>> = {}): Readings {
 }
 
 /**
- * Rewrites text the way it is read aloud. Its steps run in a fixed order: normalize, trim, terms, numbers, symbols.
+ * Rewrites text the way it is read aloud. Its steps run in a fixed order: normalize, trim, terms, symbols with a
+ * condition, numbers, symbols.
  * A Verbalizer is immutable after construction.
  */
 export class Verbalizer {
@@ -119,12 +120,16 @@ export class Verbalizer {
       this.#terms.apply(document);
       document.commit();
     }
+    if (this.#symbols) {
+      this.#symbols.apply(document, true);
+      document.commit();
+    }
     if (this.#options.numbers) {
       this.#language.readNumbers(document);
       document.commit();
     }
     if (this.#symbols) {
-      this.#symbols.apply(document);
+      this.#symbols.apply(document, false);
       document.commit();
     }
     return document;

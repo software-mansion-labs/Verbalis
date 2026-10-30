@@ -6,6 +6,7 @@ import {
   PhonePattern,
   SuffixPattern,
   RomanPattern,
+  PrimePattern,
 } from "../../numbers/patterns.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
@@ -27,7 +28,7 @@ import {
 import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
 import { contains, size, startsWith, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isDigit, isLower } from "../../text/unicode.ts";
-import { Gender } from "../grammar.ts";
+import { Gender, type Forms } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CURRENCIES,
@@ -60,6 +61,8 @@ import {
   PHONE_WORDS,
   SCALE_WORDS,
   SCALES,
+  SET_WORDS,
+  SPORT_WORDS,
   STOP_WORDS,
   SYMBOLS,
   TENS,
@@ -72,6 +75,10 @@ import {
   ORDINAL_ARTICLES,
   FEMININE_ORDINAL_ARTICLES,
   ORDINAL_NOUNS,
+  INCH,
+  PRIME_CUES,
+  PRIME_UNITS,
+  SECOND_FRACTIONS,
 } from "./constants.ts";
 
 // What the words around a match say about reading its numbers
@@ -455,6 +462,7 @@ class Portuguese extends PatternLanguage {
     this.addPattern(new DatePattern(DOT_DATE_FORMAT));
     this.addPattern(new ReorderedDatePattern());
     this.addPattern(new SecondsPattern());
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -495,6 +503,9 @@ class Portuguese extends PatternLanguage {
   }
 
   protected override readDate(match: Match): string | undefined {
+    if (Portuguese.#setScore(match)) {
+      return this.#readSetScore(match);
+    }
     const day = value(match.numbers[0]);
     const words = `${day === 1n ? "primeiro" : cardinal(day)} de ${MONTHS[Number(value(match.numbers[1]) - 1n)]}`;
     if (match.numbers.length === 3) {
@@ -538,7 +549,7 @@ class Portuguese extends PatternLanguage {
     }
     const [a, b] = fractionOf(match);
     if (b < 2n || a >= b || !(isMarkedFraction(match, FRACTION_WORDS) || bareFraction(match))) {
-      return undefined;
+      return Portuguese.#setScore(match) ? this.#readSetScore(match) : undefined;
     }
     // um quinto, dois terços, um centésimo, três onze avos
     if (b > 10n && b !== 100n && b !== 1000n) {
@@ -549,6 +560,9 @@ class Portuguese extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
+    if (match.separator === "′") {
+      return Portuguese.#primes(match);
+    }
     // A dot makes a time only after an hour word or before "h": às 21.30, 21.30h, but 1.71
     const decimal = match.separator === "." && match.suffix === "" && !HOUR_WORDS.has(match.context.before());
     if (!fitsClock(match) || decimal) {
@@ -697,17 +711,50 @@ class Portuguese extends PatternLanguage {
     if (match.unit === "s" && !match.text.endsWith(" s") && isDecade(match)) {
       return undefined;
     }
-    const unit = UNITS[match.unit];
+    const unit = match.unit === "″" ? INCH : UNITS[match.unit];
     const firstWord = unit.one.split(" ")[0];
     const gender = feminine(firstWord) ? Gender.FEMININE : Gender.MASCULINE;
     return `${numberWith(number, gender)} ${value(number) === 1n ? unit.one : unit.many}`;
   }
 
   protected override readRange(from: Numeral, to: Numeral, match: Match): string {
-    // 2016-2022 and 10-15 read "a"; scores and formations (4-3-3, 60-40) keep "-"
+    // 2016-2022 and 10-15 read "a"; formations and splits (4-3-3, 60-40) keep "-", but scores read "a": venceu 5-2
+    if (PatternLanguage.isScore(match, SPORT_WORDS)) {
+      return this.joiners().score;
+    }
     const plain = from.fraction === "" && to.fraction === "" && !from.grouped && !to.grouped;
     const rising = from.integer.length === to.integer.length && value(to) > value(from);
     return plain && rising && !cuesOf(match).lettered ? this.joiners().range : "-";
+  }
+
+  // A slashed pair among words of sets is a score, not a date or a fraction: parciais de 3/6, 6/2 e 7/6 (8/6)
+  static #setScore(match: Match): boolean {
+    const numbers = match.numbers;
+    return (
+      numbers.length === 2 &&
+      match.separator === "/" &&
+      numbers[0].integer.length <= 2 &&
+      numbers[1].integer.length <= 2 &&
+      PatternLanguage.mentions(match.context, SET_WORDS)
+    );
+  }
+  #readSetScore(match: Match): string {
+    return cardinal(value(match.numbers[0])) + this.joiners().score + cardinal(value(match.numbers[1]));
+  }
+
+  // 2'14'': dois minutos e catorze segundos; 1'12''00: um minuto e doze segundos e zero centésimos
+  static #primes(match: Match): string | undefined {
+    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
+    const counted = (n: bigint, unit: Forms, gender: Gender) =>
+      `${cardinal(n, gender)} ${n === 1n ? unit.one : unit.many}`;
+    const words = match.numbers.map((number, i) =>
+      counted(value(number), PRIME_UNITS[first + i], first + i === 0 ? Gender.FEMININE : Gender.MASCULINE),
+    );
+    const fraction = match.numbers[match.numbers.length - 1].fraction;
+    if (fraction !== "") {
+      words.push(counted(parseValue(fraction) ?? 0n, SECOND_FRACTIONS[fraction.length - 1], Gender.MASCULINE));
+    }
+    return join(words, " e ");
   }
 }
 

@@ -2,7 +2,7 @@ import { dateFormat, keysOf, notation, phoneFormat, suffixFormat } from "../../n
 import type { Characters } from "../../steps/normalize.ts";
 import type { Terms } from "../../steps/terms.ts";
 import type { Context } from "../../text/context.ts";
-import { beforeName, beforeNumber, type Condition, type Reading, type Readings } from "../../text/readings.ts";
+import { beforeName, beforeNumber, beforeValue, type Condition, type Reading, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
 import { toLower } from "../../text/strings.ts";
 import { isDigit } from "../../text/unicode.ts";
@@ -417,6 +417,15 @@ export const ORDINAL_NOUNS: readonly (readonly [Gender, string])[] = [
   [Gender.MASCULINE, "rząd rzędu rzędowi rząd rzędem rzędzie rzędy rzędów rzędom rzędy rzędami rzędach"],
 ];
 
+// Words of a text about time, which make its 8'22" minutes and seconds, and a lone 25″ seconds
+export const PRIME_CUES: ReadonlySet<string> = new Set([
+  "czas", "czasem", "bieg", "biegu", "wyścig", "wyścigu", "rekord", "rekordem", "wynik", "wynikiem",
+  "etap", "etapu", "przewagą", "przewagi", "stratą", "straty", "maraton", "maratonu", "minut", "sekund",
+]);
+
+// An inch, as a lone 19''
+export const INCH = noun("cal cala calowi cal calem calu cale cali calom cale calami calach");
+
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
 export const TIME_UNITS: ReadonlySet<string> = new Set(["h", "min", "s", "ms", "godz.", "sek."]);
 
@@ -503,9 +512,18 @@ export const ROMAN_NOUNS: ReadonlyArray<readonly [string, Gender]> = [
 ];
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash, na and the accusative: 12 zł/kg, dwanaście złotych na kilogram
+export const PER: Readonly<Record<string, string>> = {
+  h: "na godzinę", "godz.": "na godzinę", min: "na minutę", s: "na sekundę", "sek.": "na sekundę", "dobę": "na dobę",
+  "tydz.": "na tydzień", "mies.": "miesięcznie", "miesiąc": "na miesiąc", rok: "na rok", kg: "na kilogram",
+  g: "na gram", t: "na tonę", l: "na litr", ml: "na mililitr", km: "na kilometr", m: "na metr",
+  "m²": "na metr kwadratowy", m2: "na metr kwadratowy", "m³": "na metr sześcienny", m3: "na metr sześcienny",
+  ha: "na hektar", kWh: "na kilowatogodzinę", MWh: "na megawatogodzinę", "os.": "na osobę", "osobę": "na osobę",
+};
+
 export const NOTATION = notation({
   groupSeparators: "   .", decimalSeparators: ",.", timeSeparators: ":.",
-  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
+  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true, per: PER,
 });
 
 // Words before the name of a street, after which a/b is a house number: ulica Marszałkowska 10/12
@@ -532,6 +550,12 @@ export const JOINERS: Joiners = {
   point: "kropka", dot: "kropka", range: "-", by: "na", score: " do ", minus: "minus", plus: "plus",
   fraction: " i ", half: " i pół", rating: "na",
 };
+
+// Starts of words of sport, which make a pair like a clock time a score: prowadzenie 20:16 (dwadzieścia do szesnastu)
+export const SPORT_WORDS: Keys = [
+  "mecz", "set", "wygra", "przegra", "pokona", "prowadz", "remis", "gol", "bramk", "punkt", "drużyn",
+  "lig", "siatkar", "piłkar", "zwycię", "porażk", "turniej", "kibic", "spotkani",
+];
 
 // 15.08.2020 r.: the year has four digits, "r." may follow it
 export const DATE_FORMAT = dateFormat({ separators: ".", boundaries: ".,", shortYear: false, suffixes: ["r."] });
@@ -586,6 +610,12 @@ export const SYMBOLS: Readings = {
   "#": [""],           "/": [""],               "²": ["do kwadratu"], "³": ["do sześcianu"],
   "π": ["pi"],         "×": ["razy"],           "€": ["euro"],     "$": ["dolarów"],   "@": ["małpa"],
   "±": ["plus minus"], "+/-": ["plus minus"], "+-": ["plus minus"], "‰": ["promili"],        "§": ["paragraf"],
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  "<": [{ words: "mniej niż", when: beforeValue }],
+  ">": [{ words: "powyżej", when: beforeValue }],
+  "≤": [{ words: "nie więcej niż", when: beforeValue }],
+  "≥": [{ words: "co najmniej", when: beforeValue }],
+  "~": [{ words: "około", when: beforeValue }],
 };
 
 // Prepositions before an inflected abbreviation, by the case they give it: przy ul. Długiej, od ul. Długiej

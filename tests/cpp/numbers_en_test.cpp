@@ -72,6 +72,17 @@ REGISTER_TEST(numbers_en_test) {
   ASSERT_EQUALS(U"The four K screen and five hundred thousand fans, three billion dollars.",
                 verbalize("en-us", U"The 4K screen and 500k fans, 3 bn dollars.", only(&Options::numbers)));
 
+  // A range rising across a digit before a plural noun, or of days; bowling figures keep "-"
+  ASSERT_EQUALS(U"Children aged one to fifty-nine months, July fifth to twelfth, but he took three-fifty-three.",
+                verbalize("en", U"Children aged 1-59 months, July 5-12, but he took 3-53.", only(&Options::numbers)));
+
+  // Prime marks: feet and inches, unless a quotation closes
+  ASSERT_EQUALS(
+      U"He is five feet nine inches tall, the room is twenty-six feet eight inches by seventeen feet five "
+      U"inches, fly over four hundred feet, not 'Hera Pheri three'.",
+      verbalize("en-us", U"He is 5'9\" tall, the room is 26'8 x 17'5, fly over 400', not 'Hera Pheri 3'.",
+                only(&Options::numbers)));
+
   return true;
 }
 

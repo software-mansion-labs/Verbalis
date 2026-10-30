@@ -2,6 +2,7 @@
 
 #include <verbalis/steps/normalize.h>
 #include <verbalis/text/readings.h>
+#include <verbalis/text/unicode.h>
 
 #include <array>
 #include <string>
@@ -140,10 +141,13 @@ inline const auto kOperators = std::to_array<Operator>({
   {U"+", U"加"}, {U"=", U"等于"}, {U"×", U"乘"}, {U"÷", U"除以"}, {U"<", U"小于"}, {U">", U"大于"}, {U"-", U"减"}
 });
 
-// A sign before a number: "(+39)" -> "(加三十九)", but "C++", "DVD+R"
+// A sign before a number, but not between two (an operator): "(+39)" -> "(加三十九)", but "C++", "DVD+R", "1+2"
 inline bool before_numeral(const ::verbalis::text::Context& context) {
+  std::u32string_view head = context.head();
   std::u32string_view tail = context.tail();
-  return !tail.empty() && std::u32string_view(U"零一二两三四五六七八九十百千").find(tail[0]) != std::u32string_view::npos;
+  bool numeral = !tail.empty() && (::verbalis::text::unicode::isdigit(tail[0]) ||
+                                   std::u32string_view(U"零一二两三四五六七八九十百千").find(tail[0]) != std::u32string_view::npos);
+  return numeral && (head.empty() || !::verbalis::text::unicode::isdigit(head.back()));
 }
 
 // Symbols left after the numbers: "±1" -> "正负一", "y = x" -> "y 等于 x"

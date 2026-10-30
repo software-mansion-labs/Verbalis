@@ -450,6 +450,7 @@ public:
     add_pattern(std::make_unique<YearMonthPattern>());
     add_pattern(std::make_unique<AreaCodePattern>());
     add_pattern(std::make_unique<SecondsPattern>(kSecondsSuffixes, true));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
     add_pattern(std::make_unique<UnitAfterPattern>(std::make_unique<ScalePattern>(kNotation)));
     add_pattern(std::make_unique<UnitAfterPattern>(std::make_unique<FractionPattern>()));
     add_pattern(std::make_unique<DotOrdinalPattern>(true));
@@ -540,12 +541,18 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
+    if (match.separator == U'′') {
+      return primes(match);
+    }
     if (match.numbers.size() == 3) {
       return read_seconds(match);
     }
     if (match.numbers.size() == 2) {
       bool decimal = match.separator == U'.' && match.suffix.empty();
-      if (!fits_clock(match) || decimal) {
+      // mit 31:32 (15:21): a score, read by its own pattern; but um 15:21, Spiel (Montag, 18:00)
+      bool score = match.separator == U':' && match.suffix.empty() && match.numbers[1].integer != U"00" &&
+                   !kTimeWords.contains(match.context.before()) && mentions(match.context, kSportWords);
+      if (!fits_clock(match) || decimal || score) {
         return std::nullopt;
       }
     }
@@ -759,6 +766,23 @@ private:
     };
     std::u32string head = clock ? stem(hours) + U" Uhr" : count(hours, U"Stunde", U"Stunden");
     return head + U" " + count(minutes, U"Minute", U"Minuten") + U" " + count(seconds, U"Sekunde", U"Sekunden");
+  }
+
+  // 1'27"23: eine Minute siebenundzwanzig Sekunden und dreiundzwanzig Hundertstel
+  static std::optional<std::u32string> primes(const Match& match) {
+    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
+    std::vector<std::u32string> words;
+    for (size_t i = 0; i < match.numbers.size(); ++i) {
+      uint64_t n = value(match.numbers[i]);
+      const Forms& unit = kPrimeUnits[first + i];
+      words.push_back(n == 1 ? U"eine " + unit.one : cardinal(n) + U" " + unit.many);
+    }
+    const std::u32string& fraction = match.numbers.back().fraction;
+    if (!fraction.empty()) {
+      words.push_back(U"und " + cardinal(parse_value(fraction).value_or(0)) + U" " +
+                      std::u32string(kSecondFractions[fraction.size() - 1]));
+    }
+    return join(words);
   }
 
   // An amount with its scale: drei Millionen, zehntausend

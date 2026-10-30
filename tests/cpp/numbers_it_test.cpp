@@ -21,7 +21,7 @@ REGISTER_TEST(numbers_it_test) {
                 verbalize("it", U"Pesa 1 kg e 23 kg, 1 km e 108 km/h.", only(&Options::numbers)));
   ASSERT_EQUALS(U"Il primo e la seconda, il ventunesimo e la trentatreesima.",
                 verbalize("it", U"Il 1º e la 2ª, il 21esimo e la 33esima.", only(&Options::numbers)));
-  ASSERT_EQUALS(U"La versione due punto settantanove e uno punto tredici, il risultato due-uno e tre a due.",
+  ASSERT_EQUALS(U"La versione due punto settantanove e uno punto tredici, il risultato due a uno e tre a due.",
                 verbalize("it", U"La versione 2.79 e 1.13, il risultato 2-1 e 3:2.", only(&Options::numbers)));
   ASSERT_EQUALS(
       U"Sono un milione di abitanti e duemilatrecentoquarantacinque persone, milletré e millecentotto e milleottanta.",
@@ -55,6 +55,17 @@ REGISTER_TEST(numbers_it_test) {
       verbalize("it", U"Dura 1 h, 155 d, 15 A, 5 km/s, 1/2 litro.", only(&Options::numbers)));
   ASSERT_EQUALS(U"Il signor Rossi, la dottoressa Neri e l'avvocato Bianchi in piazza Grande, eccetera.",
                 verbalize("it", U"Il Sig. Rossi, la Dott.ssa Neri e l'avv. Bianchi in p.za Grande, ecc."));
+
+  // A falling or tied range among words of sport, or after an elided article, is a score
+  ASSERT_EQUALS(U"Il Milan ha vinto due a uno dopo l'uno a uno, con trecentocinquanta-quattrocentocinquanta grammi.",
+                verbalize("it", U"Il Milan ha vinto 2-1 dopo l'1-1, con 350-450 grammi.", only(&Options::numbers)));
+
+  // Prime marks: a time joined by "e", and a lone 19″ in inches
+  ASSERT_EQUALS(
+      U"Ha chiuso in un minuto e dodici secondi e settantasei centesimi, con venticinque secondi di vantaggio.",
+      verbalize("it", U"Ha chiuso in 1'12\"76, con 25” di vantaggio.", only(&Options::numbers)));
+  ASSERT_EQUALS(U"In due ore undici minuti e tredici secondi, su uno schermo da diciannove pollici.",
+                verbalize("it", U"In 2h11'13\", su uno schermo da 19″.", only(&Options::numbers)));
 
   return true;
 }

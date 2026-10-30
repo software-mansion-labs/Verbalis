@@ -65,6 +65,14 @@ REGISTER_TEST(numbers_pl_test) {
                 U"Zatrudniamy 15 pracowników, cena wzrosła z 40 zł do 50 zł, temperatura spadła do -7 "
                 U"stopni, po 1 maja, kosztuje 0,99 zł."));
 
+  // "na" takes the accusative: na sekundę, na dobę
+  ASSERT_EQUALS(U"Łącze dziesięć megabajtów na sekundę, dwadzieścia cztery godziny na dobę, dwie tony na hektar.",
+                verbalize("pl", U"Łącze 10 MB/s, 24h/dobę, 2 t/ha.", only(&Options::numbers)));
+
+  // A pair like a clock time among words of sport is a score, unless a time word comes before it
+  ASSERT_EQUALS(U"Siatkarki objęły prowadzenie dwadzieścia do szesnastu, mecz o dwudziestej szesnaście.",
+                verbalize("pl", U"Siatkarki objęły prowadzenie 20:16, mecz o 20:16.", only(&Options::numbers)));
+
   return true;
 }
 

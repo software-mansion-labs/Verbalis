@@ -37,9 +37,14 @@ std::optional<std::u32string> read(const std::vector<Reading>& readings, const C
 // ----- Conditions -----
 // -----------------------
 
-bool after_name(const Context& context);    // Two letters right before: Google+
+bool after_name(const Context& context);    // Two letters right before, maybe then digits: Google+, LAB4+
 bool before_number(const Context& context); // A digit right after, possibly after a space: nr 5, nr5
 bool before_name(const Context& context);   // A capitalized word after: St. Louis
+
+// A number after a comparison or approximation sign, maybe after a currency sign: p<0.05, ~$145, (< 60%).
+// Not between numbers (2018~2019), in an arrow (->), a tag (<27>, <sup>2), a chain (100<P<250), or a heart (<3), nor
+// spaced as a separator (a > 9h).
+bool before_value(const Context& context);
 
 // The word before is one of given words: im § 5
 Condition after_any(std::unordered_set<std::u32string> words);

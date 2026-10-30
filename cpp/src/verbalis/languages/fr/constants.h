@@ -166,6 +166,16 @@ inline const std::unordered_set<std::u32string> kTimeWords = {
   U"à", U"vers", U"dès", U"de", U"jusqu'à", U"avant", U"après", U"entre", U"et"
 };
 
+// Words of a text about time, which make its 3'16" minutes and seconds, and a lone 23″ seconds
+inline const std::unordered_set<std::u32string> kPrimeCues = {
+  U"temps", U"chrono", U"chronomètre", U"course", U"record", U"retard", U"avance", U"étape", U"général", U"vainqueur",
+  U"maillot", U"marathon", U"sprint", U"finale", U"demi-finales", U"minutes", U"secondes", U"podium"
+};
+
+// A time written with prime marks: hours, minutes, and seconds; and an inch, as a lone 20"
+inline const std::array<Forms, 3> kPrimeUnits = {{{U"heure", U"heures"}, {U"minute", U"minutes"}, {U"seconde", U"secondes"}}};
+inline const Forms kInch = {U"pouce", U"pouces"};
+
 // XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals
 inline const Keys kRomanOrdinalSuffixes = {U"er", U"re", U"ère", U"e", U"ème"};
 
@@ -195,9 +205,22 @@ inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
 };
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash (par): 12 €/kg, douze euros par kilogramme
+inline const std::unordered_map<std::u32string, std::u32string> kPer = {
+  {U"h", U"par heure"}, {U"heure", U"par heure"}, {U"min", U"par minute"}, {U"s", U"par seconde"},
+  {U"sec", U"par seconde"}, {U"jour", U"par jour"}, {U"j", U"par jour"}, {U"semaine", U"par semaine"},
+  {U"mois", U"par mois"}, {U"an", U"par an"}, {U"kg", U"par kilogramme"}, {U"g", U"par gramme"}, {U"t", U"par tonne"},
+  {U"tonne", U"par tonne"}, {U"l", U"par litre"}, {U"L", U"par litre"}, {U"ml", U"par millilitre"},
+  {U"km", U"par kilomètre"}, {U"m", U"par mètre"}, {U"m²", U"par mètre carré"}, {U"m2", U"par mètre carré"},
+  {U"m³", U"par mètre cube"}, {U"m3", U"par mètre cube"}, {U"ha", U"par hectare"}, {U"kWh", U"par kilowattheure"},
+  {U"MWh", U"par mégawattheure"}, {U"MWH", U"par mégawattheure"}, {U"oz", U"par once"},
+  {U"personne", U"par personne"}
+};
+
 inline const Notation kNotation = {
   .group_separators = U" \u00a0\u202f.'’", .decimal_separators = U",.", .time_separators = U":.h", .time_suffixes = {U"h"},
-  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true
+  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true,
+  .per = kPer
 };
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
@@ -226,13 +249,19 @@ inline const Keys kOrdinalSuffixes = {
 
 using ::verbalis::text::Readings;
 
+using ::verbalis::text::before_value;
+
 inline const Readings kSymbols = {
   {U"&", {U"et"}},       {U"+", {U"plus"}},    {U"=", {U"égale"}}, {U"@", {U"arobase"}}, {U"%", {U"pour cent"}},
   {U"°", {U"degrés"}},   {U"§", {U"paragraphe"}}, {U"#", {U"hashtag"}}, {U"²", {U"carré"}}, {U"³", {U"cube"}},
   {U"π", {U"pi"}},       {U"×", {U"fois"}},    {U"½", {U"un demi"}}, {U"€", {U"euros"}},  {U"$", {U"dollars"}},
   {U"£", {U"livres"}},   {U"±", {U"plus ou moins"}}, {U"+/-", {U"plus ou moins"}}, {U"‰", {U"pour mille"}},
   {U"≤", {U"inférieur ou égal à"}},
-  {U"°C", {U"degrés Celsius"}}, {U"M€", {U"millions d'euros"}}
+  {U"°C", {U"degrés Celsius"}}, {U"M€", {U"millions d'euros"}},
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  {U"<", {{U"moins de", before_value}}},
+  {U">", {{U"plus de", before_value}}},
+  {U"~", {{U"environ", before_value}}}
 };
 
 using ::verbalis::text::after_any;

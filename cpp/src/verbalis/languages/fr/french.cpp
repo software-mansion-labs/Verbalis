@@ -357,6 +357,7 @@ public:
     add_pattern(std::make_unique<EuroCentsPattern>());
     add_pattern(std::make_unique<MetersPattern>());
     add_pattern(std::make_unique<HalfUnitPattern>());
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
     add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSuffixes, U" \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<RomanOrdinalPattern>(kRomanOrdinalSuffixes));
@@ -443,6 +444,9 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
+    if (match.separator == U'′') {
+      return primes(match);
+    }
     if (match.numbers.size() == 2) {
       // à 18.30, but à 0.40%
       bool decimal = match.separator == U'.' &&
@@ -551,7 +555,7 @@ protected:
       return cardinal(n) + U" " + number_form(whole, kUnits.at(U"m")) +
              (centimeters ? U" " + cardinal(centimeters) : U"");
     }
-    const Forms& unit = kUnits.at(std::u32string(match.unit));
+    const Forms& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
     std::u32string_view first_word = std::u32string_view(unit.one).substr(0, unit.one.find(U' '));
     return gendered(number, cues_of(match), feminine(first_word)) + U" " + number_form(number, unit);
   }
@@ -567,6 +571,23 @@ protected:
       return std::nullopt;
     }
     return PatternLanguage::read_joiner(match);
+  }
+
+private:
+  // 1'27"23: une minute vingt-sept secondes et vingt-trois centièmes; 23"42: vingt-trois secondes quarante-deux
+  static std::optional<std::u32string> primes(const Match& match) {
+    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
+    std::vector<std::u32string> words;
+    for (size_t i = 0; i < match.numbers.size(); ++i) {
+      uint64_t n = value(match.numbers[i]);
+      words.push_back(cardinal(n, true) + U" " + (n < 2 ? kPrimeUnits[first + i].one : kPrimeUnits[first + i].many));
+    }
+    const std::u32string& fraction = match.numbers.back().fraction;
+    if (!fraction.empty()) {
+      std::u32string hundredths = cardinal(parse_value(fraction).value_or(0));
+      words.push_back(first == 1 && fraction.size() == 2 ? U"et " + hundredths + U" centièmes" : hundredths);
+    }
+    return join(words);
   }
 };
 } // namespace

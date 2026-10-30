@@ -1,7 +1,7 @@
 import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import type { Context } from "../../text/context.ts";
-import { afterName, beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
+import { afterName, beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
 import type { Forms, Joiners } from "../grammar.ts";
 
@@ -151,6 +151,17 @@ export const CENTS: Readonly<Record<string, Forms>> = {
 export const INCH_MARKS: Keys = ['"', "''", "″", "”"];
 export const INCH: Forms = { one: "pulgada", many: "pulgadas" };
 
+// Words of a text about time, which make its 7'11" minutes and seconds, and a lone 25″ seconds
+export const PRIME_CUES: ReadonlySet<string> = new Set([
+  "tiempo", "carrera", "crono", "cronómetro", "récord", "ganador", "general", "etapa", "ventaja", "vuelta",
+  "minuto", "minutos", "segundos", "maratón", "clasificación", "podio",
+]);
+
+// A time written with prime marks: hours, minutes, and seconds
+export const PRIME_UNITS: readonly Forms[] = [
+  { one: "hora", many: "horas" }, { one: "minuto", many: "minutos" }, { one: "segundo", many: "segundos" },
+];
+
 // Each scale by its singular: millones -> millón
 export const SCALES: Readonly<Record<string, string>> = {
   millones: "millón", millón: "millón", billones: "billón", billón: "billón",
@@ -268,11 +279,20 @@ export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
 ]);
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash (por): 12 €/kg, doce euros por kilogramo
+export const PER: Readonly<Record<string, string>> = {
+  h: "por hora", hora: "por hora", min: "por minuto", s: "por segundo", seg: "por segundo", "día": "por día",
+  semana: "por semana", mes: "por mes", "año": "por año", a: "por año", kg: "por kilogramo", g: "por gramo",
+  t: "por tonelada", l: "por litro", L: "por litro", ml: "por mililitro", km: "por kilómetro", m: "por metro",
+  "m²": "por metro cuadrado", m2: "por metro cuadrado", "m³": "por metro cúbico", m3: "por metro cúbico",
+  ha: "por hectárea", kWh: "por kilovatio hora", MWh: "por megavatio hora", oz: "por onza", persona: "por persona",
+};
+
 export const NOTATION = notation({
   groupSeparators: "., \u00a0\u202f", decimalSeparators: ".,", timeSeparators: ":.",
   timeSuffixes: ["h", "h.", "hrs", "hrs.", "Hrs", "Hrs.", "hs", "hs.", "a. m.", "a.m.", "a.m", "am",
     "p. m.", "p.m.", "p.m", "pm"],
-  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
+  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true, per: PER,
 });
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
@@ -280,6 +300,13 @@ export const JOINERS: Joiners = {
   point: "punto", dot: "punto", range: "-", by: "por", score: " a ", minus: "menos", plus: "más",
   fraction: " y ", half: " y medio", rating: "sobre",
 };
+
+// Starts of words of sport, which make a falling or tied range a score: ganó 2-0, empató 1-1 (dos a cero, uno a uno)
+export const SPORT_WORDS: Keys = [
+  "partido", "gol", "marcador", "ganó", "ganar", "ganaron", "venci", "vencer", "empat", "derrot",
+  "victoria", "triunf", "impus", "impone", "cayó", "superó", "encuentro", "jornada", "torneo", "liga",
+  "selección", "canasta", "anotación", "clasificatoria", "duelo", "fútbol",
+];
 
 // 14/07/2023, 31/12/99
 export const DATE_FORMAT = dateFormat({ separators: "/-.", boundaries: ".,/-", yearRequired: false });
@@ -341,6 +368,12 @@ export const SYMBOLS: Readings = {
   "⅘": ["cuatro quintos"], "⅙": ["un sexto"], "⅚": ["cinco sextos"], "⅛": ["un octavo"],
   "⅜": ["tres octavos"], "⅝": ["cinco octavos"], "⅞": ["siete octavos"],
   "±": ["más menos"],    "+/-": ["más menos"],   "‰": ["por mil"],
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  "<": [{ words: "menor que", when: beforeValue }],
+  ">": [{ words: "mayor que", when: beforeValue }],
+  "≤": [{ words: "menor o igual que", when: beforeValue }],
+  "≥": [{ words: "mayor o igual que", when: beforeValue }],
+  "~": [{ words: "aproximadamente", when: beforeValue }],
 };
 
 // After a year or a century, as digits or a Roman numeral: 10.000 a. C., siglo x ec

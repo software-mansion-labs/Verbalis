@@ -113,6 +113,12 @@ protected:
   virtual std::optional<std::u32string> read_joiner(const Match& match) const;
   virtual std::u32string read_range(const Number& from, const Number& to, const Match& match) const;
 
+  // A score rather than a range: a range of at most three digits that drops or ties (3-1, 1-1), or follows an
+  // elided article (l'1-2), in a text with a word of sport (a prefix of sport_words). Not 3-15 años, nor 14-2b.
+  static bool is_score(const Match& range, const text::Keys& sport_words);
+  // Whether a word of the text around a match starts with one of the stems
+  static bool mentions(const text::Context& context, const text::Keys& stems);
+
   // The plural of a reading, for codes like F-16s; none by default.
   virtual std::optional<std::u32string> plural(std::u32string_view /*words*/) const { return std::nullopt; }
 
@@ -135,6 +141,7 @@ private:
   };
   std::vector<Entry> patterns_; // In priority order: by kind, then the language's own before the generic ones
   Joiners joiners_;
+  std::unordered_map<std::u32string, std::u32string> per_; // Notation::per
 };
 
 } // namespace verbalis::languages

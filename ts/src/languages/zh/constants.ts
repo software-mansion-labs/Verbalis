@@ -1,6 +1,7 @@
 import type { Characters } from "../../steps/normalize.ts";
 import type { Context } from "../../text/context.ts";
 import type { Readings } from "../../text/readings.ts";
+import { isDigit } from "../../text/unicode.ts";
 
 // Full-width punctuation in the forms Mandarin speech models expect; it replaces the default classes
 export const CHARACTERS: Characters = [
@@ -140,10 +141,12 @@ export const OPERATORS: readonly Operator[] = [
   { symbol: "<", word: "小于" }, { symbol: ">", word: "大于" }, { symbol: "-", word: "减" },
 ];
 
-// A sign before a number: "(+39)" -> "(加三十九)", but "C++", "DVD+R"
+// A sign before a number, but not between two (an operator): "(+39)" -> "(加三十九)", but "C++", "DVD+R", "1+2"
 function beforeNumeral(context: Context): boolean {
+  const head = context.head();
   const tail = context.tail();
-  return tail.length > 0 && "零一二两三四五六七八九十百千".includes(tail[0]);
+  const numeral = tail.length > 0 && (isDigit(tail[0]) || "零一二两三四五六七八九十百千".includes(tail[0]));
+  return numeral && (head.length === 0 || !isDigit(head[head.length - 1]));
 }
 
 // Symbols left after the numbers: "±1" -> "正负一", "y = x" -> "y 等于 x"

@@ -8,10 +8,11 @@ import {
   skipSpace,
   type Keys,
 } from "../text/scan.ts";
-import { contains, size, startsWith, str, type Text } from "../text/strings.ts";
+import { stripped, wordsOf } from "../text/context.ts";
+import { contains, size, startsWith, str, toLower, type Text } from "../text/strings.ts";
 import { isAlnum, isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
 import type { DateFormat, Notation, PhoneFormat, SuffixFormat } from "./formats.ts";
-import { suffixFormat } from "./formats.ts";
+import { keysOf, suffixFormat } from "./formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "./match.ts";
 import { digitsAt, numbersAt, romanValue, toDigits, value } from "./scanning.ts";
 
@@ -83,6 +84,24 @@ function amountsAt(text: Text, position: number, notation: Notation): Numeral[][
 // Keys of a single capital letter (W, V), or all the others.
 function singleLetters(keys: Keys, single: boolean): string[] {
   return keys.filter((key) => (key.length === 1 && key >= "A" && key <= "Z") === single);
+}
+
+// An amount with the units it is counted by after slashes, from per: the /h of 5 km/h, the /m²/an of 125 kWh/m²/an
+function withPer(text: Text, match: Match, per: Keys): Match {
+  let end = match.span.end;
+  while (end + 1 < text.length && text[end] === "/") {
+    const key = keysAt(text, end + 1, per).find((unit) => isClearAfter(text, end + 1 + size(unit)));
+    if (key === undefined) {
+      break;
+    }
+    end += 1 + size(key);
+  }
+  if (end > match.span.end) {
+    match.suffix = str(text, match.span.end + 1, end);
+    // A dot closing both the unit and the text stays with the text: 19,99 €/mies.
+    match.span.end = match.suffix.endsWith(".") && isSentenceEnd(text, end) ? end - 1 : end;
+  }
+  return match;
 }
 
 // ----------------------------
@@ -437,6 +456,217 @@ export class SecondsPattern extends Pattern {
   }
 }
 
+// Marks of minutes or feet; two of them, or one of DOUBLE_PRIMES, mark seconds or inches.
+const PRIMES = "'′’´";
+const DOUBLE_PRIMES = '"″”';
+
+// The length of a mark of seconds or inches at a position: 1 (", ″), 2 ('', ’’), or 0 if none stands there.
+function doublePrimeAt(text: Text, position: number): number {
+  if (position < text.length && contains(DOUBLE_PRIMES, text[position])) {
+    return 1;
+  }
+  const two = position + 1 < text.length && contains(PRIMES, text[position]) && contains(PRIMES, text[position + 1]);
+  return two ? 2 : 0;
+}
+
+// Whether a single mark of minutes or feet stands at a position.
+function primeAt(text: Text, position: number): boolean {
+  return position < text.length && contains(PRIMES, text[position]) && doublePrimeAt(text, position) === 0;
+}
+
+// Whether a quotation is open before a position, so that a mark there closes it ("Halo Wars 2", „0″, 'Hera Pheri 3')
+// rather than follows a number. Double quotes count for a double mark, single ones for a single mark. A closing mark
+// right after a digit closes an open quotation, or else marks inches; an apostrophe within a word (l'homme) is no quote.
+function inQuotation(text: Text, position: number, single: boolean): boolean {
+  let open = 0;
+  let straight = false;
+  for (let i = 0; i < position; ++i) {
+    const c = text[i];
+    const spaced = i === 0 || isSpace(text[i - 1]) || text[i - 1] === "(";
+    const digit = i > 0 && isDigit(text[i - 1]);
+    if (single) {
+      const word = i + 1 < text.length && isAlnum(text[i + 1]);
+      if (c === "‘" || (contains("'’´", c) && spaced && word)) {
+        open++;
+      } else if (contains("'’′´", c) && !spaced && !word && open > 0) {
+        open--;
+      }
+    } else if (c === "„" || c === "«" || (c === "“" && open === 0)) {
+      open++;
+    } else if ((c === "“" || c === "”" || c === "»" || c === "″") && open > 0) {
+      open--;
+    } else if ((c === '"' || doublePrimeAt(text, i) === 2) && (!digit || straight)) {
+      straight = !straight; // also ``text`` as two apostrophes
+      i += doublePrimeAt(text, i) === 2 ? 1 : 0;
+    }
+  }
+  return open > 0 || straight;
+}
+
+/**
+ * 1'27"23, 2h11'13", 23"42, 5'9", 18'': a time or a length written with prime marks.
+ *
+ * A time is a TIME match with the separator ′. Its unit is the unit of its first number, "h", "min", or "s", and each
+ * number after it counts the next one; the digits after the seconds mark (23"42) are the fraction of the seconds.
+ * Feet and inches (5'9") are a TIME match of the unit "ft". A lone number of inches (18'') is a UNIT match of the
+ * unit ″, and of feet (400'), of "ft".
+ */
+export class PrimePattern extends Pattern {
+  readonly #decimals: string;
+  readonly #cues: ReadonlySet<string>;
+  readonly #feet: boolean;
+
+  /**
+   * @param cues lowercase words of a text which make its minutes and seconds (3'16") and a lone 23″ a time; without
+   *        one, they are left as written and a lone 23″ is inches.
+   * @param feet reads 5'9" as feet and inches, and a lone 400' as feet.
+   */
+  constructor(notation: Notation, cues: ReadonlySet<string>, feet = false) {
+    super(Kind.TIME);
+    this.#decimals = notation.decimalSeparators;
+    this.#cues = cues;
+    this.#feet = feet;
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    // Not within a number (39 404'', 7:00", RJ-116", R$5,00"), nor the minutes or seconds of coordinates: 43°39'38",
+    // 19°01' 29"
+    const previous = position > 0 && isSpace(text[position - 1]) ? position - 1 : position;
+    const follows = previous > 0 && (isDigit(text[previous - 1]) || contains(PRIMES, text[previous - 1]));
+    if (!isClearBefore(text, position, ".,:-'’′´°$€£") || follows) {
+      return undefined;
+    }
+    let end = digitsEnd(text, position);
+    if (end === position || end - position > 3) {
+      return undefined;
+    }
+    const time = match({ kind: Kind.TIME, numbers: [digitsAt(text, position)], separator: "′" });
+    const ending = (at: number, unit: string): Match | undefined => {
+      // Not before another mark or a hyphen: 20"', 1/4-20"-Gewinde
+      const marked =
+        at < text.length && (contains(PRIMES, text[at]) || contains(DOUBLE_PRIMES, text[at]) || text[at] === "-");
+      if (!isClearAfter(text, at) || isDigitAfter(text, at, ".,") || marked) {
+        return undefined;
+      }
+      time.span = { begin: position, end: at };
+      time.unit = unit;
+      return time;
+    };
+
+    // 2h11'13", 2h 30': hours and minutes, and maybe seconds
+    if (end < text.length && text[end] === "h") {
+      const minutes = skipSpace(text, end + 1);
+      const minutesEnd = digitsEnd(text, minutes);
+      if (minutesEnd === minutes || minutesEnd - minutes > 2 || !primeAt(text, minutesEnd)) {
+        return undefined;
+      }
+      time.numbers.push(digitsAt(text, minutes));
+      end = minutesEnd + 1;
+      const secondsEnd = digitsEnd(text, end);
+      if (secondsEnd - end === 2 && doublePrimeAt(text, secondsEnd)) {
+        time.numbers.push(digitsAt(text, end));
+        end = secondsEnd + doublePrimeAt(text, secondsEnd);
+      } else if (!this.#cued(text)) {
+        return undefined; // 10h15' may be a clock time
+      }
+      return ending(end, "h");
+    }
+
+    // 3'16", 1'27"23, 5'9", 18' 7.75", 26'8: minutes and seconds, or feet and inches
+    if (primeAt(text, end)) {
+      const second = skipSpace(text, end + 1);
+      for (const number of numbersAt(text, second, "", this.#decimals)) {
+        const mark = doublePrimeAt(text, number.span.end);
+        const marked = mark > 0 && number.integer.length <= 2 && value(number) < (this.#feet ? 12n : 60n);
+        // 26'8 x 17'5: inches without their mark
+        const bare =
+          this.#feet &&
+          !mark &&
+          second === end + 1 &&
+          number.fraction === "" &&
+          number.integer.length <= 2 &&
+          value(number) < 12n &&
+          !primeAt(text, number.span.end);
+        if (!marked && !bare) {
+          continue;
+        }
+        time.numbers.push(number);
+        const after = number.span.end + mark;
+        const fractionEnd = digitsEnd(text, after);
+        // Digits right after the seconds are their fraction, and make it a time even in feet: 1'27"23
+        if (mark && number.fraction === "" && fractionEnd > after && fractionEnd - after <= 3) {
+          const seconds = time.numbers[time.numbers.length - 1];
+          seconds.fraction = str(text, after, fractionEnd);
+          seconds.span = { begin: seconds.span.begin, end: fractionEnd };
+          return ending(fractionEnd, "min");
+        }
+        if (this.#feet) {
+          return ending(after, "ft");
+        }
+        if (number.fraction !== "" || !this.#cued(text)) {
+          return undefined;
+        }
+        return ending(after, "min");
+      }
+      // 400': feet, unless the mark closes a quotation
+      if (!this.#feet || inQuotation(text, end, true)) {
+        return undefined;
+      }
+      time.kind = Kind.UNIT;
+      return ending(end + 1, "ft");
+    }
+
+    // 23"42: seconds and their fraction; 18'', 5.7": inches, or seconds in a text about time
+    for (const number of numbersAt(text, position, "", this.#decimals)) {
+      const mark = doublePrimeAt(text, number.span.end);
+      // Inches have up to two decimals, without a trailing zero: 5.7", but 20.00" and 3.500" are no inches
+      if (!mark || number.fraction.length > 2 || number.fraction.endsWith("0")) {
+        continue;
+      }
+      time.numbers = [number];
+      const after = number.span.end + mark;
+      const fractionEnd = digitsEnd(text, after);
+      if (fractionEnd > after) {
+        if (this.#feet || number.fraction !== "" || fractionEnd - after > 3) {
+          return undefined;
+        }
+        time.numbers[0] = {
+          ...number,
+          fraction: str(text, after, fractionEnd),
+          span: { begin: number.span.begin, end: fractionEnd },
+        };
+        return ending(fractionEnd, "s");
+      }
+      if (inQuotation(text, number.span.end, false)) {
+        return undefined;
+      }
+      // 23″ de retard, sous les 49″: a cue among the eight words before it or the three after it
+      let start = position;
+      for (let spaces = 0; start > 0 && spaces < 8; --start) {
+        spaces += isSpace(text[start - 1]) ? 1 : 0;
+      }
+      let stop = after;
+      for (let spaces = 0; stop < text.length && spaces < 4; ++stop) {
+        spaces += isSpace(text[stop]) ? 1 : 0;
+      }
+      if (number.fraction === "" && this.#cued(text.slice(start, stop))) {
+        return ending(after, "s");
+      }
+      time.kind = Kind.UNIT;
+      return ending(after, "″");
+    }
+    return undefined;
+  }
+
+  // Whether a word of a text is one of the cues
+  #cued(text: Text): boolean {
+    return wordsOf(text).some((word) => {
+      const lower = toLower(str(stripped(word)));
+      return this.#cues.has(lower.slice(Math.max(lower.lastIndexOf("'"), lower.lastIndexOf("’")) + 1)); // d'avance
+    });
+  }
+}
+
 // XIXe, XIIवीं: an ordinal written in Roman numerals, with a suffix; one letter only if it is I, V or X.
 export class RomanOrdinalPattern extends Pattern {
   readonly #suffixes: Keys;
@@ -704,12 +934,14 @@ class ScorePattern extends Pattern {
 export class PrefixedMoneyPattern extends Pattern {
   readonly #notation: Notation;
   readonly #currencies: Keys; // Only the ones which are not words
+  readonly #per: Keys;
 
   // words: currencies written as words which also precede an amount: USD 5
   constructor(notation: Notation, words: Keys = []) {
     super(Kind.MONEY);
     this.#notation = notation;
     this.#currencies = [...words, ...notation.currencies.filter((currency) => ![...currency].every((c) => isAlpha(c)))];
+    this.#per = keysOf(notation.per);
   }
 
   match(text: Text, position: number): Match | undefined {
@@ -739,7 +971,7 @@ export class PrefixedMoneyPattern extends Pattern {
           break;
         }
       }
-      return money;
+      return withPer(text, money, this.#per);
     }
     return undefined;
   }
@@ -748,10 +980,12 @@ export class PrefixedMoneyPattern extends Pattern {
 // 50$, 12,99 zł, 10-15 €, 3 mln zł: an amount, possibly a range, followed by its currency.
 class MoneyPattern extends Pattern {
   readonly #notation: Notation;
+  readonly #per: Keys;
 
   constructor(notation: Notation) {
     super(Kind.MONEY);
     this.#notation = notation;
+    this.#per = keysOf(notation.per);
   }
 
   match(text: Text, position: number): Match | undefined {
@@ -762,13 +996,17 @@ class MoneyPattern extends Pattern {
       const currencyAt = (start: number, scale: string): Match | undefined => {
         for (const currency of keysAt(text, start, this.#notation.currencies)) {
           if (isClearAfter(text, start + size(currency))) {
-            return match({
-              kind: Kind.MONEY,
-              span: { begin: position, end: start + size(currency) },
-              numbers,
-              unit: currency,
-              scale,
-            });
+            return withPer(
+              text,
+              match({
+                kind: Kind.MONEY,
+                span: { begin: position, end: start + size(currency) },
+                numbers,
+                unit: currency,
+                scale,
+              }),
+              this.#per,
+            );
           }
         }
         return undefined;
@@ -848,11 +1086,13 @@ class PercentPattern extends Pattern {
 class UnitPattern extends Pattern {
   readonly #notation: Notation;
   readonly #letters: Keys; // Units of a single capital letter (W, V)
+  readonly #per: Keys;
 
   constructor(notation: Notation) {
     super(Kind.UNIT);
     this.#notation = { ...notation, units: singleLetters(notation.units, false) };
     this.#letters = singleLetters(notation.units, true);
+    this.#per = keysOf(notation.per);
   }
 
   match(text: Text, position: number): Match | undefined {
@@ -869,7 +1109,11 @@ class UnitPattern extends Pattern {
           if (unit.endsWith(".") && isSentenceEnd(text, unitEnd)) {
             unitEnd--;
           }
-          return match({ kind: Kind.UNIT, span: { begin: position, end: unitEnd }, numbers, unit });
+          return withPer(
+            text,
+            match({ kind: Kind.UNIT, span: { begin: position, end: unitEnd }, numbers, unit }),
+            this.#per,
+          );
         }
         return undefined;
       };

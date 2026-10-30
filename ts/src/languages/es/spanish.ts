@@ -9,6 +9,7 @@ import {
   PrefixedMoneyPattern,
   SuffixPattern,
   RomanPattern,
+  PrimePattern,
 } from "../../numbers/patterns.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
@@ -76,6 +77,7 @@ import {
   PHONE_FORMATS,
   PHONE_WORDS,
   SCALES,
+  SPORT_WORDS,
   STOP_WORDS,
   SYMBOLS,
   TENS,
@@ -88,6 +90,8 @@ import {
   ORDINAL_ARTICLES,
   FEMININE_ORDINAL_ARTICLES,
   ORDINAL_NOUNS,
+  PRIME_CUES,
+  PRIME_UNITS,
 } from "./constants.ts";
 
 // How "uno" ends a number: alone (veintiuno), before a masculine noun (veintiún años) or a feminine one (veintiuna)
@@ -651,6 +655,7 @@ class Spanish extends PatternLanguage {
     this.addPattern(new FractionPattern());
     this.addPattern(new PrefixedMoneyPattern(NOTATION, CURRENCY_WORDS));
     this.addPattern(new SecondsPattern());
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
     this.addPattern(new CompactTimePattern());
     this.addPattern(new GroupedOrdinalPattern(ORDINAL_SIGNS, ". \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SIGNS, ORDINAL_SIGN_FORMAT));
@@ -803,6 +808,9 @@ class Spanish extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
+    if (match.separator === "′") {
+      return Spanish.#primes(match);
+    }
     const hour = HOUR_SUFFIXES.includes(match.suffix);
     const morning = MORNING_SUFFIXES.includes(match.suffix);
     const evening = EVENING_SUFFIXES.includes(match.suffix);
@@ -1002,10 +1010,32 @@ class Spanish extends PatternLanguage {
     if (match.unit === "s" && !match.text.includes(" ")) {
       return undefined;
     }
-    const unit = UNITS[match.unit];
+    const unit = match.unit === "″" ? INCH : UNITS[match.unit];
     // 4,51/s: cuatro coma cincuenta y uno por segundo
     const one = unit.one.startsWith("por ") ? One.UNO : feminine(firstWord(unit.one)) ? One.UNA : One.UN;
     return `${numberWith(number, one)} ${isOne(number) ? unit.one : unit.many}`;
+  }
+
+  // 10-17 años keeps its hyphen, but a score is "a": ganó 2-0 (dos a cero)
+  protected override readRange(_from: Numeral, _to: Numeral, match: Match): string {
+    return PatternLanguage.isScore(match, SPORT_WORDS) ? this.joiners().score : this.joiners().range;
+  }
+
+  // 1'34"704: un minuto treinta y cuatro segundos y setecientas cuatro milésimas; 2h 08'29": dos horas ocho minutos
+  // veintinueve segundos
+  static #primes(match: Match): string | undefined {
+    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
+    const words = match.numbers.map((number, i) => {
+      const unit = PRIME_UNITS[first + i];
+      const n = value(number);
+      return `${cardinal(n, first + i === 0 ? One.UNA : One.UN)} ${n === 1n ? unit.one : unit.many}`;
+    });
+    const fraction = match.numbers[match.numbers.length - 1].fraction;
+    if (fraction !== "") {
+      const thousandths = cardinal(parseValue(fraction) ?? 0n, One.UNA);
+      words.push(fraction.length === 3 ? `y ${thousandths} milésimas` : thousandths);
+    }
+    return join(words);
   }
 
   // An amount with its scale: dos millones, cinco mil

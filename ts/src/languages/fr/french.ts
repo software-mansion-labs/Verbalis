@@ -3,6 +3,7 @@ import {
   GroupedOrdinalPattern,
   Pattern,
   PhonePattern,
+  PrimePattern,
   SuffixPattern,
   RomanPattern,
   RomanOrdinalPattern,
@@ -38,6 +39,7 @@ import {
   FEMININE_NOUNS,
   FRACTION_WORDS,
   FRACTIONS,
+  INCH,
   JOINERS,
   MASCULINE_ENDINGS,
   MASCULINE_IN_E,
@@ -48,6 +50,8 @@ import {
   ORDINAL_SUFFIXES,
   ORDINAL_WORDS,
   PHONE_FORMAT,
+  PRIME_CUES,
+  PRIME_UNITS,
   SCALES,
   STOP_WORDS,
   SYMBOLS,
@@ -434,6 +438,7 @@ class French extends PatternLanguage {
     this.addPattern(new EuroCentsPattern());
     this.addPattern(new MetersPattern());
     this.addPattern(new HalfUnitPattern());
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
     this.addPattern(new GroupedOrdinalPattern(ORDINAL_SUFFIXES, " \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new RomanOrdinalPattern(ROMAN_ORDINAL_SUFFIXES));
@@ -523,6 +528,9 @@ class French extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
+    if (match.separator === "′") {
+      return French.#primes(match);
+    }
     if (match.numbers.length === 2) {
       // à 18.30, but à 0.40%
       const decimal =
@@ -636,7 +644,7 @@ class French extends PatternLanguage {
       const whole = numeral({ span: { begin: 0, end: 0 }, integer: number.integer });
       return `${cardinal(n)} ${numberForm(whole, UNITS["m"])}` + (centimeters ? ` ${cardinal(centimeters)}` : "");
     }
-    const unit = UNITS[match.unit];
+    const unit = match.unit === "″" ? INCH : UNITS[match.unit];
     const space = unit.one.indexOf(" ");
     const firstWord = space === -1 ? unit.one : unit.one.slice(0, space);
     return `${gendered(number, cuesOf(match), feminine(firstWord))} ${numberForm(number, unit)}`;
@@ -654,6 +662,22 @@ class French extends PatternLanguage {
       return undefined;
     }
     return super.readJoiner(match);
+  }
+
+  // 1'27"23: une minute vingt-sept secondes et vingt-trois centièmes; 23"42: vingt-trois secondes quarante-deux
+  static #primes(match: Match): string | undefined {
+    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
+    const words = match.numbers.map((number, i) => {
+      const n = value(number);
+      const unit = PRIME_UNITS[first + i];
+      return `${cardinal(n, true)} ${n < 2n ? unit.one : unit.many}`;
+    });
+    const fraction = match.numbers[match.numbers.length - 1].fraction;
+    if (fraction !== "") {
+      const hundredths = cardinal(parseValue(fraction) ?? 0n);
+      words.push(first === 1 && fraction.length === 2 ? `et ${hundredths} centièmes` : hundredths);
+    }
+    return join(words);
   }
 }
 

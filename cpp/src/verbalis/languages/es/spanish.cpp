@@ -557,6 +557,7 @@ public:
     add_pattern(std::make_unique<FractionPattern>());
     add_pattern(std::make_unique<PrefixedMoneyPattern>(kNotation, kCurrencyWords));
     add_pattern(std::make_unique<SecondsPattern>());
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
     add_pattern(std::make_unique<CompactTimePattern>());
     add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSigns, U". \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSigns, kOrdinalSignFormat));
@@ -702,6 +703,9 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
+    if (match.separator == U'′') {
+      return primes(match);
+    }
     bool hour = std::ranges::find(kHourSuffixes, match.suffix) != kHourSuffixes.end();
     bool morning = std::ranges::find(kMorningSuffixes, match.suffix) != kMorningSuffixes.end();
     bool evening = std::ranges::find(kEveningSuffixes, match.suffix) != kEveningSuffixes.end();
@@ -901,13 +905,36 @@ protected:
     if (match.unit == U"s" && match.text.find(U' ') == std::u32string_view::npos) {
       return std::nullopt;
     }
-    const Forms& unit = kUnits.at(std::u32string(match.unit));
+    const Forms& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
     // 4,51/s: cuatro coma cincuenta y uno por segundo
     One one = unit.one.starts_with(U"por ") ? One::UNO : feminine(first_word(unit.one)) ? One::UNA : One::UN;
     return number_with(number, one) + U" " + (is_one(number) ? unit.one : unit.many);
   }
 
+  // 10-17 años keeps its hyphen, but a score is "a": ganó 2-0 (dos a cero)
+  std::u32string read_range(const Number& /*from*/, const Number& /*to*/, const Match& match) const override {
+    return is_score(match, kSportWords) ? joiners().score : joiners().range;
+  }
+
 private:
+  // 1'34"704: un minuto treinta y cuatro segundos y setecientas cuatro milésimas; 2h 08'29": dos horas ocho minutos
+  // veintinueve segundos
+  static std::optional<std::u32string> primes(const Match& match) {
+    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
+    std::vector<std::u32string> words;
+    for (size_t i = 0; i < match.numbers.size(); ++i) {
+      const Forms& unit = kPrimeUnits[first + i];
+      uint64_t n = value(match.numbers[i]);
+      words.push_back(cardinal(n, first + i == 0 ? One::UNA : One::UN) + U" " + (n == 1 ? unit.one : unit.many));
+    }
+    const std::u32string& fraction = match.numbers.back().fraction;
+    if (!fraction.empty()) {
+      std::u32string thousandths = cardinal(parse_value(fraction).value_or(0), One::UNA);
+      words.push_back(fraction.size() == 3 ? U"y " + thousandths + U" milésimas" : thousandths);
+    }
+    return join(words);
+  }
+
   // An amount with its scale: dos millones, un billón, cinco mil
   std::u32string scaled(const Number& number, const Match& match) const {
     const std::u32string& scale = kScales.at(std::u32string(match.scale));

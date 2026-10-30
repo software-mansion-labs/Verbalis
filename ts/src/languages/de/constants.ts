@@ -2,7 +2,7 @@ import { dateFormat, keysOf, notation, suffixFormat, type Fractions, type RomanC
 import type { Terms } from "../../steps/terms.ts";
 import type { Keys } from "../../text/scan.ts";
 import type { Context } from "../../text/context.ts";
-import { afterAny, beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
+import { afterAny, beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import { isDigit } from "../../text/unicode.ts";
 import { Gender, type Forms, type Joiners } from "../grammar.ts";
 
@@ -236,12 +236,35 @@ export const FEMININE_NAMES: ReadonlySet<string> = new Set([
 ]);
 
 // --- Notation: how numbers are written ---
+// Words of a text about time, which make its 3'16" minutes and seconds, and a lone 25″ seconds
+export const PRIME_CUES: ReadonlySet<string> = new Set([
+  "zeit", "lauf", "rennen", "rekord", "etappe", "vorsprung", "rückstand", "bestzeit", "marathon",
+  "minuten", "sekunden", "sieger", "siegerin", "gesamtwertung",
+]);
+
+// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second
+export const PRIME_UNITS: readonly Forms[] = [
+  { one: "Stunde", many: "Stunden" }, { one: "Minute", many: "Minuten" }, { one: "Sekunde", many: "Sekunden" },
+];
+export const SECOND_FRACTIONS = ["Zehntel", "Hundertstel", "Tausendstel"] as const;
+
 // Words after hours, minutes, and seconds, which the reading says: 02:02:23 Uhr, 13:46:36 Stunden
 export const SECONDS_SUFFIXES: Keys = ["Uhr", "Stunden", "Std.", "h"];
 
+// What an amount is counted by after a slash (pro and the singular): 12 €/kg, zwölf Euro pro Kilogramm
+export const PER: Readonly<Record<string, string>> = {
+  h: "pro Stunde", "Std.": "pro Stunde", Stunde: "pro Stunde", min: "pro Minute", "Min.": "pro Minute",
+  s: "pro Sekunde", sec: "pro Sekunde", "Sek.": "pro Sekunde", Tag: "pro Tag", Woche: "pro Woche", Monat: "pro Monat",
+  "Mon.": "pro Monat", Jahr: "pro Jahr", kg: "pro Kilogramm", g: "pro Gramm", t: "pro Tonne", l: "pro Liter",
+  L: "pro Liter", ml: "pro Milliliter", km: "pro Kilometer", m: "pro Meter", "m²": "pro Quadratmeter",
+  m2: "pro Quadratmeter", qm: "pro Quadratmeter", "m³": "pro Kubikmeter", m3: "pro Kubikmeter", ha: "pro Hektar",
+  kWh: "pro Kilowattstunde", MWh: "pro Megawattstunde", oz: "pro Unze", Person: "pro Person", "Stück": "pro Stück",
+  "St.": "pro Stück", Pack: "pro Packung",
+};
+
 export const NOTATION = notation({
   groupSeparators: ".   ", decimalSeparators: ",.", timeSeparators: ":.", timeSuffixes: ["Uhr"],
-  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
+  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true, per: PER,
 });
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
@@ -249,6 +272,16 @@ export const JOINERS: Joiners = {
   point: "Komma", dot: "Punkt", range: " bis ", by: "mal", score: " zu ", minus: "minus", plus: "plus",
   fraction: " ", rating: "von",
 };
+
+// Starts of words of sport, which make a pair like a clock time a score: mit 31:32 (15:21) (fünfzehn zu einundzwanzig)
+export const SPORT_WORDS: Keys = [
+  "spiel", "halbzeit", "tore", "treffer", "sieg", "verlor", "niederlage", "führ", "liga", "mannschaft",
+  "punkte", "satz", "handball", "fußball", "gewann", "partie", "pause", "endstand", "heimniederlage",
+  "heimsieg", "auswärts", "unterlag",
+];
+
+// Words before a clock time: um 15:21
+export const TIME_WORDS: ReadonlySet<string> = new Set(["um", "ab", "bis", "von", "zwischen", "gegen"]);
 
 // 1.5.2024, 1.5., 12. 3.: the year is optional, a dot closes the month
 export const DATE_FORMAT = dateFormat({
@@ -276,6 +309,10 @@ export const SYMBOLS: Readings = {
   "≤": ["kleiner oder gleich"],
   "±": ["plus minus"],
   "+/-": ["plus minus"],
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  "<": [{ words: "weniger als", when: beforeValue }],
+  ">": [{ words: "mehr als", when: beforeValue }],
+  "~": [{ words: "ungefähr", when: beforeValue }],
 };
 
 // Days of a month, the word before a month abbreviation in a date: 2. Jan. 2003

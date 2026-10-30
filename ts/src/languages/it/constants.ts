@@ -1,7 +1,7 @@
 import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import type { Keys } from "../../text/scan.ts";
-import { beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
+import { beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import type { Forms, Joiners } from "../grammar.ts";
 
 export const ONES = [
@@ -85,6 +85,21 @@ export const FRACTIONS: Fractions = {
 
 // Words after a fraction which mark it as one: 1/3 del
 export const FRACTION_WORDS: ReadonlySet<string> = new Set(["di", "del", "della", "dello", "dei", "degli", "delle", "dell'"]);
+
+// Words of a text about time, which make its 2'20" minutes and seconds, and a lone 25″ seconds
+export const PRIME_CUES: ReadonlySet<string> = new Set([
+  "tempo", "gara", "prova", "cronometro", "crono", "record", "vantaggio", "distacco", "ritardo", "tappa",
+  "classifica", "maratona", "minuti", "secondi", "podio", "traguardo",
+]);
+
+// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
+export const PRIME_UNITS: readonly Forms[] = [
+  { one: "ora", many: "ore" }, { one: "minuto", many: "minuti" }, { one: "secondo", many: "secondi" },
+];
+export const SECOND_FRACTIONS: readonly Forms[] = [
+  { one: "decimo", many: "decimi" }, { one: "centesimo", many: "centesimi" }, { one: "millesimo", many: "millesimi" },
+];
+export const INCH: Forms = { one: "pollice", many: "pollici" };
 
 // Words before a time with a dot, which make it a time: alle 21.30
 export const TIME_WORDS: ReadonlySet<string> = new Set(["alle", "ore", "dalle", "le", "verso", "entro", "per"]);
@@ -206,9 +221,18 @@ export const VERSION_WORDS: ReadonlySet<string> = new Set([
 ]);
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash: 12 €/l, dodici euro al litro; per in doses, as the corpus reads them
+export const PER: Readonly<Record<string, string>> = {
+  h: "all'ora", ora: "all'ora", min: "al minuto", s: "al secondo", sec: "al secondo", giorno: "al giorno",
+  settimana: "alla settimana", mese: "al mese", anno: "all'anno", kg: "per chilogrammo", g: "per grammo",
+  t: "per tonnellata", l: "al litro", L: "al litro", ml: "per millilitro", dl: "per decilitro", km: "al chilometro",
+  m: "al metro", "m²": "al metro quadrato", m2: "al metro quadrato", mq: "al metro quadrato", "m³": "per metro cubo",
+  m3: "per metro cubo", ha: "per ettaro", kWh: "al kilowattora", MWh: "al megawattora",
+};
+
 export const NOTATION = notation({
   groupSeparators: ".", decimalSeparators: ",.", timeSeparators: ":.",
-  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
+  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true, per: PER,
 });
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
@@ -216,6 +240,13 @@ export const JOINERS: Joiners = {
   point: "punto", dot: "punto", range: "-", by: "per", score: " a ", minus: "meno", plus: "più",
   fraction: " e ", half: " e mezzo", rating: "su",
 };
+
+// Starts of words of sport, which make a falling or tied range a score: vinto 2-1, l'1-1 (due a uno, l'uno a uno)
+export const SPORT_WORDS: Keys = [
+  "partita", "partite", "gol", "rete", "vittori", "vince", "vinto", "parziale", "campionato", "giornata",
+  "squadra", "pareggi", "sconfi", "finale", "match", "risultat", "punteggi", "punti", "battut", "vantaggio",
+  "sfida", "impone",
+];
 
 // 24/03/2022, 24.03.2022, 24-03-2022
 export const DATE_FORMAT = dateFormat({ separators: "/.-", boundaries: ".,/-" });
@@ -241,6 +272,12 @@ export const SYMBOLS: Readings = {
   "°": ["gradi"],   "#": ["hashtag"], "²": ["al quadrato"], "³": ["al cubo"],    "π": ["pi greco"],
   "×": ["per"],     "€": ["euro"],    "$": ["dollari"],     "£": ["sterline"],   "§": ["paragrafo"],
   "±": ["più o meno"], "+/-": ["più o meno"], "‰": ["per mille"], "∞": ["infinito"],
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  "<": [{ words: "minore di", when: beforeValue }],
+  ">": [{ words: "maggiore di", when: beforeValue }],
+  "≤": [{ words: "minore o uguale a", when: beforeValue }],
+  "≥": [{ words: "maggiore o uguale a", when: beforeValue }],
+  "~": [{ words: "circa", when: beforeValue }],
 };
 
 export const TERMS: Terms = {

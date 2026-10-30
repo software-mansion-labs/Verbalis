@@ -863,6 +863,7 @@ public:
     add_pattern(std::make_unique<YearlessDatePattern>());
     add_pattern(std::make_unique<RomanDatePattern>());
     add_pattern(std::make_unique<FractionUnitPattern>());
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -946,10 +947,16 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
+    if (match.separator == U'′') {
+      return primes(match);
+    }
     const auto& minutes = match.numbers[1].integer;
     bool round = minutes == U"00" || minutes == U"15" || minutes == U"30" || minutes == U"45";
     bool decimal = match.separator == U'.' && !round && !kTimeWords.contains(match.context.before());
-    if (!fits_clock(match) || decimal) {
+    // prowadzenie 20:16: a score, read by its own pattern; but o 20:16, mecz (poniedziałek, 18:00)
+    bool score = match.separator == U':' && match.suffix.empty() && minutes != U"00" &&
+                 !kTimeWords.contains(match.context.before()) && mentions(match.context, kSportWords);
+    if (!fits_clock(match) || decimal || score) {
       return std::nullopt;
     }
 
@@ -1141,7 +1148,8 @@ protected:
   }
 
   std::optional<std::u32string> read_unit(const Number& number, const Match& match) const override {
-    return amount(number, kUnits.at(std::u32string(match.unit)), amount_case(match));
+    const Noun& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
+    return amount(number, unit, amount_case(match));
   }
 
   std::optional<std::u32string> read_fraction(const Match& match) const override {
@@ -1207,6 +1215,22 @@ protected:
   }
 
 private:
+  // 8'22": osiem minut dwadzieścia dwie sekundy
+  static std::optional<std::u32string> primes(const Match& match) {
+    static const std::array<std::u32string_view, 3> units = {U"h", U"min", U"s"};
+    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
+    std::vector<std::u32string> words;
+    for (size_t i = 0; i < match.numbers.size(); ++i) {
+      Number whole{.integer = to_digits(value(match.numbers[i]))};
+      words.push_back(amount(whole, kUnits.at(std::u32string(units[first + i])), Case::NOMINATIVE));
+    }
+    const std::u32string& fraction = match.numbers.back().fraction;
+    if (!fraction.empty()) {
+      words.push_back(cardinal(parse_value(fraction).value_or(0)));
+    }
+    return join(words);
+  }
+
   // The case of a fraction, from the word before it: około jednej piątej, w jednej czwartej, zjadł jedną szóstą
   static Case fraction_case(const Context& context) {
     std::u32string before = context.before();

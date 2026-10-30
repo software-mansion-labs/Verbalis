@@ -1,16 +1,18 @@
 import { Kind, numeral, type Match, type Numeral } from "../numbers/match.ts";
-import type { Notation } from "../numbers/formats.ts";
+import { keysOf, type Notation } from "../numbers/formats.ts";
 import { genericPatterns, type Pattern } from "../numbers/patterns.ts";
-import { codeParts, fractionOf } from "../numbers/scanning.ts";
+import { codeParts, fractionOf, value } from "../numbers/scanning.ts";
 import type { Characters } from "../steps/normalize.ts";
 import type { Terms } from "../steps/terms.ts";
-import { Context } from "../text/context.ts";
+import { Context, stripped, wordsOf } from "../text/context.ts";
 import { Document } from "../text/document.ts";
 import type { Readings } from "../text/readings.ts";
-import { digitsEnd, join, skipSpace } from "../text/scan.ts";
-import { str } from "../text/strings.ts";
-import { isDigit } from "../text/unicode.ts";
+import { digitsEnd, join, skipSpace, type Keys } from "../text/scan.ts";
+import { contains, split, str, toLower, type Text } from "../text/strings.ts";
+import { isAlpha, isDigit } from "../text/unicode.ts";
 import type { Joiners } from "./grammar.ts";
+
+const ELISIONS = "'’´";
 
 // The tables of a language's steps.
 export interface Tables {
@@ -55,10 +57,12 @@ type Amount = (amount: Numeral, match: Match) => string | undefined;
 export abstract class PatternLanguage extends Language {
   readonly #patterns: { pattern: Pattern; generic: boolean }[] = []; // By kind, then the language's own first
   readonly #joiners: Joiners;
+  readonly #per: Readonly<Record<string, string>>; // Notation.per
 
   protected constructor(tables: Tables, notation: Notation, joiners: Joiners) {
     super(tables);
     this.#joiners = joiners;
+    this.#per = notation.per;
     for (const pattern of genericPatterns(notation)) {
       this.#patterns.push({ pattern, generic: true });
     }
@@ -213,6 +217,46 @@ export abstract class PatternLanguage extends Language {
 
   protected readRange(_from: Numeral, _to: Numeral, _match: Match): string {
     return this.#joiners.range;
+  }
+
+  // A score rather than a range: a range of at most three digits that drops or ties (3-1, 1-1), or follows an
+  // elided article (l'1-2), in a text with a word of sport (a prefix of sportWords). Not 3-15 años, nor 14-2b.
+  protected static isScore(range: Match, sportWords: Keys): boolean {
+    if (range.kind !== Kind.RANGE) {
+      return false;
+    }
+    const from = range.numbers[0];
+    const to = range.numbers[1];
+    const head = range.context.head();
+    const tail = range.context.tail();
+    const start = head.length - from.integer.length;
+    const end = to.integer.length;
+
+    // Not part of a code, a decimal, or a time: 14-2b, 4,5-5,5, 18:30-20:30
+    const gluedBefore = start > 0 && (isAlpha(head[start - 1]) || contains(".,:-", head[start - 1]));
+    const gluedAfter =
+      end < tail.length &&
+      (isAlpha(tail[end]) || (contains(".,:", tail[end]) && end + 1 < tail.length && isDigit(tail[end + 1])));
+    if (from.integer.length > 3 || to.integer.length > 3 || gluedBefore || gluedAfter) {
+      return false;
+    }
+    const elided = start > 0 && contains(ELISIONS, head[start - 1]);
+    return (value(to) <= value(from) || elided) && PatternLanguage.mentions(range.context, sportWords);
+  }
+
+  // Whether a word of the text around a match starts with one of the stems
+  protected static mentions(context: Context, stems: Keys): boolean {
+    const any = (text: Text): boolean =>
+      wordsOf(text).some((word) => {
+        // dell'Atalanta, (Sabato): the word after an elision, without punctuation
+        let elision = word.length - 1;
+        while (elision >= 0 && !contains(ELISIONS, word[elision])) {
+          elision--;
+        }
+        const lower = toLower(str(stripped(word.slice(elision + 1))));
+        return stems.some((stem) => lower.startsWith(stem));
+      });
+    return any(context.head()) || any(context.tail());
   }
 
   // The plural of a reading, for codes like F-16s; none by default.
@@ -371,7 +415,18 @@ export abstract class PatternLanguage extends Language {
       last.integer = last.integer.slice(1);
     }
 
-    const words = reading(last, match);
+    let words = reading(last, match);
+
+    // 12 €/kg, 125 kWh/m²/an: what the amount is counted by, from the language's Notation.per
+    if (
+      words !== undefined &&
+      (match.kind === Kind.MONEY || match.kind === Kind.UNIT) &&
+      keysOf(this.#per).length > 0
+    ) {
+      for (const unit of split(match.suffix, "/")) {
+        words += " " + this.#per[unit];
+      }
+    }
     if (words === undefined || match.numbers.length === 1) {
       return words;
     }

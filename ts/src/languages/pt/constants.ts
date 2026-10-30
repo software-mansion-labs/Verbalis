@@ -1,6 +1,6 @@
 import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
-import { beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
+import { beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
 import type { Forms, Joiners } from "../grammar.ts";
 
@@ -99,6 +99,21 @@ export const LAW_WORDS: ReadonlySet<string> = new Set([
 // Scale words which take "de" before a currency: um milhão de reais, but dez mil reais
 export const SCALE_WORDS = ["milhão", "milhões", "bilhão", "bilhões", "trilhão", "trilhões"] as const;
 
+// Words of a text about time, which make its 2'14" minutes and seconds, and a lone 25″ seconds
+export const PRIME_CUES: ReadonlySet<string> = new Set([
+  "tempo", "corrida", "prova", "cronómetro", "cronômetro", "recorde", "vantagem", "etapa", "classificação",
+  "maratona", "minutos", "segundos", "pódio", "vídeo", "filme", "duração",
+]);
+
+// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
+export const PRIME_UNITS: readonly Forms[] = [
+  { one: "hora", many: "horas" }, { one: "minuto", many: "minutos" }, { one: "segundo", many: "segundos" },
+];
+export const SECOND_FRACTIONS: readonly Forms[] = [
+  { one: "décimo", many: "décimos" }, { one: "centésimo", many: "centésimos" }, { one: "milésimo", many: "milésimos" },
+];
+export const INCH: Forms = { one: "polegada", many: "polegadas" };
+
 // Words before an hour, which make it feminine: às duas, das dez
 export const HOUR_WORDS: ReadonlySet<string> = new Set(["às", "à", "as", "das", "pelas"]);
 
@@ -171,9 +186,19 @@ export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
 ]);
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash (por): 12 €/kg, doze euros por quilo
+export const PER: Readonly<Record<string, string>> = {
+  h: "por hora", hora: "por hora", min: "por minuto", minuto: "por minuto", s: "por segundo", dia: "por dia",
+  semana: "por semana", "mês": "por mês", ano: "por ano", kg: "por quilo", g: "por grama", t: "por tonelada",
+  ton: "por tonelada", l: "por litro", L: "por litro", ml: "por mililitro", mL: "por mililitro", km: "por quilômetro",
+  m: "por metro", "m²": "por metro quadrado", m2: "por metro quadrado", "m³": "por metro cúbico",
+  m3: "por metro cúbico", ha: "por hectare", kWh: "por quilowatt-hora", MWh: "por megawatt-hora",
+  unidade: "por unidade",
+};
+
 export const NOTATION = notation({
   groupSeparators: ". \u00a0\u202f", decimalSeparators: ",.", timeSeparators: ":hH.", timeSuffixes: ["h", "hs"],
-  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
+  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true, per: PER,
 });
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
@@ -181,6 +206,15 @@ export const JOINERS: Joiners = {
   point: "ponto", dot: "ponto", range: " a ", by: "por", score: " a ", minus: "menos", plus: "mais",
   fraction: " e ", rating: "de",
 };
+
+// Starts of words of sport, which make a falling or tied range a score: venceu 5-2, empate 1-1 (cinco a dois)
+export const SPORT_WORDS: Keys = [
+  "jogo", "gol", "placar", "venceu", "vencer", "venceram", "vitória", "derrot", "empat", "partida",
+  "campeonato", "rodada", "jornada", "futebol", "triunf", "pontos",
+];
+
+// Starts of words of sets, which make a slashed pair a score: parciais de 3/6, 6/2 e 7/6 (três a seis)
+export const SET_WORDS: Keys = ["parcia", "sets"];
 
 // 24/03/2022, 07-11-2018
 export const DATE_FORMAT = dateFormat({ separators: "/-", boundaries: ".,/-", yearRequired: false });
@@ -238,6 +272,12 @@ export const SYMBOLS: Readings = {
   "°": ["graus"],     "#": ["hashtag"], "²": ["ao quadrado"], "³": ["ao cubo"],  "π": ["pi"],
   "×": ["vezes"],     "€": ["euros"],   "$": ["dólares"],     "£": ["libras"],   "§": ["parágrafo"],
   "±": ["mais ou menos"], "+/-": ["mais ou menos"], "‰": ["por mil"],
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  "<": [{ words: "menor que", when: beforeValue }],
+  ">": [{ words: "maior que", when: beforeValue }],
+  "≤": [{ words: "menor ou igual a", when: beforeValue }],
+  "≥": [{ words: "maior ou igual a", when: beforeValue }],
+  "~": [{ words: "cerca de", when: beforeValue }],
 };
 
 export const TERMS: Terms = {

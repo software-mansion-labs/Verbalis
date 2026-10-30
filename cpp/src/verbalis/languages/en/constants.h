@@ -80,7 +80,8 @@ inline const std::unordered_map<std::u32string, std::u32string> kPer = {
   {U"hour", U"hour"}, {U"min", U"minute"}, {U"kg", U"kilogram"}, {U"lb", U"pound"}, {U"g", U"gram"},
   {U"person", U"person"}, {U"night", U"night"}, {U"share", U"share"}, {U"barrel", U"barrel"}, {U"bbl", U"barrel"},
   {U"oz", U"ounce"}, {U"ton", U"ton"}, {U"tonne", U"tonne"}, {U"gallon", U"gallon"}, {U"kWh", U"kilowatt-hour"},
-  {U"MWh", U"megawatt-hour"}, {U"s", U"second"}, {U"sec", U"second"}
+  {U"MWh", U"megawatt-hour"}, {U"s", U"second"}, {U"sec", U"second"}, {U"t", U"ton"}, {U"ha", U"hectare"},
+  {U"dL", U"deciliter"}
 };
 inline const Keys kPerKeys = keys_of(kPer);
 
@@ -170,6 +171,9 @@ inline const Keys kTimeSuffixes = {U"a.m.", U"p.m.", U"a.m", U"p.m", U"am.", U"p
 inline const std::unordered_set<std::u32string> kSpellingWords = {
   U"pin", U"otp", U"code", U"passcode", U"password", U"cvv", U"cvc", U"zip"
 };
+
+// Words before a range: aged 1-59, sizes 0-14 (not "from", which NeMo reads "from two - ten")
+inline const std::unordered_set<std::u32string> kRangeWords = {U"aged", U"ages", U"sizes", U"between"};
 
 // Months, also abbreviated (lowercase)
 inline const std::unordered_set<std::u32string> kMonthWords = {
@@ -267,13 +271,21 @@ inline const SuffixFormat kDecadeFormat = {.apostrophes = true, .boundaries = U"
 
 using ::verbalis::text::Readings;
 
+using ::verbalis::text::before_value;
+
 inline const Readings kSymbols = {
   {U"&", {U"and"}},      {U"+", {U"plus"}},    {U"=", {U"equals"}},  {U"@", {U"at"}},      {U"%", {U"percent"}},
   {U"°", {U"degrees"}},  {U"#", {U"hash"}},    {U"²", {U"squared"}}, {U"³", {U"cubed"}},   {U"π", {U"pi"}},
   {U"×", {U"times"}},    {U"±", {U"plus or minus"}}, {U"½", {U"one half"}},
   {U"§", {U"section"}},    {U"$", {U"dollar"}}, {U"€", {U"euro"}},
   {U"£", {U"pound"}},      {U"¥", {U"yen"}},      {U"₩", {U"won"}},
-  {U"+/-", {U"plus or minus"}}
+  {U"+/-", {U"plus or minus"}},
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  {U"<", {{U"less than", before_value}}},
+  {U">", {{U"greater than", before_value}}},
+  {U"≤", {{U"less than or equal to", before_value}}},
+  {U"≥", {{U"greater than or equal to", before_value}}},
+  {U"~", {{U"approximately", before_value}}}
 };
 
 using ::verbalis::text::before_name;

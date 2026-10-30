@@ -74,6 +74,10 @@ REGISTER_TEST(numbers_pt_test) {
   ASSERT_EQUALS(U"duzentos gramas em trinta minutos e quarenta e cinco segundos, trinta segundos e os anos noventa.",
                 verbalize("pt", U"200 g em 30 min e 45 s, 30s e os anos 90s."));
 
+  // Scores: a falling range among words of sport, and slashed pairs among words of sets
+  ASSERT_EQUALS(U"O Braga venceu cinco a dois, com parciais de três a seis, seis a dois e sete a seis (oito a seis).",
+                verbalize("pt", U"O Braga venceu 5-2, com parciais de 3/6, 6/2 e 7/6 (8/6).", only(&Options::numbers)));
+
   return true;
 }
 

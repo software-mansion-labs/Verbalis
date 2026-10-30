@@ -2,6 +2,7 @@
 
 #include <verbalis/numbers/scanning.h>
 #include <verbalis/text/scan.h>
+#include <verbalis/text/strings.h>
 #include <verbalis/text/unicode.h>
 
 #include <algorithm>
@@ -14,7 +15,7 @@ using numbers::code_parts;
 namespace unicode = text::unicode;
 
 PatternLanguage::PatternLanguage(Tables tables, const Notation& notation, Joiners joiners)
-    : Language(tables), joiners_(std::move(joiners)) {
+    : Language(tables), joiners_(std::move(joiners)), per_(notation.per) {
   for (auto& pattern : numbers::generic_patterns(notation)) {
     patterns_.push_back({std::move(pattern), true});
   }
@@ -215,6 +216,48 @@ std::u32string PatternLanguage::read_range(const Number& /*from*/, const Number&
   return joiners_.range;
 }
 
+namespace {
+constexpr std::u32string_view kElisions = U"'’´";
+
+bool is_in(std::u32string_view chars, char32_t c) {
+  return chars.find(c) != std::u32string_view::npos;
+}
+} // namespace
+
+bool PatternLanguage::is_score(const Match& range, const text::Keys& sport_words) {
+  if (range.kind != Kind::RANGE) {
+    return false;
+  }
+  const Number& from = range.numbers[0];
+  const Number& to = range.numbers[1];
+  std::u32string_view head = range.context.head(), tail = range.context.tail();
+  size_t start = head.size() - from.integer.size(), end = to.integer.size();
+
+  // Not part of a code, a decimal, or a time: 14-2b, 4,5-5,5, 18:30-20:30
+  bool glued_before = start > 0 && (unicode::isalpha(head[start - 1]) || is_in(U".,:-", head[start - 1]));
+  bool glued_after =
+      end < tail.size() && (unicode::isalpha(tail[end]) ||
+                            (is_in(U".,:", tail[end]) && end + 1 < tail.size() && unicode::isdigit(tail[end + 1])));
+  if (from.integer.size() > 3 || to.integer.size() > 3 || glued_before || glued_after) {
+    return false;
+  }
+  bool elided = start > 0 && is_in(kElisions, head[start - 1]);
+  return (numbers::value(to) <= numbers::value(from) || elided) && mentions(range.context, sport_words);
+}
+
+bool PatternLanguage::mentions(const Context& context, const text::Keys& stems) {
+  auto any = [&](std::u32string_view text) {
+    return std::ranges::any_of(text::words_of(text), [&](std::u32string_view word) {
+      // dell'Atalanta, (Sabato): the word after an elision, without punctuation
+      size_t elision = word.find_last_of(kElisions);
+      word = text::stripped(elision == std::u32string_view::npos ? word : word.substr(elision + 1));
+      std::u32string lower = text::strings::to_lower(word);
+      return std::ranges::any_of(stems, [&](const auto& stem) { return lower.starts_with(stem); });
+    });
+  };
+  return any(context.head()) || any(context.tail());
+}
+
 // ---------------------------
 // ----- Shared readings -----
 // ---------------------------
@@ -304,6 +347,13 @@ std::optional<std::u32string> PatternLanguage::read_amount(const Match& match, A
   }
 
   auto words = (this->*reading)(last, match);
+
+  // 12 €/kg, 125 kWh/m²/an: what the amount is counted by, from the language's Notation::per
+  if (words && (match.kind == Kind::MONEY || match.kind == Kind::UNIT) && !per_.empty()) {
+    for (auto unit : text::strings::split(match.suffix, U'/')) {
+      *words += U" " + per_.at(std::u32string(unit));
+    }
+  }
   if (!words || match.numbers.size() == 1) {
     return words;
   }

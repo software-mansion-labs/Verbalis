@@ -5,6 +5,7 @@ import {
   SuffixPattern,
   Pattern,
   RomanPattern,
+  PrimePattern,
 } from "../../numbers/patterns.ts";
 import { Kind, numeral, type Match, type Numeral, match as matchOf } from "../../numbers/match.ts";
 import {
@@ -86,6 +87,7 @@ import {
   PHONE_WORDS,
   PREPOSITION_CASES,
   SCALES,
+  SPORT_WORDS,
   SYMBOLS,
   TERMS,
   THOUSAND,
@@ -98,6 +100,8 @@ import {
   CENTURY_ABBREVIATIONS,
   REGNAL_NAMES,
   ROMAN_NOUNS,
+  INCH,
+  PRIME_CUES,
 } from "./constants.ts";
 
 // Whether a number reads as a count or as an ordinal (years, days of a month, headings)
@@ -1048,6 +1052,7 @@ class Polish extends PatternLanguage {
     this.addPattern(new YearlessDatePattern());
     this.addPattern(new RomanDatePattern());
     this.addPattern(new FractionUnitPattern());
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -1138,10 +1143,20 @@ class Polish extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
+    if (match.separator === "′") {
+      return Polish.#primes(match);
+    }
     const minutes = match.numbers[1].integer;
     const round = minutes === "00" || minutes === "15" || minutes === "30" || minutes === "45";
     const decimal = match.separator === "." && !round && !TIME_WORDS.has(match.context.before());
-    if (!fitsClock(match) || decimal) {
+    // prowadzenie 20:16: a score, read by its own pattern; but o 20:16, mecz (poniedziałek, 18:00)
+    const score =
+      match.separator === ":" &&
+      match.suffix === "" &&
+      minutes !== "00" &&
+      !TIME_WORDS.has(match.context.before()) &&
+      PatternLanguage.mentions(match.context, SPORT_WORDS);
+    if (!fitsClock(match) || decimal || score) {
       return undefined;
     }
 
@@ -1316,7 +1331,8 @@ class Polish extends PatternLanguage {
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
-    return amount(number, UNITS[match.unit], this.#amountCase(match));
+    const unit = match.unit === "″" ? INCH : UNITS[match.unit];
+    return amount(number, unit, this.#amountCase(match));
   }
 
   protected override readFraction(match: Match): string | undefined {
@@ -1420,6 +1436,21 @@ class Polish extends PatternLanguage {
   }
 
   // The case of an amount, or of the end of its range after "do": 4-5 proc. cztery do pięciu procent
+  // 8'22": osiem minut dwadzieścia dwie sekundy
+  static #primes(match: Match): string | undefined {
+    const units = ["h", "min", "s"];
+    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
+    const words = match.numbers.map((number, i) => {
+      const whole = numeral({ span: { begin: 0, end: 0 }, integer: toDigits(value(number)) });
+      return amount(whole, UNITS[units[first + i]], Case.NOMINATIVE);
+    });
+    const fraction = match.numbers[match.numbers.length - 1].fraction;
+    if (fraction !== "") {
+      words.push(cardinal(parseValue(fraction) ?? 0n));
+    }
+    return join(words);
+  }
+
   #amountCase(match: Match): Case {
     if (match.numbers.length === 2 && this.readRange(match.numbers[0], match.numbers[1], match) === " do ") {
       return Case.GENITIVE;

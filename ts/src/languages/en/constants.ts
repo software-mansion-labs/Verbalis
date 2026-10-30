@@ -2,7 +2,7 @@ import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions
 import type { Terms } from "../../steps/terms.ts";
 import type { Keys } from "../../text/scan.ts";
 import { wordsOf, type Context } from "../../text/context.ts";
-import { beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
+import { beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import { contains, str } from "../../text/strings.ts";
 import { isDigit, isUpper, isWord } from "../../text/unicode.ts";
 import type { Forms, Joiners } from "../grammar.ts";
@@ -60,7 +60,7 @@ export const PER: Readonly<Record<string, string>> = {
   hour: "hour", min: "minute", kg: "kilogram", lb: "pound", g: "gram",
   person: "person", night: "night", share: "share", barrel: "barrel", bbl: "barrel",
   oz: "ounce", ton: "ton", tonne: "tonne", gallon: "gallon", kWh: "kilowatt-hour",
-  MWh: "megawatt-hour", s: "second", sec: "second",
+  MWh: "megawatt-hour", s: "second", sec: "second", t: "ton", ha: "hectare", dL: "deciliter",
 };
 export const PER_KEYS: Keys = keysOf(PER);
 
@@ -152,6 +152,9 @@ const TIME_SUFFIXES = [
 export const SPELLING_WORDS: ReadonlySet<string> = new Set([
   "pin", "otp", "code", "passcode", "password", "cvv", "cvc", "zip",
 ]);
+
+// Words before a range: aged 1-59, sizes 0-14 (not "from", which NeMo reads "from two - ten")
+export const RANGE_WORDS: ReadonlySet<string> = new Set(["aged", "ages", "sizes", "between"]);
 
 // Months, also abbreviated (lowercase)
 export const MONTH_WORDS: ReadonlySet<string> = new Set([
@@ -255,6 +258,12 @@ export const SYMBOLS: Readings = {
   "§": ["section"],    "$": ["dollar"], "€": ["euro"],
   "£": ["pound"],      "¥": ["yen"],      "₩": ["won"],
   "+/-": ["plus or minus"],
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  "<": [{ words: "less than", when: beforeValue }],
+  ">": [{ words: "greater than", when: beforeValue }],
+  "≤": [{ words: "less than or equal to", when: beforeValue }],
+  "≥": [{ words: "greater than or equal to", when: beforeValue }],
+  "~": [{ words: "approximately", when: beforeValue }],
 };
 
 // After the name of a street: 1428 Elm St., on 5th St.; on Main St. unless a name follows (Ascension St. Joseph),

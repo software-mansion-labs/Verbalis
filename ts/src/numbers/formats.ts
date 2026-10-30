@@ -82,6 +82,8 @@ export interface Notation {
   scales: Keys; // million, mln, k
   units: Keys; // km, kg, °C
   fractions: boolean; // Whether 3/4 reads as a fraction
+  // What an amount is counted by after a slash, and its words: the h of 5 km/h, "per hour"
+  per: Readonly<Record<string, string>>;
 }
 
 export function notation(fields: Partial<Notation> = {}): Notation {
@@ -94,6 +96,7 @@ export function notation(fields: Partial<Notation> = {}): Notation {
     scales: [],
     units: [],
     fractions: false,
+    per: {},
     ...fields,
   };
 }

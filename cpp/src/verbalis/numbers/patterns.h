@@ -6,6 +6,7 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -129,6 +130,35 @@ private:
   bool loose_;
 };
 
+/**
+ * 1'27"23, 2h11'13", 23"42, 5'9", 18'': a time or a length written with prime marks.
+ *
+ * A time is a TIME match with the separator ′. Its unit is the unit of its first number, "h", "min", or "s", and each
+ * number after it counts the next one; the digits after the seconds mark (23"42) are the fraction of the seconds.
+ * Feet and inches (5'9") are a TIME match of the unit "ft". A lone number of inches (18'') is a UNIT match of the
+ * unit ″, and of feet (400'), of "ft".
+ */
+class PrimePattern : public Pattern {
+public:
+  /**
+   * @param cues lowercase words of a text which make its minutes and seconds (3'16") and a lone 23″ a time; without
+   *        one, they are left as written and a lone 23″ is inches.
+   * @param feet reads 5'9" as feet and inches, and a lone 400' as feet.
+   */
+  PrimePattern(const Notation& notation, std::unordered_set<std::u32string> cues, bool feet = false)
+      : Pattern(Kind::TIME), decimals_(notation.decimal_separators), cues_(std::move(cues)), feet_(feet) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override;
+
+private:
+  // Whether a word of a text is one of the cues
+  bool cued(std::u32string_view text) const;
+
+  std::u32string decimals_;
+  std::unordered_set<std::u32string> cues_;
+  bool feet_;
+};
+
 // XIXe, XIIवीं: an ordinal written in Roman numerals, with a suffix; one letter only if it is I, V or X.
 class RomanOrdinalPattern : public Pattern {
 public:
@@ -220,6 +250,7 @@ public:
 private:
   Notation notation_;
   Keys currencies_; // Only the ones which are not words
+  Keys per_;
 };
 
 // 50$, 12,99 zł, 10-15 €, 3 mln zł: an amount, possibly a range, followed by its currency.
@@ -231,6 +262,7 @@ public:
 
 private:
   Notation notation_;
+  Keys per_;
 };
 
 // 3 mln, 500k, 1.5 million
@@ -265,6 +297,7 @@ public:
 private:
   Notation notation_;
   Keys letters_; // Units of a single capital letter (W, V)
+  Keys per_;
 };
 
 // 21-year-old, 45-metrowe: a number joined to a word by a hyphen.

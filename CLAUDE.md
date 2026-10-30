@@ -8,7 +8,8 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
 ## Layout
 
 - `cpp/`: the C++ core. `include/verbalis/verbalizer.h` is the public API. Under `src/verbalis/`:
-  - `verbalizer.cpp`: the fixed pipeline, normalize → trim → terms → numbers → symbols.
+  - `verbalizer.cpp`: the fixed pipeline, normalize → trim → terms → symbols with a condition → numbers → symbols
+    (a conditional reading, such as `<` before a number, must see the digits before numbers turns them into words).
   - `text/`: the document and its edits, the context around a match, scanning, Unicode, and UTF-8.
   - `steps/`: normalize, trim, terms, and symbols.
   - `numbers/`: the number engine: matches, formats, patterns, and the scanners and helpers they share.

@@ -2,7 +2,7 @@ import { dateFormat, keysOf, notation, phoneFormat, type Fractions, type RomanCu
 import type { Terms } from "../../steps/terms.ts";
 import { stripped, wordsOf, type Context } from "../../text/context.ts";
 import type { Keys } from "../../text/scan.ts";
-import { afterAny, beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
+import { afterAny, beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import { size } from "../../text/strings.ts";
 import { isUpper } from "../../text/unicode.ts";
 import type { Forms, Joiners } from "../grammar.ts";
@@ -145,6 +145,18 @@ export const TIME_WORDS: ReadonlySet<string> = new Set([
   "à", "vers", "dès", "de", "jusqu'à", "avant", "après", "entre", "et",
 ]);
 
+// Words of a text about time, which make its 3'16" minutes and seconds, and a lone 23″ seconds
+export const PRIME_CUES: ReadonlySet<string> = new Set([
+  "temps", "chrono", "chronomètre", "course", "record", "retard", "avance", "étape", "général", "vainqueur",
+  "maillot", "marathon", "sprint", "finale", "demi-finales", "minutes", "secondes", "podium",
+]);
+
+// A time written with prime marks: hours, minutes, and seconds; and an inch, as a lone 20"
+export const PRIME_UNITS: readonly Forms[] = [
+  { one: "heure", many: "heures" }, { one: "minute", many: "minutes" }, { one: "seconde", many: "secondes" },
+];
+export const INCH: Forms = { one: "pouce", many: "pouces" };
+
 // XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals
 export const ROMAN_ORDINAL_SUFFIXES: Keys = ["er", "re", "ère", "e", "ème"];
 
@@ -178,9 +190,19 @@ export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
 ]);
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash (par): 12 €/kg, douze euros par kilogramme
+export const PER: Readonly<Record<string, string>> = {
+  h: "par heure", heure: "par heure", min: "par minute", s: "par seconde", sec: "par seconde", jour: "par jour",
+  j: "par jour", semaine: "par semaine", mois: "par mois", an: "par an", kg: "par kilogramme", g: "par gramme",
+  t: "par tonne", tonne: "par tonne", l: "par litre", L: "par litre", ml: "par millilitre", km: "par kilomètre",
+  m: "par mètre", "m²": "par mètre carré", m2: "par mètre carré", "m³": "par mètre cube", m3: "par mètre cube",
+  ha: "par hectare", kWh: "par kilowattheure", MWh: "par mégawattheure", MWH: "par mégawattheure", oz: "par once",
+  personne: "par personne",
+};
+
 export const NOTATION = notation({
   groupSeparators: "   .'’", decimalSeparators: ",.", timeSeparators: ":.h", timeSuffixes: ["h"],
-  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
+  currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true, per: PER,
 });
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
@@ -214,6 +236,10 @@ export const SYMBOLS: Readings = {
   "£": ["livres"],   "±": ["plus ou moins"], "+/-": ["plus ou moins"], "‰": ["pour mille"],
   "≤": ["inférieur ou égal à"],
   "°C": ["degrés Celsius"], "M€": ["millions d'euros"],
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  "<": [{ words: "moins de", when: beforeValue }],
+  ">": [{ words: "plus de", when: beforeValue }],
+  "~": [{ words: "environ", when: beforeValue }],
 };
 
 // Days of a month, the word before a month abbreviation in a date: 2 janv. 2003, 1er févr.

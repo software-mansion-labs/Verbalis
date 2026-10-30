@@ -69,6 +69,25 @@ Keys single_letters(const Keys& keys, bool single) {
   });
   return selected;
 }
+
+// An amount with the units it is counted by after slashes, from per: the /h of 5 km/h, the /m²/an of 125 kWh/m²/an
+Match with_per(std::u32string_view text, Match match, const Keys& per) {
+  size_t end = match.span.end;
+  while (end + 1 < text.size() && text[end] == U'/') {
+    auto keys = keys_at(text, end + 1, per);
+    auto key = std::ranges::find_if(keys, [&](auto unit) { return is_clear_after(text, end + 1 + unit.size()); });
+    if (key == keys.end()) {
+      break;
+    }
+    end += 1 + key->size();
+  }
+  if (end > match.span.end) {
+    match.suffix = text.substr(match.span.end + 1, end - match.span.end - 1);
+    // A dot closing both the unit and the text stays with the text: 19,99 €/mies.
+    match.span.end = match.suffix.ends_with(U'.') && is_sentence_end(text, end) ? end - 1 : end;
+  }
+  return match;
+}
 } // namespace
 
 // ----------------------------
@@ -430,7 +449,7 @@ std::optional<Match> ScorePattern::match(std::u32string_view text, size_t positi
 }
 
 PrefixedMoneyPattern::PrefixedMoneyPattern(const Notation& notation, const Keys& words)
-    : Pattern(Kind::MONEY), notation_(notation), currencies_(words) {
+    : Pattern(Kind::MONEY), notation_(notation), currencies_(words), per_(keys_of(notation.per)) {
   std::ranges::copy_if(notation.currencies, std::back_inserter(currencies_), [](const auto& currency) {
     return !std::ranges::all_of(currency, [](char32_t c) { return text::unicode::isalpha(c); });
   });
@@ -459,12 +478,13 @@ std::optional<Match> PrefixedMoneyPattern::match(std::u32string_view text, size_
         break;
       }
     }
-    return money;
+    return with_per(text, money, per_);
   }
   return std::nullopt;
 }
 
-MoneyPattern::MoneyPattern(const Notation& notation) : Pattern(Kind::MONEY), notation_(notation) {}
+MoneyPattern::MoneyPattern(const Notation& notation)
+    : Pattern(Kind::MONEY), notation_(notation), per_(keys_of(notation.per)) {}
 
 std::optional<Match> MoneyPattern::match(std::u32string_view text, size_t position) const {
   for (auto& numbers : amounts_at(text, position, notation_)) {
@@ -474,11 +494,13 @@ std::optional<Match> MoneyPattern::match(std::u32string_view text, size_t positi
     auto currency_at = [&](size_t start, std::u32string_view scale) -> std::optional<Match> {
       for (auto currency : keys_at(text, start, notation_.currencies)) {
         if (is_clear_after(text, start + currency.size())) {
-          return Match{.kind = Kind::MONEY,
-                       .span = {position, start + currency.size()},
-                       .numbers = numbers,
-                       .unit = currency,
-                       .scale = scale};
+          return with_per(text,
+                          {.kind = Kind::MONEY,
+                           .span = {position, start + currency.size()},
+                           .numbers = numbers,
+                           .unit = currency,
+                           .scale = scale},
+                          per_);
         }
       }
       return std::nullopt;
@@ -534,7 +556,10 @@ std::optional<Match> PercentPattern::match(std::u32string_view text, size_t posi
 }
 
 UnitPattern::UnitPattern(const Notation& notation)
-    : Pattern(Kind::UNIT), notation_(notation), letters_(single_letters(notation.units, true)) {
+    : Pattern(Kind::UNIT),
+      notation_(notation),
+      letters_(single_letters(notation.units, true)),
+      per_(keys_of(notation.per)) {
   notation_.units = single_letters(notation.units, false);
 }
 
@@ -552,7 +577,8 @@ std::optional<Match> UnitPattern::match(std::u32string_view text, size_t positio
         if (unit.ends_with(U'.') && is_sentence_end(text, unit_end)) {
           unit_end--;
         }
-        return Match{.kind = Kind::UNIT, .span = {position, unit_end}, .numbers = numbers, .unit = unit};
+        return with_per(text, {.kind = Kind::UNIT, .span = {position, unit_end}, .numbers = numbers, .unit = unit},
+                        per_);
       }
       return std::nullopt;
     };
@@ -903,6 +929,184 @@ std::optional<Match> SecondsPattern::match(std::u32string_view text, size_t posi
     }
   }
   return time;
+}
+
+namespace {
+// Marks of minutes or feet; two of them, or one of kDoublePrimes, mark seconds or inches.
+constexpr std::u32string_view kPrimes = U"'′’´";
+constexpr std::u32string_view kDoublePrimes = U"\"″”";
+
+// The length of a mark of seconds or inches at a position: 1 (", ″), 2 ('', ’’), or 0 if none stands there.
+size_t double_prime_at(std::u32string_view text, size_t position) {
+  if (position < text.size() && strings::contains(kDoublePrimes, text[position])) {
+    return 1;
+  }
+  bool two = position + 1 < text.size() && strings::contains(kPrimes, text[position]) &&
+             strings::contains(kPrimes, text[position + 1]);
+  return two ? 2 : 0;
+}
+
+// Whether a single mark of minutes or feet stands at a position.
+bool prime_at(std::u32string_view text, size_t position) {
+  return position < text.size() && strings::contains(kPrimes, text[position]) && double_prime_at(text, position) == 0;
+}
+
+// Whether a quotation is open before a position, so that a mark there closes it ("Halo Wars 2", „0″, 'Hera Pheri 3')
+// rather than follows a number. Double quotes count for a double mark, single ones for a single mark. A closing mark
+// right after a digit closes an open quotation, or else marks inches; an apostrophe within a word (l'homme) is no quote.
+bool in_quotation(std::u32string_view text, size_t position, bool single) {
+  int open = 0;
+  bool straight = false;
+  for (size_t i = 0; i < position; ++i) {
+    char32_t c = text[i];
+    bool spaced = i == 0 || unicode::isspace(text[i - 1]) || text[i - 1] == U'(';
+    bool digit = i > 0 && unicode::isdigit(text[i - 1]);
+    if (single) {
+      bool word = i + 1 < text.size() && unicode::isalnum(text[i + 1]);
+      if (c == U'‘' || (strings::contains(std::u32string_view(U"'’´"), c) && spaced && word)) {
+        open++;
+      } else if (strings::contains(std::u32string_view(U"'’′´"), c) && !spaced && !word && open > 0) {
+        open--;
+      }
+    } else if (c == U'„' || c == U'«' || (c == U'“' && open == 0)) {
+      open++;
+    } else if ((c == U'“' || c == U'”' || c == U'»' || c == U'″') && open > 0) {
+      open--;
+    } else if ((c == U'"' || double_prime_at(text, i) == 2) && (!digit || straight)) {
+      straight = !straight; // also ``text`` as two apostrophes
+      i += double_prime_at(text, i) == 2 ? 1 : 0;
+    }
+  }
+  return open > 0 || straight;
+}
+} // namespace
+
+std::optional<Match> PrimePattern::match(std::u32string_view text, size_t position) const {
+  // Not within a number (39 404'', 7:00", RJ-116", R$5,00"), nor the minutes or seconds of coordinates: 43°39'38",
+  // 19°01' 29"
+  size_t previous = position > 0 && unicode::isspace(text[position - 1]) ? position - 1 : position;
+  bool follows =
+      previous > 0 && (unicode::isdigit(text[previous - 1]) || strings::contains(kPrimes, text[previous - 1]));
+  if (!is_clear_before(text, position, U".,:-'’′´°$€£") || follows) {
+    return std::nullopt;
+  }
+  size_t end = digits_end(text, position);
+  if (end == position || end - position > 3) {
+    return std::nullopt;
+  }
+  Match time{.kind = Kind::TIME, .numbers = {digits_at(text, position)}, .separator = U'′'};
+  auto ending = [&](size_t at, std::u32string_view unit) -> std::optional<Match> {
+    // Not before another mark or a hyphen: 20"', 1/4-20"-Gewinde
+    bool marked = at < text.size() && (strings::contains(kPrimes, text[at]) ||
+                                       strings::contains(kDoublePrimes, text[at]) || text[at] == U'-');
+    if (!is_clear_after(text, at) || is_digit_after(text, at, U".,") || marked) {
+      return std::nullopt;
+    }
+    time.span = {position, at};
+    time.unit = unit;
+    return time;
+  };
+
+  // 2h11'13", 2h 30': hours and minutes, and maybe seconds
+  if (end < text.size() && text[end] == U'h') {
+    size_t minutes = skip_space(text, end + 1);
+    size_t minutes_end = digits_end(text, minutes);
+    if (minutes_end == minutes || minutes_end - minutes > 2 || !prime_at(text, minutes_end)) {
+      return std::nullopt;
+    }
+    time.numbers.push_back(digits_at(text, minutes));
+    end = minutes_end + 1;
+    size_t seconds_end = digits_end(text, end);
+    if (seconds_end - end == 2 && double_prime_at(text, seconds_end)) {
+      time.numbers.push_back(digits_at(text, end));
+      end = seconds_end + double_prime_at(text, seconds_end);
+    } else if (!cued(text)) {
+      return std::nullopt; // 10h15' may be a clock time
+    }
+    return ending(end, U"h");
+  }
+
+  // 3'16", 1'27"23, 5'9", 18' 7.75", 26'8: minutes and seconds, or feet and inches
+  if (prime_at(text, end)) {
+    size_t second = skip_space(text, end + 1);
+    for (const Number& number : numbers_at(text, second, U"", decimals_)) {
+      size_t mark = double_prime_at(text, number.span.end);
+      bool marked = mark && number.integer.size() <= 2 && value(number) < (feet_ ? 12 : 60);
+      // 26'8 x 17'5: inches without their mark
+      bool bare = feet_ && !mark && second == end + 1 && number.fraction.empty() && number.integer.size() <= 2 &&
+                  value(number) < 12 && !prime_at(text, number.span.end);
+      if (!marked && !bare) {
+        continue;
+      }
+      time.numbers.push_back(number);
+      size_t after = number.span.end + mark;
+      size_t fraction_end = digits_end(text, after);
+      // Digits right after the seconds are their fraction, and make it a time even in feet: 1'27"23
+      if (mark && number.fraction.empty() && fraction_end > after && fraction_end - after <= 3) {
+        time.numbers.back().fraction = text.substr(after, fraction_end - after);
+        time.numbers.back().span.end = fraction_end;
+        return ending(fraction_end, U"min");
+      }
+      if (feet_) {
+        return ending(after, U"ft");
+      }
+      if (!number.fraction.empty() || !cued(text)) {
+        return std::nullopt;
+      }
+      return ending(after, U"min");
+    }
+    // 400': feet, unless the mark closes a quotation
+    if (!feet_ || in_quotation(text, end, true)) {
+      return std::nullopt;
+    }
+    time.kind = Kind::UNIT;
+    return ending(end + 1, U"ft");
+  }
+
+  // 23"42: seconds and their fraction; 18'', 5.7": inches, or seconds in a text about time
+  for (const Number& number : numbers_at(text, position, U"", decimals_)) {
+    size_t mark = double_prime_at(text, number.span.end);
+    // Inches have up to two decimals, without a trailing zero: 5.7", but 20.00" and 3.500" are no inches
+    if (!mark || number.fraction.size() > 2 || number.fraction.ends_with(U'0')) {
+      continue;
+    }
+    time.numbers = {number};
+    size_t after = number.span.end + mark;
+    size_t fraction_end = digits_end(text, after);
+    if (fraction_end > after) {
+      if (feet_ || !number.fraction.empty() || fraction_end - after > 3) {
+        return std::nullopt;
+      }
+      time.numbers[0].fraction = text.substr(after, fraction_end - after);
+      time.numbers[0].span.end = fraction_end;
+      return ending(fraction_end, U"s");
+    }
+    if (in_quotation(text, number.span.end, false)) {
+      return std::nullopt;
+    }
+    // 23″ de retard, sous les 49″: a cue among the eight words before it or the three after it
+    size_t start = position;
+    for (int spaces = 0; start > 0 && spaces < 8; --start) {
+      spaces += unicode::isspace(text[start - 1]) ? 1 : 0;
+    }
+    size_t stop = after;
+    for (int spaces = 0; stop < text.size() && spaces < 4; ++stop) {
+      spaces += unicode::isspace(text[stop]) ? 1 : 0;
+    }
+    if (number.fraction.empty() && cued(text.substr(start, stop - start))) {
+      return ending(after, U"s");
+    }
+    time.kind = Kind::UNIT;
+    return ending(after, U"″");
+  }
+  return std::nullopt;
+}
+
+bool PrimePattern::cued(std::u32string_view text) const {
+  return std::ranges::any_of(words_of(text), [this](auto word) {
+    std::u32string lower = strings::to_lower(stripped(word));
+    return cues_.contains(lower.substr(lower.find_last_of(U"'’") + 1)); // d'avance
+  });
 }
 
 std::optional<Match> RomanOrdinalPattern::match(std::u32string_view text, size_t position) const {

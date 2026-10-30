@@ -60,6 +60,19 @@ REGISTER_TEST(numbers_fr_test) {
   ASSERT_EQUALS(U"monsieur Dupont et madame Martin, le docteur Roux à saint-Étienne, et cetera.",
                 verbalize("fr", U"M. Dupont et Mme Martin, le Dr Roux à St-Étienne, etc."));
 
+  ASSERT_EQUALS(
+      U"Elle consomme cent vingt-cinq kilowattheures par mètre carré par an à vingt et un euros par "
+      U"mégawattheure.",
+      verbalize("fr", U"Elle consomme 125 kWh/m2/an à 21 €/MWh.", only(&Options::numbers)));
+
+  // Prime marks: three parts are always a time, two only in a text about time; a lone 20" is inches
+  ASSERT_EQUALS(
+      U"Il a terminé en douze minutes trente-six secondes et soixante-treize centièmes, avec trois minutes "
+      U"seize secondes d'avance.",
+      verbalize("fr", U"Il a terminé en 12’36’’73, avec 3'16\" d'avance.", only(&Options::numbers)));
+  ASSERT_EQUALS(U"Un film de trois'seize\" et un écran plat vingt pouces, le mot \"dix\".",
+                verbalize("fr", U"Un film de 3'16\" et un écran plat 20\", le mot \"10\".", only(&Options::numbers)));
+
   return true;
 }
 

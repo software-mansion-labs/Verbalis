@@ -7,6 +7,7 @@ import {
   SuffixPattern,
   RomanPattern,
   SecondsPattern,
+  PrimePattern,
 } from "../../numbers/patterns.ts";
 import { keysOf } from "../../numbers/formats.ts";
 import { Kind, match as matchOf, numeral, type Match, type Numeral } from "../../numbers/match.ts";
@@ -62,7 +63,9 @@ import {
   ONES,
   ORDINAL_STEMS,
   SCALES,
+  SPORT_WORDS,
   SYMBOLS,
+  TIME_WORDS,
   TENS,
   TERMS,
   UNITS,
@@ -73,6 +76,9 @@ import {
   ROMAN_CUES,
   SECONDS_SUFFIXES,
   FEMININE_NAMES,
+  PRIME_CUES,
+  PRIME_UNITS,
+  SECOND_FRACTIONS,
 } from "./constants.ts";
 
 // How the ending of an ordinal follows the word before it: am dritten (weak), ein zweiter (mixed), dritter (strong)
@@ -546,6 +552,7 @@ class German extends PatternLanguage {
     this.addPattern(new YearMonthPattern());
     this.addPattern(new AreaCodePattern());
     this.addPattern(new SecondsPattern(SECONDS_SUFFIXES, true));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
     this.addPattern(new UnitAfterPattern(new ScalePattern(NOTATION)));
     this.addPattern(new UnitAfterPattern(new FractionPattern()));
     this.addPattern(new DotOrdinalPattern(true));
@@ -630,12 +637,22 @@ class German extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
+    if (match.separator === "′") {
+      return German.#primes(match);
+    }
     if (match.numbers.length === 3) {
       return this.#readSeconds(match);
     }
     if (match.numbers.length === 2) {
       const decimal = match.separator === "." && match.suffix === "";
-      if (!fitsClock(match) || decimal) {
+      // mit 31:32 (15:21): a score, read by its own pattern; but um 15:21, Spiel (Montag, 18:00)
+      const score =
+        match.separator === ":" &&
+        match.suffix === "" &&
+        match.numbers[1].integer !== "00" &&
+        !TIME_WORDS.has(match.context.before()) &&
+        PatternLanguage.mentions(match.context, SPORT_WORDS);
+      if (!fitsClock(match) || decimal || score) {
         return undefined;
       }
     }
@@ -846,6 +863,21 @@ class German extends PatternLanguage {
     const count = (n: bigint, one: string, many: string) => (n === 1n ? `eine ${one}` : `${cardinal(n)} ${many}`);
     const head = clock ? `${stem(hours)} Uhr` : count(hours, "Stunde", "Stunden");
     return `${head} ${count(minutes, "Minute", "Minuten")} ${count(seconds, "Sekunde", "Sekunden")}`;
+  }
+
+  // 1'27"23: eine Minute siebenundzwanzig Sekunden und dreiundzwanzig Hundertstel
+  static #primes(match: Match): string | undefined {
+    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
+    const words = match.numbers.map((number, i) => {
+      const n = value(number);
+      const unit = PRIME_UNITS[first + i];
+      return n === 1n ? `eine ${unit.one}` : `${cardinal(n)} ${unit.many}`;
+    });
+    const fraction = match.numbers[match.numbers.length - 1].fraction;
+    if (fraction !== "") {
+      words.push(`und ${cardinal(parseValue(fraction) ?? 0n)} ${SECOND_FRACTIONS[fraction.length - 1]}`);
+    }
+    return join(words);
   }
 
   // An amount with its scale: drei Millionen, zehntausend

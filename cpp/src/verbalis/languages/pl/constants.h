@@ -437,6 +437,15 @@ inline const std::vector<std::pair<Gender, std::u32string_view>> kOrdinalNouns =
   {Gender::MASCULINE, U"rząd rzędu rzędowi rząd rzędem rzędzie rzędy rzędów rzędom rzędy rzędami rzędach"}
 };
 
+// Words of a text about time, which make its 8'22" minutes and seconds, and a lone 25″ seconds
+inline const std::unordered_set<std::u32string> kPrimeCues = {
+  U"czas", U"czasem", U"bieg", U"biegu", U"wyścig", U"wyścigu", U"rekord", U"rekordem", U"wynik", U"wynikiem",
+  U"etap", U"etapu", U"przewagą", U"przewagi", U"stratą", U"straty", U"maraton", U"maratonu", U"minut", U"sekund"
+};
+
+// An inch, as a lone 19''
+inline const Noun kInch = noun(U"cal cala calowi cal calem calu cale cali calom cale calami calach");
+
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
 inline const std::unordered_set<std::u32string_view> kTimeUnits = {U"h", U"min", U"s", U"ms", U"godz.", U"sek."};
 
@@ -527,9 +536,21 @@ inline const std::vector<std::pair<std::u32string_view, Gender>> kRomanNouns = {
 inline const Keys kCenturyAbbreviations = {U"w."};
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash, na and the accusative: 12 zł/kg, dwanaście złotych na kilogram
+inline const std::unordered_map<std::u32string, std::u32string> kPer = {
+  {U"h", U"na godzinę"}, {U"godz.", U"na godzinę"}, {U"min", U"na minutę"}, {U"s", U"na sekundę"},
+  {U"sek.", U"na sekundę"}, {U"dobę", U"na dobę"}, {U"tydz.", U"na tydzień"}, {U"mies.", U"miesięcznie"},
+  {U"miesiąc", U"na miesiąc"}, {U"rok", U"na rok"}, {U"kg", U"na kilogram"},
+  {U"g", U"na gram"}, {U"t", U"na tonę"}, {U"l", U"na litr"}, {U"ml", U"na mililitr"}, {U"km", U"na kilometr"},
+  {U"m", U"na metr"}, {U"m²", U"na metr kwadratowy"}, {U"m2", U"na metr kwadratowy"}, {U"m³", U"na metr sześcienny"},
+  {U"m3", U"na metr sześcienny"}, {U"ha", U"na hektar"}, {U"kWh", U"na kilowatogodzinę"},
+  {U"MWh", U"na megawatogodzinę"}, {U"os.", U"na osobę"}, {U"osobę", U"na osobę"}
+};
+
 inline const Notation kNotation = {
   .group_separators = U" \u00a0\u202f.", .decimal_separators = U",.", .time_separators = U":.",
-  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true
+  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true,
+  .per = kPer
 };
 
 // Words before the name of a street, after which a/b is a house number: ulica Marszałkowska 10/12
@@ -555,6 +576,12 @@ inline const std::unordered_set<std::u32string> kFractionStops = {
 inline const Joiners kJoiners = {
   .point = U"kropka", .dot = U"kropka", .range = U"-", .by = U"na", .score = U" do ", .minus = U"minus", .plus = U"plus",
   .fraction = U" i ", .half = U" i pół", .rating = U"na"
+};
+
+// Starts of words of sport, which make a pair like a clock time a score: prowadzenie 20:16 (dwadzieścia do szesnastu)
+inline const Keys kSportWords = {
+  U"mecz", U"set", U"wygra", U"przegra", U"pokona", U"prowadz", U"remis", U"gol", U"bramk", U"punkt", U"drużyn",
+  U"lig", U"siatkar", U"piłkar", U"zwycię", U"porażk", U"turniej", U"kibic", U"spotkani"
 };
 
 // 15.08.2020 r.: the year has four digits, "r." may follow it
@@ -605,11 +632,19 @@ inline const Characters kCharacters = {
   {U"æ", U"ć", true},   {U"Æ", U"Ć", true},   {U"ñ", U"ń", true},   {U"Ñ", U"Ń", true}
 };
 
+using ::verbalis::text::before_value;
+
 inline const Readings kSymbols = {
   {U"&", {U"end"}},        {U"+", {U"plus"}},           {U"=", {U"równa się"}}, {U"%", {U"procent"}},  {U"°", {U"stopni"}},
   {U"#", {U""}},           {U"/", {U""}},               {U"²", {U"do kwadratu"}}, {U"³", {U"do sześcianu"}},
   {U"π", {U"pi"}},         {U"×", {U"razy"}},           {U"€", {U"euro"}},     {U"$", {U"dolarów"}},   {U"@", {U"małpa"}},
-  {U"±", {U"plus minus"}}, {U"+/-", {U"plus minus"}}, {U"+-", {U"plus minus"}}, {U"‰", {U"promili"}},        {U"§", {U"paragraf"}}
+  {U"±", {U"plus minus"}}, {U"+/-", {U"plus minus"}}, {U"+-", {U"plus minus"}}, {U"‰", {U"promili"}},        {U"§", {U"paragraf"}},
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  {U"<", {{U"mniej niż", before_value}}},
+  {U">", {{U"powyżej", before_value}}},
+  {U"≤", {{U"nie więcej niż", before_value}}},
+  {U"≥", {{U"co najmniej", before_value}}},
+  {U"~", {{U"około", before_value}}}
 };
 
 using ::verbalis::text::before_name;

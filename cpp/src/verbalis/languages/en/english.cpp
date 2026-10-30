@@ -121,23 +121,32 @@ bool is_adverb(std::u32string_view word) {
                              word.ends_with(U"ously") || word.ends_with(U"ately"));
 }
 
+// A plural noun, lowercased: people, months
+bool is_plural_noun(const std::u32string& word) {
+  return kIrregularPlurals.contains(word) ||
+         (word.size() > 3 && word.ends_with(U's') && !word.ends_with(U"ss") && !kStopWords.contains(word));
+}
+
 Cues cues_of(const Match& match) {
   std::u32string previous = match.context.before();
   std::u32string next = match.context.after();
   std::u32string next_lower = strings::to_lower(next);
 
   // 1999 people: a plural noun after a 4-digit number makes it a count, unless a year is expected (in 1999)
-  bool plural_noun =
-      kIrregularPlurals.contains(next_lower) || (next_lower.size() > 3 && next_lower.ends_with(U's') &&
-                                                 !next_lower.ends_with(U"ss") && !kStopWords.contains(next_lower));
+  bool plural_noun = is_plural_noun(next_lower);
   // March 3, august 23, but "it may 3 times", "in May, 24 people": a month right before the number, capitalized
   // if it is also a common word
   auto words = words_of(match.context.head());
   std::u32string_view written = words.empty() ? U"" : words.back();
   std::u32string_view name = stripped(written);
   bool common = previous == U"may" || previous == U"march" || previous == U"mar";
-  bool after_month =
-      kMonthWords.contains(previous) && name.end() == written.end() && (!common || unicode::isupper(name[0]));
+  // July 5 to 12: the end of a range of days from a one-digit day is an ordinal too; the corpus reads March 14-23 as
+  // "fourteenth to twenty-three"
+  std::u32string day = match.context.before(2);
+  bool range_end =
+      previous == U"to" && day.size() == 1 && unicode::isdigit(day[0]) && kMonthWords.contains(match.context.before(3));
+  bool after_month = range_end || (kMonthWords.contains(previous) && name.end() == written.end() &&
+                                   (!common || unicode::isupper(name[0])));
   bool year_cue = kYearCues.contains(previous) || after_month;
 
   // 25 July, 26th May 2012, but Top 10 March Madness picks, Quarter 1 (Jan
@@ -688,6 +697,7 @@ public:
     add_pattern(std::make_unique<MarkedRangePattern>());
     add_pattern(std::make_unique<ProductPattern>());
     add_pattern(std::make_unique<SecondsPattern>());
+    add_pattern(std::make_unique<PrimePattern>(kNotation, std::unordered_set<std::u32string>{}, true));
     add_pattern(std::make_unique<PricePattern>());
     add_pattern(std::make_unique<SuffixedFractionPattern>());
     add_pattern(std::make_unique<FractionUnitPattern>());
@@ -832,6 +842,9 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
+    if (match.separator == U'′') {
+      return primes(match);
+    }
     uint64_t hours = value(match.numbers[0]);
     std::u32string suffix = ampm(match.suffix);
 
@@ -1043,7 +1056,17 @@ protected:
     uint64_t a = value(from), b = value(to);
     bool season = from.integer.size() == 2 && b == a + 1;
     bool decades = from.integer.size() == 4 && to.integer.size() == 2 && b > a % 100;
-    return ((from.integer.size() == to.integer.size() && b > a) || decades) && !season ? joiners().range : U"-";
+    // 1-59 months, sizes 0-14, July 5-12: rising across a digit, before a plural noun, after a range word, or as days
+    // of a month; but bowling figures keep "-": took 3-53
+    std::u32string_view tail = match.context.tail();
+    bool glued = to.integer.size() < tail.size() &&
+                 (unicode::isalpha(tail[to.integer.size()]) || tail[to.integer.size()] == U'-');
+    bool longer =
+        from.integer.size() < to.integer.size() && b > a && !glued &&
+        (is_plural_noun(strings::to_lower(match.context.after(2))) || kRangeWords.contains(match.context.before(2)) ||
+         (kMonthWords.contains(match.context.before(2)) && b <= 31));
+    return ((from.integer.size() == to.integer.size() && b > a) || decades || longer) && !season ? joiners().range :
+                                                                                                   U"-";
   }
 
   std::optional<std::u32string> plural(std::u32string_view words) const override {
@@ -1054,6 +1077,22 @@ protected:
   }
 
 private:
+  // 5'9": five feet nine inches; 1'27"23: one minute twenty-seven point two three seconds
+  std::u32string primes(const Match& match) const {
+    static const std::array<Forms, 3> times = {{{U"hour", U"hours"}, {U"minute", U"minutes"}, {U"second", U"seconds"}}};
+    static const std::array<Forms, 2> lengths = {{{U"foot", U"feet"}, {U"inch", U"inches"}}};
+    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
+    std::vector<std::u32string> words;
+    for (size_t i = 0; i < match.numbers.size(); ++i) {
+      const Number& number = match.numbers[i];
+      const Forms& unit = match.unit == U"ft" ? lengths[i] : times[first + i];
+      bool one = number.fraction.empty() && value(number) == 1;
+      std::u32string count = number.fraction.empty() ? cardinal(value(number)) : read_number(number, match);
+      words.push_back(count + U" " + (one ? unit.one : unit.many));
+    }
+    return join(words);
+  }
+
   // An integer as a year, a day of a month or a count, digit by digit if it is a code
   std::u32string integer(const Number& number, const Cues& cues) const {
     auto n = parse_value(number.integer);

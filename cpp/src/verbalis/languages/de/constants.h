@@ -256,13 +256,39 @@ inline const std::unordered_set<std::u32string> kFeminineNames = {
   U"elisabeth", U"katharina", U"maria", U"viktoria"
 };
 
+// Words of a text about time, which make its 3'16" minutes and seconds, and a lone 25″ seconds
+inline const std::unordered_set<std::u32string> kPrimeCues = {
+  U"zeit", U"lauf", U"rennen", U"rekord", U"etappe", U"vorsprung", U"rückstand", U"bestzeit", U"marathon",
+  U"minuten", U"sekunden", U"sieger", U"siegerin", U"gesamtwertung"
+};
+
+// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second
+inline const std::array<Forms, 3> kPrimeUnits = {
+  {{U"Stunde", U"Stunden"}, {U"Minute", U"Minuten"}, {U"Sekunde", U"Sekunden"}}
+};
+inline const std::array<std::u32string_view, 3> kSecondFractions = {U"Zehntel", U"Hundertstel", U"Tausendstel"};
+
 // Words after hours, minutes, and seconds, which the reading says: 02:02:23 Uhr, 13:46:36 Stunden
 inline const Keys kSecondsSuffixes = {U"Uhr", U"Stunden", U"Std.", U"h"};
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash (pro and the singular): 12 €/kg, zwölf Euro pro Kilogramm
+inline const std::unordered_map<std::u32string, std::u32string> kPer = {
+  {U"h", U"pro Stunde"}, {U"Std.", U"pro Stunde"}, {U"Stunde", U"pro Stunde"}, {U"min", U"pro Minute"},
+  {U"Min.", U"pro Minute"}, {U"s", U"pro Sekunde"}, {U"sec", U"pro Sekunde"}, {U"Sek.", U"pro Sekunde"},
+  {U"Tag", U"pro Tag"}, {U"Woche", U"pro Woche"}, {U"Monat", U"pro Monat"}, {U"Mon.", U"pro Monat"},
+  {U"Jahr", U"pro Jahr"}, {U"kg", U"pro Kilogramm"}, {U"g", U"pro Gramm"}, {U"t", U"pro Tonne"}, {U"l", U"pro Liter"},
+  {U"L", U"pro Liter"}, {U"ml", U"pro Milliliter"}, {U"km", U"pro Kilometer"}, {U"m", U"pro Meter"},
+  {U"m²", U"pro Quadratmeter"}, {U"m2", U"pro Quadratmeter"}, {U"qm", U"pro Quadratmeter"},
+  {U"m³", U"pro Kubikmeter"}, {U"m3", U"pro Kubikmeter"}, {U"ha", U"pro Hektar"}, {U"kWh", U"pro Kilowattstunde"},
+  {U"MWh", U"pro Megawattstunde"}, {U"oz", U"pro Unze"}, {U"Person", U"pro Person"}, {U"Stück", U"pro Stück"},
+  {U"St.", U"pro Stück"}, {U"Pack", U"pro Packung"}
+};
+
 inline const Notation kNotation = {
   .group_separators = U". \u00a0\u202f", .decimal_separators = U",.", .time_separators = U":.", .time_suffixes = {U"Uhr"},
-  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true
+  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true,
+  .per = kPer
 };
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
@@ -270,6 +296,16 @@ inline const Joiners kJoiners = {
   .point = U"Komma", .dot = U"Punkt", .range = U" bis ", .by = U"mal", .score = U" zu ", .minus = U"minus", .plus = U"plus",
   .fraction = U" ", .rating = U"von"
 };
+
+// Starts of words of sport, which make a pair like a clock time a score: mit 31:32 (15:21) (fünfzehn zu einundzwanzig)
+inline const Keys kSportWords = {
+  U"spiel", U"halbzeit", U"tore", U"treffer", U"sieg", U"verlor", U"niederlage", U"führ", U"liga", U"mannschaft",
+  U"punkte", U"satz", U"handball", U"fußball", U"gewann", U"partie", U"pause", U"endstand", U"heimniederlage",
+  U"heimsieg", U"auswärts", U"unterlag"
+};
+
+// Words before a clock time: um 15:21
+inline const std::unordered_set<std::u32string> kTimeWords = {U"um", U"ab", U"bis", U"von", U"zwischen", U"gegen"};
 
 // 1.5.2024, 1.5., 12. 3.: the year is optional, a dot closes the month
 inline const DateFormat kDateFormat = {
@@ -293,6 +329,8 @@ inline const std::unordered_set<std::u32string> kParagraphPlurals = {
   U"im", U"vom", U"zum", U"beim", U"dem", U"des", U"den"
 };
 
+using ::verbalis::text::before_value;
+
 inline const Readings kSymbols = {
   {U"&", {U"und"}},       {U"€", {U"Euro"}},      {U"$", {U"Dollar"}},    {U"£", {U"Pfund"}},    {U"+", {U"plus"}},
   {U"=", {U"gleich"}},    {U"@", {U"at"}},        {U"%", {U"Prozent"}},   {U"°", {U"Grad"}},     {U"#", {U"Hashtag"}},
@@ -301,7 +339,11 @@ inline const Readings kSymbols = {
   {U"≥", {U"größer oder gleich"}},
   {U"≤", {U"kleiner oder gleich"}},
   {U"±", {U"plus minus"}},
-  {U"+/-", {U"plus minus"}}
+  {U"+/-", {U"plus minus"}},
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  {U"<", {{U"weniger als", before_value}}},
+  {U">", {{U"mehr als", before_value}}},
+  {U"~", {{U"ungefähr", before_value}}}
 };
 
 using ::verbalis::text::before_number;

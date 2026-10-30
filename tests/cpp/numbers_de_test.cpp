@@ -65,6 +65,18 @@ REGISTER_TEST(numbers_de_test) {
   ASSERT_EQUALS(U"Ruf null acht neun neun acht sieben sechs an, Leistung eintausendvierhundert Megawatt.",
                 verbalize("de", U"Ruf (089) 98 76 an, Leistung 1.400 MW.", only(&Options::numbers)));
 
+  // A unit or currency per unit; not alternatives (400GB/800GB) nor 24/7
+  ASSERT_EQUALS(
+      U"Gold kostet drei Dollar pro Unze, Sand fünf Kilogramm pro Quadratmeter, und vierhundert "
+      U"Gigabyte/achthundert Gigabyte laufen vierundzwanzig durch sieben.",
+      verbalize("de", U"Gold kostet 3 $/oz, Sand 5 kg/m², und 400GB/800GB laufen 24/7.", only(&Options::numbers)));
+
+  // A pair like a clock time among words of sport is a score, unless a time word comes before it
+  ASSERT_EQUALS(
+      U"Die Füchse siegten mit siebenunddreißig zu neunundzwanzig (zwanzig zu dreizehn), Anpfiff um fünfzehn Uhr "
+      U"einundzwanzig.",
+      verbalize("de", U"Die Füchse siegten mit 37:29 (20:13), Anpfiff um 15:21.", only(&Options::numbers)));
+
   return true;
 }
 

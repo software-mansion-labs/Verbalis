@@ -170,6 +170,15 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
 inline const Keys kInchMarks = {U"\"", U"''", U"″", U"”"};
 inline const Forms kInch = {U"pulgada", U"pulgadas"};
 
+// Words of a text about time, which make its 7'11" minutes and seconds, and a lone 25″ seconds
+inline const std::unordered_set<std::u32string> kPrimeCues = {
+  U"tiempo", U"carrera", U"crono", U"cronómetro", U"récord", U"ganador", U"general", U"etapa", U"ventaja", U"vuelta",
+  U"minuto", U"minutos", U"segundos", U"maratón", U"clasificación", U"podio"
+};
+
+// A time written with prime marks: hours, minutes, and seconds
+inline const std::array<Forms, 3> kPrimeUnits = {{{U"hora", U"horas"}, {U"minuto", U"minutos"}, {U"segundo", U"segundos"}}};
+
 // Words after a fraction which mark it as one: el 1/3 de
 inline const std::unordered_set<std::u32string> kFractionWords = {U"de", U"del"};
 
@@ -246,17 +255,36 @@ inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
 };
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash (por): 12 €/kg, doce euros por kilogramo
+inline const std::unordered_map<std::u32string, std::u32string> kPer = {
+  {U"h", U"por hora"}, {U"hora", U"por hora"}, {U"min", U"por minuto"}, {U"s", U"por segundo"},
+  {U"seg", U"por segundo"}, {U"día", U"por día"}, {U"semana", U"por semana"}, {U"mes", U"por mes"},
+  {U"año", U"por año"}, {U"a", U"por año"}, {U"kg", U"por kilogramo"}, {U"g", U"por gramo"}, {U"t", U"por tonelada"},
+  {U"l", U"por litro"}, {U"L", U"por litro"}, {U"ml", U"por mililitro"}, {U"km", U"por kilómetro"},
+  {U"m", U"por metro"}, {U"m²", U"por metro cuadrado"}, {U"m2", U"por metro cuadrado"}, {U"m³", U"por metro cúbico"},
+  {U"m3", U"por metro cúbico"}, {U"ha", U"por hectárea"}, {U"kWh", U"por kilovatio hora"},
+  {U"MWh", U"por megavatio hora"}, {U"oz", U"por onza"}, {U"persona", U"por persona"}
+};
+
 inline const Notation kNotation = {
   .group_separators = U"., \u00a0\u202f", .decimal_separators = U".,", .time_separators = U":.",
   .time_suffixes = {U"h", U"h.", U"hrs", U"hrs.", U"Hrs", U"Hrs.", U"hs", U"hs.", U"a. m.", U"a.m.", U"a.m", U"am",
                     U"p. m.", U"p.m.", U"p.m", U"pm"},
-  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true
+  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true,
+  .per = kPer
 };
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
 inline const Joiners kJoiners = {
   .point = U"punto", .dot = U"punto", .range = U"-", .by = U"por", .score = U" a ", .minus = U"menos", .plus = U"más",
   .fraction = U" y ", .half = U" y medio", .rating = U"sobre"
+};
+
+// Starts of words of sport, which make a falling or tied range a score: ganó 2-0, empató 1-1 (dos a cero, uno a uno)
+inline const Keys kSportWords = {
+  U"partido", U"gol", U"marcador", U"ganó", U"ganar", U"ganaron", U"venci", U"vencer", U"empat", U"derrot",
+  U"victoria", U"triunf", U"impus", U"impone", U"cayó", U"superó", U"encuentro", U"jornada", U"torneo", U"liga",
+  U"selección", U"canasta", U"anotación", U"clasificatoria", U"duelo", U"fútbol"
 };
 
 // 14/07/2023, 31/12/99, 15/06
@@ -313,6 +341,8 @@ using ::verbalis::text::Readings;
 using ::verbalis::text::after_name;
 
 // "+" is "plus" after a name (Google+), "más" otherwise (C++)
+using ::verbalis::text::before_value;
+
 inline const Readings kSymbols = {
   {U"&", {U"y"}},       {U"=", {U"igual a"}},     {U"@", {U"arroba"}},  {U"%", {U"por ciento"}}, {U"°", {U"grados"}},
   {U"#", {U"numeral"}}, {U"²", {U"al cuadrado"}}, {U"³", {U"al cubo"}}, {U"π", {U"pi"}},         {U"×", {U"por"}},
@@ -321,7 +351,13 @@ inline const Readings kSymbols = {
   {U"¾", {U"tres cuartos"}}, {U"⅕", {U"un quinto"}}, {U"⅖", {U"dos quintos"}}, {U"⅗", {U"tres quintos"}},
   {U"⅘", {U"cuatro quintos"}}, {U"⅙", {U"un sexto"}}, {U"⅚", {U"cinco sextos"}}, {U"⅛", {U"un octavo"}},
   {U"⅜", {U"tres octavos"}}, {U"⅝", {U"cinco octavos"}}, {U"⅞", {U"siete octavos"}},
-  {U"±", {U"más menos"}},    {U"+/-", {U"más menos"}},   {U"‰", {U"por mil"}}
+  {U"±", {U"más menos"}},    {U"+/-", {U"más menos"}},   {U"‰", {U"por mil"}},
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  {U"<", {{U"menor que", before_value}}},
+  {U">", {{U"mayor que", before_value}}},
+  {U"≤", {{U"menor o igual que", before_value}}},
+  {U"≥", {{U"mayor o igual que", before_value}}},
+  {U"~", {{U"aproximadamente", before_value}}}
 };
 
 using ::verbalis::text::before_number;

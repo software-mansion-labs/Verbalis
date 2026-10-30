@@ -123,6 +123,19 @@ inline const std::vector<std::u32string> kScaleWords = {
   U"milhão", U"milhões", U"bilhão", U"bilhões", U"trilhão", U"trilhões"
 };
 
+// Words of a text about time, which make its 2'14" minutes and seconds, and a lone 25″ seconds
+inline const std::unordered_set<std::u32string> kPrimeCues = {
+  U"tempo", U"corrida", U"prova", U"cronómetro", U"cronômetro", U"recorde", U"vantagem", U"etapa", U"classificação",
+  U"maratona", U"minutos", U"segundos", U"pódio", U"vídeo", U"filme", U"duração"
+};
+
+// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
+inline const std::array<Forms, 3> kPrimeUnits = {{{U"hora", U"horas"}, {U"minuto", U"minutos"}, {U"segundo", U"segundos"}}};
+inline const std::array<Forms, 3> kSecondFractions = {
+  {{U"décimo", U"décimos"}, {U"centésimo", U"centésimos"}, {U"milésimo", U"milésimos"}}
+};
+inline const Forms kInch = {U"polegada", U"polegadas"};
+
 // Words before an hour, which make it feminine: às duas, das dez
 inline const std::unordered_set<std::u32string> kHourWords = {U"às", U"à", U"as", U"das", U"pelas"};
 
@@ -196,9 +209,22 @@ inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
 };
 
 // --- Notation: how numbers are written ---
+// What an amount is counted by after a slash (por): 12 €/kg, doze euros por quilo
+inline const std::unordered_map<std::u32string, std::u32string> kPer = {
+  {U"h", U"por hora"}, {U"hora", U"por hora"}, {U"min", U"por minuto"}, {U"minuto", U"por minuto"},
+  {U"s", U"por segundo"}, {U"dia", U"por dia"}, {U"semana", U"por semana"}, {U"mês", U"por mês"},
+  {U"ano", U"por ano"}, {U"kg", U"por quilo"}, {U"g", U"por grama"}, {U"t", U"por tonelada"},
+  {U"ton", U"por tonelada"}, {U"l", U"por litro"}, {U"L", U"por litro"}, {U"ml", U"por mililitro"},
+  {U"mL", U"por mililitro"}, {U"km", U"por quilômetro"}, {U"m", U"por metro"}, {U"m²", U"por metro quadrado"},
+  {U"m2", U"por metro quadrado"}, {U"m³", U"por metro cúbico"}, {U"m3", U"por metro cúbico"}, {U"ha", U"por hectare"},
+  {U"kWh", U"por quilowatt-hora"}, {U"MWh", U"por megawatt-hora"},
+  {U"unidade", U"por unidade"}
+};
+
 inline const Notation kNotation = {
   .group_separators = U". \u00a0\u202f", .decimal_separators = U",.", .time_separators = U":hH.", .time_suffixes = {U"h", U"hs"},
-  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true
+  .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true,
+  .per = kPer
 };
 
 // Words between numbers: 3.8.10, 10.0.0.51, 10-15, 1920x1080, 2:1, -5, 2 + 2
@@ -206,6 +232,15 @@ inline const Joiners kJoiners = {
   .point = U"ponto", .dot = U"ponto", .range = U" a ", .by = U"por", .score = U" a ", .minus = U"menos", .plus = U"mais",
   .fraction = U" e ", .rating = U"de"
 };
+
+// Starts of words of sport, which make a falling or tied range a score: venceu 5-2, empate 1-1 (cinco a dois)
+inline const Keys kSportWords = {
+  U"jogo", U"gol", U"placar", U"venceu", U"vencer", U"venceram", U"vitória", U"derrot", U"empat", U"partida",
+  U"campeonato", U"rodada", U"jornada", U"futebol", U"triunf", U"pontos"
+};
+
+// Starts of words of sets, which make a slashed pair a score: parciais de 3/6, 6/2 e 7/6 (três a seis)
+inline const Keys kSetWords = {U"parcia", U"sets"};
 
 // 24/03/2022, 07-11-2018, 15/09
 inline const DateFormat kDateFormat = {.separators = U"/-", .boundaries = U".,/-", .year_required = false};
@@ -258,11 +293,19 @@ inline const SuffixFormat kDecadeFormat = {.apostrophes = true, .boundaries = U"
 
 using ::verbalis::text::Readings;
 
+using ::verbalis::text::before_value;
+
 inline const Readings kSymbols = {
   {U"&", {U"e"}},         {U"+", {U"mais"}},    {U"=", {U"igual a"}},     {U"@", {U"arroba"}},   {U"%", {U"por cento"}},
   {U"°", {U"graus"}},     {U"#", {U"hashtag"}}, {U"²", {U"ao quadrado"}}, {U"³", {U"ao cubo"}},  {U"π", {U"pi"}},
   {U"×", {U"vezes"}},     {U"€", {U"euros"}},   {U"$", {U"dólares"}},     {U"£", {U"libras"}},   {U"§", {U"parágrafo"}},
-  {U"±", {U"mais ou menos"}}, {U"+/-", {U"mais ou menos"}}, {U"‰", {U"por mil"}}
+  {U"±", {U"mais ou menos"}}, {U"+/-", {U"mais ou menos"}}, {U"‰", {U"por mil"}},
+  // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
+  {U"<", {{U"menor que", before_value}}},
+  {U">", {{U"maior que", before_value}}},
+  {U"≤", {{U"menor ou igual a", before_value}}},
+  {U"≥", {{U"maior ou igual a", before_value}}},
+  {U"~", {{U"cerca de", before_value}}}
 };
 
 using ::verbalis::text::before_name;

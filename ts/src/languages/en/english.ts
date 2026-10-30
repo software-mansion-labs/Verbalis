@@ -7,6 +7,7 @@ import {
   ScalePattern,
   SuffixPattern,
   RomanPattern,
+  PrimePattern,
 } from "../../numbers/patterns.ts";
 import { Kind, match as matchOf, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
@@ -63,6 +64,7 @@ import {
   ONES,
   ORDINAL_SUFFIXES,
   PHONE_FORMATS,
+  RANGE_WORDS,
   SCALE_WORDS,
   SCALES,
   STOP_WORDS,
@@ -193,24 +195,35 @@ function isAdverb(word: string): boolean {
   );
 }
 
+// A plural noun, lowercased: people, months
+function isPluralNoun(word: string): boolean {
+  return (
+    IRREGULAR_PLURALS.has(word) ||
+    (size(word) > 3 && word.endsWith("s") && !word.endsWith("ss") && !STOP_WORDS.has(word))
+  );
+}
+
 function cuesOf(match: Match): Cues {
   const previous = match.context.before();
   const next = match.context.after();
   const nextLower = toLower(next);
 
   // 1999 people: a plural noun after a 4-digit number makes it a count, unless a year is expected (in 1999)
-  const pluralNoun =
-    IRREGULAR_PLURALS.has(nextLower) ||
-    (size(nextLower) > 3 && nextLower.endsWith("s") && !nextLower.endsWith("ss") && !STOP_WORDS.has(nextLower));
+  const pluralNoun = isPluralNoun(nextLower);
   // March 3, august 23, but "it may 3 times", "in May, 24 people": a month right before the number, capitalized
   // if it is also a common word
   const words = wordsOf(match.context.head());
   const written = words.length > 0 ? words[words.length - 1] : [];
   const common = previous === "may" || previous === "march" || previous === "mar";
+  // July 5 to 12: the end of a range of days from a one-digit day is an ordinal too; the corpus reads March 14-23 as
+  // "fourteenth to twenty-three"
+  const day = match.context.before(2);
+  const rangeEnd = previous === "to" && size(day) === 1 && isDigit(day) && MONTH_WORDS.has(match.context.before(3));
   const afterMonth =
-    MONTH_WORDS.has(previous) &&
-    !contains(PUNCTUATION, written[written.length - 1]) &&
-    (!common || isUpper(stripped(written)[0]));
+    rangeEnd ||
+    (MONTH_WORDS.has(previous) &&
+      !contains(PUNCTUATION, written[written.length - 1]) &&
+      (!common || isUpper(stripped(written)[0])));
   const yearCue = YEAR_CUES.has(previous) || afterMonth;
 
   // 25 July, 26th May 2012, but Top 10 March Madness picks, Quarter 1 (Jan
@@ -848,6 +861,7 @@ class English extends PatternLanguage {
     this.addPattern(new MarkedRangePattern());
     this.addPattern(new ProductPattern());
     this.addPattern(new SecondsPattern());
+    this.addPattern(new PrimePattern(NOTATION, new Set(), true));
     this.addPattern(new PricePattern());
     this.addPattern(new SuffixedFractionPattern());
     this.addPattern(new FractionUnitPattern());
@@ -984,6 +998,9 @@ class English extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
+    if (match.separator === "′") {
+      return this.#primes(match);
+    }
     const hours = value(match.numbers[0]);
     const suffix = ampm(match.suffix);
 
@@ -1208,7 +1225,21 @@ class English extends PatternLanguage {
     const b = value(to);
     const season = from.integer.length === 2 && b === a + 1n;
     const decades = from.integer.length === 4 && to.integer.length === 2 && b > a % 100n;
-    return ((from.integer.length === to.integer.length && b > a) || decades) && !season ? this.joiners().range : "-";
+    // 1-59 months, sizes 0-14, July 5-12: rising across a digit, before a plural noun, after a range word, or as days
+    // of a month; but bowling figures keep "-": took 3-53
+    const tail = match.context.tail();
+    const next = tail[to.integer.length];
+    const glued = to.integer.length < tail.length && (isAlpha(next) || next === "-");
+    const longer =
+      from.integer.length < to.integer.length &&
+      b > a &&
+      !glued &&
+      (isPluralNoun(toLower(match.context.after(2))) ||
+        RANGE_WORDS.has(match.context.before(2)) ||
+        (MONTH_WORDS.has(match.context.before(2)) && b <= 31n));
+    return ((from.integer.length === to.integer.length && b > a) || decades || longer) && !season
+      ? this.joiners().range
+      : "-";
   }
 
   protected override plural(words: string): string | undefined {
@@ -1219,6 +1250,27 @@ class English extends PatternLanguage {
   }
 
   // An integer as a year, a day of a month or a count, digit by digit if it is a code
+  // 5'9": five feet nine inches; 1'27"23: one minute twenty-seven point two three seconds
+  #primes(match: Match): string {
+    const times: readonly Forms[] = [
+      { one: "hour", many: "hours" },
+      { one: "minute", many: "minutes" },
+      { one: "second", many: "seconds" },
+    ];
+    const lengths: readonly Forms[] = [
+      { one: "foot", many: "feet" },
+      { one: "inch", many: "inches" },
+    ];
+    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
+    const words = match.numbers.map((number, i) => {
+      const unit = match.unit === "ft" ? lengths[i] : times[first + i];
+      const one = number.fraction === "" && value(number) === 1n;
+      const count = number.fraction === "" ? cardinal(value(number)) : this.readNumber(number, match);
+      return `${count} ${one ? unit.one : unit.many}`;
+    });
+    return join(words);
+  }
+
   #integer(number: Numeral, cues: Cues): string {
     const n = parseValue(number.integer);
     // 124,444,234,854,823,834,553: too long to hold, read by its groups

@@ -384,6 +384,7 @@ public:
     add_pattern(std::make_unique<DatePattern>(kDotDateFormat));
     add_pattern(std::make_unique<ReorderedDatePattern>());
     add_pattern(std::make_unique<SecondsPattern>());
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -415,6 +416,9 @@ protected:
   }
 
   std::optional<std::u32string> read_date(const Match& match) const override {
+    if (set_score(match)) {
+      return read_set_score(match);
+    }
     uint64_t day = value(match.numbers[0]);
     std::u32string words = (day == 1 ? U"primeiro" : cardinal(day)) + U" de " + kMonths[value(match.numbers[1]) - 1];
     if (match.numbers.size() == 3) {
@@ -461,7 +465,7 @@ protected:
     }
     auto [a, b] = fraction_of(match);
     if (b < 2 || a >= b || !(is_marked_fraction(match, kFractionWords) || bare_fraction(match))) {
-      return std::nullopt;
+      return set_score(match) ? std::optional(read_set_score(match)) : std::nullopt;
     }
     // um quinto, dois terços, um centésimo, três onze avos
     if (b > 10 && b != 100 && b != 1000) {
@@ -472,6 +476,9 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
+    if (match.separator == U'′') {
+      return primes(match);
+    }
     // A dot makes a time only after an hour word or before "h": às 21.30, 21.30h, but 1.71
     bool decimal = match.separator == U'.' && match.suffix.empty() && !kHourWords.contains(match.context.before());
     if (!fits_clock(match) || decimal) {
@@ -605,17 +612,50 @@ protected:
     if (match.unit == U"s" && !match.text.ends_with(U" s") && decade(match)) {
       return std::nullopt;
     }
-    const Forms& unit = kUnits.at(std::u32string(match.unit));
+    const Forms& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
     std::u32string_view first_word = std::u32string_view(unit.one).substr(0, unit.one.find(U' '));
     Gender gender = feminine(first_word) ? Gender::FEMININE : Gender::MASCULINE;
     return number_with(number, gender) + U" " + (value(number) == 1 ? unit.one : unit.many);
   }
 
   std::u32string read_range(const Number& from, const Number& to, const Match& match) const override {
-    // 2016-2022 and 10-15 read "a"; scores and formations (4-3-3, 60-40) keep "-"
+    // 2016-2022 and 10-15 read "a"; formations and splits (4-3-3, 60-40) keep "-", but scores read "a": venceu 5-2
+    if (is_score(match, kSportWords)) {
+      return joiners().score;
+    }
     bool plain = from.fraction.empty() && to.fraction.empty() && !from.grouped && !to.grouped;
     bool rising = from.integer.size() == to.integer.size() && value(to) > value(from);
     return plain && rising && !cues_of(match).lettered ? joiners().range : U"-";
+  }
+
+private:
+  // A slashed pair among words of sets is a score, not a date or a fraction: parciais de 3/6, 6/2 e 7/6 (8/6)
+  static bool set_score(const Match& match) {
+    const auto& numbers = match.numbers;
+    return numbers.size() == 2 && match.separator == U'/' && numbers[0].integer.size() <= 2 &&
+           numbers[1].integer.size() <= 2 && mentions(match.context, kSetWords);
+  }
+  std::u32string read_set_score(const Match& match) const {
+    return cardinal(value(match.numbers[0])) + joiners().score + cardinal(value(match.numbers[1]));
+  }
+
+  // 2'14'': dois minutos e catorze segundos; 1'12''00: um minuto e doze segundos e zero centésimos
+  static std::optional<std::u32string> primes(const Match& match) {
+    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
+    auto counted = [](uint64_t n, const Forms& unit, Gender gender) {
+      return cardinal(n, gender) + U" " + (n == 1 ? unit.one : unit.many);
+    };
+    std::vector<std::u32string> words;
+    for (size_t i = 0; i < match.numbers.size(); ++i) {
+      Gender gender = first + i == 0 ? Gender::FEMININE : Gender::MASCULINE;
+      words.push_back(counted(value(match.numbers[i]), kPrimeUnits[first + i], gender));
+    }
+    const std::u32string& fraction = match.numbers.back().fraction;
+    if (!fraction.empty()) {
+      words.push_back(
+          counted(parse_value(fraction).value_or(0), kSecondFractions[fraction.size() - 1], Gender::MASCULINE));
+    }
+    return join(words, U" e ");
   }
 };
 } // namespace

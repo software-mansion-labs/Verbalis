@@ -4,8 +4,9 @@
 
 #include <cstdint>
 #include <map>
-#include <unordered_set>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -65,6 +66,8 @@ struct Notation {
   Keys scales;                       // million, mln, k
   Keys units;                        // km, kg, °C
   bool fractions = false;            // Whether 3/4 reads as a fraction
+  // What an amount is counted by after a slash, and its words: the h of 5 km/h, "per hour"
+  std::unordered_map<std::u32string, std::u32string> per;
 };
 
 // The keys of a table, for a Notation built out of a language's constants.

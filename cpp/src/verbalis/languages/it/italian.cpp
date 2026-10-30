@@ -230,6 +230,7 @@ public:
   Italian() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
     add_pattern(std::make_unique<SecondsPattern>());
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -309,6 +310,9 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
+    if (match.separator == U'′') {
+      return primes(match);
+    }
     // With a dot, a time comes after "alle" or from 13 on: alle 9.30, 21.30, but versione 2.79
     uint64_t hours = value(match.numbers[0]), minutes = value(match.numbers[1]);
     bool decimal =
@@ -410,11 +414,36 @@ protected:
         strings::contains(std::u32string_view(U".'’"), match.context.tail()[0])) {
       return std::nullopt;
     }
-    const Forms& unit = kUnits.at(std::u32string(match.unit));
+    const Forms& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
     return number.fraction.empty() ? counted(number, unit) : read_number(number, match) + U" " + unit.many;
   }
 
+  // 350-450 grammi keeps its hyphen, but a score is "a": vinto 2-1 (due a uno)
+  std::u32string read_range(const Number& /*from*/, const Number& /*to*/, const Match& match) const override {
+    return is_score(match, kSportWords) ? joiners().score : joiners().range;
+  }
+
 private:
+  // 1'12"76: un minuto e dodici secondi e settantasei centesimi; 2h11'13": due ore undici minuti e tredici secondi, but
+  // un'ora e quattordici minuti e ventuno secondi
+  static std::optional<std::u32string> primes(const Match& match) {
+    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
+    std::vector<std::u32string> words;
+    for (size_t i = 0; i < match.numbers.size(); ++i) {
+      words.push_back(counted(value(match.numbers[i]), kPrimeUnits[first + i]));
+    }
+    const std::u32string& fraction = match.numbers.back().fraction;
+    if (!fraction.empty()) {
+      words.push_back(counted(parse_value(fraction).value_or(0), kSecondFractions[fraction.size() - 1]));
+    }
+    std::u32string out = words[0];
+    for (size_t i = 1; i < words.size(); ++i) {
+      bool hours = i == 1 && first == 0 && value(match.numbers[0]) > 1 && words.size() > 2;
+      out += (hours ? U" " : U" e ") + words[i];
+    }
+    return out;
+  }
+
   // A whole number before its noun: un euro, una sterlina, due euro
   static std::u32string counted(const Number& number, const Forms& noun) {
     return is_one(number) ? one_of(noun.one) : integer_words(number) + U" " + noun.many;
