@@ -329,7 +329,7 @@ std::optional<Reading> read_written_date(std::u32string_view s, size_t i) {
   size_t n = digits_at(s, i);
   size_t to = digits_at(s, i + n + 1);
   if (size_t year = marker(i + 5 + to, U"年");
-      n == 4 && is_one_of(at(s, i + 4), U"-~～到至") && (to == 2 || to == 4) && year != kNone) {
+      n == 4 && is_one_of(at(s, i + 4), U"-~～－—到至") && (to == 2 || to == 4) && year != kNone) {
     // "2020-2021年", "2009到2012年"
     words = to_digits(s.substr(i, 4)) + kRangeTo + to_digits(s.substr(i + 5, to)) + kYear;
     j = year + 1;
@@ -809,7 +809,7 @@ std::optional<Reading> read_range(std::u32string_view s, size_t i) {
   }
   size_t a = number_at(s, i);
   size_t j = i + a;
-  if (!is_one_of(at(s, j), U"-~～")) {
+  if (!is_one_of(at(s, j), U"-~～－—")) {
     return std::nullopt;
   }
   size_t b = number_at(s, j + 1);
@@ -886,7 +886,7 @@ std::optional<Reading> read_number(std::u32string_view s, size_t i) {
  */
 class Mandarin final : public Language {
 public:
-  Mandarin() : Language({.characters = &kCharacters}) {}
+  Mandarin() : Language({.characters = &kCharacters, .symbols = &kSymbols}) {}
 
   void read_numbers(Document& document) const override {
     // Each pass rewrites a draft in turn: later passes see the words of earlier ones

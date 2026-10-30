@@ -1,4 +1,6 @@
 import type { Characters } from "../../steps/normalize.ts";
+import type { Context } from "../../text/context.ts";
+import type { Readings } from "../../text/readings.ts";
 
 // Full-width punctuation in the forms Mandarin speech models expect; it replaces the default classes
 export const CHARACTERS: Characters = [
@@ -60,7 +62,7 @@ export const TWO_BEFORE = [
   "对", "對", "万", "萬", "亿", "億", "千", "百", "点", "點", "小时", "小時", "分钟", "分鐘",
   "秒钟", "秒鐘", "公里", "公斤", "米", "句", "口", "头", "頭", "匹", "颗", "顆", "块", "塊",
   "片", "枚", "首", "篇", "段", "季", "届", "屆", "轮", "輪", "局", "盘", "盤", "杯", "瓶",
-  "箱", "款",
+  "箱", "款", "宗", "船",
 ] as const;
 
 // Words before a number that make it a code read digit by digit: "尾号1702" -> "尾号一七零二"
@@ -113,10 +115,10 @@ function unit(symbol: string, word: string, per = "", counted = true): Unit {
   return { symbol, word, per, counted };
 }
 export const UNITS: readonly Unit[] = [
-  unit("km/h", "公里", "每小时"), unit("km/s", "公里", "每秒"), unit("m/s", "米", "每秒"),
+  unit("km/h", "公里", "每小时"), unit("公里/小时", "公里每小时"), unit("km/s", "公里", "每秒"), unit("m/s", "米", "每秒"),
   unit("km²", "平方公里"), unit("m²", "平方米"), unit("m2", "平方米"), unit("cm²", "平方厘米"), unit("m³", "立方米"),
-  unit("kg", "千克"), unit("mg", "毫克"), unit("g", "克"),
-  unit("km", "公里"), unit("cm", "厘米"), unit("mm", "毫米"), unit("nm", "纳米"), unit("μm", "微米"), unit("m", "米"),
+  unit("kg", "千克"), unit("KG", "千克"), unit("mg", "毫克"), unit("g", "克"),
+  unit("km", "公里"), unit("cm", "厘米"), unit("CM", "厘米"), unit("mm", "毫米"), unit("nm", "纳米"), unit("μm", "微米"), unit("m", "米"),
   unit("ml", "毫升"), unit("mL", "毫升"), unit("L", "升"),
   unit("ms", "毫秒"), unit("min", "分钟"),
   unit("℃", "摄氏度", "", false), unit("°C", "摄氏度", "", false), unit("℉", "华氏度", "", false),
@@ -137,3 +139,14 @@ export const OPERATORS: readonly Operator[] = [
   { symbol: "=", word: "等于" }, { symbol: "×", word: "乘" }, { symbol: "÷", word: "除以" },
   { symbol: "<", word: "小于" }, { symbol: ">", word: "大于" }, { symbol: "-", word: "减" },
 ];
+
+// A sign before a number: "(+39)" -> "(加三十九)", but "C++", "DVD+R"
+function beforeNumeral(context: Context): boolean {
+  const tail = context.tail();
+  return tail.length > 0 && "零一二两三四五六七八九十百千".includes(tail[0]);
+}
+
+// Symbols left after the numbers: "±1" -> "正负一", "y = x" -> "y 等于 x"
+export const SYMBOLS: Readings = {
+  "+": [{ words: "加", when: beforeNumeral }], "±": ["正负"], "=": ["等于"],
+};

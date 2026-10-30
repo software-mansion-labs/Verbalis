@@ -63,7 +63,13 @@ inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"₩", {U"won", U"won"}},        {U"US$", {U"US dollar", U"US dollars"}}, {U"$US", {U"US dollar", U"US dollars"}},
   {U"C$", {U"Canadian dollar", U"Canadian dollars"}}, {U"A$", {U"Australian dollar", U"Australian dollars"}},
   {U"AU$", {U"Australian dollar", U"Australian dollars"}}, {U"NZ$", {U"New Zealand dollar", U"New Zealand dollars"}},
-  {U"S$", {U"Singapore dollar", U"Singapore dollars"}}, {U"HK$", {U"Hong Kong dollar", U"Hong Kong dollars"}}
+  {U"S$", {U"Singapore dollar", U"Singapore dollars"}}, {U"HK$", {U"Hong Kong dollar", U"Hong Kong dollars"}},
+  {U"₹", {U"rupee", U"rupees"}},
+  {U"Rs.", {U"rupee", U"rupees"}},
+  {U"Rs", {U"rupee", U"rupees"}},
+  {U"₦", {U"naira", U"naira"}},
+  {U"₱", {U"peso", U"pesos"}},
+  {U"Dh", {U"dirham", U"dirhams"}}
 };
 inline const Keys kCurrencyKeys = keys_of(kCurrencies);
 
@@ -90,7 +96,10 @@ inline const std::unordered_map<std::u32string, std::u32string> kScales = {
   {U"k", U"thousand"},        {U"K", U"thousand"},      {U"M", U"million"},       {U"bn", U"billion"},
   {U"Million", U"million"},   {U"Billion", U"billion"}, {U"Trillion", U"trillion"},
   // Only after a currency: $30b, £7.45m
-  {U"b", U"billion"},         {U"B", U"billion"},       {U"m", U"million"}
+  {U"b", U"billion"},         {U"B", U"billion"},       {U"m", U"million"},
+  {U"mn", U"million"},
+  {U"tn", U"trillion"},
+  {U"mln", U"million"}
 };
 
 inline const std::unordered_map<std::u32string, Forms> kUnits = {
@@ -121,7 +130,29 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"μm",   {U"micrometer", U"micrometers"}},         {U"µm",   {U"micrometer", U"micrometers"}},
   {U"Mbps", {U"megabit per second", U"megabits per second"}}, {U"mbps", {U"megabit per second", U"megabits per second"}},
   {U"Gbps", {U"gigabit per second", U"gigabits per second"}}, {U"kbps", {U"kilobit per second", U"kilobits per second"}},
-  {U"KG",   {U"kilogram", U"kilograms"}},             {U"Kg",   {U"kilogram", U"kilograms"}}
+  {U"KG",   {U"kilogram", U"kilograms"}},             {U"Kg",   {U"kilogram", U"kilograms"}},
+  {U"C", {U"degree Celsius", U"degrees Celsius"}},
+  {U"℃", {U"degree Celsius", U"degrees Celsius"}},
+  {U"℉", {U"degree Fahrenheit", U"degrees Fahrenheit"}},
+  {U"hr", {U"hour", U"hours"}},
+  {U"min", {U"minute", U"minutes"}},
+  {U"mins", {U"minute", U"minutes"}},
+  {U"sq ft", {U"square foot", U"square feet"}},
+  {U"Sq. ft.", {U"square foot", U"square feet"}},
+  {U"sq. ft.", {U"square foot", U"square feet"}},
+  {U"sq m", {U"square meter", U"square meters"}},
+  {U"SF", {U"square foot", U"square feet"}},
+  {U"pc", {U"percent", U"percent"}},
+  {U"bhp", {U"brake horsepower", U"brake horsepower"}},
+  {U"mAh", {U"milliamp-hour", U"milliamp-hours"}},
+  {U"MeV", {U"mega electron volt", U"mega electron volts"}},
+  {U"ms", {U"millisecond", U"milliseconds"}},
+  {U"tbsp", {U"tablespoon", U"tablespoons"}},
+  {U"tsp", {U"teaspoon", U"teaspoons"}},
+  {U"ha", {U"hectare", U"hectares"}},
+  {U"bpd", {U"barrel per day", U"barrels per day"}},
+  {U"yrs", {U"year", U"years"}},
+  {U"㎡", {U"square meter", U"square meters"}}
 };
 
 inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions = {
@@ -241,7 +272,8 @@ inline const Readings kSymbols = {
   {U"°", {U"degrees"}},  {U"#", {U"hash"}},    {U"²", {U"squared"}}, {U"³", {U"cubed"}},   {U"π", {U"pi"}},
   {U"×", {U"times"}},    {U"±", {U"plus or minus"}}, {U"½", {U"one half"}},
   {U"§", {U"section"}},    {U"$", {U"dollar"}}, {U"€", {U"euro"}},
-  {U"£", {U"pound"}},      {U"¥", {U"yen"}},      {U"₩", {U"won"}}
+  {U"£", {U"pound"}},      {U"¥", {U"yen"}},      {U"₩", {U"won"}},
+  {U"+/-", {U"plus or minus"}}
 };
 
 using ::verbalis::text::before_name;
@@ -371,6 +403,10 @@ inline const Terms kTermsBase = {
     {U"Mrs.", {U"Missus"}},
     {U"Dr.", {{U"Doctor", before_name}}},
     {U"St.", {{U"Street", after_street}, {U"Saint", before_name}, U"Street"}},
+    {U"&c.", {U"et cetera"}},
+    {U"&c", {U"et cetera"}},
+    {U"No", {{U"number", before_number}}},
+    {U"approx.", {U"approximately"}},
   },
   .web = {.dot = U"dot", .at = U"at", .slash = U"slash", .hyphen = U"dash", .underscore = U"underscore",
           .backslash = U"backslash", .colon = U"colon",

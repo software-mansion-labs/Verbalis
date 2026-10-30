@@ -1,6 +1,6 @@
 import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
-import { beforeNumber, type Readings } from "../../text/readings.ts";
+import { beforeName, beforeNumber, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
 import type { Forms, Joiners } from "../grammar.ts";
 
@@ -39,7 +39,9 @@ export const MONTHS: readonly string[] = [
 
 export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "R$": { one: "real", many: "reais" }, "US$": { one: "dólar", many: "dólares" }, "$": { one: "dólar", many: "dólares" },
-  "€": { one: "euro", many: "euros" },  "£": { one: "libra", many: "libras" },
+  "€": { one: "euro", many: "euros" },  "£": { one: "libra", many: "libras" }, EUR: { one: "euro", many: "euros" },
+  // A currency written as a word after a number, read as a decimal: 66,23 euros
+  euros: { one: "euro", many: "euros" },
 };
 
 // Full words are kept as written; abbreviations take the singular below 2
@@ -70,7 +72,10 @@ export const UNITS: Readonly<Record<string, Forms>> = {
   "V":    { one: "volt", many: "volts" },                    "km/h": { one: "quilômetro por hora", many: "quilômetros por hora" },
   "mph":  { one: "milha por hora", many: "milhas por hora" }, "°C":  { one: "grau Celsius", many: "graus Celsius" }, "°F": { one: "grau Fahrenheit", many: "graus Fahrenheit" },
   "°":    { one: "grau", many: "graus" },                    "min":  { one: "minuto", many: "minutos" },
-  "s":    { one: "segundo", many: "segundos" },
+  "s":    { one: "segundo", many: "segundos" },              "mmol": { one: "milimole", many: "milimoles" },
+  "Kb":   { one: "quilobyte", many: "quilobytes" },          "ton":  { one: "tonelada", many: "toneladas" },
+  "kgs":  { one: "quilo", many: "quilos" },                  "Km":   { one: "quilômetro", many: "quilômetros" },
+  "cv":   { one: "cavalo", many: "cavalos" },
 };
 
 export const FRACTIONS: Fractions = {
@@ -232,6 +237,7 @@ export const SYMBOLS: Readings = {
   "&": ["e"],         "+": ["mais"],    "=": ["igual a"],     "@": ["arroba"],   "%": ["por cento"],
   "°": ["graus"],     "#": ["hashtag"], "²": ["ao quadrado"], "³": ["ao cubo"],  "π": ["pi"],
   "×": ["vezes"],     "€": ["euros"],   "$": ["dólares"],     "£": ["libras"],   "§": ["parágrafo"],
+  "±": ["mais ou menos"], "+/-": ["mais ou menos"], "‰": ["por mil"],
 };
 
 export const TERMS: Terms = {
@@ -251,6 +257,16 @@ export const TERMS: Terms = {
     "pág.": [{ words: "página", when: beforeNumber }],
     "§": [{ words: "parágrafo", when: beforeNumber }],
     "ext.": [{ words: "extensão", when: beforeNumber }],
+    "Nº.": [{ words: "número", when: beforeNumber }],
+    art: [{ words: "artigo", when: beforeNumber }],
+    "cap.": [{ words: "capítulo", when: beforeNumber }],
+    "Av.": [{ words: "Avenida", when: beforeName }, { words: "Avenida", when: beforeNumber }],
+    "av.": [{ words: "avenida", when: beforeName }],
+    // Anywhere
+    "cfr.": ["conforme"],
+    "Telef.": ["telefone"],
+    Tlm: ["telemóvel"],
+    "Arq.": ["arquiteto"],
   },
   web: { dot: "ponto", at: "arroba", slash: "barra", hyphen: "hífen", underscore: "sublinhado",
     digits: ["zero", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"],

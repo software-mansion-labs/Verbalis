@@ -561,6 +561,13 @@ protected:
     if (!match.scale.empty()) {
       return with_de(scaled(amount, match.scale, gender)) + U" " + currency.many;
     }
+    // 66,23 euros: a written word keeps the decimal reading, without a zero fraction (3,00 euros: três euros)
+    if (match.unit == U"euros") {
+      if (amount.fraction.find_first_not_of(U'0') == std::u32string::npos) {
+        amount = {.integer = amount.integer, .grouped = amount.grouped};
+      }
+      return with_de(number_with(amount, gender)) + U" " + currency.many;
+    }
 
     // A price: vinte e nove reais e noventa centavos
     if (amount.fraction.size() == 2 && amount.decimal_mark == U',') {

@@ -151,7 +151,7 @@ function followed(base: Noun, words: string): Noun {
 }
 
 export const CURRENCIES: Readonly<Record<string, Noun>> = {
-  "zł": ZLOTY, "PLN": ZLOTY, "€": EURO, "EUR": EURO, "$": DOLLAR, "USD": DOLLAR,
+  "zł": ZLOTY, "PLN": ZLOTY, "pln": ZLOTY, "€": EURO, "EUR": EURO, "$": DOLLAR, "USD": DOLLAR,
   "£": masculine("funt", "funcie"), "gr": GROSZ,
   // Prices per unit: 100 zł/m² sto złotych za metr kwadratowy
   "zł/m²": followed(ZLOTY, "za metr kwadratowy"), "zł/m2": followed(ZLOTY, "za metr kwadratowy"),
@@ -182,6 +182,8 @@ const KILOMETRE = masculine("kilometr", "kilometrze");
 const CENTIMETRE = masculine("centymetr", "centymetrze");
 const POINT = noun("punkt punktu punktowi punkt punktem punkcie punkty punktów punktom punkty punktami punktach");
 
+const CELSIUS = noun("stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza");
+
 export const UNITS: Readonly<Record<string, Noun>> = {
   "km": KILOMETRE,   "m": METRE,
   "m²": qualified(METRE, SQUARE),           "m2": qualified(METRE, SQUARE),
@@ -202,7 +204,7 @@ export const UNITS: Readonly<Record<string, Noun>> = {
   "µg/m3": qualified(masculine("mikrogram", "mikrogramie"), "na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny"),
   "μg/m³": qualified(masculine("mikrogram", "mikrogramie"), "na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny"),
   "µg/m³": qualified(masculine("mikrogram", "mikrogramie"), "na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny"),
-  "C": noun("stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza"),
+  "C": CELSIUS,
   "g": masculine("gram", "gramie"),            "mg": masculine("miligram", "miligramie"),
   "l": masculine("litr", "litrze"),            "ml": masculine("mililitr", "mililitrze"),
   "ha": masculine("hektar", "hektarze"),       "W": masculine("wat", "wacie"),
@@ -211,12 +213,27 @@ export const UNITS: Readonly<Record<string, Noun>> = {
   "MB": masculine("megabajt", "megabajcie"),   "TB": masculine("terabajt", "terabajcie"),
   "kWh": noun("kilowatogodzina kilowatogodziny kilowatogodzinie kilowatogodzinę kilowatogodziną kilowatogodzinie kilowatogodziny kilowatogodzin kilowatogodzinom kilowatogodziny kilowatogodzinami kilowatogodzinach"),
   "Hz": noun("herc herca hercowi herc hercem hercu herce herców hercom herce hercami hercach"),
-  "°C": noun("stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza"),
+  "°C": CELSIUS,
   "°": noun(DEGREE),
   "t": noun("tona tony tonie tonę toną tonie tony ton tonom tony tonami tonach"),
   "h": noun("godzina godziny godzinie godzinę godziną godzinie godziny godzin godzinom godziny godzinami godzinach"),
   "min": noun("minuta minuty minucie minutę minutą minucie minuty minut minutom minuty minutami minutach"),
   "s": noun("sekunda sekundy sekundzie sekundę sekundą sekundzie sekundy sekund sekundom sekundy sekundami sekundach"),
+  "°c": CELSIUS,
+  "OC": CELSIUS,
+  "st.": noun(DEGREE),
+  "mkw": qualified(METRE, SQUARE),
+  "㎡": qualified(METRE, SQUARE),
+  "m sześc.": qualified(METRE, CUBIC),
+  "ms": noun("milisekunda milisekundy milisekundzie milisekundę milisekundą milisekundzie milisekundy milisekund milisekundom milisekundy milisekundami milisekundach"),
+  "sek.": noun("sekunda sekundy sekundzie sekundę sekundą sekundzie sekundy sekund sekundom sekundy sekundami sekundach"),
+  "szt.": noun("sztuka sztuki sztuce sztukę sztuką sztuce sztuki sztuk sztukom sztuki sztukami sztukach"),
+  "kcal": noun("kilokaloria kilokalorii kilokalorii kilokalorię kilokalorią kilokalorii kilokalorie kilokalorii kilokaloriom kilokalorie kilokaloriami kilokaloriach"),
+  "mA": masculine("miliamper", "miliamperze"),
+  "KB": masculine("kilobajt", "kilobajcie"),
+  "MB/s": qualified(masculine("megabajt", "megabajcie"), "na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę"),
+  "kl./s": noun("klatka na sekundę|klatki na sekundę|klatce na sekundę|klatkę na sekundę|klatką na sekundę|klatce na sekundę|klatki na sekundę|klatek na sekundę|klatkom na sekundę|klatki na sekundę|klatkami na sekundę|klatkach na sekundę"),
+  "Mpx": noun("megapiksel megapiksela megapikselowi megapiksel megapikselem megapikselu megapiksele megapikseli megapikselom megapiksele megapikselami megapikselach"),
 };
 
 // Months in the genitive, as dates read them: 27 marca
@@ -332,7 +349,7 @@ export const FEMININE_PLURALS = [
   "osob", "osób", "godzin", "minut", "sekund", "złotówk", "kobiet", "stron", "sztuk", "rzecz", "częś",
   "noc", "dob", "klas", "wersj", "sesj", "edycj", "zapał", "tablic", "butelk", "szklank", "łyżk",
   "dziewczyn", "dziewcząt", "córk", "córek", "siostr", "sióstr", "matk", "matek", "rodzin", "uczennic",
-  "zawodniczk", "zawodniczek",
+  "zawodniczk", "zawodniczek", "kropl", "łyżecz",
 ] as const;
 
 // Words before a time with a dot, which make it a time: o 18.30
@@ -668,6 +685,27 @@ function afterNumberBeforeNumber(context: Context): boolean {
   return beforeNumber(context) && before !== "" && isDigit(before[before.length - 1]);
 }
 
+// Before a number or an hour: ok. 5, ok. godz. 12
+function beforeAmount(context: Context): boolean {
+  return beforeNumber(context) || toLower(context.after()).startsWith("godz");
+}
+
+// Before a number after a space: do temp. 180, but temp.100% stays
+function beforeSpacedNumber(context: Context): boolean {
+  return context.tail()[0] === " " && beforeNumber(context);
+}
+
+// After a Roman numeral, the kw. of kwartał: w III kw. (trzecim kwartale), but stopy kw.
+function afterRoman(context: Context): boolean {
+  const before = context.before();
+  return before !== "" && [...before].every((c) => "ivx".includes(c));
+}
+
+const QUARTER: readonly Reading[] = [
+  { words: "kwartale", when: (context) => afterRoman(context) && LOCATIVE_WORDS.has(context.before(2)) },
+  { words: "kwartał", when: afterRoman },
+];
+
 // The word after it ends with one of given endings (lowercase): św. Anny
 function beforeEnding(endings: readonly string[]): Condition {
   return (context) => {
@@ -717,8 +755,10 @@ export const TERMS: Terms = {
     "art.": declined("artykuł|artykułu|artykułowi|artykuł|artykułem|artykule", beforeNumber),
     "str.": declined("strona|strony|stronie|stronę|stroną|stronie", beforeNumber),
     "poz.": [{ words: "pozycja", when: beforeNumber }],
-    "ok.": [{ words: "około", when: beforeNumber }],
-    "Ok.": [{ words: "Około", when: beforeNumber }],
+    "ok.": [{ words: "około", when: beforeAmount }],
+    "Ok.": [{ words: "Około", when: beforeAmount }],
+    "s.": [{ words: "strona", when: beforeNumber }],
+    "temp.": declined("temperatura|temperatury|temperaturze|temperaturę|temperaturą|temperaturze", beforeSpacedNumber),
     "lok.": [{ words: "lokal", when: beforeNumber }],
     "m.": [{ words: "mieszkanie", when: afterNumberBeforeNumber }], // ul. Mickiewicza 3 m. 4
     "#": [{ words: "numer", when: beforeNumber }],
@@ -750,6 +790,10 @@ export const TERMS: Terms = {
     "płk": declined("pułkownik|pułkownika|pułkownikowi|pułkownika|pułkownikiem|pułkowniku"),
     "ks.": declined("ksiądz|księdza|księdzu|księdza|księdzem|księdzu"),
     "św.": SAINT,
+    "bp": declined("biskup|biskupa|biskupowi|biskupa|biskupem|biskupie", beforeName),
+    "kmdr": declined("komandor|komandora|komandorowi|komandora|komandorem|komandorze"),
+    "mł. asp.": declined("młodszy aspirant|młodszego aspiranta|młodszemu aspirantowi|młodszego aspiranta|młodszym aspirantem|młodszym aspirancie"),
+    "kw.": QUARTER,
     "hab.": ["habilitowany"],
     // tzw. by the ending of the noun after it; -ie is mostly the dative or locative of a feminine noun (strefie)
     "tzw.": [
@@ -767,6 +811,13 @@ export const TERMS: Terms = {
     "tj.": ["to jest"],
     "m.in.": ["między innymi"],
     "M.in.": ["Między innymi"],
+    "m. in.": ["między innymi"],
+    "r.obr.": ["roku obrotowego"],
+    "n.p.m.": closing("nad poziomem morza"),
+    "w st. spocz.": ["w stanie spoczynku"],
+    "w wys.": ["w wysokości"],
+    "sygn.": ["sygnatura"],
+    "lit.": ["litera"],
     "wg": ["według"],
     "Wg": ["Według"],
     "wg.": ["według"],

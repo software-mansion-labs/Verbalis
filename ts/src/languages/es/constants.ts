@@ -107,6 +107,14 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   ptas: { one: "peseta", many: "pesetas" },
   pta: { one: "peseta", many: "pesetas" },
   Ptas: { one: "peseta", many: "pesetas" },
+  "RD$": { one: "peso dominicano", many: "pesos dominicanos" },
+  "U$S": { one: "dólar", many: "dólares" },
+  "¢": { one: "colón", many: "colones" },
+  "N$": { one: "nuevo peso", many: "nuevos pesos" },
+  Bs: { one: "bolívar", many: "bolívares" },
+  // Millions of pesos and of dollars, read as a currency: 2 mdp
+  mdp: { one: "millón de pesos", many: "millones de pesos" },
+  mdd: { one: "millón de dólares", many: "millones de dólares" },
 };
 
 // Currency codes which also precede an amount: USD 5, q50,10 (Q1 to Q9 are quarters)
@@ -174,6 +182,13 @@ export const UNITS: Readonly<Record<string, Forms>> = {
   min: { one: "minuto", many: "minutos" },              "/s": { one: "por segundo", many: "por segundo" },
   kph: { one: "kilómetro por hora", many: "kilómetros por hora" }, psi: { one: "psi", many: "psi" },
   rpm: { one: "revolución por minuto", many: "revoluciones por minuto" },
+  Km: { one: "kilómetro", many: "kilómetros" },         mts: { one: "metro", many: "metros" },
+  cms: { one: "centímetro", many: "centímetros" },      m2: { one: "metro cuadrado", many: "metros cuadrados" },
+  oz: { one: "onza", many: "onzas" },                   kWh: { one: "kilovatio hora", many: "kilovatios hora" },
+  hp: { one: "caballo de fuerza", many: "caballos de fuerza" }, "℃": { one: "grado centígrado", many: "grados centígrados" },
+  gb: { one: "gigabyte", many: "gigabytes" },           px: { one: "píxel", many: "píxeles" },
+  MP: { one: "megapíxel", many: "megapíxeles" },        Mpx: { one: "megapíxel", many: "megapíxeles" },
+  pts: { one: "punto", many: "puntos" },
 };
 
 export const FRACTION_WORDS: ReadonlySet<string> = new Set(["de", "del"]);
@@ -194,7 +209,7 @@ export const LAWS: ReadonlySet<string> = new Set([
 export const TIME_WORDS: ReadonlySet<string> = new Set(["las", "la"]);
 
 // After a time: 19 h, 16:00 hrs. (horas), 5:02 p. m. (de la tarde)
-export const HOUR_SUFFIXES: Keys = ["h", "h.", "hrs", "hrs."];
+export const HOUR_SUFFIXES: Keys = ["h", "h.", "hrs", "hrs.", "Hrs", "Hrs.", "hs", "hs."];
 export const MORNING_SUFFIXES: Keys = ["a. m.", "a.m.", "a.m", "am"];
 export const EVENING_SUFFIXES: Keys = ["p. m.", "p.m.", "p.m", "pm"];
 
@@ -255,7 +270,8 @@ export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
 // --- Notation: how numbers are written ---
 export const NOTATION = notation({
   groupSeparators: "., \u00a0\u202f", decimalSeparators: ".,", timeSeparators: ":.",
-  timeSuffixes: ["h", "h.", "hrs", "hrs.", "a. m.", "a.m.", "a.m", "am", "p. m.", "p.m.", "p.m", "pm"],
+  timeSuffixes: ["h", "h.", "hrs", "hrs.", "Hrs", "Hrs.", "hs", "hs.", "a. m.", "a.m.", "a.m", "am",
+    "p. m.", "p.m.", "p.m", "pm"],
   currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
 });
 
@@ -324,6 +340,7 @@ export const SYMBOLS: Readings = {
   "¾": ["tres cuartos"], "⅕": ["un quinto"], "⅖": ["dos quintos"], "⅗": ["tres quintos"],
   "⅘": ["cuatro quintos"], "⅙": ["un sexto"], "⅚": ["cinco sextos"], "⅛": ["un octavo"],
   "⅜": ["tres octavos"], "⅝": ["cinco octavos"], "⅞": ["siete octavos"],
+  "±": ["más menos"],    "+/-": ["más menos"],   "‰": ["por mil"],
 };
 
 // After a year or a century, as digits or a Roman numeral: 10.000 a. C., siglo x ec
@@ -374,6 +391,11 @@ const TERMS_BASE: Terms = {
     "núm.": [{ words: "número", when: beforeNumber }],
     "pág.": [{ words: "página", when: beforeNumber }],
     "art.": [{ words: "artículo", when: beforeNumber }],
+    "Núm.": [{ words: "número", when: beforeNumber }],
+    "Pág.": [{ words: "página", when: beforeNumber }],
+    pp: [{ words: "páginas", when: beforeNumber }],
+    "Km.": [{ words: "kilómetro", when: beforeNumber }],
+    "Tel.": [{ words: "teléfono", when: beforeNumber }],
     // Before a day: vier. 10 de mayo
     "lun.": [{ words: "lunes", when: beforeNumber }],
     "mié.": [{ words: "miércoles", when: beforeNumber }],
@@ -412,6 +434,8 @@ const TERMS_BASE: Terms = {
     "Ing.": ["ingeniero"],
     "Prof.": ["profesor"],
     "Avda.": ["avenida"],
+    "calz.": ["calzada"],
+    "pp.": ["páginas"],
     "esq.": ["esquina"],
     "pza.": ["plaza"],
     "Pza.": ["plaza"],

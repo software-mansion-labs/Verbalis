@@ -646,6 +646,13 @@ class Portuguese extends PatternLanguage {
     if (match.scale !== "") {
       return `${withDe(scaled(amount, match.scale, gender))} ${currency.many}`;
     }
+    // 66,23 euros: a written word keeps the decimal reading, without a zero fraction (3,00 euros: três euros)
+    if (match.unit === "euros") {
+      if (/^0*$/.test(amount.fraction)) {
+        amount = numeral({ span: { begin: 0, end: 0 }, integer: amount.integer, grouped: amount.grouped });
+      }
+      return `${withDe(numberWith(amount, gender))} ${currency.many}`;
+    }
 
     // A price: vinte e nove reais e noventa centavos
     if (amount.fraction.length === 2 && amount.decimalMark === ",") {

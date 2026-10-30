@@ -101,6 +101,10 @@ export const UNITS: Readonly<Record<string, string>> = {
   "qt": "क्वार्ट",          "gal": "गैलन",          "pt": "पिंट",            "cg": "सेंटीग्राम",
   "dg": "डेसीग्राम",        "t": "टन",             "st": "स्टोन",           "lb": "पाउंड",
   "oz": "आउन्स",           "q": "क्विंटल",          "yr": "साल",
+  "W": "वाट",              "Km/h": "किलोमीटर प्रति घंटा", "x": "गुना",
+  // Abbreviations with ० (read as 0) or ॰ as their dot: 34 किमी०, 20 कि॰मी॰, 6 मी॰, 3,000 कि॰
+  "किमी0": "किलोमीटर",     "कि॰मी॰": "किलोमीटर",     "मी॰": "मीटर",           "कि॰": "किलोग्राम",
+  "रु.": "रुपये",
 };
 
 // Months: standard Gregorian month names in Hindi (used as-is in dates).
@@ -251,6 +255,7 @@ export const TERMS: Terms = {
     "डॉ.": ["डॉक्टर"],
     "डॉ0": ["डॉक्टर"],
     "प्रो.": ["प्रोफेसर"],
+    "प्रो॰": ["प्रोफ़ेसर"],
     "इं.": [{ words: "इंजीनियर", when: beforeName }],
     "ले.": [{ words: "लेफ्टिनेंट", when: beforeName }],
     "वै.": [{ words: "वैज्ञानिक", when: beforeName }],
@@ -261,6 +266,17 @@ export const TERMS: Terms = {
     "ई. पू.": [{ words: "ईसा पूर्व", when: afterNumber }],
     "ई.पू.": [{ words: "ईसा पूर्व", when: afterNumber }],
     "पू.": [{ words: "पूर्व", when: afterAny(["ईसा"]) }],
+    // With ० (read as 0) or ॰ as the dot: 1825 ई०, १९१३ ई॰, ४००० ई॰पू॰
+    "ई0": [{ words: "ईसवी", when: afterNumber }],
+    "ई॰": [{ words: "ईसवी", when: afterNumber }],
+    "ई॰पू॰": [{ words: "ईसा पूर्व", when: afterNumber }],
+    "ईपू": [{ words: "ईसा पूर्व", when: afterNumber }],
+    "वि.": [{ words: "विक्रम संवत्", when: afterNumber }],
+    // Anywhere: प्रति है०, नियम क्र. ७२
+    "है0": ["हेक्टेयर"],
+    "कु0": ["कुन्तल"],
+    "क्र.": ["क्रमांक"],
+    "प्र.": ["प्रतिशत"],
   },
   web: {
     dot: "डॉट", at: "एट", slash: "फॉरवर्ड स्लैश", hyphen: "हाइफ़न", underscore: "अंडरस्कोर", backslash: "बैकवर्ड स्लैश", colon: "कोलन",

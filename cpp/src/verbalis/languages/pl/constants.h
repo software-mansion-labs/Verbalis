@@ -183,7 +183,7 @@ inline Noun followed(const Noun& base, std::u32string_view words) {
 }
 
 inline const std::unordered_map<std::u32string, Noun> kCurrencies = {
-  {U"zł", kZloty}, {U"PLN", kZloty}, {U"€", kEuro}, {U"EUR", kEuro}, {U"$", kDollar}, {U"USD", kDollar},
+  {U"zł", kZloty}, {U"PLN", kZloty}, {U"pln", kZloty}, {U"€", kEuro}, {U"EUR", kEuro}, {U"$", kDollar}, {U"USD", kDollar},
   {U"£", masculine(U"funt", U"funcie")}, {U"gr", kGrosz},
   // Prices per unit: 100 zł/m² sto złotych za metr kwadratowy
   {U"zł/m²", followed(kZloty, U"za metr kwadratowy")}, {U"zł/m2", followed(kZloty, U"za metr kwadratowy")},
@@ -206,6 +206,8 @@ inline const Noun kKilometre = masculine(U"kilometr", U"kilometrze");
 inline const Noun kCentimetre = masculine(U"centymetr", U"centymetrze");
 inline const Noun kPoint = noun(U"punkt punktu punktowi punkt punktem punkcie punkty punktów punktom punkty punktami punktach");
 
+inline const Noun kCelsius = noun(U"stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza");
+
 inline const std::unordered_map<std::u32string, Noun> kUnits = {
   {U"km", kKilometre},   {U"m", kMetre},
   {U"m²", qualified(kMetre, kSquare)},           {U"m2", qualified(kMetre, kSquare)},
@@ -226,7 +228,7 @@ inline const std::unordered_map<std::u32string, Noun> kUnits = {
   {U"µg/m3", qualified(masculine(U"mikrogram", U"mikrogramie"), U"na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny")},
   {U"μg/m³", qualified(masculine(U"mikrogram", U"mikrogramie"), U"na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny")},
   {U"µg/m³", qualified(masculine(U"mikrogram", U"mikrogramie"), U"na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny|na metr sześcienny")},
-  {U"C", noun(U"stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza")},
+  {U"C", kCelsius},
   {U"g", masculine(U"gram", U"gramie")},            {U"mg", masculine(U"miligram", U"miligramie")},
   {U"l", masculine(U"litr", U"litrze")},            {U"ml", masculine(U"mililitr", U"mililitrze")},
   {U"ha", masculine(U"hektar", U"hektarze")},       {U"W", masculine(U"wat", U"wacie")},
@@ -235,12 +237,27 @@ inline const std::unordered_map<std::u32string, Noun> kUnits = {
   {U"MB", masculine(U"megabajt", U"megabajcie")},   {U"TB", masculine(U"terabajt", U"terabajcie")},
   {U"kWh", noun(U"kilowatogodzina kilowatogodziny kilowatogodzinie kilowatogodzinę kilowatogodziną kilowatogodzinie kilowatogodziny kilowatogodzin kilowatogodzinom kilowatogodziny kilowatogodzinami kilowatogodzinach")},
   {U"Hz", noun(U"herc herca hercowi herc hercem hercu herce herców hercom herce hercami hercach")},
-  {U"°C", noun(U"stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza")},
+  {U"°C", kCelsius},
   {U"°", noun(kDegree)},
   {U"t", noun(U"tona tony tonie tonę toną tonie tony ton tonom tony tonami tonach")},
   {U"h", noun(U"godzina godziny godzinie godzinę godziną godzinie godziny godzin godzinom godziny godzinami godzinach")},
   {U"min", noun(U"minuta minuty minucie minutę minutą minucie minuty minut minutom minuty minutami minutach")},
-  {U"s", noun(U"sekunda sekundy sekundzie sekundę sekundą sekundzie sekundy sekund sekundom sekundy sekundami sekundach")}
+  {U"s", noun(U"sekunda sekundy sekundzie sekundę sekundą sekundzie sekundy sekund sekundom sekundy sekundami sekundach")},
+  {U"°c", kCelsius},
+  {U"OC", kCelsius},
+  {U"st.", noun(kDegree)},
+  {U"mkw", qualified(kMetre, kSquare)},
+  {U"㎡", qualified(kMetre, kSquare)},
+  {U"m sześc.", qualified(kMetre, kCubic)},
+  {U"ms", noun(U"milisekunda milisekundy milisekundzie milisekundę milisekundą milisekundzie milisekundy milisekund milisekundom milisekundy milisekundami milisekundach")},
+  {U"sek.", noun(U"sekunda sekundy sekundzie sekundę sekundą sekundzie sekundy sekund sekundom sekundy sekundami sekundach")},
+  {U"szt.", noun(U"sztuka sztuki sztuce sztukę sztuką sztuce sztuki sztuk sztukom sztuki sztukami sztukach")},
+  {U"kcal", noun(U"kilokaloria kilokalorii kilokalorii kilokalorię kilokalorią kilokalorii kilokalorie kilokalorii kilokaloriom kilokalorie kilokaloriami kilokaloriach")},
+  {U"mA", masculine(U"miliamper", U"miliamperze")},
+  {U"KB", masculine(U"kilobajt", U"kilobajcie")},
+  {U"MB/s", qualified(masculine(U"megabajt", U"megabajcie"), U"na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę|na sekundę")},
+  {U"kl./s", noun(U"klatka na sekundę|klatki na sekundę|klatce na sekundę|klatkę na sekundę|klatką na sekundę|klatce na sekundę|klatki na sekundę|klatek na sekundę|klatkom na sekundę|klatki na sekundę|klatkami na sekundę|klatkach na sekundę")},
+  {U"Mpx", noun(U"megapiksel megapiksela megapikselowi megapiksel megapikselem megapikselu megapiksele megapikseli megapikselom megapiksele megapikselami megapikselach")}
 };
 
 // Months in the genitive, as dates read them: 27 marca
@@ -352,7 +369,7 @@ inline const std::vector<std::u32string> kFemininePlurals = {
   U"osob", U"osób", U"godzin", U"minut", U"sekund", U"złotówk", U"kobiet", U"stron", U"sztuk", U"rzecz", U"częś",
   U"noc", U"dob", U"klas", U"wersj", U"sesj", U"edycj", U"zapał", U"tablic", U"butelk", U"szklank", U"łyżk",
   U"dziewczyn", U"dziewcząt", U"córk", U"córek", U"siostr", U"sióstr", U"matk", U"matek", U"rodzin", U"uczennic",
-  U"zawodniczk", U"zawodniczek"
+  U"zawodniczk", U"zawodniczek", U"kropl", U"łyżecz"
 };
 
 // Words before a time with a dot, which make it a time: o 18.30
@@ -696,6 +713,27 @@ inline bool after_number_before_number(const Context& context) {
   return before_number(context) && !before.empty() && ::verbalis::text::unicode::isdigit(before.back());
 }
 
+// Before a number or an hour: ok. 5, ok. godz. 12
+inline bool before_amount(const Context& context) {
+  return before_number(context) || ::verbalis::text::strings::to_lower(context.after()).starts_with(U"godz");
+}
+
+// Before a number after a space: do temp. 180, but temp.100% stays
+inline bool before_spaced_number(const Context& context) {
+  return context.tail().starts_with(U' ') && before_number(context);
+}
+
+// After a Roman numeral, the kw. of kwartał: w III kw. (trzecim kwartale), but stopy kw.
+inline bool after_roman(const Context& context) {
+  std::u32string before = context.before();
+  return !before.empty() && before.find_first_not_of(U"ivx") == std::u32string::npos;
+}
+
+inline const std::vector<Reading> kQuarter = {
+  {U"kwartale", [](const Context& context) { return after_roman(context) && kLocativeWords.contains(context.before(2)); }},
+  {U"kwartał", after_roman}
+};
+
 // The word after it ends with one of given endings (lowercase): św. Anny
 inline Condition before_ending(std::vector<std::u32string> endings) {
   return [endings = std::move(endings)](const Context& context) {
@@ -744,8 +782,10 @@ inline const Terms kTerms = {
     {U"art.", declined(U"artykuł|artykułu|artykułowi|artykuł|artykułem|artykule", before_number)},
     {U"str.", declined(U"strona|strony|stronie|stronę|stroną|stronie", before_number)},
     {U"poz.", {{U"pozycja", before_number}}},
-    {U"ok.", {{U"około", before_number}}},
-    {U"Ok.", {{U"Około", before_number}}},
+    {U"ok.", {{U"około", before_amount}}},
+    {U"Ok.", {{U"Około", before_amount}}},
+    {U"s.", {{U"strona", before_number}}},
+    {U"temp.", declined(U"temperatura|temperatury|temperaturze|temperaturę|temperaturą|temperaturze", before_spaced_number)},
     {U"lok.", {{U"lokal", before_number}}},
     {U"m.", {{U"mieszkanie", after_number_before_number}}}, // ul. Mickiewicza 3 m. 4
     {U"#", {{U"numer", before_number}}},
@@ -777,6 +817,10 @@ inline const Terms kTerms = {
     {U"płk", declined(U"pułkownik|pułkownika|pułkownikowi|pułkownika|pułkownikiem|pułkowniku")},
     {U"ks.", declined(U"ksiądz|księdza|księdzu|księdza|księdzem|księdzu")},
     {U"św.", kSaint},
+    {U"bp", declined(U"biskup|biskupa|biskupowi|biskupa|biskupem|biskupie", before_name)},
+    {U"kmdr", declined(U"komandor|komandora|komandorowi|komandora|komandorem|komandorze")},
+    {U"mł. asp.", declined(U"młodszy aspirant|młodszego aspiranta|młodszemu aspirantowi|młodszego aspiranta|młodszym aspirantem|młodszym aspirancie")},
+    {U"kw.", kQuarter},
     {U"hab.", {U"habilitowany"}},
     // tzw. by the ending of the noun after it; -ie is mostly the dative or locative of a feminine noun (strefie)
     {U"tzw.", {{U"tak zwana", before_ending({U"a"})}, {U"tak zwaną", before_ending({U"ą"})},
@@ -792,6 +836,13 @@ inline const Terms kTerms = {
     {U"tj.", {U"to jest"}},
     {U"m.in.", {U"między innymi"}},
     {U"M.in.", {U"Między innymi"}},
+    {U"m. in.", {U"między innymi"}},
+    {U"r.obr.", {U"roku obrotowego"}},
+    {U"n.p.m.", closing(U"nad poziomem morza")},
+    {U"w st. spocz.", {U"w stanie spoczynku"}},
+    {U"w wys.", {U"w wysokości"}},
+    {U"sygn.", {U"sygnatura"}},
+    {U"lit.", {U"litera"}},
     {U"wg", {U"według"}},
     {U"Wg", {U"Według"}},
     {U"wg.", {U"według"}},

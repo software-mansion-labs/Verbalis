@@ -27,6 +27,8 @@ export const WEEKDAYS: ReadonlySet<string> = new Set([
 export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "€": { one: "euro", many: "euros" },    "$": { one: "dollar", many: "dollars" }, "£": { one: "livre", many: "livres" },
   "CHF": { one: "franc suisse", many: "francs suisses" }, "M€": { one: "million d'euros", many: "millions d'euros" },
+  "€uros": { one: "euro", many: "euros" },
+  "M$": { one: "million de dollars", many: "millions de dollars" }, "G$": { one: "milliard de dollars", many: "milliards de dollars" },
   // A price per unit: 2 000 €/mois
   "€/mois": { one: "euro par mois", many: "euros par mois" }, "€/an": { one: "euro par an", many: "euros par an" },
   "€/jour": { one: "euro par jour", many: "euros par jour" }, "€/semaine": { one: "euro par semaine", many: "euros par semaine" },
@@ -60,6 +62,26 @@ export const UNITS: Readonly<Record<string, Forms>> = {
   "W":      { one: "watt", many: "watts" },                     "V":    { one: "volt", many: "volts" },
   "Mbit/s": { one: "mégabit par seconde", many: "mégabits par seconde" }, "min": { one: "minute", many: "minutes" },
   "s":      { one: "seconde", many: "secondes" },
+  "ch": { one: "cheval", many: "chevaux" },
+  "ko": { one: "kilooctet", many: "kilooctets" },
+  "ms": { one: "milliseconde", many: "millisecondes" },
+  "pts": { one: "point", many: "points" },
+  "kms": { one: "kilomètre", many: "kilomètres" },
+  "Ha": { one: "hectare", many: "hectares" },
+  "Kg": { one: "kilogramme", many: "kilogrammes" },
+  "mn": { one: "minute", many: "minutes" },
+  "sec": { one: "seconde", many: "secondes" },
+  "dB": { one: "décibel", many: "décibels" },
+  "MVA": { one: "mégavoltampère", many: "mégavoltampères" },
+  "kV": { one: "kilovolt", many: "kilovolts" },
+  "Mhz": { one: "mégahertz", many: "mégahertz" },
+  "Mbits/s": { one: "mégabit par seconde", many: "mégabits par seconde" },
+  "Gbit/s": { one: "gigabit par seconde", many: "gigabits par seconde" },
+  "° C": { one: "degré Celsius", many: "degrés Celsius" },
+  "p.": { one: "page", many: "pages" },
+  "pp.": { one: "page", many: "pages" },
+  "Gbps": { one: "gigabit par seconde", many: "gigabits par seconde" },
+  "gHz": { one: "gigahertz", many: "gigahertz" },
 };
 
 export const FRACTIONS: Fractions = {
@@ -94,7 +116,7 @@ export const MASCULINE_ENDINGS = ["age", "ège", "isme", "ème", "aire", "tre", 
 export const STOP_WORDS: ReadonlySet<string> = new Set([
   "avec", "dans", "pour", "mais", "donc", "puis", "sur", "sous", "par", "chez", "vers", "entre", "sans",
   "contre", "comme", "selon", "alors", "aussi", "déjà", "encore", "très", "plus", "moins", "tout",
-  "tous", "toute", "toutes",
+  "tous", "toute", "toutes", "des",
 ]);
 
 export const NUMBER_WORDS: ReadonlySet<string> = new Set([
@@ -157,7 +179,7 @@ export const FEMININE_ROMAN_NOUNS: ReadonlySet<string> = new Set([
 
 // --- Notation: how numbers are written ---
 export const NOTATION = notation({
-  groupSeparators: "   .", decimalSeparators: ",.", timeSeparators: ":.h", timeSuffixes: ["h"],
+  groupSeparators: "   .'’", decimalSeparators: ",.", timeSeparators: ":.h", timeSuffixes: ["h"],
   currencies: keysOf(CURRENCIES), scales: keysOf(SCALES), units: keysOf(UNITS), fractions: true,
 });
 
@@ -181,7 +203,7 @@ export const PHONE_FORMAT = phoneFormat({
 
 // 1er, 1re, 2e, 2ème, 2nd, 3èmes
 export const ORDINAL_SUFFIXES = [
-  "ères", "èmes", "ère", "ème", "eme", "ers", "er", "res", "re", "es", "ndes", "nde", "nds", "nd",
+  "ères", "èmes", "ère", "ere", "ème", "eme", "ers", "er", "res", "re", "es", "ndes", "nde", "nds", "nd",
   "e",    "è",
 ];
 
@@ -189,7 +211,9 @@ export const SYMBOLS: Readings = {
   "&": ["et"],       "+": ["plus"],    "=": ["égale"],   "@": ["arobase"], "%": ["pour cent"],
   "°": ["degrés"],   "§": ["paragraphe"], "#": ["hashtag"], "²": ["carré"], "³": ["cube"],
   "π": ["pi"],       "×": ["fois"],    "½": ["un demi"], "€": ["euros"],   "$": ["dollars"],
-  "£": ["livres"],
+  "£": ["livres"],   "±": ["plus ou moins"], "+/-": ["plus ou moins"], "‰": ["pour mille"],
+  "≤": ["inférieur ou égal à"],
+  "°C": ["degrés Celsius"], "M€": ["millions d'euros"],
 };
 
 // Days of a month, the word before a month abbreviation in a date: 2 janv. 2003, 1er févr.

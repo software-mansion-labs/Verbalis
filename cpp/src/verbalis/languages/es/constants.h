@@ -100,7 +100,12 @@ inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"Rs", {U"rupia", U"rupias"}},           {U"rs", {U"rupia", U"rupias"}},
   {U"kr", {U"corona", U"coronas"}},         {U"mk", {U"marco", U"marcos"}},
   {U"Fr", {U"franco", U"francos"}},         {U"fr", {U"franco", U"francos"}},
-  {U"ptas", {U"peseta", U"pesetas"}},       {U"pta", {U"peseta", U"pesetas"}},       {U"Ptas", {U"peseta", U"pesetas"}}
+  {U"ptas", {U"peseta", U"pesetas"}},       {U"pta", {U"peseta", U"pesetas"}},       {U"Ptas", {U"peseta", U"pesetas"}},
+  {U"RD$", {U"peso dominicano", U"pesos dominicanos"}}, {U"U$S", {U"dólar", U"dólares"}},
+  {U"¢", {U"colón", U"colones"}},           {U"N$", {U"nuevo peso", U"nuevos pesos"}},
+  {U"Bs", {U"bolívar", U"bolívares"}},
+  // Millions of pesos and of dollars, read as a currency: 2 mdp
+  {U"mdp", {U"millón de pesos", U"millones de pesos"}}, {U"mdd", {U"millón de dólares", U"millones de dólares"}}
 };
 
 // Currency codes which also precede an amount: USD 5, q50,10 (Q1 to Q9 are quarters)
@@ -151,7 +156,14 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"s", {U"segundo", U"segundos"}},              {U"seg", {U"segundo", U"segundos"}},
   {U"min", {U"minuto", U"minutos"}},              {U"/s", {U"por segundo", U"por segundo"}},
   {U"kph", {U"kilómetro por hora", U"kilómetros por hora"}}, {U"psi", {U"psi", U"psi"}},
-  {U"rpm", {U"revolución por minuto", U"revoluciones por minuto"}}
+  {U"rpm", {U"revolución por minuto", U"revoluciones por minuto"}},
+  {U"Km", {U"kilómetro", U"kilómetros"}},         {U"mts", {U"metro", U"metros"}},
+  {U"cms", {U"centímetro", U"centímetros"}},      {U"m2", {U"metro cuadrado", U"metros cuadrados"}},
+  {U"oz", {U"onza", U"onzas"}},                 {U"kWh", {U"kilovatio hora", U"kilovatios hora"}},
+  {U"hp", {U"caballo de fuerza", U"caballos de fuerza"}}, {U"℃", {U"grado centígrado", U"grados centígrados"}},
+  {U"gb", {U"gigabyte", U"gigabytes"}},           {U"px", {U"píxel", U"píxeles"}},
+  {U"MP", {U"megapíxel", U"megapíxeles"}},        {U"Mpx", {U"megapíxel", U"megapíxeles"}},
+  {U"pts", {U"punto", U"puntos"}}
 };
 
 // An inch after a fraction: 3/4"
@@ -177,7 +189,7 @@ inline const std::unordered_set<std::u32string> kLaws = {
 inline const std::unordered_set<std::u32string> kTimeWords = {U"las", U"la"};
 
 // After a time: 19 h, 16:00 hrs. (horas), 5:02 p. m. (de la tarde)
-inline const Keys kHourSuffixes = {U"h", U"h.", U"hrs", U"hrs."};
+inline const Keys kHourSuffixes = {U"h", U"h.", U"hrs", U"hrs.", U"Hrs", U"Hrs.", U"hs", U"hs."};
 inline const Keys kMorningSuffixes = {U"a. m.", U"a.m.", U"a.m", U"am"};
 inline const Keys kEveningSuffixes = {U"p. m.", U"p.m.", U"p.m", U"pm"};
 
@@ -236,7 +248,8 @@ inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
 // --- Notation: how numbers are written ---
 inline const Notation kNotation = {
   .group_separators = U"., \u00a0\u202f", .decimal_separators = U".,", .time_separators = U":.",
-  .time_suffixes = {U"h", U"h.", U"hrs", U"hrs.", U"a. m.", U"a.m.", U"a.m", U"am", U"p. m.", U"p.m.", U"p.m", U"pm"},
+  .time_suffixes = {U"h", U"h.", U"hrs", U"hrs.", U"Hrs", U"Hrs.", U"hs", U"hs.", U"a. m.", U"a.m.", U"a.m", U"am",
+                    U"p. m.", U"p.m.", U"p.m", U"pm"},
   .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true
 };
 
@@ -307,7 +320,8 @@ inline const Readings kSymbols = {
   {U"⅓", {U"un tercio"}},   {U"⅔", {U"dos tercios"}},   {U"¼", {U"un cuarto"}},
   {U"¾", {U"tres cuartos"}}, {U"⅕", {U"un quinto"}}, {U"⅖", {U"dos quintos"}}, {U"⅗", {U"tres quintos"}},
   {U"⅘", {U"cuatro quintos"}}, {U"⅙", {U"un sexto"}}, {U"⅚", {U"cinco sextos"}}, {U"⅛", {U"un octavo"}},
-  {U"⅜", {U"tres octavos"}}, {U"⅝", {U"cinco octavos"}}, {U"⅞", {U"siete octavos"}}
+  {U"⅜", {U"tres octavos"}}, {U"⅝", {U"cinco octavos"}}, {U"⅞", {U"siete octavos"}},
+  {U"±", {U"más menos"}},    {U"+/-", {U"más menos"}},   {U"‰", {U"por mil"}}
 };
 
 using ::verbalis::text::before_number;
@@ -363,6 +377,11 @@ inline const Terms kTermsBase = {
     {U"núm.", {{U"número", before_number}}},
     {U"pág.", {{U"página", before_number}}},
     {U"art.", {{U"artículo", before_number}}},
+    {U"Núm.", {{U"número", before_number}}},
+    {U"Pág.", {{U"página", before_number}}},
+    {U"pp", {{U"páginas", before_number}}},
+    {U"Km.", {{U"kilómetro", before_number}}},
+    {U"Tel.", {{U"teléfono", before_number}}},
     // Before a day: vier. 10 de mayo
     {U"lun.", {{U"lunes", before_number}}},
     {U"mié.", {{U"miércoles", before_number}}},
@@ -401,6 +420,8 @@ inline const Terms kTermsBase = {
     {U"Ing.", {U"ingeniero"}},
     {U"Prof.", {U"profesor"}},
     {U"Avda.", {U"avenida"}},
+    {U"calz.", {U"calzada"}},
+    {U"pp.", {U"páginas"}},
     {U"esq.", {U"esquina"}},
     {U"pza.", {U"plaza"}},
     {U"Pza.", {U"plaza"}},

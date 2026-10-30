@@ -296,7 +296,13 @@ std::optional<Context> enumerated(const Context& context) {
   if (!number || words_of(text.substr(number->end)).size() > 4) {
     return std::nullopt;
   }
-  return Context(text, *number);
+  // A score or a range, which reads "6 do 0" by now, ends in the genitive of its "do", which the next one doesn't
+  // share: 6:0, 7:6 (sześć do zera, siedem do sześciu)
+  Context earlier(text, *number);
+  if (earlier.before() == U"do" && made_of(earlier.before(2), kDigits)) {
+    return std::nullopt;
+  }
+  return earlier;
 }
 
 // The case of a number governed by an amount noun, a genitive verb or a negation right before it.
@@ -447,14 +453,14 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
       noun == U"do" && after.size() >= 3 && made_of(stripped(after[1]), kDigits) &&
       std::ranges::find(kMonthsGenitive, strings::to_lower(stripped(after[2]))) != kMonthsGenitive.end();
   if ((std::ranges::find(kMonthsGenitive, noun) != kMonthsGenitive.end() || month_after_range) && n >= 1 && n <= 31) {
-    // od pierwszego kwietnia, po pierwszym maja, przed dwudziestym czwartym grudnia, na szósty grudnia
-    // 11 listopada to Święto: a date opening its sentence before a copula is its subject
+    // od pierwszego kwietnia, po pierwszym maja, przed dwudziestym czwartym grudnia, na szósty grudnia, był
+    // dwudziestego października; 11 listopada to Święto: a date opening its sentence before a copula is its subject
     bool subject = before.empty() && after.size() >= 2 && kCopulas.contains(strings::to_lower(stripped(after[1])));
-    Case c = kCopulas.contains(w1) || subject ? Case::NOMINATIVE :
-             w1 == U"po"                      ? Case::LOCATIVE :
-             w1 == U"przed"                   ? Case::INSTRUMENTAL :
-             w1 == U"na"                      ? Case::ACCUSATIVE :
-                                                Case::GENITIVE;
+    Case c = subject        ? Case::NOMINATIVE :
+             w1 == U"po"    ? Case::LOCATIVE :
+             w1 == U"przed" ? Case::INSTRUMENTAL :
+             w1 == U"na"    ? Case::ACCUSATIVE :
+                              Case::GENITIVE;
     return {Form::ORDINAL, c};
   }
   if (kMonthWords.contains(w1) && n >= 1000 && n <= 2100) {

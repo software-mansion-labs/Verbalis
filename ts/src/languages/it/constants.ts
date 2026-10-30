@@ -73,7 +73,10 @@ export const UNITS: Readonly<Record<string, Forms>> = {
   "°": { one: "grado", many: "gradi" },                     "h": { one: "ora", many: "ore" },
   "min": { one: "minuto", many: "minuti" },                 "sec": { one: "secondo", many: "secondi" },
   "ms": { one: "millisecondo", many: "millisecondi" },      "gg": { one: "giorno", many: "giorni" },
-  "d": { one: "giorno", many: "giorni" }
+  "d": { one: "giorno", many: "giorni" },                   "mL": { one: "millilitro", many: "millilitri" },
+  "KWh": { one: "kilowattora", many: "kilowattora" },       "KW": { one: "kilowatt", many: "kilowatt" },
+  "Kg": { one: "chilo", many: "chili" },                    "cc": { one: "centimetro cubo", many: "centimetri cubi" },
+  "uF": { one: "microfarad", many: "microfarad" },
 };
 
 export const FRACTIONS: Fractions = {
@@ -237,6 +240,7 @@ export const SYMBOLS: Readings = {
   "&": ["e"],       "+": ["più"],     "=": ["uguale a"],    "@": ["chiocciola"], "%": ["per cento"],
   "°": ["gradi"],   "#": ["hashtag"], "²": ["al quadrato"], "³": ["al cubo"],    "π": ["pi greco"],
   "×": ["per"],     "€": ["euro"],    "$": ["dollari"],     "£": ["sterline"],   "§": ["paragrafo"],
+  "±": ["più o meno"], "+/-": ["più o meno"], "‰": ["per mille"], "∞": ["infinito"],
 };
 
 export const TERMS: Terms = {
@@ -263,6 +267,13 @@ export const TERMS: Terms = {
     "Fig.": [{ words: "figura", when: beforeNumber }],
     "tab.": [{ words: "tabella", when: beforeNumber }],
     "vol.": [{ words: "volume", when: beforeNumber }],
+    art: [{ words: "articolo", when: beforeNumber }],
+    num: [{ words: "numero", when: beforeNumber }],
+    "p.": [{ words: "pagina", when: beforeNumber }],
+    "ff.": [{ words: "fogli", when: beforeNumber }],
+    "vv.": [{ words: "versetti", when: beforeNumber }],
+    "c.": [{ words: "comma", when: beforeNumber }],
+    "t.": [{ words: "telefono", when: beforeNumber }],
     // Titles, which drop their final -e before a name: Sig. Rossi, signor Rossi
     "sig.": [{ words: "signor", when: beforeName }, "signore"],
     "Sig.": [{ words: "signor", when: beforeName }, "signore"],

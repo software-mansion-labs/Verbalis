@@ -1042,8 +1042,17 @@ class English extends PatternLanguage {
       return `${cardinal(hours)} ${suffix}`;
     }
 
-    // 1.13 is a decimal, unless a time is expected: at 10.30
-    const decimal = match.separator === "." && match.suffix === "" && !TIME_WORDS.has(match.context.before());
+    // 1.13 is a decimal, unless a time is expected: at 10.30; but 2.53% and 4.00%, at 1.50 times, and 2.30 kg
+    const tail = match.context.tail();
+    const word = match.context.after();
+    const amount =
+      tail[0] === "%" ||
+      (tail[0] === " " && tail[1] === "%") ||
+      word === "times" ||
+      word === "percent" ||
+      Object.hasOwn(UNITS, word);
+    const decimal =
+      match.separator === "." && match.suffix === "" && (amount || !TIME_WORDS.has(match.context.before()));
     if (!fitsClock(match) || decimal) {
       return undefined;
     }

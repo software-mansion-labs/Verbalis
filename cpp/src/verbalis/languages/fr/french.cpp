@@ -444,7 +444,9 @@ protected:
 
   std::optional<std::u32string> read_time(const Match& match) const override {
     if (match.numbers.size() == 2) {
-      bool decimal = match.separator == U'.' && !kTimeWords.contains(match.context.before());
+      // à 18.30, but à 0.40%
+      bool decimal = match.separator == U'.' &&
+                     (!kTimeWords.contains(match.context.before()) || match.context.tail().starts_with(U'%'));
       if (!fits_clock(match) || decimal) {
         return std::nullopt;
       }
@@ -479,7 +481,7 @@ protected:
     if (suffix.starts_with(U"nd")) {
       words = suffix.starts_with(U"nde") ? U"seconde" : U"second";
     } else {
-      bool feminine = suffix == U"re" || suffix == U"ère" || suffix == U"res" || suffix == U"ères";
+      bool feminine = suffix == U"re" || suffix == U"ère" || suffix == U"ere" || suffix == U"res" || suffix == U"ères";
       words = ordinal(value(match.numbers[0]), feminine);
     }
     return words + (suffix.ends_with(U's') ? U"s" : U"");

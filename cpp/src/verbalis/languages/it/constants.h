@@ -104,7 +104,10 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"°", {U"grado", U"gradi"}},                     {U"h", {U"ora", U"ore"}},
   {U"min", {U"minuto", U"minuti"}},                 {U"sec", {U"secondo", U"secondi"}},
   {U"ms", {U"millisecondo", U"millisecondi"}},      {U"gg", {U"giorno", U"giorni"}},
-  {U"d", {U"giorno", U"giorni"}}
+  {U"d", {U"giorno", U"giorni"}},                   {U"mL", {U"millilitro", U"millilitri"}},
+  {U"KWh", {U"kilowattora", U"kilowattora"}},       {U"KW", {U"kilowatt", U"kilowatt"}},
+  {U"Kg", {U"chilo", U"chili"}},                    {U"cc", {U"centimetro cubo", U"centimetri cubi"}},
+  {U"uF", {U"microfarad", U"microfarad"}}
 };
 
 inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions = {
@@ -261,7 +264,8 @@ using ::verbalis::text::Readings;
 inline const Readings kSymbols = {
   {U"&", {U"e"}},           {U"+", {U"più"}},       {U"=", {U"uguale a"}}, {U"@", {U"chiocciola"}}, {U"%", {U"per cento"}},
   {U"°", {U"gradi"}},       {U"#", {U"hashtag"}},   {U"²", {U"al quadrato"}}, {U"³", {U"al cubo"}}, {U"π", {U"pi greco"}},
-  {U"×", {U"per"}},         {U"€", {U"euro"}},      {U"$", {U"dollari"}},  {U"£", {U"sterline"}},   {U"§", {U"paragrafo"}}
+  {U"×", {U"per"}},         {U"€", {U"euro"}},      {U"$", {U"dollari"}},  {U"£", {U"sterline"}},   {U"§", {U"paragrafo"}},
+  {U"±", {U"più o meno"}},  {U"+/-", {U"più o meno"}}, {U"‰", {U"per mille"}}, {U"∞", {U"infinito"}}
 };
 
 using ::verbalis::text::before_name;
@@ -292,6 +296,13 @@ inline const Terms kTerms = {
     {U"Fig.", {{U"figura", before_number}}},
     {U"tab.", {{U"tabella", before_number}}},
     {U"vol.", {{U"volume", before_number}}},
+    {U"art", {{U"articolo", before_number}}},
+    {U"num", {{U"numero", before_number}}},
+    {U"p.", {{U"pagina", before_number}}},
+    {U"ff.", {{U"fogli", before_number}}},
+    {U"vv.", {{U"versetti", before_number}}},
+    {U"c.", {{U"comma", before_number}}},
+    {U"t.", {{U"telefono", before_number}}},
     // Titles, which drop their final -e before a name: Sig. Rossi, signor Rossi
     {U"sig.", {{U"signor", before_name}, {U"signore"}}},
     {U"Sig.", {{U"signor", before_name}, {U"signore"}}},

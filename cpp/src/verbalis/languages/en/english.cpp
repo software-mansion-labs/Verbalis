@@ -885,8 +885,13 @@ protected:
       return cardinal(hours) + U" " + suffix;
     }
 
-    // 1.13 is a decimal, unless a time is expected: at 10.30
-    bool decimal = match.separator == U'.' && match.suffix.empty() && !kTimeWords.contains(match.context.before());
+    // 1.13 is a decimal, unless a time is expected: at 10.30; but 2.53% and 4.00%, at 1.50 times, and 2.30 kg
+    std::u32string_view tail = match.context.tail();
+    std::u32string word = match.context.after();
+    bool amount = tail.starts_with(U'%') || tail.starts_with(U" %") || word == U"times" || word == U"percent" ||
+                  kUnits.contains(word);
+    bool decimal =
+        match.separator == U'.' && match.suffix.empty() && (amount || !kTimeWords.contains(match.context.before()));
     if (!fits_clock(match) || decimal) {
       return std::nullopt;
     }

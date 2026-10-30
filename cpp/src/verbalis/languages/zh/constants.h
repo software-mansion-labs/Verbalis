@@ -1,6 +1,7 @@
 #pragma once
 
 #include <verbalis/steps/normalize.h>
+#include <verbalis/text/readings.h>
 
 #include <array>
 #include <string>
@@ -70,7 +71,7 @@ inline const auto kTwoBefore = std::to_array<std::u32string>({
   U"对", U"對", U"万", U"萬", U"亿", U"億", U"千", U"百", U"点", U"點", U"小时", U"小時", U"分钟", U"分鐘",
   U"秒钟", U"秒鐘", U"公里", U"公斤", U"米", U"句", U"口", U"头", U"頭", U"匹", U"颗", U"顆", U"块", U"塊",
   U"片", U"枚", U"首", U"篇", U"段", U"季", U"届", U"屆", U"轮", U"輪", U"局", U"盘", U"盤", U"杯", U"瓶",
-  U"箱", U"款"
+  U"箱", U"款", U"宗", U"船"
 });
 
 // Words before a number that make it a code read digit by digit: "尾号1702" -> "尾号一七零二"
@@ -116,10 +117,10 @@ struct Unit {
   bool counted = true;      // 2 is 两
 };
 inline const auto kUnits = std::to_array<Unit>({
-  {U"km/h", U"公里", U"每小时"}, {U"km/s", U"公里", U"每秒"}, {U"m/s", U"米", U"每秒"},
+  {U"km/h", U"公里", U"每小时"}, {U"公里/小时", U"公里每小时"}, {U"km/s", U"公里", U"每秒"}, {U"m/s", U"米", U"每秒"},
   {U"km²", U"平方公里"}, {U"m²", U"平方米"}, {U"m2", U"平方米"}, {U"cm²", U"平方厘米"}, {U"m³", U"立方米"},
-  {U"kg", U"千克"}, {U"mg", U"毫克"}, {U"g", U"克"},
-  {U"km", U"公里"}, {U"cm", U"厘米"}, {U"mm", U"毫米"}, {U"nm", U"纳米"}, {U"μm", U"微米"}, {U"m", U"米"},
+  {U"kg", U"千克"}, {U"KG", U"千克"}, {U"mg", U"毫克"}, {U"g", U"克"},
+  {U"km", U"公里"}, {U"cm", U"厘米"}, {U"CM", U"厘米"}, {U"mm", U"毫米"}, {U"nm", U"纳米"}, {U"μm", U"微米"}, {U"m", U"米"},
   {U"ml", U"毫升"}, {U"mL", U"毫升"}, {U"L", U"升"},
   {U"ms", U"毫秒"}, {U"min", U"分钟"},
   {U"℃", U"摄氏度", U"", false}, {U"°C", U"摄氏度", U"", false}, {U"℉", U"华氏度", U"", false},
@@ -138,5 +139,16 @@ inline const auto kOperators = std::to_array<Operator>({
   {U"<=", U"小于等于"}, {U">=", U"大于等于"}, {U"≤", U"小于等于"}, {U"≥", U"大于等于"}, {U"≠", U"不等于"},
   {U"+", U"加"}, {U"=", U"等于"}, {U"×", U"乘"}, {U"÷", U"除以"}, {U"<", U"小于"}, {U">", U"大于"}, {U"-", U"减"}
 });
+
+// A sign before a number: "(+39)" -> "(加三十九)", but "C++", "DVD+R"
+inline bool before_numeral(const ::verbalis::text::Context& context) {
+  std::u32string_view tail = context.tail();
+  return !tail.empty() && std::u32string_view(U"零一二两三四五六七八九十百千").find(tail[0]) != std::u32string_view::npos;
+}
+
+// Symbols left after the numbers: "±1" -> "正负一", "y = x" -> "y 等于 x"
+inline const ::verbalis::text::Readings kSymbols = {
+  {U"+", {{U"加", before_numeral}}}, {U"±", {U"正负"}}, {U"=", {U"等于"}}
+};
 
 } // namespace verbalis::languages::zh

@@ -60,7 +60,9 @@ inline const std::vector<std::u32string> kMonths = {
 
 inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"R$", {U"real", U"reais"}}, {U"US$", {U"dólar", U"dólares"}}, {U"$", {U"dólar", U"dólares"}},
-  {U"€", {U"euro", U"euros"}},  {U"£", {U"libra", U"libras"}}
+  {U"€", {U"euro", U"euros"}},  {U"£", {U"libra", U"libras"}}, {U"EUR", {U"euro", U"euros"}},
+  // A currency written as a word after a number, read as a decimal: 66,23 euros
+  {U"euros", {U"euro", U"euros"}}
 };
 
 // Full words are kept as written; abbreviations take the singular below 2
@@ -91,7 +93,10 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"V", {U"volt", U"volts"}},                     {U"km/h", {U"quilômetro por hora", U"quilômetros por hora"}},
   {U"mph", {U"milha por hora", U"milhas por hora"}}, {U"°C", {U"grau Celsius", U"graus Celsius"}}, {U"°F", {U"grau Fahrenheit", U"graus Fahrenheit"}},
   {U"°", {U"grau", U"graus"}},                    {U"min", {U"minuto", U"minutos"}},
-  {U"s", {U"segundo", U"segundos"}}
+  {U"s", {U"segundo", U"segundos"}},              {U"mmol", {U"milimole", U"milimoles"}},
+  {U"Kb", {U"quilobyte", U"quilobytes"}},          {U"ton", {U"tonelada", U"toneladas"}},
+  {U"kgs", {U"quilo", U"quilos"}},                 {U"Km", {U"quilômetro", U"quilômetros"}},
+  {U"cv", {U"cavalo", U"cavalos"}}
 };
 
 inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions = {
@@ -256,9 +261,11 @@ using ::verbalis::text::Readings;
 inline const Readings kSymbols = {
   {U"&", {U"e"}},         {U"+", {U"mais"}},    {U"=", {U"igual a"}},     {U"@", {U"arroba"}},   {U"%", {U"por cento"}},
   {U"°", {U"graus"}},     {U"#", {U"hashtag"}}, {U"²", {U"ao quadrado"}}, {U"³", {U"ao cubo"}},  {U"π", {U"pi"}},
-  {U"×", {U"vezes"}},     {U"€", {U"euros"}},   {U"$", {U"dólares"}},     {U"£", {U"libras"}},   {U"§", {U"parágrafo"}}
+  {U"×", {U"vezes"}},     {U"€", {U"euros"}},   {U"$", {U"dólares"}},     {U"£", {U"libras"}},   {U"§", {U"parágrafo"}},
+  {U"±", {U"mais ou menos"}}, {U"+/-", {U"mais ou menos"}}, {U"‰", {U"por mil"}}
 };
 
+using ::verbalis::text::before_name;
 using ::verbalis::text::before_number;
 using ::verbalis::steps::Terms;
 
@@ -279,6 +286,16 @@ inline const Terms kTerms = {
     {U"pág.", {{U"página", before_number}}},
     {U"§", {{U"parágrafo", before_number}}},
     {U"ext.", {{U"extensão", before_number}}},
+    {U"Nº.", {{U"número", before_number}}},
+    {U"art", {{U"artigo", before_number}}},
+    {U"cap.", {{U"capítulo", before_number}}},
+    {U"Av.", {{U"Avenida", before_name}, {U"Avenida", before_number}}},
+    {U"av.", {{U"avenida", before_name}}},
+    // Anywhere
+    {U"cfr.", {U"conforme"}},
+    {U"Telef.", {U"telefone"}},
+    {U"Tlm", {U"telemóvel"}},
+    {U"Arq.", {U"arquiteto"}},
   },
   .web = {.dot = U"ponto", .at = U"arroba", .slash = U"barra", .hyphen = U"hífen", .underscore = U"sublinhado",
           .digits = {U"zero", U"um", U"dois", U"três", U"quatro", U"cinco", U"seis", U"sete", U"oito", U"nove"}}

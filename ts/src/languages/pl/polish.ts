@@ -389,7 +389,13 @@ function enumerated(context: Context): Context | undefined {
   if (!number || wordsOf(text.slice(number.end)).length > 4) {
     return undefined;
   }
-  return new Context(text, number);
+  // A score or a range, which reads "6 do 0" by now, ends in the genitive of its "do", which the next one doesn't
+  // share: 6:0, 7:6 (sześć do zera, siedem do sześciu)
+  const earlier = new Context(text, number);
+  if (earlier.before() === "do" && madeOf(earlier.before(2), DIGITS)) {
+    return undefined;
+  }
+  return earlier;
 }
 
 // The case of a number governed by an amount noun, a genitive verb or a negation right before it.
@@ -558,10 +564,11 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   if (((MONTHS_GENITIVE as readonly string[]).includes(noun) || monthAfterRange) && n >= 1n && n <= 31n) {
     // 11 listopada to Święto: a date opening its sentence before a copula is its subject
     const subject = before.length === 0 && after.length >= 2 && COPULAS.has(toLower(str(stripped(after[1]))));
-    // od pierwszego kwietnia, po pierwszym maja, przed dwudziestym czwartym grudnia, na szósty grudnia
+    // od pierwszego kwietnia, po pierwszym maja, przed dwudziestym czwartym grudnia, na szósty grudnia, był
+    // dwudziestego października
     // prettier-ignore
     const c =
-      COPULAS.has(w1) || subject ? Case.NOMINATIVE
+      subject ? Case.NOMINATIVE
       : w1 === "po" ? Case.LOCATIVE
       : w1 === "przed" ? Case.INSTRUMENTAL
       : w1 === "na" ? Case.ACCUSATIVE

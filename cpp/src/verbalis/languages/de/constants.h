@@ -59,7 +59,11 @@ inline const std::unordered_map<std::u32string, std::u32string> kCurrencies = {
   {U"€/h", U"Euro pro Stunde"},
   {U"€/Stunde", U"Euro pro Stunde"},
   {U"€/Nacht", U"Euro pro Nacht"},
-  {U"€/Person", U"Euro pro Person"}
+  {U"€/Person", U"Euro pro Person"},
+  {U"$/oz", U"Dollar pro Unze"},
+  {U"Dollar/oz", U"Dollar pro Unze"},
+  {U"€/Std", U"Euro pro Stunde"},
+  {U"Euro/Std.", U"Euro pro Stunde"}
 };
 
 inline const std::unordered_map<std::u32string, Forms> kScales = {
@@ -110,7 +114,46 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"mV", {U"Millivolt", U"Millivolt"}},
   {U"kV", {U"Kilovolt", U"Kilovolt"}},
   {U"mA", {U"Milliampere", U"Milliampere"}},
-  {U"°F", {U"Grad Fahrenheit", U"Grad Fahrenheit"}}
+  {U"°F", {U"Grad Fahrenheit", U"Grad Fahrenheit"}},
+  {U"″", {U"Zoll", U"Zoll"}},
+  {U"MEUR", {U"Millionen Euro", U"Millionen Euro"}},
+  {U"mEUR", {U"Millionen Euro", U"Millionen Euro"}},
+  {U"Km", {U"Kilometer", U"Kilometer"}},
+  {U"KM", {U"Kilometer", U"Kilometer"}},
+  {U"KG", {U"Kilogramm", U"Kilogramm"}},
+  {U"dB", {U"Dezibel", U"Dezibel"}},
+  {U"db", {U"Dezibel", U"Dezibel"}},
+  {U"qm", {U"Quadratmeter", U"Quadratmeter"}},
+  {U"TL", {U"Teelöffel", U"Teelöffel"}},
+  {U"EL", {U"Esslöffel", U"Esslöffel"}},
+  {U"St.", {U"Stück", U"Stück"}},
+  {U"Stk.", {U"Stück", U"Stück"}},
+  {U"Stk", {U"Stück", U"Stück"}},
+  {U"gr.", {U"Gramm", U"Gramm"}},
+  {U"Vol.%", {U"Volumenprozent", U"Volumenprozent"}},
+  {U"Vol.-%", {U"Volumenprozent", U"Volumenprozent"}},
+  {U"mmHg", {U"Millimeter Quecksilbersäule", U"Millimeter Quecksilbersäule"}},
+  {U"mah", {U"Milliamperestunde", U"Milliamperestunden"}},
+  {U"mAh", {U"Milliamperestunde", U"Milliamperestunden"}},
+  {U"Wh", {U"Wattstunde", U"Wattstunden"}},
+  {U"L", {U"Liter", U"Liter"}},
+  {U"Mm", {U"Millimeter", U"Millimeter"}},
+  {U"° C", {U"Grad Celsius", U"Grad Celsius"}},
+  {U"° F", {U"Grad Fahrenheit", U"Grad Fahrenheit"}},
+  {U"l/m²", {U"Liter pro Quadratmeter", U"Liter pro Quadratmeter"}},
+  {U"m³/h", {U"Kubikmeter pro Stunde", U"Kubikmeter pro Stunde"}},
+  {U"m3/h", {U"Kubikmeter pro Stunde", U"Kubikmeter pro Stunde"}},
+  {U"Gbit/s", {U"Gigabit pro Sekunde", U"Gigabit pro Sekunde"}},
+  {U"GBit/s", {U"Gigabit pro Sekunde", U"Gigabit pro Sekunde"}},
+  {U"Gb/s", {U"Gigabit pro Sekunde", U"Gigabit pro Sekunde"}},
+  {U"Mbit/s", {U"Megabit pro Sekunde", U"Megabit pro Sekunde"}},
+  {U"kWh/Jahr", {U"Kilowattstunden pro Jahr", U"Kilowattstunden pro Jahr"}},
+  {U"Bq/kg", {U"Becquerel pro Kilogramm", U"Becquerel pro Kilogramm"}},
+  {U"cd/m²", {U"Candela pro Quadratmeter", U"Candela pro Quadratmeter"}},
+  {U"µg/kg", {U"Mikrogramm pro Kilogramm", U"Mikrogramm pro Kilogramm"}},
+  {U"μg/kg", {U"Mikrogramm pro Kilogramm", U"Mikrogramm pro Kilogramm"}},
+  {U"/min", {U"pro Minute", U"pro Minute"}},
+  {U"St", {U"Stück", U"Stück"}}
 };
 
 inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions = {
@@ -253,7 +296,11 @@ inline const Readings kSymbols = {
   {U"&", {U"und"}},       {U"€", {U"Euro"}},      {U"$", {U"Dollar"}},    {U"£", {U"Pfund"}},    {U"+", {U"plus"}},
   {U"=", {U"gleich"}},    {U"@", {U"at"}},        {U"%", {U"Prozent"}},   {U"°", {U"Grad"}},     {U"#", {U"Hashtag"}},
   {U"²", {U"Quadrat"}},   {U"³", {U"hoch drei"}}, {U"¹", {U"hoch eins"}}, {U"π", {U"Pi"}},       {U"×", {U"mal"}},
-  {U"½", {U"ein halb"}},  {U"§§", {U"Paragrafen"}}, {U"§", {{U"Paragrafen", after_any(kParagraphPlurals)}, U"Paragraf"}}
+  {U"½", {U"ein halb"}},  {U"§§", {U"Paragrafen"}}, {U"§", {{U"Paragrafen", after_any(kParagraphPlurals)}, U"Paragraf"}},
+  {U"≥", {U"größer oder gleich"}},
+  {U"≤", {U"kleiner oder gleich"}},
+  {U"±", {U"plus minus"}},
+  {U"+/-", {U"plus minus"}}
 };
 
 using ::verbalis::text::before_number;
@@ -328,6 +375,21 @@ inline const Terms kTerms = {
     {U"Ms.", {U"Miss"}},
     {U"MwSt.", {U"Mehrwertsteuer"}},
     {U"Mwst.", {U"Mehrwertsteuer"}},
+    {U"Abb.", {U"Abbildung"}},
+    {U"gem.", {U"gemäß"}},
+    {U"a. M.", {U"am Main"}},
+    {U"a.M.", {U"am Main"}},
+    {U"mind.", {U"mindestens"}},
+    {U"Az.", {U"Aktenzeichen"}},
+    {U"v. Chr.", {U"vor Christus"}},
+    {U"n. Chr.", {U"nach Christus"}},
+    {U"Vj.", {U"Vorjahr"}},
+    {U"Jahrb.", {U"Jahrbuch"}},
+    {U"erm.", {U"ermäßigt"}},
+    {U"rel.", {U"relative"}},
+    {U"Jg.", {U"Jahrgang"}},
+    {U"Tbl.", {U"Tablette"}},
+    {U"tgl.", {U"täglich"}},
   },
   .web = {.dot = U"Punkt", .at = U"at", .slash = U"Schrägstrich", .hyphen = U"Bindestrich", .underscore = U"Unterstrich",
           .digits = {U"null", U"eins", U"zwei", U"drei", U"vier", U"fünf", U"sechs", U"sieben", U"acht", U"neun"}},

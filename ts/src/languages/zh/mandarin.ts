@@ -39,6 +39,7 @@ import {
   YEAR,
   YEAR_COUNTS,
   YEAR_WORDS,
+  SYMBOLS,
 } from "./constants.ts";
 
 function isDigit(c: string | undefined): boolean {
@@ -365,7 +366,7 @@ function readWrittenDate(s: Text, i: number): Reading | undefined {
   const n = digitsAt(s, i);
   const to = digitsAt(s, i + n + 1);
   let year = marker(i + 5 + to, "年");
-  if (n === 4 && contains("-~～到至", at(s, i + 4)) && (to === 2 || to === 4) && year !== NONE) {
+  if (n === 4 && contains("-~～－—到至", at(s, i + 4)) && (to === 2 || to === 4) && year !== NONE) {
     // "2020-2021年", "2009到2012年"
     words = toDigits(str(s, i, i + 4)) + RANGE_TO + toDigits(str(s, i + 5, i + 5 + to)) + YEAR;
     j = year + 1;
@@ -902,7 +903,7 @@ function readRange(s: Text, i: number): Reading | undefined {
   }
   const a = numberAt(s, i);
   const j = i + a;
-  if (!contains("-~～", at(s, j))) {
+  if (!contains("-~～－—", at(s, j))) {
     return undefined;
   }
   const b = numberAt(s, j + 1);
@@ -987,7 +988,7 @@ function readNumber(s: Text, i: number): Reading | undefined {
  */
 class Mandarin extends Language {
   constructor() {
-    super({ characters: CHARACTERS });
+    super({ characters: CHARACTERS, symbols: SYMBOLS });
   }
 
   readNumbers(document: Document): void {

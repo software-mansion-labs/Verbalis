@@ -47,6 +47,8 @@ inline const std::unordered_set<std::u32string> kWeekdays = {
 inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"€", {U"euro", U"euros"}},    {U"$", {U"dollar", U"dollars"}}, {U"£", {U"livre", U"livres"}},
   {U"CHF", {U"franc suisse", U"francs suisses"}}, {U"M€", {U"million d'euros", U"millions d'euros"}},
+  {U"€uros", {U"euro", U"euros"}},
+  {U"M$", {U"million de dollars", U"millions de dollars"}}, {U"G$", {U"milliard de dollars", U"milliards de dollars"}},
   // A price per unit: 2 000 €/mois
   {U"€/mois", {U"euro par mois", U"euros par mois"}}, {U"€/an", {U"euro par an", U"euros par an"}},
   {U"€/jour", {U"euro par jour", U"euros par jour"}}, {U"€/semaine", {U"euro par semaine", U"euros par semaine"}},
@@ -79,7 +81,27 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
   {U"kW", {U"kilowatt", U"kilowatts"}},             {U"kWh", {U"kilowattheure", U"kilowattheures"}},
   {U"W", {U"watt", U"watts"}},                      {U"V", {U"volt", U"volts"}},
   {U"Mbit/s", {U"mégabit par seconde", U"mégabits par seconde"}}, {U"min", {U"minute", U"minutes"}},
-  {U"s", {U"seconde", U"secondes"}}
+  {U"s", {U"seconde", U"secondes"}},
+  {U"ch", {U"cheval", U"chevaux"}},
+  {U"ko", {U"kilooctet", U"kilooctets"}},
+  {U"ms", {U"milliseconde", U"millisecondes"}},
+  {U"pts", {U"point", U"points"}},
+  {U"kms", {U"kilomètre", U"kilomètres"}},
+  {U"Ha", {U"hectare", U"hectares"}},
+  {U"Kg", {U"kilogramme", U"kilogrammes"}},
+  {U"mn", {U"minute", U"minutes"}},
+  {U"sec", {U"seconde", U"secondes"}},
+  {U"dB", {U"décibel", U"décibels"}},
+  {U"MVA", {U"mégavoltampère", U"mégavoltampères"}},
+  {U"kV", {U"kilovolt", U"kilovolts"}},
+  {U"Mhz", {U"mégahertz", U"mégahertz"}},
+  {U"Mbits/s", {U"mégabit par seconde", U"mégabits par seconde"}},
+  {U"Gbit/s", {U"gigabit par seconde", U"gigabits par seconde"}},
+  {U"° C", {U"degré Celsius", U"degrés Celsius"}},
+  {U"p.", {U"page", U"pages"}},
+  {U"pp.", {U"page", U"pages"}},
+  {U"Gbps", {U"gigabit par seconde", U"gigabits par seconde"}},
+  {U"gHz", {U"gigahertz", U"gigahertz"}}
 };
 
 inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions = {
@@ -115,7 +137,7 @@ inline const std::vector<std::u32string> kMasculineEndings = {U"age", U"ège", U
 inline const std::unordered_set<std::u32string> kStopWords = {
   U"avec", U"dans", U"pour", U"mais", U"donc", U"puis", U"sur", U"sous", U"par", U"chez", U"vers", U"entre", U"sans",
   U"contre", U"comme", U"selon", U"alors", U"aussi", U"déjà", U"encore", U"très", U"plus", U"moins", U"tout",
-  U"tous", U"toute", U"toutes"
+  U"tous", U"toute", U"toutes", U"des"
 };
 
 inline const std::unordered_set<std::u32string> kNumberWords = {
@@ -174,7 +196,7 @@ inline const std::unordered_set<std::u32string> kFeminineRomanNouns = {
 
 // --- Notation: how numbers are written ---
 inline const Notation kNotation = {
-  .group_separators = U" \u00a0\u202f.", .decimal_separators = U",.", .time_separators = U":.h", .time_suffixes = {U"h"},
+  .group_separators = U" \u00a0\u202f.'’", .decimal_separators = U",.", .time_separators = U":.h", .time_suffixes = {U"h"},
   .currencies = keys_of(kCurrencies), .scales = keys_of(kScales), .units = keys_of(kUnits), .fractions = true
 };
 
@@ -198,7 +220,7 @@ inline const PhoneFormat kPhoneFormat = {
 
 // 1er, 1re, 2e, 2ème, 2nd, 3èmes
 inline const Keys kOrdinalSuffixes = {
-  U"ères", U"èmes", U"ère", U"ème", U"eme", U"ers", U"er", U"res", U"re", U"es", U"ndes", U"nde", U"nds", U"nd",
+  U"ères", U"èmes", U"ère", U"ere", U"ème", U"eme", U"ers", U"er", U"res", U"re", U"es", U"ndes", U"nde", U"nds", U"nd",
   U"e",    U"è"
 };
 
@@ -208,7 +230,9 @@ inline const Readings kSymbols = {
   {U"&", {U"et"}},       {U"+", {U"plus"}},    {U"=", {U"égale"}}, {U"@", {U"arobase"}}, {U"%", {U"pour cent"}},
   {U"°", {U"degrés"}},   {U"§", {U"paragraphe"}}, {U"#", {U"hashtag"}}, {U"²", {U"carré"}}, {U"³", {U"cube"}},
   {U"π", {U"pi"}},       {U"×", {U"fois"}},    {U"½", {U"un demi"}}, {U"€", {U"euros"}},  {U"$", {U"dollars"}},
-  {U"£", {U"livres"}}
+  {U"£", {U"livres"}},   {U"±", {U"plus ou moins"}}, {U"+/-", {U"plus ou moins"}}, {U"‰", {U"pour mille"}},
+  {U"≤", {U"inférieur ou égal à"}},
+  {U"°C", {U"degrés Celsius"}}, {U"M€", {U"millions d'euros"}}
 };
 
 using ::verbalis::text::after_any;

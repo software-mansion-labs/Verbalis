@@ -573,7 +573,8 @@ protected:
     }();
     auto words = words_of(match.context.tail());
     std::u32string_view next = words.empty() ? U"" : words[0];
-    bool month = std::ranges::find(kMonths, next) != kMonths.end();
+    // 14. Juni, (a month before a comma)
+    bool month = std::ranges::find(kMonths, stripped(next)) != kMonths.end();
     // 100. Geburtstag, 2.: a text doesn't open with a sentence of a bare number
     bool start = match.context.head().empty();
     bool sentence = capitalized(next) && !month && !inflecting.contains(match.context.before()) && !start;

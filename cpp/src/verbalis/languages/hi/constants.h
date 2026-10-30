@@ -112,7 +112,11 @@ inline const std::unordered_map<std::u32string, std::u32string> kUnits = {
   {U"yd", U"यार्ड"},            {U"µm", U"माइक्रोमीटर"},      {U"mi/hr", U"मील प्रति घंटा"}, {U"mph", U"मील प्रति घंटा"},
   {U"qt", U"क्वार्ट"},          {U"gal", U"गैलन"},          {U"pt", U"पिंट"},            {U"cg", U"सेंटीग्राम"},
   {U"dg", U"डेसीग्राम"},        {U"t", U"टन"},             {U"st", U"स्टोन"},           {U"lb", U"पाउंड"},
-  {U"oz", U"आउन्स"},           {U"q", U"क्विंटल"},          {U"yr", U"साल"}
+  {U"oz", U"आउन्स"},           {U"q", U"क्विंटल"},          {U"yr", U"साल"},
+  {U"W", U"वाट"},              {U"Km/h", U"किलोमीटर प्रति घंटा"}, {U"x", U"गुना"},
+  // Abbreviations with ० (read as 0) or ॰ as their dot: 34 किमी०, 20 कि॰मी॰, 6 मी॰, 3,000 कि॰
+  {U"किमी0", U"किलोमीटर"},     {U"कि॰मी॰", U"किलोमीटर"},     {U"मी॰", U"मीटर"},           {U"कि॰", U"किलोग्राम"},
+  {U"रु.", U"रुपये"}
 };
 
 // Months: standard Gregorian month names in Hindi (used as-is in dates).
@@ -270,6 +274,7 @@ inline const Terms kTerms = {
     {U"डॉ.", {U"डॉक्टर"}},
     {U"डॉ0", {U"डॉक्टर"}},
     {U"प्रो.", {U"प्रोफेसर"}},
+    {U"प्रो॰", {U"प्रोफ़ेसर"}},
     {U"इं.", {{U"इंजीनियर", before_name}}},
     {U"ले.", {{U"लेफ्टिनेंट", before_name}}},
     {U"वै.", {{U"वैज्ञानिक", before_name}}},
@@ -279,7 +284,18 @@ inline const Terms kTerms = {
     {U"ई.", {{U"ईसवी", after_number}}},
     {U"ई. पू.", {{U"ईसा पूर्व", after_number}}},
     {U"ई.पू.", {{U"ईसा पूर्व", after_number}}},
-    {U"पू.", {{U"पूर्व", text::after_any({U"ईसा"})}}}
+    {U"पू.", {{U"पूर्व", text::after_any({U"ईसा"})}}},
+    // With ० (read as 0) or ॰ as the dot: 1825 ई०, १९१३ ई॰, ४००० ई॰पू॰
+    {U"ई0", {{U"ईसवी", after_number}}},
+    {U"ई॰", {{U"ईसवी", after_number}}},
+    {U"ई॰पू॰", {{U"ईसा पूर्व", after_number}}},
+    {U"ईपू", {{U"ईसा पूर्व", after_number}}},
+    {U"वि.", {{U"विक्रम संवत्", after_number}}},
+    // Anywhere: प्रति है०, नियम क्र. ७२
+    {U"है0", {U"हेक्टेयर"}},
+    {U"कु0", {U"कुन्तल"}},
+    {U"क्र.", {U"क्रमांक"}},
+    {U"प्र.", {U"प्रतिशत"}}
   },
   .web = {.dot = U"डॉट", .at = U"एट", .slash = U"फॉरवर्ड स्लैश", .hyphen = U"हाइफ़न", .underscore = U"अंडरस्कोर", .backslash = U"बैकवर्ड स्लैश",
           .colon = U"कोलन",

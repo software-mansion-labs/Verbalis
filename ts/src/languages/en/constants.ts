@@ -44,6 +44,12 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "AU$": { one: "Australian dollar", many: "Australian dollars" },
   "NZ$": { one: "New Zealand dollar", many: "New Zealand dollars" },
   "S$": { one: "Singapore dollar", many: "Singapore dollars" }, "HK$": { one: "Hong Kong dollar", many: "Hong Kong dollars" },
+  "₹": { one: "rupee", many: "rupees" },
+  "Rs.": { one: "rupee", many: "rupees" },
+  "Rs": { one: "rupee", many: "rupees" },
+  "₦": { one: "naira", many: "naira" },
+  "₱": { one: "peso", many: "pesos" },
+  "Dh": { one: "dirham", many: "dirhams" },
 };
 export const CURRENCY_KEYS: Keys = keysOf(CURRENCIES);
 
@@ -72,6 +78,9 @@ export const SCALES: Readonly<Record<string, string>> = {
   Million: "million",   Billion: "billion", Trillion: "trillion",
   // Only after a currency: $30b, £7.45m
   b: "billion",         B: "billion",       m: "million",
+  "mn": "million",
+  "tn": "trillion",
+  "mln": "million",
 };
 
 export const UNITS: Readonly<Record<string, Forms>> = {
@@ -103,6 +112,28 @@ export const UNITS: Readonly<Record<string, Forms>> = {
   "Mbps": { one: "megabit per second", many: "megabits per second" }, "mbps": { one: "megabit per second", many: "megabits per second" },
   "Gbps": { one: "gigabit per second", many: "gigabits per second" }, "kbps": { one: "kilobit per second", many: "kilobits per second" },
   "KG":   { one: "kilogram", many: "kilograms" },             "Kg":   { one: "kilogram", many: "kilograms" },
+  "C": { one: "degree Celsius", many: "degrees Celsius" },
+  "℃": { one: "degree Celsius", many: "degrees Celsius" },
+  "℉": { one: "degree Fahrenheit", many: "degrees Fahrenheit" },
+  "hr": { one: "hour", many: "hours" },
+  "min": { one: "minute", many: "minutes" },
+  "mins": { one: "minute", many: "minutes" },
+  "sq ft": { one: "square foot", many: "square feet" },
+  "Sq. ft.": { one: "square foot", many: "square feet" },
+  "sq. ft.": { one: "square foot", many: "square feet" },
+  "sq m": { one: "square meter", many: "square meters" },
+  "SF": { one: "square foot", many: "square feet" },
+  "pc": { one: "percent", many: "percent" },
+  "bhp": { one: "brake horsepower", many: "brake horsepower" },
+  "mAh": { one: "milliamp-hour", many: "milliamp-hours" },
+  "MeV": { one: "mega electron volt", many: "mega electron volts" },
+  "ms": { one: "millisecond", many: "milliseconds" },
+  "tbsp": { one: "tablespoon", many: "tablespoons" },
+  "tsp": { one: "teaspoon", many: "teaspoons" },
+  "ha": { one: "hectare", many: "hectares" },
+  "bpd": { one: "barrel per day", many: "barrels per day" },
+  "yrs": { one: "year", many: "years" },
+  "㎡": { one: "square meter", many: "square meters" },
 };
 
 export const FRACTIONS: Fractions = {
@@ -223,6 +254,7 @@ export const SYMBOLS: Readings = {
   "×": ["times"],    "±": ["plus or minus"], "½": ["one half"],
   "§": ["section"],    "$": ["dollar"], "€": ["euro"],
   "£": ["pound"],      "¥": ["yen"],      "₩": ["won"],
+  "+/-": ["plus or minus"],
 };
 
 // After the name of a street: 1428 Elm St., on 5th St.; on Main St. unless a name follows (Ascension St. Joseph),
@@ -352,6 +384,10 @@ const TERMS_BASE: Terms = {
     "Mrs.": ["Missus"],
     "Dr.": [{ words: "Doctor", when: beforeName }],
     "St.": [{ words: "Street", when: afterStreet }, { words: "Saint", when: beforeName }, "Street"],
+    "&c.": ["et cetera"],
+    "&c": ["et cetera"],
+    "No": [{ words: "number", when: beforeNumber }],
+    "approx.": ["approximately"],
   },
   web: { dot: "dot", at: "at", slash: "slash", hyphen: "dash", underscore: "underscore", backslash: "backslash", colon: "colon",
     digits: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"],

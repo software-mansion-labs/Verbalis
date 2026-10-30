@@ -655,7 +655,8 @@ class German extends PatternLanguage {
     // "Platz 3. Danach", "Platz 1. 2 Tore": a sentence end, not an ordinal
     const words = wordsOf(match.context.tail());
     const next = words.length === 0 ? "" : str(words[0]);
-    const month = (MONTHS as readonly string[]).includes(next);
+    // 14. Juni, (a month before a comma)
+    const month = (MONTHS as readonly string[]).includes(words.length === 0 ? "" : str(stripped(words[0])));
     // 100. Geburtstag, 2.: a text doesn't open with a sentence of a bare number
     const start = match.context.head().length === 0;
     const sentence = capitalized(next) && !month && !INFLECTING.has(match.context.before()) && !start;

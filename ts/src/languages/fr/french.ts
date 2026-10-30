@@ -524,7 +524,9 @@ class French extends PatternLanguage {
 
   protected override readTime(match: Match): string | undefined {
     if (match.numbers.length === 2) {
-      const decimal = match.separator === "." && !TIME_WORDS.has(match.context.before());
+      // à 18.30, but à 0.40%
+      const decimal =
+        match.separator === "." && (!TIME_WORDS.has(match.context.before()) || match.context.tail()[0] === "%");
       if (!fitsClock(match) || decimal) {
         return undefined;
       }
@@ -559,7 +561,7 @@ class French extends PatternLanguage {
     if (suffix.startsWith("nd")) {
       words = suffix.startsWith("nde") ? "seconde" : "second";
     } else {
-      const feminine = suffix === "re" || suffix === "ère" || suffix === "res" || suffix === "ères";
+      const feminine = suffix === "re" || suffix === "ère" || suffix === "ere" || suffix === "res" || suffix === "ères";
       words = ordinal(value(match.numbers[0]), feminine);
     }
     return words + (suffix.endsWith("s") ? "s" : "");
