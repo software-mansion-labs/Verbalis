@@ -7,11 +7,13 @@ parity outputs from their inputs, and `score.py` scores Verbalis against their r
 ## Corpus: the target
 
 **Decision (the user, 2026-10-29):** the corpus is the target Verbalis must reach, and it is frozen: its files never
-change (tag `corpus-v1`, checksums in `corpus.sha256`, checked by `tests/python/test_lang.py`). A new corpus (`corpus-v2`, with plain sentences) needs the user's decision.
+change between versions (checksums in `corpus.sha256`, checked by `tests/python/test_lang.py`). A new version needs
+the user's decision. `corpus-v1` (2026-10-29) is the reviewed sentences; `corpus-v2` (2026-11-02) adds the readings
+the user accepted and 900 plain sentences.
 
-`<lang>/corpus.jsonl` holds 19,772 real sentences, all with digits or symbols, from the Leipzig Corpora Collection
-(news and web; check its terms before the repo goes public, `knowledge/test-data.md`), each with its expected
-readings:
+`<lang>/corpus.jsonl` holds 20,672 real sentences from the Leipzig Corpora Collection (news and web; check its terms
+before the repo goes public, `knowledge/test-data.md`): 19,772 with digits or symbols and 900 plain ones (100 per
+language, `"how": "plain"`), each with its expected readings:
 
 ```json
 {"lang": "pl", "input": "Mam 2 koty.", "outputs": ["Mam dwa koty."], "by": "haiku", "how": "written"}
@@ -19,7 +21,11 @@ readings:
 
 - `by`: who settled the reading: `human` (the user's verdicts, for Polish), a model (`haiku`, `deepseek`,
   `gemini-3.8-flash`). A person's verdict wins.
-- `how`: `approved` (a reviewer passed Verbalis's output as it stood) or `written` (a reviewer wrote the reading).
+- `how`: `approved` (a reviewer passed Verbalis's output as it stood), `written` (a reviewer wrote the reading), or
+  `plain` (a sentence with no digits or symbols, from the same downloads; its reading is the input, but for 7 with an
+  abbreviation or a Roman numeral, whose readings the user checked in Polish).
+- `accepted`: the user accepted Verbalis's reading, now first in `outputs`, beside the reviewers' ones (the
+  decision's date and commit; corpus-v2 merged 101 of them).
 - `deepseek: "agrees"`: DeepSeek wrote the same reading, blind; `third`, `preferred`, `judged`: how a dispute between
   models was settled (a third family, the user's choice of model, or a judge).
 
@@ -33,8 +39,8 @@ a judge) cross-checked them; the user settled 257 Polish sentences. The scripts 
 `accepted.jsonl` holds, one line per sentence, a reading the user accepted where it differs from the corpus's:
 `{"lang", "input", "output", "by", "date", "commit", "decision"}`. The corpus stays frozen; `score.py` passes a
 sentence that matches either, and the ratchet guards the accepted readings like any other. Each line comes from a
-decision recorded in its commit (an expanded abbreviation, a score read with "a", a short year read in full).
-Merging it into a later corpus is the user's decision.
+decision recorded in its commit (an expanded abbreviation, a score read with "a", a short year read in full). The
+next corpus version merges them, as corpus-v2 did; it is empty after each merge.
 
 ## Gold set: NeMo and WeTextProcessing cases
 

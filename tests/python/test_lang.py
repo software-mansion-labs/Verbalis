@@ -13,7 +13,7 @@ def test_no_gold_case_stops_passing():
 
 
 def test_corpus_is_frozen():
-    """The corpus (tests/lang/<lang>/corpus.jsonl) is the target, frozen at tag corpus-v1: its files never change."""
+    """The corpus (tests/lang/<lang>/corpus.jsonl) is the target, frozen at tag corpus-v2: it changes only by version."""
     import hashlib
 
     root = SCORE.parent

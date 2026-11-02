@@ -13,7 +13,7 @@ apart; tests/lang/<lang>/notes.md lists them. Exits 1 if a case that
 passed in scores.json fails now: a behaviour change may fix gold cases, but must not break them.
 
 The corpus (tests/lang/<lang>/corpus.jsonl) holds real sentences with reviewed readings: the target Verbalis must reach,
-frozen at tag corpus-v1 (tests/lang/corpus.sha256). Its passing sentences join the ratchet. tests/lang/accepted.jsonl
+frozen between versions (tag corpus-v2, tests/lang/corpus.sha256). Its passing sentences join the ratchet. tests/lang/accepted.jsonl
 adds, per sentence, a reading the user accepted where it differs from the corpus (one line per decision); a sentence
 passes when it matches either. "approved" are outputs a
 reviewer passed; "written" are readings a reviewer or judge wrote, which Verbalis may not reach yet; "cross-checked"
@@ -96,7 +96,7 @@ if args.show:
         print(f"[{case['source']}/{case['class']}] {case['input']}\n   got:      {output}\n   expected: "
               + " | ".join(case["outputs"]))
 
-# The corpus: real sentences with reviewed readings, the target (frozen at tag corpus-v1). Its passing sentences join
+# The corpus: real sentences with reviewed readings, the target (frozen at tag corpus-v2). Its passing sentences join
 # the ratchet under "corpus/<lang>", by a hash of the input.
 corpus_passing = {}
 print(f"\n{'corpus':10}{'sentences':>10}{'match':>9}   {'approved':>18}   {'written':>18}   {'by a person':>12}"
