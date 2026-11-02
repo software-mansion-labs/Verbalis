@@ -29,7 +29,7 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "CHF": { one: "franc suisse", many: "francs suisses" }, "M€": { one: "million d'euros", many: "millions d'euros" },
   "€uros": { one: "euro", many: "euros" },
   "EUR": { one: "euro", many: "euros" }, "USD": { one: "dollar", many: "dollars" }, "GBP": { one: "livre", many: "livres" },
-  "PLN": { one: "zloty", many: "zlotys" },
+  "PLN": { one: "zloty", many: "zlotys" }, "CZK": { one: "couronne tchèque", many: "couronnes tchèques" },
   "M$": { one: "million de dollars", many: "millions de dollars" }, "G$": { one: "milliard de dollars", many: "milliards de dollars" },
   // A price per unit: 2 000 €/mois
   "€/mois": { one: "euro par mois", many: "euros par mois" }, "€/an": { one: "euro par an", many: "euros par an" },

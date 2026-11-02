@@ -184,7 +184,8 @@ inline Noun followed(const Noun& base, std::u32string_view words) {
 
 inline const std::unordered_map<std::u32string, Noun> kCurrencies = {
   {U"zł", kZloty}, {U"PLN", kZloty}, {U"pln", kZloty}, {U"€", kEuro}, {U"EUR", kEuro}, {U"$", kDollar}, {U"USD", kDollar},
-  {U"£", masculine(U"funt", U"funcie")}, {U"gr", kGrosz},
+  {U"£", masculine(U"funt", U"funcie")}, {U"GBP", masculine(U"funt", U"funcie")}, {U"gr", kGrosz},
+  {U"CHF", noun(U"frank szwajcarski|franka szwajcarskiego|frankowi szwajcarskiemu|frank szwajcarski|frankiem szwajcarskim|franku szwajcarskim|franki szwajcarskie|franków szwajcarskich|frankom szwajcarskim|franki szwajcarskie|frankami szwajcarskimi|frankach szwajcarskich")},
   // Prices per unit: 100 zł/m² sto złotych za metr kwadratowy
   {U"zł/m²", followed(kZloty, U"za metr kwadratowy")}, {U"zł/m2", followed(kZloty, U"za metr kwadratowy")},
   {U"zł/h", followed(kZloty, U"za godzinę")},           {U"zł/godz.", followed(kZloty, U"za godzinę")},

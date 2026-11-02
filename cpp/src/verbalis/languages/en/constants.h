@@ -339,6 +339,14 @@ inline bool after_number(const ::verbalis::text::Context& context) {
   return !head.empty() && ::verbalis::text::unicode::isdigit(head.back());
 }
 
+// Before a number, but not between the day and the year of a date, which the date pattern reads: Jan-2020, not
+// 5-Jan-20
+inline bool before_year(const ::verbalis::text::Context& context) {
+  std::u32string_view head = context.head();
+  bool dated = head.size() > 1 && head.back() == U'-' && ::verbalis::text::unicode::isdigit(head[head.size() - 2]);
+  return !dated && before_number(context);
+}
+
 // Between a house number and a capitalized name: 708 N 1st St, 1211 E Arques Ave
 inline bool between_number_and_street(const ::verbalis::text::Context& context) {
   std::u32string_view tail = context.tail();
@@ -466,7 +474,7 @@ inline const Terms kTerms = [] {
       for (const auto& key : {form, form + U"."}) {
         terms.abbreviations[key] = {{name, before_number}, {name, after_number}};
       }
-      terms.abbreviations[form + U"-"] = {{name, before_number}};
+      terms.abbreviations[form + U"-"] = {{name, before_year}};
     }
   }
   for (const auto& [code, state] : kStates) {

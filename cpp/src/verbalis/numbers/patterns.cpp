@@ -21,6 +21,13 @@ constexpr std::u32string_view kNumberBoundaries = U".,";
 // What may not stand right before an amount: also a hyphen, as in i9-14900K.
 constexpr std::u32string_view kAmountBoundaries = U".,-";
 
+// Currencies written before an amount, as a sign or an ISO code: $600-700 and USD 600 - 700 are the range of an
+// amount, read with its currency
+constexpr std::u32string_view kCurrencySigns = U"$£€¥₹₽₩₺₪₫฿₴₦₱¢";
+constexpr std::array<std::u32string_view, 18> kCurrencyCodes = {U"EUR", U"USD", U"GBP", U"PLN", U"CHF", U"CZK",
+                                                                U"JPY", U"CNY", U"INR", U"RUB", U"SEK", U"NOK",
+                                                                U"DKK", U"HUF", U"CAD", U"AUD", U"BRL", U"MXN"};
+
 // Time zones, acronyms whose hyphen signs the number after them: GMT -4
 constexpr std::array<std::u32string_view, 2> kTimeZones = {U"GMT", U"UTC"};
 
@@ -182,9 +189,30 @@ std::optional<Match> VersionPattern::match(std::u32string_view text, size_t posi
   return Match{.kind = Kind::VERSION, .span = {position, end}, .numbers = parts, .separator = U'.'};
 }
 
+namespace {
+// Whether a currency is written right before the number starting at a position: $600, € 3, USD 600
+bool after_currency(std::u32string_view text, size_t start) {
+  size_t sign = start > 0 && text[start - 1] == U' ' ? start - 1 : start;
+  if (sign > 0 && strings::contains(kCurrencySigns, text[sign - 1])) {
+    return true;
+  }
+  return sign < start && sign >= 3 && (sign == 3 || !unicode::isalnum(text[sign - 4])) &&
+         std::ranges::find(kCurrencyCodes, text.substr(sign - 3, 3)) != kCurrencyCodes.end();
+}
+
+// The start of the digits that end at a position: the 600 of $600-700
+size_t digits_start(std::u32string_view text, size_t end) {
+  while (end > 0 && unicode::isdigit(text[end - 1])) {
+    end--;
+  }
+  return end;
+}
+} // namespace
+
 std::optional<Match> DifferencePattern::match(std::u32string_view text, size_t position) const {
   if (position == 0 || position + 3 >= text.size() || text.substr(position, 3) != U" - " ||
-      !unicode::isdigit(text[position - 1]) || !unicode::isdigit(text[position + 3])) {
+      !unicode::isdigit(text[position - 1]) || !unicode::isdigit(text[position + 3]) ||
+      after_currency(text, digits_start(text, position))) {
     return std::nullopt;
   }
   return Match{.kind = Kind::DIFFERENCE, .span = {position, position + 3}, .separator = U'-'};
@@ -208,6 +236,7 @@ std::optional<Match> SumPattern::match(std::u32string_view text, size_t position
   return Match{.kind = Kind::SUM, .span = {position, end}, .separator = U'+'};
 }
 
+
 std::optional<Match> RangePattern::match(std::u32string_view text, size_t position) const {
   if (position == 0 || !unicode::isdigit(text[position - 1])) {
     return std::nullopt;
@@ -230,6 +259,9 @@ std::optional<Match> RangePattern::match(std::u32string_view text, size_t positi
            (unicode::isalpha(text[letter]) && (outer >= text.size() || !unicode::isalnum(text[outer])));
   };
   size_t after = digits_end(text, end);
+  if (after_currency(text, start)) {
+    return std::nullopt; // $600-700 million: the range of an amount, read by PrefixedMoneyPattern
+  }
   if ((start > 1 && text[start - 1] == U'-' && link(start - 2, start - 2 > 0 ? start - 3 : text.size())) ||
       (after + 1 < text.size() && text[after] == U'-' && link(after + 1, after + 2))) {
     return std::nullopt;
@@ -487,8 +519,10 @@ std::optional<Match> ScorePattern::match(std::u32string_view text, size_t positi
 
 PrefixedMoneyPattern::PrefixedMoneyPattern(const Notation& notation, const Keys& words)
     : Pattern(Kind::MONEY), notation_(notation), currencies_(words), per_(keys_of(notation.per)) {
+  // Symbols, and ISO codes: EUR 560 (Euro 560 is a name)
   std::ranges::copy_if(notation.currencies, std::back_inserter(currencies_), [](const auto& currency) {
-    return !std::ranges::all_of(currency, [](char32_t c) { return text::unicode::isalpha(c); });
+    return !std::ranges::all_of(currency, unicode::isalpha) ||
+           (currency.size() == 3 && std::ranges::all_of(currency, unicode::isupper));
   });
 }
 
@@ -498,15 +532,26 @@ std::optional<Match> PrefixedMoneyPattern::match(std::u32string_view text, size_
   }
 
   for (auto currency : keys_at(text, position, currencies_)) {
+    // EUR/USD 1,08 is a currency pair
     size_t start = skip_space(text, position + currency.size());
     auto numbers = numbers_at(text, start, notation_.group_separators, notation_.decimal_separators);
-    if (numbers.empty()) {
+    if (numbers.empty() ||
+        (position > 0 && text[position - 1] == U'/' && std::ranges::all_of(currency, unicode::isalpha))) {
       continue;
     }
 
-    // An optional scale after the amount: $1.5 million
+    // An optional range (USD 600-700) and scale after the amount: $1.5 million
     Match money{
         .kind = Kind::MONEY, .span = {position, numbers[0].span.end}, .numbers = {numbers[0]}, .unit = currency};
+    size_t hyphen = numbers[0].span.end;
+    bool spaced = text.substr(hyphen, 3) == U" - ";
+    if ((spaced || (hyphen < text.size() && text[hyphen] == U'-')) && is_digit_after(text, hyphen + (spaced ? 3 : 1))) {
+      auto last = numbers_at(text, hyphen + (spaced ? 3 : 1), notation_.group_separators, notation_.decimal_separators);
+      if (!last.empty()) {
+        money.numbers.push_back(last[0]);
+        money.span.end = last[0].span.end;
+      }
+    }
     size_t scale = skip_space(text, money.span.end);
     for (auto key : keys_at(text, scale, notation_.scales)) {
       if (is_clear_after(text, scale + key.size())) {

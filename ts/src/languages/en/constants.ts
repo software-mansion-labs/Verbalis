@@ -311,6 +311,14 @@ function afterNumber(context: Context): boolean {
   return head.length > 0 && isDigit(head[head.length - 1]);
 }
 
+// Before a number, but not between the day and the year of a date, which the date pattern reads: Jan-2020, not
+// 5-Jan-20
+function beforeYear(context: Context): boolean {
+  const head = context.head();
+  const dated = head.length > 1 && head[head.length - 1] === "-" && isDigit(head[head.length - 2]);
+  return !dated && beforeNumber(context);
+}
+
 // Between a house number and a capitalized name: 708 N 1st St, 1211 E Arques Ave
 function betweenNumberAndStreet(context: Context): boolean {
   const tail = context.tail();
@@ -438,7 +446,7 @@ export const TERMS: Terms = (() => {
       for (const key of [form, `${form}.`]) {
         abbreviations[key] = [{ words: name, when: beforeNumber }, { words: name, when: afterNumber }];
       }
-      abbreviations[`${form}-`] = [{ words: name, when: beforeNumber }];
+      abbreviations[`${form}-`] = [{ words: name, when: beforeYear }];
     }
   }
   for (const [code, state] of STATES) {

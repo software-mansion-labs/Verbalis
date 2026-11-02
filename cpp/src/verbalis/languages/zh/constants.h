@@ -101,7 +101,7 @@ inline const auto kCurrencies = std::to_array<Currency>({
   {U"US$", U"美元"}, {U"HK$", U"港元"}, {U"NT$", U"新台币"}, {U"C$", U"加元"}, {U"A$", U"澳元"}, {U"S$", U"新加坡元"},
   {U"$", U"美元"}, {U"￥", U"元"}, {U"¥", U"元"}, {U"€", U"欧元"}, {U"£", U"英镑"}, {U"₩", U"韩元"}, {U"₹", U"卢比"},
   {U"CNY", U"人民币"}, {U"RMB", U"人民币"}, {U"USD", U"美元"}, {U"HKD", U"港元"}, {U"EUR", U"欧元"},
-  {U"GBP", U"英镑"}, {U"JPY", U"日元"}
+  {U"GBP", U"英镑"}, {U"JPY", U"日元"}, {U"PLN", U"兹罗提"}, {U"CHF", U"瑞士法郎"}, {U"CZK", U"捷克克朗"}
 });
 
 // Currencies written as words after a number, before a unit they price: "5元/kg" -> "五元每千克"

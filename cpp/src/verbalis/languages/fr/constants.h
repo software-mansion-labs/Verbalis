@@ -49,7 +49,7 @@ inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"CHF", {U"franc suisse", U"francs suisses"}}, {U"M€", {U"million d'euros", U"millions d'euros"}},
   {U"€uros", {U"euro", U"euros"}},
   {U"EUR", {U"euro", U"euros"}}, {U"USD", {U"dollar", U"dollars"}}, {U"GBP", {U"livre", U"livres"}},
-  {U"PLN", {U"zloty", U"zlotys"}},
+  {U"PLN", {U"zloty", U"zlotys"}}, {U"CZK", {U"couronne tchèque", U"couronnes tchèques"}},
   {U"M$", {U"million de dollars", U"millions de dollars"}}, {U"G$", {U"milliard de dollars", U"milliards de dollars"}},
   // A price per unit: 2 000 €/mois
   {U"€/mois", {U"euro par mois", U"euros par mois"}}, {U"€/an", {U"euro par an", U"euros par an"}},

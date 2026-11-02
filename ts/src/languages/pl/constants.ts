@@ -152,7 +152,8 @@ function followed(base: Noun, words: string): Noun {
 
 export const CURRENCIES: Readonly<Record<string, Noun>> = {
   "zł": ZLOTY, "PLN": ZLOTY, "pln": ZLOTY, "€": EURO, "EUR": EURO, "$": DOLLAR, "USD": DOLLAR,
-  "£": masculine("funt", "funcie"), "gr": GROSZ,
+  "£": masculine("funt", "funcie"), "GBP": masculine("funt", "funcie"), "gr": GROSZ,
+  "CHF": noun("frank szwajcarski|franka szwajcarskiego|frankowi szwajcarskiemu|frank szwajcarski|frankiem szwajcarskim|franku szwajcarskim|franki szwajcarskie|franków szwajcarskich|frankom szwajcarskim|franki szwajcarskie|frankami szwajcarskimi|frankach szwajcarskich"),
   // Prices per unit: 100 zł/m² sto złotych za metr kwadratowy
   "zł/m²": followed(ZLOTY, "za metr kwadratowy"), "zł/m2": followed(ZLOTY, "za metr kwadratowy"),
   "zł/h": followed(ZLOTY, "za godzinę"),           "zł/godz.": followed(ZLOTY, "za godzinę"),

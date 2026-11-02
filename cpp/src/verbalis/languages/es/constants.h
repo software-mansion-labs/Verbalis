@@ -81,6 +81,7 @@ inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"MEX$", {U"peso mexicano", U"pesos mexicanos"}}, {U"mex$", {U"peso mexicano", U"pesos mexicanos"}},
   {U"MXN", {U"peso mexicano", U"pesos mexicanos"}},  {U"mxn", {U"peso mexicano", U"pesos mexicanos"}},
   {U"EUR", {U"euro", U"euros"}},            {U"eur", {U"euro", U"euros"}},
+  {U"CZK", {U"corona checa", U"coronas checas"}},
   {U"PLN", {U"esloti", U"eslotis"}},       {U"GBP", {U"libra", U"libras"}},          {U"JPY", {U"yen", U"yenes"}},         {U"jpy", {U"yen", U"yenes"}},
   {U"CRC", {U"colón costarricense", U"colones costarricenses"}},
   {U"crc", {U"colón costarricense", U"colones costarricenses"}},

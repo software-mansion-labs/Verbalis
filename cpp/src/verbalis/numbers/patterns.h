@@ -248,7 +248,7 @@ public:
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
 };
 
-// $5, € 1,5 million: a currency symbol before an amount.
+// $5, EUR 560, € 1,5 million: a currency symbol or code before an amount.
 class PrefixedMoneyPattern : public Pattern {
 public:
   // @param words currencies written as words which also precede an amount: USD 5
@@ -258,7 +258,7 @@ public:
 
 private:
   Notation notation_;
-  Keys currencies_; // Only the ones which are not words
+  Keys currencies_; // Symbols and codes, not words
   Keys per_;
 };
 

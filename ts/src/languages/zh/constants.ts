@@ -96,7 +96,8 @@ export const CURRENCIES: readonly Currency[] = [
   { symbol: "₹", name: "卢比" },
   { symbol: "CNY", name: "人民币" }, { symbol: "RMB", name: "人民币" }, { symbol: "USD", name: "美元" },
   { symbol: "HKD", name: "港元" }, { symbol: "EUR", name: "欧元" }, { symbol: "GBP", name: "英镑" },
-  { symbol: "JPY", name: "日元" },
+  { symbol: "JPY", name: "日元" }, { symbol: "PLN", name: "兹罗提" }, { symbol: "CHF", name: "瑞士法郎" },
+  { symbol: "CZK", name: "捷克克朗" },
 ];
 
 // Scale words written after the number of an amount, longest first: "$1.5万" -> "一点五万美元"

@@ -58,6 +58,52 @@ const AMOUNT_BOUNDARIES = ".,-";
 // Time zones, acronyms whose hyphen signs the number after them: GMT -4
 const TIME_ZONES: ReadonlySet<string> = new Set(["GMT", "UTC"]);
 
+// Currencies written before an amount, as a sign or an ISO code: $600-700 and USD 600 - 700 are the range of an
+// amount, read with its currency
+const CURRENCY_SIGNS = "$£€¥₹₽₩₺₪₫฿₴₦₱¢";
+const CURRENCY_CODES: ReadonlySet<string> = new Set([
+  "EUR",
+  "USD",
+  "GBP",
+  "PLN",
+  "CHF",
+  "CZK",
+  "JPY",
+  "CNY",
+  "INR",
+  "RUB",
+  "SEK",
+  "NOK",
+  "DKK",
+  "HUF",
+  "CAD",
+  "AUD",
+  "BRL",
+  "MXN",
+]);
+
+// Whether a currency is written right before the number starting at a position: $600, € 3, USD 600
+function afterCurrency(text: Text, start: number): boolean {
+  const sign = start > 0 && text[start - 1] === " " ? start - 1 : start;
+  if (sign > 0 && contains(CURRENCY_SIGNS, text[sign - 1])) {
+    return true;
+  }
+  return (
+    sign < start &&
+    sign >= 3 &&
+    (sign === 3 || !isAlnum(text[sign - 4])) &&
+    CURRENCY_CODES.has(str(text, sign - 3, sign))
+  );
+}
+
+// The start of the digits that end at a position: the 600 of $600-700
+function digitsStart(text: Text, end: number): number {
+  while (end > 0 && isDigit(text[end - 1])) {
+    end--;
+  }
+  return end;
+}
+
 // Value of a short run of digits (a day, a month or an hour).
 function smallValue(digits: string): number {
   return digits === "" ? 0 : Number(digits);
@@ -249,7 +295,8 @@ class DifferencePattern extends Pattern {
       position + 3 >= text.length ||
       str(text, position, position + 3) !== " - " ||
       !isDigit(text[position - 1]) ||
-      !isDigit(text[position + 3])
+      !isDigit(text[position + 3]) ||
+      afterCurrency(text, digitsStart(text, position))
     ) {
       return undefined;
     }
@@ -308,6 +355,9 @@ class RangePattern extends Pattern {
     const link = (letter: number, outer: number): boolean =>
       isDigit(text[letter]) || (isAlpha(text[letter]) && (outer >= text.length || !isAlnum(text[outer])));
     const after = digitsEnd(text, end);
+    if (afterCurrency(text, start)) {
+      return undefined; // $600-700 million: the range of an amount, read by PrefixedMoneyPattern
+    }
     if (
       (start > 1 && text[start - 1] === "-" && link(start - 2, start - 2 > 0 ? start - 3 : text.length)) ||
       (after + 1 < text.length && text[after] === "-" && link(after + 1, after + 2))
@@ -987,17 +1037,24 @@ class ScorePattern extends Pattern {
   }
 }
 
-// $5, € 1,5 million: a currency symbol before an amount.
+// $5, EUR 560, € 1,5 million: a currency symbol or code before an amount.
 export class PrefixedMoneyPattern extends Pattern {
   readonly #notation: Notation;
-  readonly #currencies: Keys; // Only the ones which are not words
+  readonly #currencies: Keys; // Symbols and codes, not words
   readonly #per: Keys;
 
   // words: currencies written as words which also precede an amount: USD 5
   constructor(notation: Notation, words: Keys = []) {
     super(Kind.MONEY);
     this.#notation = notation;
-    this.#currencies = [...words, ...notation.currencies.filter((currency) => ![...currency].every((c) => isAlpha(c)))];
+    // Symbols, and ISO codes: EUR 560 (Euro 560 is a name)
+    this.#currencies = [
+      ...words,
+      ...notation.currencies.filter(
+        (currency) =>
+          ![...currency].every((c) => isAlpha(c)) || (currency.length === 3 && [...currency].every((c) => isUpper(c))),
+      ),
+    ];
     this.#per = keysOf(notation.per);
   }
 
@@ -1007,19 +1064,37 @@ export class PrefixedMoneyPattern extends Pattern {
     }
 
     for (const currency of keysAt(text, position, this.#currencies)) {
+      // EUR/USD 1,08 is a currency pair
       const start = skipSpace(text, position + size(currency));
       const numbers = numbersAt(text, start, this.#notation.groupSeparators, this.#notation.decimalSeparators);
-      if (numbers.length === 0) {
+      if (
+        numbers.length === 0 ||
+        (position > 0 && text[position - 1] === "/" && [...currency].every((c) => isAlpha(c)))
+      ) {
         continue;
       }
 
-      // An optional scale after the amount: $1.5 million
+      // An optional range (USD 600-700) and scale after the amount: $1.5 million
       const money = match({
         kind: Kind.MONEY,
         span: { begin: position, end: numbers[0].span.end },
         numbers: [numbers[0]],
         unit: currency,
       });
+      const hyphen = numbers[0].span.end;
+      const spaced = str(text, hyphen, hyphen + 3) === " - ";
+      if ((spaced || (hyphen < text.length && text[hyphen] === "-")) && isDigitAfter(text, hyphen + (spaced ? 3 : 1))) {
+        const last = numbersAt(
+          text,
+          hyphen + (spaced ? 3 : 1),
+          this.#notation.groupSeparators,
+          this.#notation.decimalSeparators,
+        );
+        if (last.length > 0) {
+          money.numbers.push(last[0]);
+          money.span.end = last[0].span.end;
+        }
+      }
       const scale = skipSpace(text, money.span.end);
       for (const key of keysAt(text, scale, this.#notation.scales)) {
         if (isClearAfter(text, scale + size(key))) {

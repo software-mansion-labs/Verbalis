@@ -52,7 +52,7 @@ inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"£", {U"sterlina", U"sterline"}},  {U"GBP", {U"sterlina", U"sterline"}},
   {U"¥", {U"yen", U"yen"}},            {U"₽", {U"rublo", U"rubli"}},       {U"RUB", {U"rublo", U"rubli"}},
   {U"CHF", {U"franco svizzero", U"franchi svizzeri"}}, {U"₹", {U"rupia", U"rupie"}},
-  {U"PLN", {U"zloty", U"zloty"}}
+  {U"PLN", {U"zloty", U"zloty"}}, {U"CZK", {U"corona ceca", U"corone ceche"}}
 };
 
 // The hundredth of a currency: 10,50 € dieci euro e cinquanta centesimi; 0,01 € un centesimo

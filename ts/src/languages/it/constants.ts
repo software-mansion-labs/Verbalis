@@ -31,7 +31,7 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "£": { one: "sterlina", many: "sterline" },  "GBP": { one: "sterlina", many: "sterline" },
   "¥": { one: "yen", many: "yen" },            "₽": { one: "rublo", many: "rubli" },       "RUB": { one: "rublo", many: "rubli" },
   "CHF": { one: "franco svizzero", many: "franchi svizzeri" }, "₹": { one: "rupia", many: "rupie" },
-  "PLN": { one: "zloty", many: "zloty" },
+  "PLN": { one: "zloty", many: "zloty" }, "CZK": { one: "corona ceca", many: "corone ceche" },
 };
 
 // Most scales are written as the word they are read with: 3 milioni

@@ -71,6 +71,7 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   mxn: { one: "peso mexicano", many: "pesos mexicanos" },
   EUR: { one: "euro", many: "euros" },
   eur: { one: "euro", many: "euros" },
+  CZK: { one: "corona checa", many: "coronas checas" },
   PLN: { one: "esloti", many: "eslotis" },
   GBP: { one: "libra", many: "libras" },
   JPY: { one: "yen", many: "yenes" },

@@ -62,6 +62,7 @@ inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"R$", {U"real", U"reais"}}, {U"US$", {U"dólar", U"dólares"}}, {U"$", {U"dólar", U"dólares"}},
   {U"€", {U"euro", U"euros"}},  {U"£", {U"libra", U"libras"}}, {U"EUR", {U"euro", U"euros"}},
   {U"USD", {U"dólar", U"dólares"}}, {U"GBP", {U"libra", U"libras"}}, {U"PLN", {U"zloty", U"zlotys"}},
+  {U"CHF", {U"franco suíço", U"francos suíços"}}, {U"CZK", {U"coroa checa", U"coroas checas"}},
   // A currency written as a word after a number, read as a decimal: 66,23 euros
   {U"euros", {U"euro", U"euros"}}
 };
