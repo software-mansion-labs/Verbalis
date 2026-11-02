@@ -34,6 +34,15 @@ reaches the model.
 | `pt` | Custa R$ 15,90 por 2 kg. | Custa quinze reais e noventa centavos por dois quilos. |
 | `zh` | 我在2024年买了3本书 | 我在二零二四年买了三本书 |
 
+
+> [!NOTE]
+> People have checked the Polish and English readings. The readings in the other languages are checked by language
+> models and against the [NeMo](https://github.com/NVIDIA/NeMo-text-processing) and
+> [WeTextProcessing](https://github.com/wenet-e2e/WeTextProcessing) test cases, so a native speaker may still find
+> mistakes. Contributions are welcome: if Verbalis misreads a sentence in your language,
+> [open an issue](https://github.com/software-mansion-labs/Verbalis/issues) with the sentence, what Verbalis reads, and
+> what it should read.
+
 ## Python
 
 ```bash
