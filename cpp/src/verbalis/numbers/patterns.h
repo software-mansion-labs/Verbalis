@@ -146,14 +146,17 @@ public:
    * @param feet reads 5'9" as feet and inches, and a lone 400' as feet.
    * @param minutes lowercase words among the three before or after a lone 10' which make it minutes: durante más de
    *        10', aos 6′ do segundo tempo; without one, it is left as written.
+   * @param heights lowercase words among the eight before or the three after a 5'5" which make it feet and inches
+   *        when no word of the text is one of the cues: Mam 5'5" wzrostu, Er ist 6'2" groß.
    */
   PrimePattern(const Notation& notation, std::unordered_set<std::u32string> cues, bool feet = false,
-               std::unordered_set<std::u32string> minutes = {})
+               std::unordered_set<std::u32string> minutes = {}, std::unordered_set<std::u32string> heights = {})
       : Pattern(Kind::TIME),
         decimals_(notation.decimal_separators),
         cues_(std::move(cues)),
         feet_(feet),
-        minutes_(std::move(minutes)) {}
+        minutes_(std::move(minutes)),
+        heights_(std::move(heights)) {}
 
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
 
@@ -165,6 +168,7 @@ private:
   std::unordered_set<std::u32string> cues_;
   bool feet_;
   std::unordered_set<std::u32string> minutes_;
+  std::unordered_set<std::u32string> heights_;
 };
 
 // XIXe, XIIवीं: an ordinal written in Roman numerals, with a suffix; one letter only if it is I, V or X.

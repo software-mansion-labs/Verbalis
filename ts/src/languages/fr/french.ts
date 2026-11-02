@@ -51,6 +51,8 @@ import {
   ORDINAL_SUFFIXES,
   ORDINAL_WORDS,
   PHONE_FORMAT,
+  FOOT,
+  HEIGHT_CUES,
   PRIME_CUES,
   PRIME_UNITS,
   SCALES,
@@ -442,7 +444,7 @@ class French extends PatternLanguage {
     this.addPattern(new EuroCentsPattern());
     this.addPattern(new MetersPattern());
     this.addPattern(new HalfUnitPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, new Set(), HEIGHT_CUES));
     this.addPattern(new GroupedOrdinalPattern(ORDINAL_SUFFIXES, " \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new RomanOrdinalPattern(ROMAN_ORDINAL_SUFFIXES));
@@ -697,13 +699,15 @@ class French extends PatternLanguage {
     return super.readJoiner(match);
   }
 
-  // 1'27"23: une minute vingt-sept secondes et vingt-trois centièmes; 23"42: vingt-trois secondes quarante-deux
+  // 1'27"23: une minute vingt-sept secondes et vingt-trois centièmes; 23"42: vingt-trois secondes quarante-deux;
+  // 6'2": six pieds deux pouces
   static #primes(match: Match): string | undefined {
     const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
     const words = match.numbers.map((number, i) => {
       const n = value(number);
-      const unit = PRIME_UNITS[first + i];
-      return `${cardinal(n, true)} ${n < 2n ? unit.one : unit.many}`;
+      const feet = match.unit === "ft";
+      const unit = feet ? (i === 0 ? FOOT : INCH) : PRIME_UNITS[first + i];
+      return `${cardinal(n, !feet)} ${n < 2n ? unit.one : unit.many}`;
     });
     const fraction = match.numbers[match.numbers.length - 1].fraction;
     if (fraction !== "") {

@@ -544,18 +544,9 @@ const Forms& unit_forms(std::u32string_view unit) {
 }
 
 // Whether a straight double quote right after a number is an inch mark (27" monitor), not the end of a quotation
-// ("67" matters): the quotes before it, other than inch marks, are all closed
+// ("67" matters)
 bool is_inch_mark(std::u32string_view text, size_t position) {
-  if (position >= text.size() || text[position] != U'"') {
-    return false;
-  }
-  int open = 0;
-  for (size_t i = 0; i < position; i++) {
-    bool inch = text[i] == U'"' && i > 0 && unicode::isdigit(text[i - 1]);
-    open += text[i] == U'“' || (text[i] == U'"' && !inch);
-    open -= text[i] == U'”';
-  }
-  return open % 2 == 0;
+  return position < text.size() && text[position] == U'"' && numbers::is_inch_mark(text, position);
 }
 
 // 27" monitor, 21.5" iMac: a number of inches, of at most three digits

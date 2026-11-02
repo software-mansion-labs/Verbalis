@@ -72,6 +72,7 @@ REGISTER_TEST(numbers_fr_test) {
       verbalize("fr", U"Il a terminé en 12’36’’73, avec 3'16\" d'avance.", only(&Options::numbers)));
   ASSERT_EQUALS(U"Un film de trois'seize\" et un écran plat vingt pouces, le mot \"dix\".",
                 verbalize("fr", U"Un film de 3'16\" et un écran plat 20\", le mot \"10\".", only(&Options::numbers)));
+  ASSERT_EQUALS(U"Il mesure six pieds un pouce.", verbalize("fr", U"Il mesure 6'1\".", only(&Options::numbers)));
 
   ASSERT_EQUALS(U"Le quatre juin.", verbalize("fr", U"Le 04 juin.", only(&Options::numbers)));
 

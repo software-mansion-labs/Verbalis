@@ -66,6 +66,7 @@ REGISTER_TEST(numbers_it_test) {
       verbalize("it", U"Ha chiuso in 1'12\"76, con 25” di vantaggio.", only(&Options::numbers)));
   ASSERT_EQUALS(U"In due ore undici minuti e tredici secondi, su uno schermo da diciannove pollici.",
                 verbalize("it", U"In 2h11'13\", su uno schermo da 19″.", only(&Options::numbers)));
+  ASSERT_EQUALS(U"È alto cinque piedi e cinque pollici.", verbalize("it", U"È alto 5'5\".", only(&Options::numbers)));
 
   // 1 after a participle counts its noun; a range takes the gender of a plural in -e
   ASSERT_EQUALS(U"Inclusa una bevanda e una-due volte al giorno.",

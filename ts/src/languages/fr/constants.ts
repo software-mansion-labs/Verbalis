@@ -157,6 +157,10 @@ export const PRIME_UNITS: readonly Forms[] = [
 ];
 export const INCH: Forms = { one: "pouce", many: "pouces" };
 
+// Words around a 6'2" which make it feet and inches: il mesure 6'2"
+export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mesure", "taille", "grand", "grande"]);
+export const FOOT: Forms = { one: "pied", many: "pieds" };
+
 // XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals
 export const ROMAN_ORDINAL_SUFFIXES: Keys = ["er", "re", "ère", "e", "ème"];
 

@@ -457,6 +457,10 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
 // An inch, as a lone 19''
 inline const Noun kInch = noun(U"cal cala calowi cal calem calu cale cali calom cale calami calach");
 
+// Words around a 5'5" which make it feet and inches, and a foot: Mam 5'5" wzrostu
+inline const std::unordered_set<std::u32string> kHeightCues = {U"wzrost", U"wzrostu", U"mierzy", U"wysoki", U"wysoka"};
+inline const Noun kFoot = noun(U"stopa stopy stopie stopę stopą stopie stopy stóp stopom stopy stopami stopach");
+
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
 inline const std::unordered_set<std::u32string_view> kTimeUnits = {U"h", U"min", U"s", U"ms", U"godz.", U"sek."};
 

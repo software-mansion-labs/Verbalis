@@ -360,7 +360,8 @@ public:
     add_pattern(std::make_unique<EuroCentsPattern>());
     add_pattern(std::make_unique<MetersPattern>());
     add_pattern(std::make_unique<HalfUnitPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, std::unordered_set<std::u32string>{},
+                                               kHeightCues));
     add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSuffixes, U" \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<RomanOrdinalPattern>(kRomanOrdinalSuffixes));
@@ -592,13 +593,16 @@ protected:
   }
 
 private:
-  // 1'27"23: une minute vingt-sept secondes et vingt-trois centièmes; 23"42: vingt-trois secondes quarante-deux
+  // 1'27"23: une minute vingt-sept secondes et vingt-trois centièmes; 23"42: vingt-trois secondes quarante-deux;
+  // 6'2": six pieds deux pouces
   static std::optional<std::u32string> primes(const Match& match) {
     size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
     std::vector<std::u32string> words;
     for (size_t i = 0; i < match.numbers.size(); ++i) {
       uint64_t n = value(match.numbers[i]);
-      words.push_back(cardinal(n, true) + U" " + (n < 2 ? kPrimeUnits[first + i].one : kPrimeUnits[first + i].many));
+      bool feet = match.unit == U"ft";
+      const Forms& unit = feet ? (i == 0 ? kFoot : kInch) : kPrimeUnits[first + i];
+      words.push_back(cardinal(n, !feet) + U" " + (n < 2 ? unit.one : unit.many));
     }
     const std::u32string& fraction = match.numbers.back().fraction;
     if (!fraction.empty()) {

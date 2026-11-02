@@ -100,4 +100,12 @@ std::optional<RomanRole> roman_role(const Match& match, const RomanCues& cues);
 // and single apostrophes, dots and hyphens.
 std::vector<std::u32string_view> code_parts(std::u32string_view code);
 
+// Whether the double mark at a position right after a number (", ″, ”, '') marks inches or seconds rather than a
+// quotation: a mark another quotation mark follows (55""), and the inches of feet and inches (5'5"); else only with no
+// quotation open before it („7×7″ closes one) and, but for ″, no name before the number (27" monitor, but Redmi 7”).
+bool is_inch_mark(std::u32string_view text, size_t position);
+
+// Whether a double quotation is open before a position: its quotation marks counted, inch and seconds marks skipped.
+bool in_double_quotation(std::u32string_view text, size_t position);
+
 } // namespace verbalis::numbers

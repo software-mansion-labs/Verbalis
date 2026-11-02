@@ -92,6 +92,8 @@ import {
   ORDINAL_ARTICLES,
   FEMININE_ORDINAL_ARTICLES,
   ORDINAL_NOUNS,
+  FOOT,
+  HEIGHT_CUES,
   PRIME_CUES,
   MINUTE_CUES,
   PRIME_UNITS,
@@ -682,7 +684,7 @@ class Spanish extends PatternLanguage {
     this.addPattern(new FractionPattern());
     this.addPattern(new PrefixedMoneyPattern(NOTATION, CURRENCY_WORDS));
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES, HEIGHT_CUES));
     this.addPattern(new CompactTimePattern());
     this.addPattern(new GroupedOrdinalPattern(ORDINAL_SIGNS, ". \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SIGNS, ORDINAL_SIGN_FORMAT));
@@ -1064,9 +1066,11 @@ class Spanish extends PatternLanguage {
   static #primes(match: Match): string | undefined {
     const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
     const words = match.numbers.map((number, i) => {
-      const unit = PRIME_UNITS[first + i];
+      const feet = match.unit === "ft";
+      const unit = feet ? (i === 0 ? FOOT : INCH) : PRIME_UNITS[first + i];
       const n = value(number);
-      return `${cardinal(n, first + i === 0 ? One.UNA : One.UN)} ${n === 1n ? unit.one : unit.many}`;
+      const feminine = feet ? i === 1 : first + i === 0;
+      return `${cardinal(n, feminine ? One.UNA : One.UN)} ${n === 1n ? unit.one : unit.many}`;
     });
     const fraction = match.numbers[match.numbers.length - 1].fraction;
     if (fraction !== "") {

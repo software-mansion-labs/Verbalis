@@ -139,6 +139,10 @@ inline const std::array<Forms, 3> kSecondFractions = {
 };
 inline const Forms kInch = {U"polegada", U"polegadas"};
 
+// Words around a 5'5" which make it feet and inches: ele mede 5'5"
+inline const std::unordered_set<std::u32string> kHeightCues = {U"mede", U"altura", U"alto", U"alta"};
+inline const Forms kFoot = {U"pé", U"pés"};
+
 // Words before an hour, which make it feminine: às duas, das dez
 inline const std::unordered_set<std::u32string> kHourWords = {U"às", U"à", U"as", U"das", U"pelas"};
 

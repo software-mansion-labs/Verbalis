@@ -77,6 +77,8 @@ import {
   FEMININE_ORDINAL_ARTICLES,
   ORDINAL_NOUNS,
   INCH,
+  FOOT,
+  HEIGHT_CUES,
   PRIME_CUES,
   MINUTE_CUES,
   PRIME_UNITS,
@@ -464,7 +466,7 @@ class Portuguese extends PatternLanguage {
     this.addPattern(new DatePattern(DOT_DATE_FORMAT));
     this.addPattern(new ReorderedDatePattern());
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES, HEIGHT_CUES));
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -768,9 +770,11 @@ class Portuguese extends PatternLanguage {
     const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
     const counted = (n: bigint, unit: Forms, gender: Gender) =>
       `${cardinal(n, gender)} ${n === 1n ? unit.one : unit.many}`;
-    const words = match.numbers.map((number, i) =>
-      counted(value(number), PRIME_UNITS[first + i], first + i === 0 ? Gender.FEMININE : Gender.MASCULINE),
-    );
+    const feet = match.unit === "ft";
+    const words = match.numbers.map((number, i) => {
+      const gender = (feet ? i === 1 : first + i === 0) ? Gender.FEMININE : Gender.MASCULINE;
+      return counted(value(number), feet ? (i === 0 ? FOOT : INCH) : PRIME_UNITS[first + i], gender);
+    });
     const fraction = match.numbers[match.numbers.length - 1].fraction;
     if (fraction !== "") {
       words.push(counted(parseValue(fraction) ?? 0n, SECOND_FRACTIONS[fraction.length - 1], Gender.MASCULINE));

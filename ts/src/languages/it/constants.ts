@@ -104,6 +104,10 @@ export const SECOND_FRACTIONS: readonly Forms[] = [
 ];
 export const INCH: Forms = { one: "pollice", many: "pollici" };
 
+// Words around a 5'5" which make it feet and inches: è alto 5'5"
+export const HEIGHT_CUES: ReadonlySet<string> = new Set(["alto", "alta", "altezza", "misura"]);
+export const FOOT: Forms = { one: "piede", many: "piedi" };
+
 // Words before a time with a dot, which make it a time: alle 21.30
 export const TIME_WORDS: ReadonlySet<string> = new Set(["alle", "ore", "dalle", "le", "verso", "entro", "per"]);
 

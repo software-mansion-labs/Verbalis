@@ -76,6 +76,7 @@ import {
   ROMAN_CUES,
   SECONDS_SUFFIXES,
   FEMININE_NAMES,
+  HEIGHT_CUES,
   PRIME_CUES,
   PRIME_UNITS,
   SECOND_FRACTIONS,
@@ -552,7 +553,7 @@ class German extends PatternLanguage {
     this.addPattern(new YearMonthPattern());
     this.addPattern(new AreaCodePattern());
     this.addPattern(new SecondsPattern(SECONDS_SUFFIXES, true));
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, new Set(), HEIGHT_CUES));
     this.addPattern(new UnitAfterPattern(new ScalePattern(NOTATION)));
     this.addPattern(new UnitAfterPattern(new FractionPattern()));
     this.addPattern(new DotOrdinalPattern(true));
@@ -866,11 +867,15 @@ class German extends PatternLanguage {
     return `${head} ${count(minutes, "Minute", "Minuten")} ${count(seconds, "Sekunde", "Sekunden")}`;
   }
 
-  // 1'27"23: eine Minute siebenundzwanzig Sekunden und dreiundzwanzig Hundertstel
+  // 1'27"23: eine Minute siebenundzwanzig Sekunden und dreiundzwanzig Hundertstel; 6'2": sechs Fuß zwei Zoll
   static #primes(match: Match): string | undefined {
     const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
     const words = match.numbers.map((number, i) => {
       const n = value(number);
+      if (match.unit === "ft") {
+        const unit = UNITS[i === 0 ? "ft" : "″"];
+        return `${n === 1n ? "ein" : cardinal(n)} ${unit.many}`;
+      }
       const unit = PRIME_UNITS[first + i];
       return n === 1n ? `eine ${unit.one}` : `${cardinal(n)} ${unit.many}`;
     });

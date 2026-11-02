@@ -117,6 +117,10 @@ export const SECOND_FRACTIONS: readonly Forms[] = [
 ];
 export const INCH: Forms = { one: "polegada", many: "polegadas" };
 
+// Words around a 5'5" which make it feet and inches: ele mede 5'5"
+export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mede", "altura", "alto", "alta"]);
+export const FOOT: Forms = { one: "pé", many: "pés" };
+
 // Words before an hour, which make it feminine: às duas, das dez
 export const HOUR_WORDS: ReadonlySet<string> = new Set(["às", "à", "as", "das", "pelas"]);
 

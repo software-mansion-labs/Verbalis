@@ -318,4 +318,104 @@ std::vector<std::u32string_view> code_parts(std::u32string_view code) {
   return parts;
 }
 
+namespace {
+constexpr std::u32string_view kSinglePrimes = U"'′’´";
+constexpr std::u32string_view kClosingQuotes = U"\"”»";
+
+// The length of a mark of seconds or inches at a position: 1 (", ″, ”), 2 ('', ’’), or 0 if none stands there.
+size_t mark_length(std::u32string_view text, size_t position) {
+  if (position < text.size() && strings::contains(std::u32string_view(U"\"″”"), text[position])) {
+    return 1;
+  }
+  bool two = position + 1 < text.size() && strings::contains(kSinglePrimes, text[position]) &&
+             strings::contains(kSinglePrimes, text[position + 1]);
+  return two ? 2 : 0;
+}
+
+// The quotations open before a mark: curly ones („ “ « … ” ») counted, a straight one toggled.
+struct Quotes {
+  int curly = 0;
+  bool straight = false;
+};
+
+// Whether the mark at a position, right after a digit, marks inches or seconds, given the quotations open before it
+bool inch_mark_in(std::u32string_view text, size_t position, const Quotes& quotes) {
+  size_t next = position + mark_length(text, position);
+  if (next < text.size() && strings::contains(kClosingQuotes, text[next])) {
+    return true; // 55"": inches, then the quotation mark
+  }
+  // The number before the mark, with its decimals: 10.1"
+  size_t start = position;
+  while (start > 0 &&
+         (unicode::isdigit(text[start - 1]) || ((text[start - 1] == U'.' || text[start - 1] == U',') && start > 1 &&
+                                                unicode::isdigit(text[start - 2]) && unicode::isdigit(text[start])))) {
+    --start;
+  }
+  size_t feet = start > 0 && unicode::isspace(text[start - 1]) ? start - 1 : start;
+  if (feet > 1 && strings::contains(kSinglePrimes, text[feet - 1]) && unicode::isdigit(text[feet - 2])) {
+    return true; // 5'5": the inches of feet and inches
+  }
+  if (quotes.curly > 0 || quotes.straight) {
+    return false; // "Redmi 7", „7×7″: the mark closes the quotation
+  }
+  if (text[position] == U'″') {
+    return true;
+  }
+  // Redmi 7”: a small whole number after a capitalized name (not an acronym: UHD 110'') is a model, and the mark
+  // closes a quotation opened before the text
+  std::u32string_view digits = text.substr(start, position - start);
+  size_t word_end = start;
+  while (word_end > 0 && unicode::isspace(text[word_end - 1])) {
+    --word_end;
+  }
+  size_t word_start = word_end;
+  while (word_start > 0 && unicode::isalpha(text[word_start - 1])) {
+    --word_start;
+  }
+  std::u32string_view name = text.substr(word_start, word_end - word_start);
+  bool named =
+      word_end < start && !name.empty() && unicode::isupper(name[0]) && std::ranges::any_of(name, unicode::islower);
+  bool small = !digits.empty() && digits.size() <= 2 && std::ranges::all_of(digits, unicode::isdigit) &&
+               (digits.size() == 1 || digits[0] == U'1' || digits[0] == U'0');
+  return !(named && small);
+}
+
+// The quotations open before a position, and whether the mark there (if any) marks inches or seconds
+std::pair<Quotes, bool> scan_quotes(std::u32string_view text, size_t position) {
+  Quotes quotes;
+  for (size_t i = 0; i < position;) {
+    char32_t c = text[i];
+    size_t length = mark_length(text, i);
+    bool digit = i > 0 && unicode::isdigit(text[i - 1]);
+    if (length > 0 && digit) {
+      if (!inch_mark_in(text, i, quotes)) { // „7×7″, "Redmi 7": the mark closes the open quotation
+        quotes.curly > 0 ? --quotes.curly : (quotes.straight = false, 0);
+      }
+      i += length;
+      continue;
+    }
+    if (c == U'„' || c == U'«' || (c == U'“' && quotes.curly == 0)) {
+      quotes.curly++;
+    } else if ((c == U'“' || c == U'”' || c == U'»' || c == U'″') && quotes.curly > 0) {
+      quotes.curly--;
+    } else if ((c == U'"' || length == 2) && (!digit || quotes.straight)) {
+      quotes.straight = !quotes.straight; // also ``text`` as two apostrophes
+    }
+    i += length == 2 ? 2 : 1;
+  }
+  bool inch = position > 0 && position < text.size() && mark_length(text, position) > 0 &&
+              unicode::isdigit(text[position - 1]) && inch_mark_in(text, position, quotes);
+  return {quotes, inch};
+}
+} // namespace
+
+bool is_inch_mark(std::u32string_view text, size_t position) {
+  return scan_quotes(text, position).second;
+}
+
+bool in_double_quotation(std::u32string_view text, size_t position) {
+  auto [quotes, inch] = scan_quotes(text, position);
+  return quotes.curly > 0 || quotes.straight;
+}
+
 } // namespace verbalis::numbers

@@ -85,6 +85,9 @@ REGISTER_TEST(numbers_es_test) {
       verbalize("es", U"Para 400 y 500 entrevistas, 200 dias; en 1971 publicó, Arte número 1 (ESEA).",
                 only(&Options::numbers)));
 
+  // Feet and inches by a word of height
+  ASSERT_EQUALS(U"Mide cinco pies una pulgada.", verbalize("es", U"Mide 5'1\".", only(&Options::numbers)));
+
   return true;
 }
 

@@ -573,7 +573,7 @@ public:
     add_pattern(std::make_unique<FractionPattern>());
     add_pattern(std::make_unique<PrefixedMoneyPattern>(kNotation, kCurrencyWords));
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues, kHeightCues));
     add_pattern(std::make_unique<CompactTimePattern>());
     add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSigns, U". \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSigns, kOrdinalSignFormat));
@@ -940,14 +940,16 @@ protected:
 
 private:
   // 1'34"704: un minuto treinta y cuatro segundos y setecientas cuatro milésimas; 2h 08'29": dos horas ocho minutos
-  // veintinueve segundos
+  // veintinueve segundos; 5'5": cinco pies cinco pulgadas
   static std::optional<std::u32string> primes(const Match& match) {
     size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
     std::vector<std::u32string> words;
     for (size_t i = 0; i < match.numbers.size(); ++i) {
-      const Forms& unit = kPrimeUnits[first + i];
+      bool feet = match.unit == U"ft";
+      const Forms& unit = feet ? (i == 0 ? kFoot : kInch) : kPrimeUnits[first + i];
       uint64_t n = value(match.numbers[i]);
-      words.push_back(cardinal(n, first + i == 0 ? One::UNA : One::UN) + U" " + (n == 1 ? unit.one : unit.many));
+      bool feminine = feet ? i == 1 : first + i == 0;
+      words.push_back(cardinal(n, feminine ? One::UNA : One::UN) + U" " + (n == 1 ? unit.one : unit.many));
     }
     const std::u32string& fraction = match.numbers.back().fraction;
     if (!fraction.empty()) {

@@ -103,6 +103,8 @@ import {
   REGNAL_NAMES,
   ROMAN_NOUNS,
   INCH,
+  FOOT,
+  HEIGHT_CUES,
   PRIME_CUES,
 } from "./constants.ts";
 
@@ -1171,7 +1173,7 @@ class Polish extends PatternLanguage {
     this.addPattern(new GluedDatePattern());
     this.addPattern(new RomanDatePattern());
     this.addPattern(new FractionUnitPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, new Set(), HEIGHT_CUES));
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -1560,13 +1562,14 @@ class Polish extends PatternLanguage {
   }
 
   // The case of an amount, or of the end of its range after "do": 4-5 proc. cztery do pięciu procent
-  // 8'22": osiem minut dwadzieścia dwie sekundy
+  // 8'22": osiem minut dwadzieścia dwie sekundy; 5'5": pięć stóp pięć cali
   static #primes(match: Match): string | undefined {
     const units = ["h", "min", "s"];
     const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
     const words = match.numbers.map((number, i) => {
       const whole = numeral({ span: { begin: 0, end: 0 }, integer: toDigits(value(number)) });
-      return amount(whole, UNITS[units[first + i]], Case.NOMINATIVE);
+      const unit = match.unit === "ft" ? (i === 0 ? FOOT : INCH) : UNITS[units[first + i]];
+      return amount(whole, unit, Case.NOMINATIVE);
     });
     const fraction = match.numbers[match.numbers.length - 1].fraction;
     if (fraction !== "") {

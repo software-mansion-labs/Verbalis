@@ -160,6 +160,10 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
 // Words around a lone 10' which make it minutes: durante más de 10', (36' PT), (49' ST)
 export const MINUTE_CUES: ReadonlySet<string> = new Set(["durante", "pt", "st"]);
 
+// Words around a 5'5" which make it feet and inches: mide 5'5"
+export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mide", "altura", "estatura", "alto", "alta"]);
+export const FOOT: Forms = { one: "pie", many: "pies" };
+
 // A time written with prime marks: hours, minutes, and seconds
 export const PRIME_UNITS: readonly Forms[] = [
   { one: "hora", many: "horas" }, { one: "minuto", many: "minutos" }, { one: "segundo", many: "segundos" },

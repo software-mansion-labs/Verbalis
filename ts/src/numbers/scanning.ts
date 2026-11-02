@@ -4,7 +4,7 @@
  */
 import { digitsEnd, isDigitAfter } from "../text/scan.ts";
 import { contains, str, textOf, toLower, type Text } from "../text/strings.ts";
-import { isAlpha, isDigit, isSpace, isUpper } from "../text/unicode.ts";
+import { isAlpha, isDigit, isLower, isSpace, isUpper } from "../text/unicode.ts";
 import type { Fractions, RomanCues } from "./formats.ts";
 import { numeral, type Match, type Numeral } from "./match.ts";
 
@@ -331,4 +331,126 @@ export function codeParts(written: string): string[] {
     i = end;
   }
   return parts;
+}
+
+const SINGLE_PRIMES = "'′’´";
+const CLOSING_QUOTES = '"”»';
+
+// The length of a mark of seconds or inches at a position: 1 (", ″, ”), 2 ('', ’’), or 0 if none stands there.
+function markLength(text: Text, position: number): number {
+  if (position < text.length && contains('"″”', text[position])) {
+    return 1;
+  }
+  const two =
+    position + 1 < text.length &&
+    contains(SINGLE_PRIMES, text[position]) &&
+    contains(SINGLE_PRIMES, text[position + 1]);
+  return two ? 2 : 0;
+}
+
+// The quotations open before a mark: curly ones („ “ « … ” ») counted, a straight one toggled.
+interface Quotes {
+  curly: number;
+  straight: boolean;
+}
+
+// Whether the mark at a position, right after a digit, marks inches or seconds, given the quotations open before it
+function inchMarkIn(text: Text, position: number, quotes: Quotes): boolean {
+  const next = position + markLength(text, position);
+  if (next < text.length && contains(CLOSING_QUOTES, text[next])) {
+    return true; // 55"": inches, then the quotation mark
+  }
+  // The number before the mark, with its decimals: 10.1"
+  let start = position;
+  while (
+    start > 0 &&
+    (isDigit(text[start - 1]) ||
+      ((text[start - 1] === "." || text[start - 1] === ",") &&
+        start > 1 &&
+        isDigit(text[start - 2]) &&
+        isDigit(text[start])))
+  ) {
+    start--;
+  }
+  const feet = start > 0 && isSpace(text[start - 1]) ? start - 1 : start;
+  if (feet > 1 && contains(SINGLE_PRIMES, text[feet - 1]) && isDigit(text[feet - 2])) {
+    return true; // 5'5": the inches of feet and inches
+  }
+  if (quotes.curly > 0 || quotes.straight) {
+    return false; // "Redmi 7", „7×7″: the mark closes the quotation
+  }
+  if (text[position] === "″") {
+    return true;
+  }
+  // Redmi 7”: a small whole number after a capitalized name (not an acronym: UHD 110'') is a model, and the mark
+  // closes a quotation opened before the text
+  const digits = text.slice(start, position);
+  let wordEnd = start;
+  while (wordEnd > 0 && isSpace(text[wordEnd - 1])) {
+    wordEnd--;
+  }
+  let wordStart = wordEnd;
+  while (wordStart > 0 && isAlpha(text[wordStart - 1])) {
+    wordStart--;
+  }
+  const name = text.slice(wordStart, wordEnd);
+  const named = wordEnd < start && name.length > 0 && isUpper(name[0]) && name.some((c) => isLower(c));
+  const small =
+    digits.length > 0 &&
+    digits.length <= 2 &&
+    digits.every((c) => isDigit(c)) &&
+    (digits.length === 1 || digits[0] === "1" || digits[0] === "0");
+  return !(named && small);
+}
+
+// The quotations open before a position, and whether the mark there (if any) marks inches or seconds
+function scanQuotes(text: Text, position: number): [Quotes, boolean] {
+  const quotes: Quotes = { curly: 0, straight: false };
+  for (let i = 0; i < position;) {
+    const c = text[i];
+    const length = markLength(text, i);
+    const digit = i > 0 && isDigit(text[i - 1]);
+    if (length > 0 && digit) {
+      if (!inchMarkIn(text, i, quotes)) {
+        // „7×7″, "Redmi 7": the mark closes the open quotation
+        if (quotes.curly > 0) {
+          quotes.curly--;
+        } else {
+          quotes.straight = false;
+        }
+      }
+      i += length;
+      continue;
+    }
+    if (c === "„" || c === "«" || (c === "“" && quotes.curly === 0)) {
+      quotes.curly++;
+    } else if ((c === "“" || c === "”" || c === "»" || c === "″") && quotes.curly > 0) {
+      quotes.curly--;
+    } else if ((c === '"' || length === 2) && (!digit || quotes.straight)) {
+      quotes.straight = !quotes.straight; // also ``text`` as two apostrophes
+    }
+    i += length === 2 ? 2 : 1;
+  }
+  const inch =
+    position > 0 &&
+    position < text.length &&
+    markLength(text, position) > 0 &&
+    isDigit(text[position - 1]) &&
+    inchMarkIn(text, position, quotes);
+  return [quotes, inch];
+}
+
+/**
+ * Whether the double mark at a position right after a number (", ″, ”, '') marks inches or seconds rather than a
+ * quotation: a mark another quotation mark follows (55""), and the inches of feet and inches (5'5"); else only with no
+ * quotation open before it („7×7″ closes one) and, but for ″, no name before the number (27" monitor, but Redmi 7”).
+ */
+export function isInchMark(text: Text, position: number): boolean {
+  return scanQuotes(text, position)[1];
+}
+
+/** Whether a double quotation is open before a position: its quotation marks counted, inch and seconds marks skipped. */
+export function inDoubleQuotation(text: Text, position: number): boolean {
+  const [quotes] = scanQuotes(text, position);
+  return quotes.curly > 0 || quotes.straight;
 }

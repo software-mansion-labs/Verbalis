@@ -960,7 +960,8 @@ public:
     add_pattern(std::make_unique<GluedDatePattern>());
     add_pattern(std::make_unique<RomanDatePattern>());
     add_pattern(std::make_unique<FractionUnitPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, std::unordered_set<std::u32string>{},
+                                               kHeightCues));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -1317,14 +1318,15 @@ protected:
   }
 
 private:
-  // 8'22": osiem minut dwadzieścia dwie sekundy
+  // 8'22": osiem minut dwadzieścia dwie sekundy; 5'5": pięć stóp pięć cali
   static std::optional<std::u32string> primes(const Match& match) {
     static const std::array<std::u32string_view, 3> units = {U"h", U"min", U"s"};
     size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
     std::vector<std::u32string> words;
     for (size_t i = 0; i < match.numbers.size(); ++i) {
       Number whole{.integer = to_digits(value(match.numbers[i]))};
-      words.push_back(amount(whole, kUnits.at(std::u32string(units[first + i])), Case::NOMINATIVE));
+      const Noun& unit = match.unit == U"ft" ? (i == 0 ? kFoot : kInch) : kUnits.at(std::u32string(units[first + i]));
+      words.push_back(amount(whole, unit, Case::NOMINATIVE));
     }
     const std::u32string& fraction = match.numbers.back().fraction;
     if (!fraction.empty()) {

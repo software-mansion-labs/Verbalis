@@ -69,6 +69,8 @@ import {
   FEMININE_ROMAN_NOUNS,
   ORDINAL_NOUNS,
   INCH,
+  FOOT,
+  HEIGHT_CUES,
   PRIME_CUES,
   MINUTE_CUES,
   PRIME_UNITS,
@@ -319,7 +321,7 @@ class Italian extends PatternLanguage {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES, HEIGHT_CUES));
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -560,7 +562,9 @@ class Italian extends PatternLanguage {
   // un'ora e quattordici minuti e ventuno secondi
   static #primes(match: Match): string | undefined {
     const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
-    const words = match.numbers.map((number, i) => countedValue(value(number), PRIME_UNITS[first + i]));
+    const words = match.numbers.map((number, i) =>
+      countedValue(value(number), match.unit === "ft" ? (i === 0 ? FOOT : INCH) : PRIME_UNITS[first + i]),
+    );
     const fraction = match.numbers[match.numbers.length - 1].fraction;
     if (fraction !== "") {
       words.push(countedValue(parseValue(fraction) ?? 0n, SECOND_FRACTIONS[fraction.length - 1]));

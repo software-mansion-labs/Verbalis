@@ -437,6 +437,10 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
 // An inch, as a lone 19''
 export const INCH = noun("cal cala calowi cal calem calu cale cali calom cale calami calach");
 
+// Words around a 5'5" which make it feet and inches, and a foot: Mam 5'5" wzrostu
+export const HEIGHT_CUES: ReadonlySet<string> = new Set(["wzrost", "wzrostu", "mierzy", "wysoki", "wysoka"]);
+export const FOOT = noun("stopa stopy stopie stopę stopą stopie stopy stóp stopom stopy stopami stopach");
+
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
 export const TIME_UNITS: ReadonlySet<string> = new Set(["h", "min", "s", "ms", "godz.", "sek."]);
 

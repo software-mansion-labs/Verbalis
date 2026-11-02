@@ -134,6 +134,10 @@ inline const std::array<Forms, 3> kSecondFractions = {
 };
 inline const Forms kInch = {U"pollice", U"pollici"};
 
+// Words around a 5'5" which make it feet and inches: è alto 5'5"
+inline const std::unordered_set<std::u32string> kHeightCues = {U"alto", U"alta", U"altezza", U"misura"};
+inline const Forms kFoot = {U"piede", U"piedi"};
+
 // Words before a time with a dot, which make it a time: alle 21.30
 inline const std::unordered_set<std::u32string> kTimeWords = {
   U"alle", U"ore", U"dalle", U"le", U"verso", U"entro", U"per"

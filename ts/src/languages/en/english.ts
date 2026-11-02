@@ -25,6 +25,7 @@ import {
   value,
   romanRole,
   RomanRole,
+  isInchMark as isInchMarkAt,
 } from "../../numbers/scanning.ts";
 import { PUNCTUATION, stripped, wordsOf } from "../../text/context.ts";
 import {
@@ -710,16 +711,7 @@ function unitForms(unit: string): Forms {
 // Whether a straight double quote right after a number is an inch mark (27" monitor), not the end of a quotation
 // ("67" matters): the quotes before it, other than inch marks, are all closed
 function isInchMark(text: Text, position: number): boolean {
-  if (position >= text.length || text[position] !== '"') {
-    return false;
-  }
-  let open = 0;
-  for (let i = 0; i < position; i++) {
-    const inch = text[i] === '"' && i > 0 && isDigit(text[i - 1]);
-    open += text[i] === "“" || (text[i] === '"' && !inch) ? 1 : 0;
-    open -= text[i] === "”" ? 1 : 0;
-  }
-  return open % 2 === 0;
+  return position < text.length && text[position] === '"' && isInchMarkAt(text, position);
 }
 
 // 27" monitor, 21.5" iMac: a number of inches, of at most three digits

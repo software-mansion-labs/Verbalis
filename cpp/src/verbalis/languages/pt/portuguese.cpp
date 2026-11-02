@@ -384,7 +384,7 @@ public:
     add_pattern(std::make_unique<DatePattern>(kDotDateFormat));
     add_pattern(std::make_unique<ReorderedDatePattern>());
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues, kHeightCues));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -660,8 +660,10 @@ private:
     };
     std::vector<std::u32string> words;
     for (size_t i = 0; i < match.numbers.size(); ++i) {
-      Gender gender = first + i == 0 ? Gender::FEMININE : Gender::MASCULINE;
-      words.push_back(counted(value(match.numbers[i]), kPrimeUnits[first + i], gender));
+      bool feet = match.unit == U"ft";
+      Gender gender = (feet ? i == 1 : first + i == 0) ? Gender::FEMININE : Gender::MASCULINE;
+      const Forms& unit = feet ? (i == 0 ? kFoot : kInch) : kPrimeUnits[first + i];
+      words.push_back(counted(value(match.numbers[i]), unit, gender));
     }
     const std::u32string& fraction = match.numbers.back().fraction;
     if (!fraction.empty()) {

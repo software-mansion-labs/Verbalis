@@ -230,7 +230,7 @@ public:
   Italian() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues, kHeightCues));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -454,7 +454,8 @@ private:
     size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
     std::vector<std::u32string> words;
     for (size_t i = 0; i < match.numbers.size(); ++i) {
-      words.push_back(counted(value(match.numbers[i]), kPrimeUnits[first + i]));
+      const Forms& unit = match.unit == U"ft" ? (i == 0 ? kFoot : kInch) : kPrimeUnits[first + i];
+      words.push_back(counted(value(match.numbers[i]), unit));
     }
     const std::u32string& fraction = match.numbers.back().fraction;
     if (!fraction.empty()) {

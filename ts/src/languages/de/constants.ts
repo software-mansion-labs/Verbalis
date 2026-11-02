@@ -245,6 +245,9 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
   "minuten", "sekunden", "sieger", "siegerin", "gesamtwertung",
 ]);
 
+// Words around a 6'2" which make it feet and inches: Er ist 6'2" groß
+export const HEIGHT_CUES: ReadonlySet<string> = new Set(["groß", "größe", "misst", "körpergröße"]);
+
 // A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second
 export const PRIME_UNITS: readonly Forms[] = [
   { one: "Stunde", many: "Stunden" }, { one: "Minute", many: "Minuten" }, { one: "Sekunde", many: "Sekunden" },

@@ -14,7 +14,16 @@ import { isAlnum, isAlpha, isDigit, isLatin, isSpace, isUpper, isWord } from "..
 import type { DateFormat, Notation, PhoneFormat, SuffixFormat } from "./formats.ts";
 import { keysOf, suffixFormat } from "./formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "./match.ts";
-import { digitsAt, numbersAt, parseValue, romanValue, toDigits, value } from "./scanning.ts";
+import {
+  digitsAt,
+  inDoubleQuotation,
+  isInchMark,
+  numbersAt,
+  parseValue,
+  romanValue,
+  toDigits,
+  value,
+} from "./scanning.ts";
 
 /**
  * A pattern of a numeric expression. It finds the structure of a match only; how to read it is a language's decision.
@@ -475,34 +484,33 @@ function doublePrimeAt(text: Text, position: number): number {
 function primeAt(text: Text, position: number): boolean {
   return position < text.length && contains(PRIMES, text[position]) && doublePrimeAt(text, position) === 0;
 }
-
-// Whether a quotation is open before a position, so that a mark there closes it ("Halo Wars 2", „0″, 'Hera Pheri 3')
-// rather than follows a number. Double quotes count for a double mark, single ones for a single mark. A closing mark
-// right after a digit closes an open quotation, or else marks inches; an apostrophe within a word (l'homme) is no quote.
-function inQuotation(text: Text, position: number, single: boolean): boolean {
+// Whether a single quotation is open before a position, so that a mark there closes it ('Hera Pheri 3') rather than
+// follows a number; an apostrophe within a word (l'homme) is no quote. Double quotations: inDoubleQuotation.
+function inSingleQuotation(text: Text, position: number): boolean {
   let open = 0;
-  let straight = false;
   for (let i = 0; i < position; ++i) {
     const c = text[i];
     const spaced = i === 0 || isSpace(text[i - 1]) || text[i - 1] === "(";
-    const digit = i > 0 && isDigit(text[i - 1]);
-    if (single) {
-      const word = i + 1 < text.length && isAlnum(text[i + 1]);
-      if (c === "‘" || (contains("'’´", c) && spaced && word)) {
-        open++;
-      } else if (contains("'’′´", c) && !spaced && !word && open > 0) {
-        open--;
-      }
-    } else if (c === "„" || c === "«" || (c === "“" && open === 0)) {
+    const word = i + 1 < text.length && isAlnum(text[i + 1]);
+    if (c === "‘" || (contains("'’´", c) && spaced && word)) {
       open++;
-    } else if ((c === "“" || c === "”" || c === "»" || c === "″") && open > 0) {
+    } else if (contains("'’′´", c) && !spaced && !word && open > 0) {
       open--;
-    } else if ((c === '"' || doublePrimeAt(text, i) === 2) && (!digit || straight)) {
-      straight = !straight; // also ``text`` as two apostrophes
-      i += doublePrimeAt(text, i) === 2 ? 1 : 0;
     }
   }
-  return open > 0 || straight;
+  return open > 0;
+}
+
+// The text around a number from `begin` to `end`: from `before` words ahead of it to `after` words past its end,
+// where its cues stand.
+function around(text: Text, begin: number, end: number, before: number, after: number): Text {
+  for (let spaces = 0; begin > 0 && spaces < before; --begin) {
+    spaces += isSpace(text[begin - 1]) ? 1 : 0;
+  }
+  for (let spaces = 0; end < text.length && spaces < after; ++end) {
+    spaces += isSpace(text[end]) ? 1 : 0;
+  }
+  return text.slice(begin, end);
 }
 
 /**
@@ -518,6 +526,7 @@ export class PrimePattern extends Pattern {
   readonly #cues: ReadonlySet<string>;
   readonly #feet: boolean;
   readonly #minutes: ReadonlySet<string>;
+  readonly #heights: ReadonlySet<string>;
 
   /**
    * @param cues lowercase words of a text which make its minutes and seconds (3'16") and a lone 23″ a time; without
@@ -525,13 +534,22 @@ export class PrimePattern extends Pattern {
    * @param feet reads 5'9" as feet and inches, and a lone 400' as feet.
    * @param minutes lowercase words among the three before or after a lone 10' which make it minutes: durante más de
    *        10', aos 6′ do segundo tempo; without one, it is left as written.
+   * @param heights lowercase words among the eight before or the three after a 5'5" which make it feet and inches
+   *        when no word of the text is one of the cues: Mam 5'5" wzrostu, Er ist 6'2" groß.
    */
-  constructor(notation: Notation, cues: ReadonlySet<string>, feet = false, minutes: ReadonlySet<string> = new Set()) {
+  constructor(
+    notation: Notation,
+    cues: ReadonlySet<string>,
+    feet = false,
+    minutes: ReadonlySet<string> = new Set(),
+    heights: ReadonlySet<string> = new Set(),
+  ) {
     super(Kind.TIME);
     this.#decimals = notation.decimalSeparators;
     this.#cues = cues;
     this.#feet = feet;
     this.#minutes = minutes;
+    this.#heights = heights;
   }
 
   match(text: Text, position: number): Match | undefined {
@@ -548,10 +566,17 @@ export class PrimePattern extends Pattern {
     }
     const time = match({ kind: Kind.TIME, numbers: [digitsAt(text, position)], separator: "′" });
     const ending = (at: number, unit: string): Match | undefined => {
-      // Not before another mark or a hyphen: 20"', 1/4-20"-Gewinde
+      // Not before another mark or a hyphen: 20"', 1/4-20"-Gewinde; but after feet or two or three numbers, a mark may
+      // close an open quotation: "I'm 5'5"", she said; “and 6'”
       const marked =
         at < text.length && (contains(PRIMES, text[at]) || contains(DOUBLE_PRIMES, text[at]) || text[at] === "-");
-      if (!isClearAfter(text, at) || isDigitAfter(text, at, ".,") || marked) {
+      const closes =
+        (time.numbers.length > 1 || unit === "ft") &&
+        at < text.length &&
+        contains('"”»', text[at]) &&
+        isClearAfter(text, at + 1) &&
+        inDoubleQuotation(text, position);
+      if (!closes && (!isClearAfter(text, at) || isDigitAfter(text, at, ".,") || marked)) {
         return undefined;
       }
       time.span = { begin: position, end: at };
@@ -583,6 +608,14 @@ export class PrimePattern extends Pattern {
       const second = skipSpace(text, end + 1);
       for (const number of numbersAt(text, second, "", this.#decimals)) {
         const mark = doublePrimeAt(text, number.span.end);
+        // Mam 5'5" wzrostu: feet and inches by a word of height, unless the text is about time
+        const height =
+          !this.#feet &&
+          mark > 0 &&
+          number.fraction === "" &&
+          value(number) < 12n &&
+          !this.#cued(text, this.#cues) &&
+          this.#cued(around(text, position, number.span.end + mark, 8, 4), this.#heights);
         const marked = mark > 0 && number.integer.length <= 2 && value(number) < (this.#feet ? 12n : 60n);
         // 26'8 x 17'5: inches without their mark
         const bare =
@@ -606,7 +639,7 @@ export class PrimePattern extends Pattern {
           seconds.span = { begin: seconds.span.begin, end: fractionEnd };
           return ending(fractionEnd, "min");
         }
-        if (this.#feet) {
+        if (this.#feet || height) {
           return ending(after, "ft");
         }
         if (number.fraction !== "" || !this.#cued(text, this.#cues)) {
@@ -615,20 +648,12 @@ export class PrimePattern extends Pattern {
         return ending(after, "min");
       }
       // 400': feet, unless the mark closes a quotation
-      if (inQuotation(text, end, true)) {
+      if (inSingleQuotation(text, end)) {
         return undefined;
       }
       if (!this.#feet) {
         // durante más de 10': minutes, by a cue among the three words before it or after it
-        let start = position;
-        for (let spaces = 0; start > 0 && spaces < 4; --start) {
-          spaces += isSpace(text[start - 1]) ? 1 : 0;
-        }
-        let stop = end + 1;
-        for (let spaces = 0; stop < text.length && spaces < 4; ++stop) {
-          spaces += isSpace(text[stop]) ? 1 : 0;
-        }
-        return this.#cued(text.slice(start, stop), this.#minutes) ? ending(end + 1, "min") : undefined;
+        return this.#cued(around(text, position, end + 1, 4, 4), this.#minutes) ? ending(end + 1, "min") : undefined;
       }
       time.kind = Kind.UNIT;
       return ending(end + 1, "ft");
@@ -655,19 +680,22 @@ export class PrimePattern extends Pattern {
         };
         return ending(fractionEnd, "s");
       }
-      if (inQuotation(text, number.span.end, false)) {
-        return undefined;
+      // „telewizor 55"”: inches, then the mark that closes the quotation
+      if (
+        after < text.length &&
+        (text[after] === '"' || text[after] === "”" || text[after] === "»") &&
+        isClearAfter(text, after + 1)
+      ) {
+        time.kind = Kind.UNIT;
+        time.span = { begin: position, end: after };
+        time.unit = "″";
+        return time;
+      }
+      if (!isInchMark(text, number.span.end)) {
+        return undefined; // the mark closes a quotation: "Halo Wars 2", Redmi 7”
       }
       // 23″ de retard, sous les 49″: a cue among the eight words before it or the three after it
-      let start = position;
-      for (let spaces = 0; start > 0 && spaces < 8; --start) {
-        spaces += isSpace(text[start - 1]) ? 1 : 0;
-      }
-      let stop = after;
-      for (let spaces = 0; stop < text.length && spaces < 4; ++stop) {
-        spaces += isSpace(text[stop]) ? 1 : 0;
-      }
-      if (number.fraction === "" && this.#cued(text.slice(start, stop), this.#cues)) {
+      if (number.fraction === "" && this.#cued(around(text, position, after, 8, 4), this.#cues)) {
         return ending(after, "s");
       }
       time.kind = Kind.UNIT;

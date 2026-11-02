@@ -81,6 +81,9 @@ REGISTER_TEST(numbers_de_test) {
   ASSERT_EQUALS(U"Am Freitag, siebter Juni zweitausendneunzehn und (sechzehnter Dezember).",
                 verbalize("de", U"Am Freitag, 7. 6. 2019 und (16. 12.)."));
 
+  // Feet and inches by a word of height
+  ASSERT_EQUALS(U"Er ist sechs Fuß zwei Zoll groß.", verbalize("de", U"Er ist 6'2\" groß.", only(&Options::numbers)));
+
   return true;
 }
 

@@ -109,4 +109,17 @@ REGISTER_TEST(numbers_pl_test) {
   return true;
 }
 
+REGISTER_TEST(numbers_pl_quoted_inches_test) {
+  // Through normalize, which turns „ ” into ": inches within quotation marks, a size after an acronym, and a model
+  // name whose mark closes a quotation
+  ASSERT_EQUALS(U"Kupiłem \"telewizor pięćdziesiąt pięć cali\", TCL UHD sto dziesięć cali i Redmi siedem\" też.",
+                verbalize("pl", U"Kupiłem „telewizor 55″”, TCL UHD 110‘’ i Redmi 7” też."));
+  // Feet and inches by a word of height, unless a word of time makes it a time
+  ASSERT_EQUALS(U"Mam pięć stóp pięć cali wzrostu, a ona dwie stopy jeden cal.",
+                verbalize("pl", U"Mam 5'5\" wzrostu, a ona 2'1\".", only(&Options::numbers)));
+  ASSERT_EQUALS(U"Mam wzrost osiem minut dwadzieścia dwie sekundy i czas.",
+                verbalize("pl", U"Mam wzrost 8'22\" i czas.", only(&Options::numbers)));
+  return true;
+}
+
 } // namespace verbalis::test

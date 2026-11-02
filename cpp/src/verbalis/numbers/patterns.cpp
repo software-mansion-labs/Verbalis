@@ -1008,33 +1008,33 @@ bool prime_at(std::u32string_view text, size_t position) {
   return position < text.size() && strings::contains(kPrimes, text[position]) && double_prime_at(text, position) == 0;
 }
 
-// Whether a quotation is open before a position, so that a mark there closes it ("Halo Wars 2", „0″, 'Hera Pheri 3')
-// rather than follows a number. Double quotes count for a double mark, single ones for a single mark. A closing mark
-// right after a digit closes an open quotation, or else marks inches; an apostrophe within a word (l'homme) is no quote.
-bool in_quotation(std::u32string_view text, size_t position, bool single) {
+// Whether a single quotation is open before a position, so that a mark there closes it ('Hera Pheri 3') rather than
+// follows a number; an apostrophe within a word (l'homme) is no quote. Double quotations: in_double_quotation.
+bool in_single_quotation(std::u32string_view text, size_t position) {
   int open = 0;
-  bool straight = false;
   for (size_t i = 0; i < position; ++i) {
     char32_t c = text[i];
     bool spaced = i == 0 || unicode::isspace(text[i - 1]) || text[i - 1] == U'(';
-    bool digit = i > 0 && unicode::isdigit(text[i - 1]);
-    if (single) {
-      bool word = i + 1 < text.size() && unicode::isalnum(text[i + 1]);
-      if (c == U'‘' || (strings::contains(std::u32string_view(U"'’´"), c) && spaced && word)) {
-        open++;
-      } else if (strings::contains(std::u32string_view(U"'’′´"), c) && !spaced && !word && open > 0) {
-        open--;
-      }
-    } else if (c == U'„' || c == U'«' || (c == U'“' && open == 0)) {
+    bool word = i + 1 < text.size() && unicode::isalnum(text[i + 1]);
+    if (c == U'‘' || (strings::contains(std::u32string_view(U"'’´"), c) && spaced && word)) {
       open++;
-    } else if ((c == U'“' || c == U'”' || c == U'»' || c == U'″') && open > 0) {
+    } else if (strings::contains(std::u32string_view(U"'’′´"), c) && !spaced && !word && open > 0) {
       open--;
-    } else if ((c == U'"' || double_prime_at(text, i) == 2) && (!digit || straight)) {
-      straight = !straight; // also ``text`` as two apostrophes
-      i += double_prime_at(text, i) == 2 ? 1 : 0;
     }
   }
-  return open > 0 || straight;
+  return open > 0;
+}
+
+// The text around a number from `begin` to `end`: from `before` words ahead of it to `after` words past its end,
+// where its cues stand.
+std::u32string_view around(std::u32string_view text, size_t begin, size_t end, int before, int after) {
+  for (int spaces = 0; begin > 0 && spaces < before; --begin) {
+    spaces += unicode::isspace(text[begin - 1]) ? 1 : 0;
+  }
+  for (int spaces = 0; end < text.size() && spaces < after; ++end) {
+    spaces += unicode::isspace(text[end]) ? 1 : 0;
+  }
+  return text.substr(begin, end - begin);
 }
 } // namespace
 
@@ -1053,10 +1053,14 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
   }
   Match time{.kind = Kind::TIME, .numbers = {digits_at(text, position)}, .separator = U'′'};
   auto ending = [&](size_t at, std::u32string_view unit) -> std::optional<Match> {
-    // Not before another mark or a hyphen: 20"', 1/4-20"-Gewinde
+    // Not before another mark or a hyphen: 20"', 1/4-20"-Gewinde; but after feet or two or three numbers, a mark may
+    // close an open quotation: "I'm 5'5"", she said; “and 6'”
     bool marked = at < text.size() && (strings::contains(kPrimes, text[at]) ||
                                        strings::contains(kDoublePrimes, text[at]) || text[at] == U'-');
-    if (!is_clear_after(text, at) || is_digit_after(text, at, U".,") || marked) {
+    bool closes = (time.numbers.size() > 1 || unit == U"ft") && at < text.size() &&
+                  strings::contains(std::u32string_view(U"\"”»"), text[at]) && is_clear_after(text, at + 1) &&
+                  in_double_quotation(text, position);
+    if (!closes && (!is_clear_after(text, at) || is_digit_after(text, at, U".,") || marked)) {
       return std::nullopt;
     }
     time.span = {position, at};
@@ -1088,6 +1092,9 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
     size_t second = skip_space(text, end + 1);
     for (const Number& number : numbers_at(text, second, U"", decimals_)) {
       size_t mark = double_prime_at(text, number.span.end);
+      // Mam 5'5" wzrostu: feet and inches by a word of height, unless the text is about time
+      bool height = !feet_ && mark && number.fraction.empty() && value(number) < 12 && !cued(text, cues_) &&
+                    cued(around(text, position, number.span.end + mark, 8, 4), heights_);
       bool marked = mark && number.integer.size() <= 2 && value(number) < (feet_ ? 12 : 60);
       // 26'8 x 17'5: inches without their mark
       bool bare = feet_ && !mark && second == end + 1 && number.fraction.empty() && number.integer.size() <= 2 &&
@@ -1104,7 +1111,7 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
         time.numbers.back().span.end = fraction_end;
         return ending(fraction_end, U"min");
       }
-      if (feet_) {
+      if (feet_ || height) {
         return ending(after, U"ft");
       }
       if (!number.fraction.empty() || !cued(text, cues_)) {
@@ -1113,20 +1120,12 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
       return ending(after, U"min");
     }
     // 400': feet, unless the mark closes a quotation
-    if (in_quotation(text, end, true)) {
+    if (in_single_quotation(text, end)) {
       return std::nullopt;
     }
     if (!feet_) {
       // durante más de 10': minutes, by a cue among the three words before it or after it
-      size_t start = position;
-      for (int spaces = 0; start > 0 && spaces < 4; --start) {
-        spaces += unicode::isspace(text[start - 1]) ? 1 : 0;
-      }
-      size_t stop = end + 1;
-      for (int spaces = 0; stop < text.size() && spaces < 4; ++stop) {
-        spaces += unicode::isspace(text[stop]) ? 1 : 0;
-      }
-      return cued(text.substr(start, stop - start), minutes_) ? ending(end + 1, U"min") : std::nullopt;
+      return cued(around(text, position, end + 1, 4, 4), minutes_) ? ending(end + 1, U"min") : std::nullopt;
     }
     time.kind = Kind::UNIT;
     return ending(end + 1, U"ft");
@@ -1150,19 +1149,19 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
       time.numbers[0].span.end = fraction_end;
       return ending(fraction_end, U"s");
     }
-    if (in_quotation(text, number.span.end, false)) {
-      return std::nullopt;
+    // „telewizor 55"”: inches, then the mark that closes the quotation
+    if (after < text.size() && (text[after] == U'"' || text[after] == U'”' || text[after] == U'»') &&
+        is_clear_after(text, after + 1)) {
+      time.kind = Kind::UNIT;
+      time.span = {position, after};
+      time.unit = U"″";
+      return time;
+    }
+    if (!is_inch_mark(text, number.span.end)) {
+      return std::nullopt; // the mark closes a quotation: "Halo Wars 2", Redmi 7”
     }
     // 23″ de retard, sous les 49″: a cue among the eight words before it or the three after it
-    size_t start = position;
-    for (int spaces = 0; start > 0 && spaces < 8; --start) {
-      spaces += unicode::isspace(text[start - 1]) ? 1 : 0;
-    }
-    size_t stop = after;
-    for (int spaces = 0; stop < text.size() && spaces < 4; ++stop) {
-      spaces += unicode::isspace(text[stop]) ? 1 : 0;
-    }
-    if (number.fraction.empty() && cued(text.substr(start, stop - start), cues_)) {
+    if (number.fraction.empty() && cued(around(text, position, after, 8, 4), cues_)) {
       return ending(after, U"s");
     }
     time.kind = Kind::UNIT;

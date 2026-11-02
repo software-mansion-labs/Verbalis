@@ -179,6 +179,10 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
 // Words around a lone 10' which make it minutes: durante más de 10', (36' PT), (49' ST)
 inline const std::unordered_set<std::u32string> kMinuteCues = {U"durante", U"pt", U"st"};
 
+// Words around a 5'5" which make it feet and inches: mide 5'5"
+inline const std::unordered_set<std::u32string> kHeightCues = {U"mide", U"altura", U"estatura", U"alto", U"alta"};
+inline const Forms kFoot = {U"pie", U"pies"};
+
 // A time written with prime marks: hours, minutes, and seconds
 inline const std::array<Forms, 3> kPrimeUnits = {{{U"hora", U"horas"}, {U"minuto", U"minutos"}, {U"segundo", U"segundos"}}};
 

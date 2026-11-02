@@ -176,6 +176,10 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
 inline const std::array<Forms, 3> kPrimeUnits = {{{U"heure", U"heures"}, {U"minute", U"minutes"}, {U"seconde", U"secondes"}}};
 inline const Forms kInch = {U"pouce", U"pouces"};
 
+// Words around a 6'2" which make it feet and inches: il mesure 6'2"
+inline const std::unordered_set<std::u32string> kHeightCues = {U"mesure", U"taille", U"grand", U"grande"};
+inline const Forms kFoot = {U"pied", U"pieds"};
+
 // XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals
 inline const Keys kRomanOrdinalSuffixes = {U"er", U"re", U"ère", U"e", U"ème"};
 

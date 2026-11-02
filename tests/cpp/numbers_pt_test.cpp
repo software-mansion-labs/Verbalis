@@ -95,6 +95,9 @@ REGISTER_TEST(numbers_pt_test) {
       U"(dezenove de agosto).",
       verbalize("pt", U"Em 23/Ago/2013 e Amora01/09/2015 a (19.ago)."));
 
+  // Feet and inches by a word of height
+  ASSERT_EQUALS(U"Ele mede cinco pés e uma polegada.", verbalize("pt", U"Ele mede 5'1\".", only(&Options::numbers)));
+
   return true;
 }
 
