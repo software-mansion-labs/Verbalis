@@ -6,7 +6,7 @@ build-backend = "scikit_build_core.build"
 name = "verbalis"
 dynamic = ["version"]
 description = "Rewrites text the way it is read aloud: numbers, dates, symbols, abbreviations, and web addresses as words."
-readme = "README.md"
+readme = "python/README.md"
 license = "MIT"
 # Only the licences of code in the package: the others cover test code and data, which no package ships. The npm
 # package copies this list on prepack (ts/package.json), so keep it a one-line JSON array.
@@ -41,6 +41,11 @@ classifiers = [
   "Topic :: Text Processing :: Linguistic",
   "Typing :: Typed",
 ]
+
+[project.urls]
+Homepage = "https://github.com/software-mansion-labs/Verbalis"
+Source = "https://github.com/software-mansion-labs/Verbalis"
+Issues = "https://github.com/software-mansion-labs/Verbalis/issues"
 
 [project.optional-dependencies]
 test = ["pytest>=8", "nanobind>=2.4"]

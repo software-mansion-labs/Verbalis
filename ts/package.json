@@ -4,6 +4,13 @@
   "description": "Rewrites text the way it is read aloud: numbers, dates, symbols, abbreviations, and web addresses as words.",
   "license": "MIT",
   "author": "Software Mansion",
+  "homepage": "https://github.com/software-mansion-labs/Verbalis#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/software-mansion-labs/Verbalis.git",
+    "directory": "ts"
+  },
+  "bugs": "https://github.com/software-mansion-labs/Verbalis/issues",
   "keywords": [
     "tts",
     "text-normalization",
@@ -70,7 +77,7 @@
     "test": "vitest run",
     "format": "prettier --write src test *.config.ts",
     "lint": "prettier --check src test *.config.ts && tsc --noEmit",
-    "prepack": "node -e \"const fs = require('fs'); for (const f of JSON.parse(/^license-files = (.*)$/m.exec(fs.readFileSync('../pyproject.toml', 'utf8'))[1])) fs.cpSync('../' + f, f)\""
+    "prepack": "tsdown && node -e \"const fs = require('fs'); for (const f of JSON.parse(/^license-files = (.*)$/m.exec(fs.readFileSync('../pyproject.toml', 'utf8'))[1])) fs.cpSync('../' + f, f)\""
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

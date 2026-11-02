@@ -5,15 +5,16 @@ distributed under their own terms, listed below. The full license texts are in [
 
 ## cn2an
 
-- **Files:** `cpp/src/verbalis/languages/zh/mandarin.cpp`, `cpp/src/verbalis/languages/zh/constants.h`.
+- **Files:** `cpp/src/verbalis/languages/zh/mandarin.cpp`, `cpp/src/verbalis/languages/zh/constants.h`, and their
+  TypeScript ports `ts/src/languages/zh/mandarin.ts`, `ts/src/languages/zh/constants.ts`.
 - **Source:** a C++ port of the `an2cn` transform of [cn2an](https://github.com/Ailln/cn2an) by Ailln.
 - **License:** MIT, see [`licenses/cn2an-MIT.txt`](licenses/cn2an-MIT.txt).
 
 ## Unicode Character Database
 
-- **Files:** `cpp/src/verbalis/text/unicode_table.h`.
-- **Source:** character properties generated from Python's `unicodedata` (the Unicode Character Database) by
-  Phonemis's `scripts/tools/generate_unicode_table.py`.
+- **Files:** `cpp/src/verbalis/text/unicode_table.h`, and `ts/src/text/unicode-table.ts`, generated from it.
+- **Source:** the lowercase, uppercase, and alphabetic properties of U+0000 to U+097F, from the
+  [Unicode Character Database](https://www.unicode.org/ucd/).
 - **License:** Unicode License v3, see [`licenses/Unicode-3.0.txt`](licenses/Unicode-3.0.txt).
 
 ## nlohmann/json
@@ -24,7 +25,8 @@ distributed under their own terms, listed below. The full license texts are in [
 
 ## Gold test cases
 
-- **Files:** `tests/lang/*/gold.jsonl`, test data only, never in a package.
+- **Files:** `tests/lang/*/gold.jsonl`, and so part of the inputs of `tests/parity/outputs/*.jsonl`; test data only,
+  never in a package.
 - **Source:** the text normalization test cases of [NeMo text processing](https://github.com/NVIDIA/NeMo-text-processing)
   by NVIDIA and of [WeTextProcessing](https://github.com/wenet-e2e/WeTextProcessing) by WeNet, converted to one format
   by `tests/lang/build.py` (German cases swapped to written → spoken; acceptable readings of an input merged).

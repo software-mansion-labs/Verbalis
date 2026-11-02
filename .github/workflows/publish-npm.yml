@@ -1,0 +1,52 @@
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: Type of release to publish.
+        type: choice
+        options: [stable, nightly, beta, alpha, rc]
+        default: stable
+      dry-run:
+        description: Dry run, with no publish and no git push.
+        type: boolean
+        default: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # Pushes the release tag
+      id-token: write # Mints the OIDC token for trusted publishing and provenance
+
+    concurrency:
+      group: publish-npm-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org/
+
+      # Every package takes its version from project(VERSION) in cpp/CMakeLists.txt
+      - name: Read the version
+        id: version
+        run: echo "version=$(sed -nE 's/^project\(verbalis VERSION ([0-9.]+).*/\1/p' cpp/CMakeLists.txt)" >> "$GITHUB_OUTPUT"
+
+      # npm pack runs prepack, which builds dist/ and copies the licences
+      - name: Publish
+        uses: software-mansion/npm-package-publish@bbfbcdf3f27e2dc288d7d56f5989a731efc79e6f
+        with:
+          package-name: verbalis
+          package-json-path: ts/package.json
+          install-dependencies-command: npm ci
+          release-type: ${{ inputs.release-type }}
+          version: ${{ steps.version.outputs.version }}
+          dry-run: ${{ inputs.dry-run }}

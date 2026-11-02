@@ -11,8 +11,8 @@ change between versions (checksums in `corpus.sha256`, checked by `tests/python/
 the user's decision. `corpus-v1` (2026-10-29) is the reviewed sentences; `corpus-v2` (2026-11-02) adds the readings
 the user accepted and 900 plain sentences.
 
-`<lang>/corpus.jsonl` holds 20,672 real sentences from the Leipzig Corpora Collection (news and web; check its terms
-before the repo goes public, `knowledge/test-data.md`): 19,772 with digits or symbols and 900 plain ones (100 per
+`<lang>/corpus.jsonl` holds 20,672 real sentences from the Leipzig Corpora Collection (news and Wikipedia, CC BY;
+see `THIRD_PARTY_NOTICES.md`): 19,772 with digits or symbols and 900 plain ones (100 per
 language, `"how": "plain"`), each with its expected readings:
 
 ```json
