@@ -50,6 +50,8 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "₦": { one: "naira", many: "naira" },
   "₱": { one: "peso", many: "pesos" },
   "Dh": { one: "dirham", many: "dirhams" },
+  "EUR": { one: "euro", many: "euros" }, "USD": { one: "US dollar", many: "US dollars" }, "GBP": { one: "pound", many: "pounds" },
+  "PLN": { one: "zloty", many: "zlotys" }, "CHF": { one: "Swiss franc", many: "Swiss francs" }, "CZK": { one: "Czech koruna", many: "Czech korunas" },
 };
 export const CURRENCY_KEYS: Keys = keysOf(CURRENCIES);
 
@@ -70,6 +72,7 @@ export const CENTS: Readonly<Record<string, Forms>> = {
   "US$": { one: "cent", many: "cents" }, "$US": { one: "cent", many: "cents" }, "C$": { one: "cent", many: "cents" },
   "A$": { one: "cent", many: "cents" }, "AU$": { one: "cent", many: "cents" }, "NZ$": { one: "cent", many: "cents" },
   "S$": { one: "cent", many: "cents" }, "HK$": { one: "cent", many: "cents" },
+  "EUR": { one: "cent", many: "cents" }, "USD": { one: "cent", many: "cents" }, "GBP": { one: "penny", many: "pence" },
 };
 
 export const SCALES: Readonly<Record<string, string>> = {
@@ -274,12 +277,13 @@ export const SYMBOLS: Readings = {
   "≤": [{ words: "less than or equal to", when: beforeValue }],
   "≥": [{ words: "greater than or equal to", when: beforeValue }],
   "~": [{ words: "approximately", when: beforeValue }],
+  "≈": [{ words: "approximately", when: beforeValue }],
 };
 
 // Before a word read with a vowel first: a ~60% (an approximately sixty percent), a approx. 5
 function beforeApproximately(context: Context): boolean {
   const tail = context.tail();
-  return startsWith(tail, 0, " approx.") || (startsWith(tail, 0, " ~") && beforeValue(new Context(tail, { begin: 1, end: 2 })));
+  return startsWith(tail, 0, " approx.") || ((startsWith(tail, 0, " ~") || startsWith(tail, 0, " ≈")) && beforeValue(new Context(tail, { begin: 1, end: 2 })));
 }
 
 // After the name of a street: 1428 Elm St., on 5th St.; on Main St. unless a name follows (Ascension St. Joseph),
@@ -392,6 +396,7 @@ const TERMS_BASE: Terms = {
     "no.": [{ words: "number", when: beforeNumber }],
     "Nos.": [{ words: "numbers", when: beforeNumber }],
     "vol.": [{ words: "volume", when: beforeNumber }],
+    "Tel.": [{ words: "telephone", when: beforeNumber }],
     "Vol.": [{ words: "volume", when: beforeNumber }],
     "p.": [{ words: "page", when: beforeNumber }],
     "pp.": [{ words: "pages", when: beforeNumber }],

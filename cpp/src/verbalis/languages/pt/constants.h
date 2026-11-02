@@ -61,6 +61,7 @@ inline const std::vector<std::u32string> kMonths = {
 inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"R$", {U"real", U"reais"}}, {U"US$", {U"dólar", U"dólares"}}, {U"$", {U"dólar", U"dólares"}},
   {U"€", {U"euro", U"euros"}},  {U"£", {U"libra", U"libras"}}, {U"EUR", {U"euro", U"euros"}},
+  {U"USD", {U"dólar", U"dólares"}}, {U"GBP", {U"libra", U"libras"}}, {U"PLN", {U"zloty", U"zlotys"}},
   // A currency written as a word after a number, read as a decimal: 66,23 euros
   {U"euros", {U"euro", U"euros"}}
 };
@@ -319,7 +320,8 @@ inline const Readings kSymbols = {
   {U">", {{U"maior que", before_value}}},
   {U"≤", {{U"menor ou igual a", before_value}}},
   {U"≥", {{U"maior ou igual a", before_value}}},
-  {U"~", {{U"cerca de", before_value}}}
+  {U"~", {{U"cerca de", before_value}}},
+  {U"≈", {{U"cerca de", before_value}}}
 };
 
 using ::verbalis::text::before_name;

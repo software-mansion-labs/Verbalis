@@ -83,7 +83,8 @@ inline const std::map<std::int64_t, std::u32string> kLargeCardinals = {
 // singular noun is stored.
 inline const std::unordered_map<std::u32string, std::u32string> kCurrencies = {
   {U"$", U"डॉलर"}, {U"€", U"यूरो"}, {U"£", U"पाउंड"}, {U"₹", U"रुपये"}, {U"¥", U"येन"}, {U"₺", U"लीरा"},
-  {U"₩", U"वॉन"},  {U"৳", U"टका"},  {U"₦", U"नाइरा"}
+  {U"₩", U"वॉन"},  {U"৳", U"टका"},  {U"₦", U"नाइरा"},
+  {U"EUR", U"यूरो"}, {U"USD", U"डॉलर"}
 };
 
 // The smaller unit of a currency, read after the whole amount: ₹9.50 -> नौ रुपये पचास पैसे

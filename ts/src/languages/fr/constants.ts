@@ -28,6 +28,8 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "€": { one: "euro", many: "euros" },    "$": { one: "dollar", many: "dollars" }, "£": { one: "livre", many: "livres" },
   "CHF": { one: "franc suisse", many: "francs suisses" }, "M€": { one: "million d'euros", many: "millions d'euros" },
   "€uros": { one: "euro", many: "euros" },
+  "EUR": { one: "euro", many: "euros" }, "USD": { one: "dollar", many: "dollars" }, "GBP": { one: "livre", many: "livres" },
+  "PLN": { one: "zloty", many: "zlotys" },
   "M$": { one: "million de dollars", many: "millions de dollars" }, "G$": { one: "milliard de dollars", many: "milliards de dollars" },
   // A price per unit: 2 000 €/mois
   "€/mois": { one: "euro par mois", many: "euros par mois" }, "€/an": { one: "euro par an", many: "euros par an" },
@@ -246,11 +248,13 @@ export const SYMBOLS: Readings = {
   "π": ["pi"],       "×": ["fois"],    "½": ["un demi"], "€": ["euros"],   "$": ["dollars"],
   "£": ["livres"],   "±": ["plus ou moins"], "+/-": ["plus ou moins"], "‰": ["pour mille"],
   "≤": ["inférieur ou égal à"],
+  "≥": ["supérieur ou égal à"],
   "°C": ["degrés Celsius"], "M€": ["millions d'euros"],
   // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
   "<": [{ words: "moins de", when: beforeValue }],
   ">": [{ words: "plus de", when: beforeValue }],
   "~": [{ words: "environ", when: beforeValue }],
+  "≈": [{ words: "environ", when: beforeValue }],
 };
 
 // Days of a month, the word before a month abbreviation in a date: 2 janv. 2003, 1er févr.

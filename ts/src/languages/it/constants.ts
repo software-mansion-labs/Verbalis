@@ -30,7 +30,8 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "$": { one: "dollaro", many: "dollari" },    "US$": { one: "dollaro", many: "dollari" }, "USD": { one: "dollaro", many: "dollari" },
   "£": { one: "sterlina", many: "sterline" },  "GBP": { one: "sterlina", many: "sterline" },
   "¥": { one: "yen", many: "yen" },            "₽": { one: "rublo", many: "rubli" },       "RUB": { one: "rublo", many: "rubli" },
-  "CHF": { one: "franco svizzero", many: "franchi svizzeri" }, "₹": { one: "rupia", many: "rupie" }
+  "CHF": { one: "franco svizzero", many: "franchi svizzeri" }, "₹": { one: "rupia", many: "rupie" },
+  "PLN": { one: "zloty", many: "zloty" },
 };
 
 // Most scales are written as the word they are read with: 3 milioni
@@ -292,6 +293,7 @@ export const SYMBOLS: Readings = {
   "≤": [{ words: "minore o uguale a", when: beforeValue }],
   "≥": [{ words: "maggiore o uguale a", when: beforeValue }],
   "~": [{ words: "circa", when: beforeValue }],
+  "≈": [{ words: "circa", when: beforeValue }],
 };
 
 export const TERMS: Terms = {

@@ -71,6 +71,7 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   mxn: { one: "peso mexicano", many: "pesos mexicanos" },
   EUR: { one: "euro", many: "euros" },
   eur: { one: "euro", many: "euros" },
+  PLN: { one: "esloti", many: "eslotis" },
   GBP: { one: "libra", many: "libras" },
   JPY: { one: "yen", many: "yenes" },
   jpy: { one: "yen", many: "yenes" },
@@ -385,6 +386,7 @@ export const SYMBOLS: Readings = {
   "≤": [{ words: "menor o igual que", when: beforeValue }],
   "≥": [{ words: "mayor o igual que", when: beforeValue }],
   "~": [{ words: "aproximadamente", when: beforeValue }],
+  "≈": [{ words: "aproximadamente", when: beforeValue }],
 };
 
 // After a year or a century, as digits or a Roman numeral: 10.000 a. C., siglo x ec

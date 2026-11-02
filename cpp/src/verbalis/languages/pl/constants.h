@@ -681,6 +681,8 @@ inline const Readings kSymbols = {
   {U"≥", {{U"co najmniej", before_value}}},
   // około ~180: "około" once
   {U"~", {{U"", [](const ::verbalis::text::Context& context) { return before_value(context) && context.before() == U"około"; }},
+          {U"około", before_value}}},
+  {U"≈", {{U"", [](const ::verbalis::text::Context& context) { return before_value(context) && context.before() == U"około"; }},
           {U"około", before_value}}}
 };
 

@@ -95,6 +95,10 @@ REGISTER_TEST(numbers_en_test) {
   ASSERT_EQUALS(U"On (the seventeenth of February twenty sixteen), items four point two point sixteen.",
                 verbalize("en-us", U"On (17.02.16), items 4.2.16."));
 
+  // A slashed date's two-digit year below 30 is in the 2000s, one from 30 on reads as written
+  ASSERT_EQUALS(U"On May fifth twenty nineteen, not December thirty-first ninety-eight.",
+                verbalize("en-us", U"On 5/5/19, not 12/31/98."));
+
   return true;
 }
 

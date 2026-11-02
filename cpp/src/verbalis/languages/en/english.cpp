@@ -772,10 +772,12 @@ protected:
     if (match.numbers.size() < 3) {
       return words;
     }
-    // 1998: nineteen ninety-eight; 05: oh five
+    // 1998: nineteen ninety-eight; a two-digit year below the pivot is in the 2000s (19: twenty nineteen), one from it
+    // on reads as written (98: ninety-eight)
     const Number& year = match.numbers[2];
     uint64_t y = value(year);
-    std::u32string year_words = year.integer.size() == 4 ? pairs(y) : (y < 10 ? U"oh " + cardinal(y) : cardinal(y));
+    bool short_year = year.integer.size() == 2 && y < static_cast<uint64_t>(kDateFormat.year_pivot);
+    std::u32string year_words = year.integer.size() == 4 ? pairs(y) : short_year ? pairs(2000 + y) : cardinal(y);
     return words + U" " + year_words;
   }
 
@@ -891,11 +893,11 @@ protected:
       return cardinal(hours) + U" " + suffix;
     }
 
-    // 1.13 is a decimal, unless a time is expected: at 10.30; but 2.53% and 4.00%, at 1.50 times, and 2.30 kg
+    // 1.13 is a decimal, unless a time is expected: at 10.30; but 2.53% and 4.00%, at 1.50 times, 2.30 kg, 5.50 USD
     std::u32string_view tail = match.context.tail();
     std::u32string word = match.context.after();
-    bool amount =
-        tail.starts_with(U'%') || tail.starts_with(U" %") || kAmountWords.contains(word) || kUnits.contains(word);
+    bool amount = tail.starts_with(U'%') || tail.starts_with(U" %") || kAmountWords.contains(word) ||
+                  kUnits.contains(word) || kCurrencies.contains(word);
     bool decimal =
         match.separator == U'.' && match.suffix.empty() && (amount || !kTimeWords.contains(match.context.before()));
     if (!fits_clock(match) || decimal) {
@@ -1049,14 +1051,15 @@ protected:
     uint64_t a = value(from), b = value(to);
     bool season = from.integer.size() == 2 && b == a + 1;
     bool decades = from.integer.size() == 4 && to.integer.size() == 2 && b > a % 100;
-    // 1-59 months, sizes 0-14, July 5-12: rising across a digit, before a plural noun, after a range word, or as days
-    // of a month; but bowling figures keep "-": took 3-53
+    // 1-59 months, sizes 0-14, July 5-12, 5-10 times: rising across a digit, before a plural noun or an amount word,
+    // after a range word, or as days of a month; but bowling figures keep "-": took 3-53
     std::u32string_view tail = match.context.tail();
+    std::u32string word = strings::to_lower(match.context.after(2));
     bool glued = to.integer.size() < tail.size() &&
                  (unicode::isalpha(tail[to.integer.size()]) || tail[to.integer.size()] == U'-');
     bool longer =
         from.integer.size() < to.integer.size() && b > a && !glued &&
-        (is_plural_noun(strings::to_lower(match.context.after(2))) || kRangeWords.contains(match.context.before(2)) ||
+        (is_plural_noun(word) || kAmountWords.contains(word) || kRangeWords.contains(match.context.before(2)) ||
          (kMonthWords.contains(match.context.before(2)) && b <= 31));
     return ((from.integer.size() == to.integer.size() && b > a) || decades || longer) && !season ? joiners().range :
                                                                                                    U"-";

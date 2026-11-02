@@ -505,6 +505,15 @@ protected:
         !match.context.head().ends_with(U'(')) {
       return std::nullopt;
     }
+    // 3.8.10 after "Version", or with a one-digit day and month and a short year and no date cue, is a version; but
+    // am 7.6.19 and Freitag, 7.6.19 are dates (the span, as the year already reads 2019)
+    const auto& numbers = match.numbers;
+    bool short_version = match.separator == U'.' && numbers.size() == 3 &&
+                         numbers[2].span.end - numbers[2].span.begin == 2 && numbers[0].integer.size() == 1 &&
+                         numbers[1].integer.size() == 1 && !kDateCues.contains(match.context.before());
+    if (short_version || kVersionWords.contains(match.context.before())) {
+      return std::nullopt;
+    }
     std::u32string words =
         ordinal(value(match.numbers[0]), ending(cues_of(match))) + U" " + kMonths[value(match.numbers[1]) - 1];
     return match.numbers.size() < 3 ? words : words + U" " + year(value(match.numbers[2]));

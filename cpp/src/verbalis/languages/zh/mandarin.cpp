@@ -620,7 +620,35 @@ std::optional<Reading> read_code(std::u32string_view s, size_t i) {
 
 // ----- Money, units, and percentages -----
 
-// "$1.5万" -> "一点五万美元"
+// The unit starting at i, if a letter or digit doesn't continue it.
+const Unit* unit_at(std::u32string_view s, size_t i) {
+  const Unit* found = nullptr;
+  for (const auto& unit : kUnits) {
+    if ((!found || unit.symbol.size() > found->symbol.size()) && starts_with(s, i, unit.symbol)) {
+      char32_t next = at(s, i + unit.symbol.size());
+      if (!is_letter(next) && !is_digit(next)) {
+        found = &unit;
+      }
+    }
+  }
+  return found;
+}
+
+// The unit a price is per, after a slash: "/kg" -> "每千克", "/个" -> "每" (the character stays)
+std::optional<Reading> per_unit(std::u32string_view s, size_t i) {
+  if (at(s, i) != U'/') {
+    return std::nullopt;
+  }
+  if (const Unit* unit = unit_at(s, i + 1); unit && unit->per.empty() && !unit->word.empty()) {
+    return Reading{1 + unit->symbol.size(), U"每" + unit->word};
+  }
+  if (char32_t c = at(s, i + 1); c >= U'\u4e00' && c <= U'\u9fff') {
+    return Reading{1, U"每"};
+  }
+  return std::nullopt;
+}
+
+// "$1.5万" -> "一点五万美元", "$5/kg" -> "五美元每千克"
 std::optional<Reading> read_money(std::u32string_view s, size_t i) {
   for (const auto& [symbol, name] : kCurrencies) {
     if (!starts_with(s, i, symbol) || (is_letter(symbol[0]) && is_letter(before(s, i)))) {
@@ -641,23 +669,27 @@ std::optional<Reading> read_money(std::u32string_view s, size_t i) {
     size_t scale = longest_at(s, j + n, kScales, [](const auto& w) -> std::u32string_view { return w; });
     // "$500元" names its currency once
     std::u32string currency = is_one_of(at(s, j + n + scale), U"元圓圆块塊") ? U"" : name;
-    return Reading{j + n + scale - i, *number + std::u32string(s.substr(j + n, scale)) + currency};
+    auto per = per_unit(s, j + n + scale);
+    return Reading{j + n + scale + (per ? per->length : 0) - i,
+                   *number + std::u32string(s.substr(j + n, scale)) + currency + (per ? *per->words : U"")};
   }
   return std::nullopt;
 }
 
-// The unit starting at i, if a letter or digit doesn't continue it.
-const Unit* unit_at(std::u32string_view s, size_t i) {
-  const Unit* found = nullptr;
-  for (const auto& unit : kUnits) {
-    if ((!found || unit.symbol.size() > found->symbol.size()) && starts_with(s, i, unit.symbol)) {
-      char32_t next = at(s, i + unit.symbol.size());
-      if (!is_letter(next) && !is_digit(next)) {
-        found = &unit;
-      }
-    }
+// "5元/kg" -> "五元每千克", "10元/个" -> "十元每个"
+std::optional<Reading> read_price(std::u32string_view s, size_t i) {
+  size_t n = number_at(s, i);
+  if (n == 0 || !free_before(s, i)) {
+    return std::nullopt;
   }
-  return found;
+  size_t j = at(s, i + n) == U' ' ? i + n + 1 : i + n;
+  size_t currency = longest_at(s, j, kPriceCurrencies, [](const auto& w) -> std::u32string_view { return w; });
+  auto per = currency > 0 ? per_unit(s, j + currency) : std::nullopt;
+  auto number = to_count(s.substr(i, n));
+  if (!per || !number) {
+    return std::nullopt;
+  }
+  return Reading{j + currency + per->length - i, *number + std::u32string(s.substr(j, currency)) + *per->words};
 }
 
 // "25kg" -> "二十五千克", "5-6mm" -> "五到六毫米", "4.4×4.1 cm" -> "四点四乘四点一厘米", "-5%" -> "负百分之五"
@@ -896,8 +928,8 @@ public:
   void read_numbers(Document& document) const override {
     // Each pass rewrites a draft in turn: later passes see the words of earlier ones
     Document draft(document.text());
-    for (auto read : {read_date, read_time, read_code, read_money, read_measure, read_math, read_fraction, read_range,
-                      read_two, read_number}) {
+    for (auto read : {read_date, read_time, read_code, read_money, read_price, read_measure, read_math, read_fraction,
+                      read_range, read_two, read_number}) {
       substitute(draft, read);
     }
 

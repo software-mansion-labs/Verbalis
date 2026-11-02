@@ -81,6 +81,12 @@ REGISTER_TEST(numbers_de_test) {
   ASSERT_EQUALS(U"Am Freitag, siebter Juni zweitausendneunzehn und (sechzehnter Dezember).",
                 verbalize("de", U"Am Freitag, 7. 6. 2019 und (16. 12.)."));
 
+  // A version or a section number is no date, but a short date after a date cue is
+  ASSERT_EQUALS(U"Version drei Komma acht Komma zehn und Paragraph vier Komma eins Komma zwölf.",
+                verbalize("de", U"Version 3.8.10 und Paragraph 4.1.12."));
+  ASSERT_EQUALS(U"Termin am Freitag, siebter Juni zweitausendneunzehn.",
+                verbalize("de", U"Termin am Freitag, 7.6.19."));
+
   // Feet and inches by a word of height
   ASSERT_EQUALS(U"Er ist sechs Fuß zwei Zoll groß.", verbalize("de", U"Er ist 6'2\" groß.", only(&Options::numbers)));
 

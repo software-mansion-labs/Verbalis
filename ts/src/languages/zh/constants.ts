@@ -100,6 +100,9 @@ export const CURRENCIES: readonly Currency[] = [
 ];
 
 // Scale words written after the number of an amount, longest first: "$1.5万" -> "一点五万美元"
+// Currencies written as words after a number, before a unit they price: "5元/kg" -> "五元每千克"
+export const PRICE_CURRENCIES = ["元", "圆", "圓", "块", "塊", "美元", "欧元", "港元", "日元", "英镑"] as const;
+
 export const SCALES = [
   "万亿", "千万", "百万", "十万", "万", "萬", "亿", "億", "千", "百",
 ] as const;
@@ -136,7 +139,7 @@ export interface Operator {
 }
 export const OPERATORS: readonly Operator[] = [
   { symbol: "<=", word: "小于等于" }, { symbol: ">=", word: "大于等于" }, { symbol: "≤", word: "小于等于" },
-  { symbol: "≥", word: "大于等于" }, { symbol: "≠", word: "不等于" }, { symbol: "+", word: "加" },
+  { symbol: "≥", word: "大于等于" }, { symbol: "≠", word: "不等于" }, { symbol: "≈", word: "约等于" }, { symbol: "+", word: "加" },
   { symbol: "=", word: "等于" }, { symbol: "×", word: "乘" }, { symbol: "÷", word: "除以" },
   { symbol: "<", word: "小于" }, { symbol: ">", word: "大于" }, { symbol: "-", word: "减" },
 ];
@@ -151,5 +154,5 @@ function beforeNumeral(context: Context): boolean {
 
 // Symbols left after the numbers: "±1" -> "正负一", "y = x" -> "y 等于 x"
 export const SYMBOLS: Readings = {
-  "+": [{ words: "加", when: beforeNumeral }], "±": ["正负"], "=": ["等于"],
+  "+": [{ words: "加", when: beforeNumeral }], "≈": [{ words: "约", when: beforeNumeral }], "±": ["正负"], "=": ["等于"],
 };

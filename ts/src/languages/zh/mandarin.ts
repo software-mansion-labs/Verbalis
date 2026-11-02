@@ -25,6 +25,7 @@ import {
   OPERATORS,
   type Operator,
   PERCENT,
+  PRICE_CURRENCIES,
   POINT,
   RANGE_TO,
   RATIO,
@@ -702,7 +703,37 @@ function readCode(s: Text, i: number): Reading | undefined {
 
 // ----- Money, units, and percentages -----
 
-// "$1.5万" -> "一点五万美元"
+// The unit starting at i, if a letter or digit doesn't continue it.
+function unitAt(s: Text, i: number): Unit | undefined {
+  let found: Unit | undefined;
+  for (const unit of UNITS) {
+    if ((found === undefined || unit.symbol.length > found.symbol.length) && startsWith(s, i, unit.symbol)) {
+      const next = at(s, i + unit.symbol.length);
+      if (!isLetter(next) && !isDigit(next)) {
+        found = unit;
+      }
+    }
+  }
+  return found;
+}
+
+// The unit a price is per, after a slash: "/kg" -> "每千克", "/个" -> "每" (the character stays)
+function perUnit(s: Text, i: number): Reading | undefined {
+  if (at(s, i) !== "/") {
+    return undefined;
+  }
+  const unit = unitAt(s, i + 1);
+  if (unit !== undefined && unit.per === "" && unit.word !== "") {
+    return { length: 1 + unit.symbol.length, words: "每" + unit.word };
+  }
+  const c = at(s, i + 1);
+  if (c >= "\u4e00" && c <= "\u9fff") {
+    return { length: 1, words: "每" };
+  }
+  return undefined;
+}
+
+// "$1.5万" -> "一点五万美元", "$5/kg" -> "五美元每千克"
 function readMoney(s: Text, i: number): Reading | undefined {
   for (const { symbol, name } of CURRENCIES) {
     if (!startsWith(s, i, symbol) || (isLetter(symbol[0]) && isLetter(before(s, i)))) {
@@ -723,23 +754,29 @@ function readMoney(s: Text, i: number): Reading | undefined {
     const scale = longestAt(s, j + n, SCALES);
     // "$500元" names its currency once
     const currency = contains("元圓圆块塊", at(s, j + n + scale)) ? "" : name;
-    return { length: j + n + scale - i, words: number + str(s, j + n, j + n + scale) + currency };
+    const per = perUnit(s, j + n + scale);
+    return {
+      length: j + n + scale + (per?.length ?? 0) - i,
+      words: number + str(s, j + n, j + n + scale) + currency + (per?.words ?? ""),
+    };
   }
   return undefined;
 }
 
-// The unit starting at i, if a letter or digit doesn't continue it.
-function unitAt(s: Text, i: number): Unit | undefined {
-  let found: Unit | undefined;
-  for (const unit of UNITS) {
-    if ((found === undefined || unit.symbol.length > found.symbol.length) && startsWith(s, i, unit.symbol)) {
-      const next = at(s, i + unit.symbol.length);
-      if (!isLetter(next) && !isDigit(next)) {
-        found = unit;
-      }
-    }
+// "5元/kg" -> "五元每千克", "10元/个" -> "十元每个"
+function readPrice(s: Text, i: number): Reading | undefined {
+  const n = numberAt(s, i);
+  if (n === 0 || !freeBefore(s, i)) {
+    return undefined;
   }
-  return found;
+  const j = at(s, i + n) === " " ? i + n + 1 : i + n;
+  const currency = longestAt(s, j, PRICE_CURRENCIES);
+  const per = currency > 0 ? perUnit(s, j + currency) : undefined;
+  const number = toCount(str(s, i, i + n));
+  if (per === undefined || number === undefined) {
+    return undefined;
+  }
+  return { length: j + currency + per.length - i, words: number + str(s, j, j + currency) + per.words };
 }
 
 // "25kg" -> "二十五千克", "5-6mm" -> "五到六毫米", "4.4×4.1 cm" -> "四点四乘四点一厘米", "-5%" -> "负百分之五"
@@ -1004,6 +1041,7 @@ class Mandarin extends Language {
       readTime,
       readCode,
       readMoney,
+      readPrice,
       readMeasure,
       readMath,
       readFraction,

@@ -26,7 +26,7 @@ export const ORDINAL_STEMS: Readonly<Record<string, string>> = {
 // Currencies, and prices per unit (12 €/m²): their reading after "pro" follows the whole price
 export const CURRENCIES: Readonly<Record<string, string>> = {
   "€": "Euro", "Euro": "Euro", "EUR": "Euro", "$": "Dollar", "Dollar": "Dollar", "£": "Pfund",
-  "CHF": "Franken",
+  "CHF": "Franken", "USD": "Dollar", "GBP": "Pfund", "PLN": "Złoty",
   "€/m²": "Euro pro Quadratmeter",
   "€/qm": "Euro pro Quadratmeter",
   "€/kWh": "Euro pro Kilowattstunde",
@@ -180,8 +180,14 @@ export const GENITIVE: ReadonlySet<string> = new Set([
 
 // Words before a date (am 12. 3., Freitag, 7. 6. 2019), and before a year (im Jahr 1945, and months)
 export const DATE_CUES: ReadonlySet<string> = new Set([
-  "am", "vom", "zum", "bis", "ab", "seit", "den", "der", "termine", "montag", "dienstag", "mittwoch",
+  "am", "vom", "zum", "bis", "ab", "seit", "den", "der", "termin", "termine", "montag", "dienstag", "mittwoch",
   "donnerstag", "freitag", "samstag", "sonntag",
+]);
+// Words before a version or a section number, which is never a date: Version 3.8.10, Kapitel 7.1.12, § 4.1.12 (already
+// read as "Paragraf"), Nr. 1.2.13 (already read as "Nummer")
+export const VERSION_WORDS: ReadonlySet<string> = new Set([
+  "version", "paragraph", "paragraf", "paragrafen", "abschnitt", "kapitel", "nummer", "artikel", "absatz",
+  "ziffer", "anhang", "auflage", "release", "update",
 ]);
 export const YEAR_CUES: ReadonlySet<string> = new Set([
   "jahr", "jahre", "jahren", "im", "seit", "bis", "von", "ab", "anfang", "ende", "mitte", "sommer",
@@ -321,15 +327,24 @@ export const SYMBOLS: Readings = {
   "<": [{ words: "weniger als", when: beforeValue }],
   ">": [{ words: "mehr als", when: beforeValue }],
   "~": [{ words: "ungefähr", when: beforeValue }],
+  "≈": [{ words: "ungefähr", when: beforeValue }],
 };
 
 // Days of a month, the word before a month abbreviation in a date: 2. Jan. 2003
 const DAYS: readonly string[] = Array.from({ length: 31 }, (_, i) => [String(i + 1), String(i + 1).padStart(2, "0")]).flat();
 
-// St. Pauli: Sankt before a name, but not after a number (5 St. Äpfel counts pieces)
+// Places and saints after St., read Sankt even after a number: 3 St. Gallen
+const SAINTS: ReadonlySet<string> = new Set([
+  "Andreasberg", "Anton", "Augustin", "Blasien", "Florian", "Gallen", "Georg", "Georgen", "Gilgen", "Goar",
+  "Goarshausen", "Gotthard", "Ingbert", "Jakob", "Johann", "Lambrecht", "Leonhard", "Lorenz", "Lorenzen",
+  "Margarethen", "Marien", "Martin", "Michael", "Moritz", "Nikolaus", "Pauli", "Peter", "Petersburg", "Pölten",
+  "Ulrich", "Valentin", "Veit", "Vith", "Wendel", "Wolfgang"
+]);
+
+// St. Pauli: Sankt before a name, but not after a number (5 St. Äpfel counts pieces) unless it's a known saint
 function saint(context: Context): boolean {
   const before = context.before();
-  return beforeName(context) && (before === "" || !isDigit(before.at(-1)!));
+  return beforeName(context) && (before === "" || !isDigit(before.at(-1)!) || SAINTS.has(context.after()));
 }
 
 export const TERMS: Terms = {

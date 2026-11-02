@@ -69,7 +69,9 @@ inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"Rs", {U"rupee", U"rupees"}},
   {U"₦", {U"naira", U"naira"}},
   {U"₱", {U"peso", U"pesos"}},
-  {U"Dh", {U"dirham", U"dirhams"}}
+  {U"Dh", {U"dirham", U"dirhams"}},
+  {U"EUR", {U"euro", U"euros"}}, {U"USD", {U"US dollar", U"US dollars"}}, {U"GBP", {U"pound", U"pounds"}},
+  {U"PLN", {U"zloty", U"zlotys"}}, {U"CHF", {U"Swiss franc", U"Swiss francs"}}, {U"CZK", {U"Czech koruna", U"Czech korunas"}}
 };
 inline const Keys kCurrencyKeys = keys_of(kCurrencies);
 
@@ -89,7 +91,8 @@ inline const Keys kPerKeys = keys_of(kPer);
 inline const std::unordered_map<std::u32string, Forms> kCents = {
   {U"$", {U"cent", U"cents"}}, {U"€", {U"cent", U"cents"}}, {U"£", {U"penny", U"pence"}}, {U"US$", {U"cent", U"cents"}},
   {U"$US", {U"cent", U"cents"}}, {U"C$", {U"cent", U"cents"}},  {U"A$", {U"cent", U"cents"}},
-  {U"AU$", {U"cent", U"cents"}}, {U"NZ$", {U"cent", U"cents"}}, {U"S$", {U"cent", U"cents"}}, {U"HK$", {U"cent", U"cents"}}
+  {U"AU$", {U"cent", U"cents"}}, {U"NZ$", {U"cent", U"cents"}}, {U"S$", {U"cent", U"cents"}}, {U"HK$", {U"cent", U"cents"}},
+  {U"EUR", {U"cent", U"cents"}}, {U"USD", {U"cent", U"cents"}}, {U"GBP", {U"penny", U"pence"}}
 };
 
 inline const std::unordered_map<std::u32string, std::u32string> kScales = {
@@ -295,7 +298,8 @@ inline const Readings kSymbols = {
   {U">", {{U"greater than", before_value}}},
   {U"≤", {{U"less than or equal to", before_value}}},
   {U"≥", {{U"greater than or equal to", before_value}}},
-  {U"~", {{U"approximately", before_value}}}
+  {U"~", {{U"approximately", before_value}}},
+  {U"≈", {{U"approximately", before_value}}}
 };
 
 using ::verbalis::text::before_name;
@@ -306,7 +310,7 @@ using ::verbalis::steps::Terms;
 inline bool before_approximately(const ::verbalis::text::Context& context) {
   std::u32string_view tail = context.tail();
   return tail.starts_with(U" approx.") ||
-         (tail.starts_with(U" ~") && ::verbalis::text::before_value(::verbalis::text::Context(tail, {1, 2})));
+         ((tail.starts_with(U" ~") || tail.starts_with(U" ≈")) && ::verbalis::text::before_value(::verbalis::text::Context(tail, {1, 2})));
 }
 
 // After the name of a street: 1428 Elm St., on 5th St.; on Main St. unless a name follows (Ascension St. Joseph),
@@ -415,6 +419,7 @@ inline const Terms kTermsBase = {
     {U"no.", {{U"number", before_number}}},
     {U"Nos.", {{U"numbers", before_number}}},
     {U"vol.", {{U"volume", before_number}}},
+    {U"Tel.", {{U"telephone", before_number}}},
     {U"Vol.", {{U"volume", before_number}}},
     {U"p.", {{U"page", before_number}}},
     {U"pp.", {{U"pages", before_number}}},

@@ -51,7 +51,8 @@ inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"$", {U"dollaro", U"dollari"}},    {U"US$", {U"dollaro", U"dollari"}}, {U"USD", {U"dollaro", U"dollari"}},
   {U"£", {U"sterlina", U"sterline"}},  {U"GBP", {U"sterlina", U"sterline"}},
   {U"¥", {U"yen", U"yen"}},            {U"₽", {U"rublo", U"rubli"}},       {U"RUB", {U"rublo", U"rubli"}},
-  {U"CHF", {U"franco svizzero", U"franchi svizzeri"}}, {U"₹", {U"rupia", U"rupie"}}
+  {U"CHF", {U"franco svizzero", U"franchi svizzeri"}}, {U"₹", {U"rupia", U"rupie"}},
+  {U"PLN", {U"zloty", U"zloty"}}
 };
 
 // The hundredth of a currency: 10,50 € dieci euro e cinquanta centesimi; 0,01 € un centesimo
@@ -322,7 +323,8 @@ inline const Readings kSymbols = {
   {U">", {{U"maggiore di", before_value}}},
   {U"≤", {{U"minore o uguale a", before_value}}},
   {U"≥", {{U"maggiore o uguale a", before_value}}},
-  {U"~", {{U"circa", before_value}}}
+  {U"~", {{U"circa", before_value}}},
+  {U"≈", {{U"circa", before_value}}}
 };
 
 using ::verbalis::text::before_name;

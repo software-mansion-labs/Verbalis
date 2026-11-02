@@ -59,10 +59,11 @@ export function beforeValue(context: Context): boolean {
       return false;
     }
   }
-  // A space after only without one before: THI< 84, (< 60%), but not "octobre > 9h", "ME ~ 8pm"
+  // A space after only without one before: THI< 84, (< 60%), but not "octobre > 9h", "ME ~ 8pm"; a spaced <, ≤, ≥,
+  // or ≈ only compares: creatinina < 30
   let i = 0;
   if (i < tail.length && isSpace(tail[i])) {
-    if (head.length > 0 && isSpace(last)) {
+    if (head.length > 0 && isSpace(last) && (str(context.text()) === ">" || str(context.text()) === "~")) {
       return false;
     }
     i++;
@@ -77,9 +78,9 @@ export function beforeValue(context: Context): boolean {
   ) {
     i++;
   }
-  // Not a tag or a citation (<27>), nor a heart (<3)
+  // Not a tag or a citation (<27>), nor a heart (<3, but x < 3 compares)
   const closed = i < tail.length && tail[i] === ">";
-  const heart = str(context.text()) === "<" && str(tail, number, i) === "3";
+  const heart = str(context.text()) === "<" && number === 0 && str(tail, number, i) === "3";
   return i > number && !closed && !heart;
 }
 

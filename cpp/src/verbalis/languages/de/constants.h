@@ -47,7 +47,7 @@ inline const std::unordered_map<std::u32string, std::u32string> kOrdinalStems = 
 // Currencies, and prices per unit (12 €/m²): their reading after "pro" follows the whole price
 inline const std::unordered_map<std::u32string, std::u32string> kCurrencies = {
   {U"€", U"Euro"}, {U"Euro", U"Euro"}, {U"EUR", U"Euro"}, {U"$", U"Dollar"}, {U"Dollar", U"Dollar"}, {U"£", U"Pfund"},
-  {U"CHF", U"Franken"},
+  {U"CHF", U"Franken"}, {U"USD", U"Dollar"}, {U"GBP", U"Pfund"}, {U"PLN", U"Złoty"},
   {U"€/m²", U"Euro pro Quadratmeter"},
   {U"€/qm", U"Euro pro Quadratmeter"},
   {U"€/kWh", U"Euro pro Kilowattstunde"},
@@ -201,8 +201,14 @@ inline const std::unordered_set<std::u32string> kGenitive = {
 
 // Words before a date (am 12. 3., Freitag, 7. 6. 2019), and before a year (im Jahr 1945, and months)
 inline const std::unordered_set<std::u32string> kDateCues = {
-  U"am", U"vom", U"zum", U"bis", U"ab", U"seit", U"den", U"der", U"termine", U"montag", U"dienstag", U"mittwoch",
+  U"am", U"vom", U"zum", U"bis", U"ab", U"seit", U"den", U"der", U"termin", U"termine", U"montag", U"dienstag", U"mittwoch",
   U"donnerstag", U"freitag", U"samstag", U"sonntag"
+};
+// Words before a version or a section number, which is never a date: Version 3.8.10, Kapitel 7.1.12, § 4.1.12 (already
+// read as "Paragraf"), Nr. 1.2.13 (already read as "Nummer")
+inline const std::unordered_set<std::u32string> kVersionWords = {
+  U"version", U"paragraph", U"paragraf", U"paragrafen", U"abschnitt", U"kapitel", U"nummer", U"artikel", U"absatz",
+  U"ziffer", U"anhang", U"auflage", U"release", U"update"
 };
 inline const std::unordered_set<std::u32string> kYearCues = {
   U"jahr", U"jahre", U"jahren", U"im", U"seit", U"bis", U"von", U"ab", U"anfang", U"ende", U"mitte", U"sommer",
@@ -351,16 +357,25 @@ inline const Readings kSymbols = {
   // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
   {U"<", {{U"weniger als", before_value}}},
   {U">", {{U"mehr als", before_value}}},
-  {U"~", {{U"ungefähr", before_value}}}
+  {U"~", {{U"ungefähr", before_value}}},
+  {U"≈", {{U"ungefähr", before_value}}}
 };
 
 using ::verbalis::text::before_number;
 
-// St. Pauli: Sankt before a name, but not after a number (5 St. Äpfel counts pieces)
+// Places and saints after St., read Sankt even after a number: 3 St. Gallen
+inline const std::unordered_set<std::u32string> kSaints = {
+  U"Andreasberg", U"Anton", U"Augustin", U"Blasien", U"Florian", U"Gallen", U"Georg", U"Georgen", U"Gilgen", U"Goar",
+  U"Goarshausen", U"Gotthard", U"Ingbert", U"Jakob", U"Johann", U"Lambrecht", U"Leonhard", U"Lorenz", U"Lorenzen",
+  U"Margarethen", U"Marien", U"Martin", U"Michael", U"Moritz", U"Nikolaus", U"Pauli", U"Peter", U"Petersburg",
+  U"Pölten", U"Ulrich", U"Valentin", U"Veit", U"Vith", U"Wendel", U"Wolfgang"
+};
+
+// St. Pauli: Sankt before a name, but not after a number (5 St. Äpfel counts pieces) unless it's a known saint
 inline bool saint(const ::verbalis::text::Context& context) {
   std::u32string before = context.before();
   return ::verbalis::text::before_name(context) &&
-         (before.empty() || !::verbalis::text::unicode::isdigit(before.back()));
+         (before.empty() || !::verbalis::text::unicode::isdigit(before.back()) || kSaints.contains(context.after()));
 }
 
 // Days of a month, the word before a month abbreviation in a date: 2. Jan. 2003

@@ -71,6 +71,7 @@ import {
   TENS,
   TERMS,
   UNITS,
+  VERSION_WORDS,
   WEAK,
   WEAK_NOMINATIVE,
   YEAR_CUES,
@@ -607,6 +608,19 @@ class German extends PatternLanguage {
     // "am 12. 3." and "(16. 12.)" are dates, "Platz 1. 2 Tore" is not
     const head = match.context.head();
     if (match.text.includes(" ") && !DATE_CUES.has(match.context.before()) && head[head.length - 1] !== "(") {
+      return undefined;
+    }
+    // 3.8.10 after "Version", or with a one-digit day and month and a short year and no date cue, is a version; but
+    // am 7.6.19 and Freitag, 7.6.19 are dates (the span, as the year already reads 2019)
+    const numbers = match.numbers;
+    const shortVersion =
+      match.separator === "." &&
+      numbers.length === 3 &&
+      numbers[2].span.end - numbers[2].span.begin === 2 &&
+      numbers[0].integer.length === 1 &&
+      numbers[1].integer.length === 1 &&
+      !DATE_CUES.has(match.context.before());
+    if (shortVersion || VERSION_WORDS.has(match.context.before())) {
       return undefined;
     }
     const words = `${ordinal(value(match.numbers[0]), ending(cuesOf(match)))} ${MONTHS[Number(value(match.numbers[1])) - 1]}`;

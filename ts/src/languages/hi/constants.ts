@@ -72,6 +72,7 @@ export const LARGE_CARDINALS: ReadonlyArray<readonly [bigint, string]> = [
 export const CURRENCIES: Readonly<Record<string, string>> = {
   "$": "डॉलर", "€": "यूरो", "£": "पाउंड", "₹": "रुपये", "¥": "येन", "₺": "लीरा",
   "₩": "वॉन",  "৳": "टका",  "₦": "नाइरा",
+  "EUR": "यूरो", "USD": "डॉलर",
 };
 
 // The smaller unit of a currency, read after the whole amount: ₹9.50 -> नौ रुपये पचास पैसे

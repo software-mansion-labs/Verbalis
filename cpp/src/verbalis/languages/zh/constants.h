@@ -104,6 +104,11 @@ inline const auto kCurrencies = std::to_array<Currency>({
   {U"GBP", U"英镑"}, {U"JPY", U"日元"}
 });
 
+// Currencies written as words after a number, before a unit they price: "5元/kg" -> "五元每千克"
+inline const auto kPriceCurrencies = std::to_array<std::u32string>({
+  U"元", U"圆", U"圓", U"块", U"塊", U"美元", U"欧元", U"港元", U"日元", U"英镑"
+});
+
 // Scale words written after the number of an amount, longest first: "$1.5万" -> "一点五万美元"
 inline const auto kScales = std::to_array<std::u32string>({
   U"万亿", U"千万", U"百万", U"十万", U"万", U"萬", U"亿", U"億", U"千", U"百"
@@ -137,7 +142,7 @@ struct Operator {
   std::u32string word;
 };
 inline const auto kOperators = std::to_array<Operator>({
-  {U"<=", U"小于等于"}, {U">=", U"大于等于"}, {U"≤", U"小于等于"}, {U"≥", U"大于等于"}, {U"≠", U"不等于"},
+  {U"<=", U"小于等于"}, {U">=", U"大于等于"}, {U"≤", U"小于等于"}, {U"≥", U"大于等于"}, {U"≠", U"不等于"}, {U"≈", U"约等于"},
   {U"+", U"加"}, {U"=", U"等于"}, {U"×", U"乘"}, {U"÷", U"除以"}, {U"<", U"小于"}, {U">", U"大于"}, {U"-", U"减"}
 });
 
@@ -152,7 +157,7 @@ inline bool before_numeral(const ::verbalis::text::Context& context) {
 
 // Symbols left after the numbers: "±1" -> "正负一", "y = x" -> "y 等于 x"
 inline const ::verbalis::text::Readings kSymbols = {
-  {U"+", {{U"加", before_numeral}}}, {U"±", {U"正负"}}, {U"=", {U"等于"}}
+  {U"+", {{U"加", before_numeral}}}, {U"≈", {{U"约", before_numeral}}}, {U"±", {U"正负"}}, {U"=", {U"等于"}}
 };
 
 } // namespace verbalis::languages::zh

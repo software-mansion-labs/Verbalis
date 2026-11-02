@@ -48,6 +48,8 @@ inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"€", {U"euro", U"euros"}},    {U"$", {U"dollar", U"dollars"}}, {U"£", {U"livre", U"livres"}},
   {U"CHF", {U"franc suisse", U"francs suisses"}}, {U"M€", {U"million d'euros", U"millions d'euros"}},
   {U"€uros", {U"euro", U"euros"}},
+  {U"EUR", {U"euro", U"euros"}}, {U"USD", {U"dollar", U"dollars"}}, {U"GBP", {U"livre", U"livres"}},
+  {U"PLN", {U"zloty", U"zlotys"}},
   {U"M$", {U"million de dollars", U"millions de dollars"}}, {U"G$", {U"milliard de dollars", U"milliards de dollars"}},
   // A price per unit: 2 000 €/mois
   {U"€/mois", {U"euro par mois", U"euros par mois"}}, {U"€/an", {U"euro par an", U"euros par an"}},
@@ -270,11 +272,13 @@ inline const Readings kSymbols = {
   {U"π", {U"pi"}},       {U"×", {U"fois"}},    {U"½", {U"un demi"}}, {U"€", {U"euros"}},  {U"$", {U"dollars"}},
   {U"£", {U"livres"}},   {U"±", {U"plus ou moins"}}, {U"+/-", {U"plus ou moins"}}, {U"‰", {U"pour mille"}},
   {U"≤", {U"inférieur ou égal à"}},
+  {U"≥", {U"supérieur ou égal à"}},
   {U"°C", {U"degrés Celsius"}}, {U"M€", {U"millions d'euros"}},
   // Only before a number: p<0.05, ~$145, but <i>, ->, Año~
   {U"<", {{U"moins de", before_value}}},
   {U">", {{U"plus de", before_value}}},
-  {U"~", {{U"environ", before_value}}}
+  {U"~", {{U"environ", before_value}}},
+  {U"≈", {{U"environ", before_value}}}
 };
 
 using ::verbalis::text::after_any;

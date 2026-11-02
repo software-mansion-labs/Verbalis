@@ -42,10 +42,11 @@ bool before_value(const Context& context) {
       return false;
     }
   }
-  // A space after only without one before: THI< 84, (< 60%), but not "octobre > 9h", "ME ~ 8pm"
+  // A space after only without one before: THI< 84, (< 60%), but not "octobre > 9h", "ME ~ 8pm"; a spaced <, ≤, ≥,
+  // or ≈ only compares: creatinina < 30
   size_t i = 0;
   if (i < tail.size() && unicode::isspace(tail[i])) {
-    if (!head.empty() && unicode::isspace(head.back())) {
+    if (!head.empty() && unicode::isspace(head.back()) && (context.text() == U">" || context.text() == U"~")) {
       return false;
     }
     i++;
@@ -59,9 +60,9 @@ bool before_value(const Context& context) {
                                         i + 1 < tail.size() && unicode::isdigit(tail[i + 1])))) {
     i++;
   }
-  // Not a tag or a citation (<27>), nor a heart (<3)
+  // Not a tag or a citation (<27>), nor a heart (<3, but x < 3 compares)
   bool closed = i < tail.size() && tail[i] == U'>';
-  bool heart = context.text() == U"<" && tail.substr(number, i - number) == U"3";
+  bool heart = context.text() == U"<" && number == 0 && tail.substr(number, i - number) == U"3";
   return i > number && !closed && !heart;
 }
 

@@ -64,3 +64,7 @@ reads instead.
 - a name and a Roman numeral as the whole text, which in running text are mostly other words: `Sam I`, `Sam II`.
 - a letter and digits with a plural s, which reads as the plural of a model (F-16s, B52s): `W26s`.
 
+
+- `11/17/05` (`date` and `normalize_with_audio`): gold reads "oh five"; Verbalis reads "two thousand five". **Decision
+  (the user, 2026-11-02):** a two-digit year below 30 reads in full in every language, English included; these two
+  gold cases stay failing.

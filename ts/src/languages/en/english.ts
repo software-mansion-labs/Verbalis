@@ -941,10 +941,12 @@ class English extends PatternLanguage {
     if (match.numbers.length < 3) {
       return words;
     }
-    // 1998: nineteen ninety-eight; 05: oh five
+    // 1998: nineteen ninety-eight; a two-digit year below the pivot is in the 2000s (19: twenty nineteen), one from it
+    // on reads as written (98: ninety-eight)
     const year = match.numbers[2];
     const y = value(year);
-    const yearWords = year.integer.length === 4 ? pairs(y) : y < 10n ? `oh ${cardinal(y)}` : cardinal(y);
+    const shortYear = year.integer.length === 2 && y < BigInt(DATE_FORMAT.yearPivot);
+    const yearWords = year.integer.length === 4 ? pairs(y) : shortYear ? pairs(2000n + y) : cardinal(y);
     return `${words} ${yearWords}`;
   }
 
@@ -1060,11 +1062,15 @@ class English extends PatternLanguage {
       return `${cardinal(hours)} ${suffix}`;
     }
 
-    // 1.13 is a decimal, unless a time is expected: at 10.30; but 2.53% and 4.00%, at 1.50 times, and 2.30 kg
+    // 1.13 is a decimal, unless a time is expected: at 10.30; but 2.53% and 4.00%, at 1.50 times, 2.30 kg, 5.50 USD
     const tail = match.context.tail();
     const word = match.context.after();
     const amount =
-      tail[0] === "%" || (tail[0] === " " && tail[1] === "%") || AMOUNT_WORDS.has(word) || Object.hasOwn(UNITS, word);
+      tail[0] === "%" ||
+      (tail[0] === " " && tail[1] === "%") ||
+      AMOUNT_WORDS.has(word) ||
+      Object.hasOwn(UNITS, word) ||
+      Object.hasOwn(CURRENCIES, word);
     const decimal =
       match.separator === "." && match.suffix === "" && (amount || !TIME_WORDS.has(match.context.before()));
     if (!fitsClock(match) || decimal) {
@@ -1222,16 +1228,18 @@ class English extends PatternLanguage {
     const b = value(to);
     const season = from.integer.length === 2 && b === a + 1n;
     const decades = from.integer.length === 4 && to.integer.length === 2 && b > a % 100n;
-    // 1-59 months, sizes 0-14, July 5-12: rising across a digit, before a plural noun, after a range word, or as days
-    // of a month; but bowling figures keep "-": took 3-53
+    // 1-59 months, sizes 0-14, July 5-12, 5-10 times: rising across a digit, before a plural noun or an amount word,
+    // after a range word, or as days of a month; but bowling figures keep "-": took 3-53
     const tail = match.context.tail();
+    const word = toLower(match.context.after(2));
     const next = tail[to.integer.length];
     const glued = to.integer.length < tail.length && (isAlpha(next) || next === "-");
     const longer =
       from.integer.length < to.integer.length &&
       b > a &&
       !glued &&
-      (isPluralNoun(toLower(match.context.after(2))) ||
+      (isPluralNoun(word) ||
+        AMOUNT_WORDS.has(word) ||
         RANGE_WORDS.has(match.context.before(2)) ||
         (MONTH_WORDS.has(match.context.before(2)) && b <= 31n));
     return ((from.integer.length === to.integer.length && b > a) || decades || longer) && !season

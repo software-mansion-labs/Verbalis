@@ -658,6 +658,10 @@ export const SYMBOLS: Readings = {
     { words: "", when: (context) => beforeValue(context) && context.before() === "około" },
     { words: "około", when: beforeValue },
   ],
+  "≈": [
+    { words: "", when: (context) => beforeValue(context) && context.before() === "około" },
+    { words: "około", when: beforeValue },
+  ],
 };
 
 // Prepositions before an inflected abbreviation, by the case they give it: przy ul. Długiej, od ul. Długiej
