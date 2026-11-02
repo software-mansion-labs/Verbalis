@@ -27,12 +27,13 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
+          package-manager-cache: false # A release restores no cache
           registry-url: https://registry.npmjs.org/
 
       # Every package takes its version from project(VERSION) in cpp/CMakeLists.txt
