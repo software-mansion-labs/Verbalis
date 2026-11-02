@@ -1,0 +1,74 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Dry run, which builds and tests every wheel but publishes nothing.
+        type: boolean
+        default: true
+  # Builds and tests the wheels, without publishing, when a change can affect them
+  pull_request:
+    paths:
+      - cpp/**
+      - python/**
+      - pyproject.toml
+      - .github/workflows/publish-pypi.yml
+
+jobs:
+  wheels:
+    name: Wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Linux x86_64 and ARM, macOS ARM and Intel, and Windows; the builds and tests are in [tool.cibuildwheel]
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, macos-15-intel, windows-latest]
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Build and test the wheels
+        uses: pypa/cibuildwheel@v4.3.5
+
+      - name: Upload the wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl
+
+  sdist:
+    name: Source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Build the sdist
+        run: pipx run build --sdist
+
+      - name: Upload the sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+
+  publish:
+    name: Publish
+    needs: [wheels, sdist]
+    if: github.event_name == 'workflow_dispatch' && !inputs.dry-run
+    runs-on: ubuntu-latest
+    # The environment that PyPI's trusted publisher names; add required reviewers to it to approve each release
+    environment: pypi
+    permissions:
+      id-token: write # Mints the OIDC token for trusted publishing and attestations
+    steps:
+      - name: Download the wheels and the sdist
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      # The version is project(VERSION) in cpp/CMakeLists.txt, which scikit-build-core reads
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1
