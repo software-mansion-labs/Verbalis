@@ -139,10 +139,6 @@ uv venv && uv pip install ".[test]" && .venv/bin/pytest   # Python: build the ex
 (cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format, types, and ts/test
 ```
 
-`README.md` and its hero image are generated: edit `readme.source.md`, then run
-`npx readme-aura build -f <fonts>`, where `<fonts>` holds `Inter.ttf` and `InterBold.ttf` from
-[Inter](https://fonts.google.com/specimen/Inter).
-
 The parity tests check the C++, Python, and TypeScript output against `tests/parity/outputs/`, which every
 implementation must match.
 
