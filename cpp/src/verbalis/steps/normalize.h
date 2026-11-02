@@ -45,6 +45,9 @@ public:
   explicit Normalizer(const Characters& characters = kDefaultCharacters);
 
   void apply(Document& document) const;
+  // Writes guillemets as their canonical form after the numbers: apply leaves them, so that the numbers tell a closing
+  // guillemet from an inch mark (33» -> dreiunddreißig", not dreiunddreißig Zoll)
+  void apply_guillemets(Document& document) const;
 
 private:
   // An HTML entity at a position, written as the character it stands for (&eacute; -> é), or std::nullopt

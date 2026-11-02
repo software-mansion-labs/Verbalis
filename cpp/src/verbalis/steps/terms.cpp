@@ -273,7 +273,7 @@ std::optional<TermReader::Term> TermReader::read_path(std::u32string_view text, 
   }
 
   // 1. The token, from its start, without the punctuation closing it: (see /etc/apache).
-  if (position > 0 && !unicode::isspace(text[position - 1]) && !strings::contains(U"(\"'“‘[", text[position - 1])) {
+  if (position > 0 && !unicode::isspace(text[position - 1]) && !strings::contains(U"(\"'“‘[«»", text[position - 1])) {
     return std::nullopt;
   }
   size_t end = position;

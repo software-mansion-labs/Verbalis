@@ -711,7 +711,7 @@ inline const std::unordered_set<std::u32string> kInstrumentalWords = {U"pod", U"
 inline Case abbreviation_case(const Context& context) {
   std::u32string_view head = context.head();
   size_t last = head.find_last_not_of(U"  ");
-  bool clause = last != std::u32string_view::npos && ::verbalis::text::strings::contains(std::u32string_view(U",;:()[]\""), head[last]);
+  bool clause = last != std::u32string_view::npos && ::verbalis::text::strings::contains(std::u32string_view(U",;:()[]\"«»"), head[last]);
   std::u32string before = clause ? U"" : context.before();
   std::u32string next = ::verbalis::text::strings::to_lower(context.after());
   if (next.ends_with(U"ą")) {
@@ -779,7 +779,7 @@ inline std::vector<Reading> past() {
 inline bool before_alias(const Context& context) {
   std::u32string_view tail = context.tail();
   size_t start = tail.find_first_not_of(U' ');
-  return before_name(context) || (start != std::u32string_view::npos && (tail[start] == U'"' || tail[start] == U'„'));
+  return before_name(context) || (start != std::u32string_view::npos && ::verbalis::text::strings::contains(std::u32string_view(U"\"„«»"), tail[start]));
 }
 
 // Between numbers: the "m." of mieszkanie in ul. Mickiewicza 3 m. 4
@@ -916,6 +916,8 @@ inline const Terms kTerms = {
     {U"m. in.", {U"między innymi"}},
     {U"r.obr.", {U"roku obrotowego"}},
     {U"r/r", {U"rok do roku"}},
+    {U"m/m", {U"miesiąc do miesiąca"}},
+    {U"k/k", {U"kwartał do kwartału"}},
     {U"woj.", declined(U"województwo|województwa|województwu|województwo|województwem|województwie")},
     {U"n.p.m.", closing(U"nad poziomem morza")},
     {U"w st. spocz.", {U"w stanie spoczynku"}},

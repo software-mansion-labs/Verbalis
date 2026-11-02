@@ -311,7 +311,7 @@ export class TermReader {
     }
 
     // 1. The token, from its start, without the punctuation closing it: (see /etc/apache).
-    if (position > 0 && !isSpace(text[position - 1]) && !contains("(\"'“‘[", text[position - 1])) {
+    if (position > 0 && !isSpace(text[position - 1]) && !contains("(\"'“‘[«»", text[position - 1])) {
       return undefined;
     }
     let end = position;

@@ -43,7 +43,8 @@ const languages::Language& language_of(std::string_view code) {
 }
 } // namespace
 
-// The steps of a language, in their fixed order: normalize, trim, terms, symbols with a condition, numbers, symbols.
+// The steps of a language, in their fixed order: normalize, trim, terms, symbols with a condition, numbers, guillemets,
+// symbols.
 class Verbalizer::Impl {
 public:
   Impl(const languages::Language& language, const Options& options)
@@ -82,6 +83,10 @@ public:
     }
     if (options_.numbers) {
       language_.read_numbers(document);
+      document.commit();
+    }
+    if (options_.normalize) {
+      normalize_.apply_guillemets(document);
       document.commit();
     }
     if (symbols_) {

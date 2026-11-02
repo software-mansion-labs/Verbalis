@@ -22,6 +22,11 @@ export const DEFAULT_CHARACTERS: Characters = [
 // Dashes besides "-": em, en, figure dash, horizontal bar
 const DASHES = "—–‒―";
 
+// Whether a character is a guillemet written as ", which applyGuillemets writes, not apply
+function isGuillemet(c: string, canonical: string | undefined): boolean {
+  return (c === "«" || c === "»") && canonical === '"';
+}
+
 // Whether a character is a dash or a hyphen
 function isDash(c: string | undefined): boolean {
   return c === "-" || contains(DASHES, c);
@@ -298,10 +303,26 @@ export class Normalizer {
         document.replace({ begin: i, end: i + 1 }, "°");
       } else if (fraction !== undefined) {
         document.replace({ begin: i, end: i + 1 }, fraction);
-      } else if (canonical !== undefined && (!this.#letters.has(text[i]) || this.#isLetter(text, i))) {
+      } else if (
+        canonical !== undefined &&
+        !isGuillemet(text[i], canonical) &&
+        (!this.#letters.has(text[i]) || this.#isLetter(text, i))
+      ) {
         document.replace({ begin: i, end: i + 1 }, canonical);
       }
       i++;
+    }
+  }
+
+  // Writes guillemets as their canonical form after the numbers: apply leaves them, so that the numbers tell a closing
+  // guillemet from an inch mark (33» -> dreiunddreißig", not dreiunddreißig Zoll)
+  applyGuillemets(document: Document): void {
+    const text = document.text();
+    for (let i = 0; i < text.length; i++) {
+      const canonical = this.#canonical.get(text[i]);
+      if (canonical !== undefined && isGuillemet(text[i], canonical)) {
+        document.replace({ begin: i, end: i + 1 }, canonical);
+      }
     }
   }
 

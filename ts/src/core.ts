@@ -51,7 +51,7 @@ function readingsOf(words: Readonly<Record<string, string>> = {}): Readings {
 
 /**
  * Rewrites text the way it is read aloud. Its steps run in a fixed order: normalize, trim, terms, symbols with a
- * condition, numbers, symbols.
+ * condition, numbers, guillemets, symbols.
  * A Verbalizer is immutable after construction.
  */
 export class Verbalizer {
@@ -126,6 +126,10 @@ export class Verbalizer {
     }
     if (this.#options.numbers) {
       this.#language.readNumbers(document);
+      document.commit();
+    }
+    if (this.#options.normalize) {
+      this.#normalizer.applyGuillemets(document);
       document.commit();
     }
     if (this.#symbols) {

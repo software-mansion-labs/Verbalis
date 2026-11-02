@@ -271,7 +271,7 @@ function countsNoun(match: Match): boolean {
   const participle =
     size(previous) > 4 &&
     (previous.endsWith("ato") || previous.endsWith("ito") || previous.endsWith("uto") || previous.endsWith("ati"));
-  return end === 0 || contains('.,!?:;("', head[end - 1]) || COUNT_WORDS.has(previous) || participle;
+  return end === 0 || contains('.,!?:;("«»', head[end - 1]) || COUNT_WORDS.has(previous) || participle;
 }
 
 // A whole number before its noun: un euro, una sterlina, due euro

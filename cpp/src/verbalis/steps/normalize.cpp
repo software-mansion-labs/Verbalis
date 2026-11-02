@@ -9,6 +9,11 @@ using namespace text;
 
 
 namespace {
+// Whether a character is a guillemet written as ", which apply_guillemets writes, not apply
+bool is_guillemet(char32_t c, std::u32string_view canonical) {
+  return (c == U'«' || c == U'»') && canonical == U"\"";
+}
+
 // Whether a character is a dash or a hyphen
 bool is_dash(char32_t c) {
   return c == U'-' || strings::contains(kDashes, c);
@@ -262,11 +267,20 @@ void Normalizer::apply(Document& document) const {
       document.replace({i, i + 1}, U"°");
     } else if (auto fraction = vulgar_fraction(text, i)) {
       document.replace({i, i + 1}, std::move(*fraction));
-    } else if (auto it = canonical_.find(text[i]);
-               it != canonical_.end() && (!letters_.contains(text[i]) || is_letter(text, i))) {
+    } else if (auto it = canonical_.find(text[i]); it != canonical_.end() && !is_guillemet(text[i], it->second) &&
+                                                   (!letters_.contains(text[i]) || is_letter(text, i))) {
       document.replace({i, i + 1}, it->second);
     }
     i++;
+  }
+}
+
+void Normalizer::apply_guillemets(Document& document) const {
+  std::u32string_view text = document.text();
+  for (size_t i = 0; i < text.size(); ++i) {
+    if (auto it = canonical_.find(text[i]); it != canonical_.end() && is_guillemet(text[i], it->second)) {
+      document.replace({i, i + 1}, it->second);
+    }
   }
 }
 

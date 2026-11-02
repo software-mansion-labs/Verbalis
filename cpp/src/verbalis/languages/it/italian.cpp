@@ -193,7 +193,7 @@ bool counts_noun(const Match& match) {
   std::u32string previous = match.context.before();
   bool participle = previous.size() > 4 && (previous.ends_with(U"ato") || previous.ends_with(U"ito") ||
                                             previous.ends_with(U"uto") || previous.ends_with(U"ati"));
-  return head.empty() || strings::contains(std::u32string_view(U".,!?:;(\""), head.back()) ||
+  return head.empty() || strings::contains(std::u32string_view(U".,!?:;(\"«»"), head.back()) ||
          kCountWords.contains(previous) || participle;
 }
 

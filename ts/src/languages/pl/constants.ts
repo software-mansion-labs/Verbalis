@@ -686,7 +686,7 @@ function abbreviationCase(context: Context): Case {
   while (last >= 0 && (head[last] === " " || head[last] === " ")) {
     last--;
   }
-  const clause = last >= 0 && ',;:()[]"'.includes(head[last]);
+  const clause = last >= 0 && ',;:()[]"«»'.includes(head[last]);
   const before = clause ? "" : context.before();
   const next = toLower(context.after());
   if (next.endsWith("ą")) {
@@ -753,7 +753,7 @@ function beforeAlias(context: Context): boolean {
   while (start < tail.length && tail[start] === " ") {
     start++;
   }
-  return beforeName(context) || (start < tail.length && (tail[start] === '"' || tail[start] === "„"));
+  return beforeName(context) || (start < tail.length && '"„«»'.includes(tail[start]));
 }
 
 // Between numbers: the "m." of mieszkanie in ul. Mickiewicza 3 m. 4
@@ -893,6 +893,8 @@ export const TERMS: Terms = {
     "m. in.": ["między innymi"],
     "r.obr.": ["roku obrotowego"],
     "r/r": ["rok do roku"],
+    "m/m": ["miesiąc do miesiąca"],
+    "k/k": ["kwartał do kwartału"],
     "woj.": declined("województwo|województwa|województwu|województwo|województwem|województwie"),
     "n.p.m.": closing("nad poziomem morza"),
     "w st. spocz.": ["w stanie spoczynku"],
