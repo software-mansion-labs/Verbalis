@@ -102,7 +102,8 @@ reaches the model.
 > models and against the [NeMo](https://github.com/NVIDIA/NeMo-text-processing) and
 > [WeTextProcessing](https://github.com/wenet-e2e/WeTextProcessing) test cases, so a native speaker may still find
 > mistakes. Contributions are welcome: if Verbalis misreads a sentence in your language,
-> [report the misreading](https://github.com/software-mansion-labs/Verbalis/issues/new?template=misreading.yml).
+> [open an issue](https://github.com/software-mansion-labs/Verbalis/issues) with the sentence, what Verbalis reads, and
+> what it should read.
 
 ## Python
 
