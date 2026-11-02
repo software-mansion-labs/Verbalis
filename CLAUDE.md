@@ -21,7 +21,8 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
 - `tests/lang/`: the test data. `<lang>/corpus.jsonl` is the target (below); `<lang>/gold.jsonl` holds the NeMo and
   WeTextProcessing cases; `accepted.jsonl` holds readings the user accepted beyond the corpus's; `score.py` scores
   them. The scripts and agents that built the corpus are at tag `corpus-v1`.
-- `knowledge/`: what was decided and why. Read `knowledge/provenance.md` before changing the core.
+- `knowledge/`: the maintainers' local notes on what was decided and why, untracked, so a clone doesn't have it. If
+  you have it, read `knowledge/provenance.md` before changing the core.
 - `python/`: the Python package. `src/bindings.cpp` binds the public C++ API with nanobind (module
   `verbalis._verbalis`; its stub `verbalis/_verbalis.pyi` is committed and checked by `test_stub.py`); `verbalis/` is the package; `CMakeLists.txt` builds it
   from `cpp/`. `pyproject.toml` (repository root, scikit-build-core) also sets what the sdist ships: the C++ sources,
@@ -29,8 +30,8 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
 - `tests/python/`: pytest: the API (`test_verbalizer.py`), the parity outputs (`test_parity.py`), the corpus and gold
   ratchet (`test_lang.py`), and the committed stub (`test_stub.py`). `tools/unicode-table.py` writes the TypeScript
   Unicode table from the C++ one.
-- `ts/`: the TypeScript package, a pure port of the C++ (`src/` mirrors `cpp/src/verbalis/`). Read
-  `knowledge/ts-port.md` before porting or changing it.
+- `ts/`: the TypeScript package, a pure port of the C++ (`src/` mirrors `cpp/src/verbalis/`). If you
+  have `knowledge/`, read `knowledge/ts-port.md` before porting or changing it.
 - `ts/test/`: vitest: the API (`verbalizer.test.ts`) and the parity contract (`parity.test.ts`).
 
 ## Commands
@@ -65,7 +66,7 @@ A refactor must keep every parity output identical.
 
 ## Code style
 
-- C++ follows `knowledge/code_style.md`, with `.clang-format` and `.clang-tidy`: CamelCase types, snake_case
+- C++ follows `.clang-format` and `.clang-tidy`: CamelCase types, snake_case
   functions, `kCamelCase` constants, language behaviour in `languages/<xx>/constants.h` tables first and overridden
   readings second, UTF-32 inside and UTF-8 at the API. Format with `clang-format -i`; tables are excluded in
   `.clang-format-ignore`.
@@ -82,8 +83,6 @@ A refactor must keep every parity output identical.
   the temporary before the loop body). To catch such bugs, build with `-DCMAKE_CXX_FLAGS="-fsanitize=address,undefined"`
   and run `ctest`, which covers every parity input.
 
-- The corpus (and so the parity outputs) contains sentences from the Leipzig Corpora Collection. Check their terms
-  before the repo or a package containing them goes public (`knowledge/test-data.md`).
 - Parity outputs are what the C++ says, right or wrong; parity means matching the reference, not being correct.
-- `knowledge/code_style.md` describes Phonemis. Its naming, formatting, and comment rules apply; its architecture and
+- `knowledge/code_style.md` (local) describes Phonemis. Its naming, formatting, and comment rules apply; its architecture and
   layout sections don't (the layout is in this file).

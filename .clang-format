@@ -1,4 +1,4 @@
-# Formatting rules (see knowledge/code_style.md). Hand-aligned data tables (languages/*/constants.h, unicode_table.h)
+# Formatting rules. Hand-aligned data tables (languages/*/constants.h, unicode_table.h)
 # are excluded in .clang-format-ignore.
 BasedOnStyle: Google
 Language: Cpp

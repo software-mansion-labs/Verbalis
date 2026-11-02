@@ -1,6 +1,6 @@
 # General rules
 
-How agents work in the Verbalis repo. They apply to every task, alongside `CLAUDE.md` and the skills in `.claude/skills/`.
+How agents work in the Verbalis repo. They apply to every task, alongside `CLAUDE.md`.
 
 ## Scope
 
@@ -30,11 +30,11 @@ Read your diff and check:
 - every changed line is needed for the task;
 - nothing structural (a new file, folder, dependency, or move) went in without the user's agreement;
 - the change was verified;
-- anything critical or unexpected you found is recorded in `knowledge/`.
+- anything critical or unexpected you found is recorded in `knowledge/`, if you have it.
 
 ## Outdated instructions
 
-Skills, `CLAUDE.md`, and these rules describe the repo as it was when they were written. When one of them disagrees with
+`CLAUDE.md` and these rules describe the repo as it was when they were written. When one of them disagrees with
 the code, a note, or what you observe (a flag that no longer exists, a path that moved, a step that no longer works),
 say so to the user: name the file, what's wrong, and the fix you propose. Edit it only after the user agrees, and
 then follow the corrected version.
@@ -49,8 +49,9 @@ then follow the corrected version.
 
 ## knowledge/
 
-`knowledge/` is the shared memory of the people and agents on this project. It holds what was measured, decided, or
-learned, and why.
+`knowledge/` is the maintainers' local notes: it's in `.gitignore`, so a clone doesn't have it, and you can skip this
+section without it. Where it exists, it's the shared memory of the people and agents on this project: what was
+measured, decided, or learned, and why.
 
 - **Read first.** Before a non-trivial task, read `knowledge/INDEX.md`, descend through the folder indexes that bear on
   the task, and open the notes they list.
