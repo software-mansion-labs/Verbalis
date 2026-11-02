@@ -42,6 +42,7 @@ uv venv && uv pip install ".[test]" && .venv/bin/pytest     # Python package: bu
 (cd ts && npm ci && npm run lint && npx vitest run)        # TypeScript: format and types, API and parity tests
 .venv/bin/python tests/parity/regen.py                      # regenerate the parity outputs after a behaviour change
 .venv/bin/python tests/lang/score.py [--corpus pl]        # accuracy against the corpus and the gold set, as a ratchet
+HERMES=<hermes-engine destroot> tools/hermes/run.sh       # parity on Hermes (React Native), after a rule change
 ```
 
 A refactor must keep every parity output identical.
