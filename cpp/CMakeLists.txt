@@ -37,9 +37,10 @@ target_include_directories(verbalis
 # The public header needs C++17; the sources need C++20. Set on the target, so a parent project keeps its own standard
 target_compile_features(verbalis PUBLIC cxx_std_17 PRIVATE cxx_std_20)
 set_target_properties(verbalis PROPERTIES POSITION_INDEPENDENT_CODE ON CXX_EXTENSIONS OFF)
-# Warnings the code is kept free of; MSVC's flags differ
+# Warnings the code is kept free of; MSVC's flags differ. MSVC reads the UTF-8 sources only with /utf-8
 target_compile_options(verbalis PRIVATE
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Wshadow -Wconversion>)
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Wshadow -Wconversion>
+  $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 
 if(VERBALIS_INSTALL)
   include(CMakePackageConfigHelpers)

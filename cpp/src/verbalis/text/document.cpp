@@ -1,6 +1,7 @@
 #include "document.h"
 
 #include <algorithm>
+#include <iterator>
 #include <stdexcept>
 
 namespace verbalis::text {

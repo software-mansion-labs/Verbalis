@@ -4,11 +4,13 @@ add_executable(verbalis_tests ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp ${VERBALIS_TE
 target_include_directories(verbalis_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(verbalis_tests PRIVATE verbalis)
 target_compile_features(verbalis_tests PRIVATE cxx_std_20)
+target_compile_options(verbalis_tests PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 add_test(NAME unit COMMAND verbalis_tests)
 
 add_executable(verbalis_parity ${CMAKE_CURRENT_SOURCE_DIR}/parity.cpp)
 target_include_directories(verbalis_parity PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
 target_link_libraries(verbalis_parity PRIVATE verbalis)
 target_compile_features(verbalis_parity PRIVATE cxx_std_20)
+target_compile_options(verbalis_parity PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 add_test(NAME parity COMMAND verbalis_parity ${CMAKE_CURRENT_SOURCE_DIR}/../parity/outputs
                                          ${CMAKE_CURRENT_SOURCE_DIR}/../parity/api.jsonl)

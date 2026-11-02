@@ -1,0 +1,2 @@
+# LF everywhere, so a Windows checkout of the frozen corpus matches corpus.sha256
+* text=auto eol=lf
