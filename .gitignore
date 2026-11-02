@@ -16,6 +16,10 @@ CLAUDE.local.md
 
 wheelhouse/
 ts/dist/
+# Copied into the npm package by its prepack script
+ts/LICENSE
+ts/THIRD_PARTY_NOTICES.md
+ts/licenses/
 
 # Local only: notes
 knowledge/

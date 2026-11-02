@@ -86,7 +86,7 @@ REGISTER_TEST(numbers_es_test) {
                 only(&Options::numbers)));
 
   // Feet and inches by a word of height
-  ASSERT_EQUALS(U"Mide cinco pies una pulgada.", verbalize("es", U"Mide 5'1\".", only(&Options::numbers)));
+  ASSERT_EQUALS(U"Mide cinco pies y una pulgada.", verbalize("es", U"Mide 5'1\".", only(&Options::numbers)));
 
   return true;
 }

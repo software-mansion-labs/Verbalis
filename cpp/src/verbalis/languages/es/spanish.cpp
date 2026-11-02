@@ -940,7 +940,7 @@ protected:
 
 private:
   // 1'34"704: un minuto treinta y cuatro segundos y setecientas cuatro milésimas; 2h 08'29": dos horas ocho minutos
-  // veintinueve segundos; 5'5": cinco pies cinco pulgadas
+  // veintinueve segundos; 5'5": cinco pies y cinco pulgadas
   static std::optional<std::u32string> primes(const Match& match) {
     size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
     std::vector<std::u32string> words;
@@ -949,7 +949,9 @@ private:
       const Forms& unit = feet ? (i == 0 ? kFoot : kInch) : kPrimeUnits[first + i];
       uint64_t n = value(match.numbers[i]);
       bool feminine = feet ? i == 1 : first + i == 0;
-      words.push_back(cardinal(n, feminine ? One::UNA : One::UN) + U" " + (n == 1 ? unit.one : unit.many));
+      // 5'5": cinco pies y cinco pulgadas
+      std::u32string joiner = feet && i == 1 ? U"y " : U"";
+      words.push_back(joiner + cardinal(n, feminine ? One::UNA : One::UN) + U" " + (n == 1 ? unit.one : unit.many));
     }
     const std::u32string& fraction = match.numbers.back().fraction;
     if (!fraction.empty()) {

@@ -58,7 +58,10 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "licenses"
   ],
   "sideEffects": false,
   "scripts": {
@@ -66,7 +69,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "format": "prettier --write src test *.config.ts",
-    "lint": "prettier --check src test *.config.ts && tsc --noEmit"
+    "lint": "prettier --check src test *.config.ts && tsc --noEmit",
+    "prepack": "cp ../LICENSE ../THIRD_PARTY_NOTICES.md . && mkdir -p licenses && cp ../licenses/cn2an-MIT.txt ../licenses/Unicode-3.0.txt licenses/"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

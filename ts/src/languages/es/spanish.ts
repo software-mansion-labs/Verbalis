@@ -1070,7 +1070,9 @@ class Spanish extends PatternLanguage {
       const unit = feet ? (i === 0 ? FOOT : INCH) : PRIME_UNITS[first + i];
       const n = value(number);
       const feminine = feet ? i === 1 : first + i === 0;
-      return `${cardinal(n, feminine ? One.UNA : One.UN)} ${n === 1n ? unit.one : unit.many}`;
+      // 5'5": cinco pies y cinco pulgadas
+      const joiner = feet && i === 1 ? "y " : "";
+      return `${joiner}${cardinal(n, feminine ? One.UNA : One.UN)} ${n === 1n ? unit.one : unit.many}`;
     });
     const fraction = match.numbers[match.numbers.length - 1].fraction;
     if (fraction !== "") {

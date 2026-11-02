@@ -88,7 +88,7 @@ import { language } from "verbalis/pl";
 new Verbalizer(language()).process("Mam 2 koty."); // "Mam dwa koty."
 ```
 
-A pure TypeScript port with no dependencies, for Node.js 20 and later and browsers. It produces exactly the C++
+A pure TypeScript port with no dependencies, for Node.js, browsers, and React Native (Hermes). It produces exactly the C++
 output. `new Verbalizer("xx")` throws a `RangeError` for an unsupported language.
 
 ## Development
