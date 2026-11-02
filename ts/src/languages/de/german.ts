@@ -9,7 +9,7 @@ import {
   SecondsPattern,
   PrimePattern,
 } from "../../numbers/patterns.ts";
-import { keysOf } from "../../numbers/formats.ts";
+import { keysOf, primeFormat } from "../../numbers/formats.ts";
 import { Kind, match as matchOf, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -24,6 +24,8 @@ import {
   value,
   romanRole,
   RomanRole,
+  isYearValue,
+  mentions,
 } from "../../numbers/scanning.ts";
 import { PUNCTUATION, stripped, wordsOf, type Context } from "../../text/context.ts";
 import {
@@ -38,7 +40,7 @@ import {
 } from "../../text/scan.ts";
 import { contains, str, toLower, type Text } from "../../text/strings.ts";
 import { isDigit, isLower, isUpper, toUpper } from "../../text/unicode.ts";
-import { Case, Gender } from "../grammar.ts";
+import { Case, Gender, Prime } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   ACCUSATIVE,
@@ -553,7 +555,7 @@ class German extends PatternLanguage {
     this.addPattern(new YearMonthPattern());
     this.addPattern(new AreaCodePattern());
     this.addPattern(new SecondsPattern(SECONDS_SUFFIXES, true));
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, new Set(), HEIGHT_CUES));
+    this.addPattern(new PrimePattern(NOTATION, primeFormat({ cues: PRIME_CUES, heights: HEIGHT_CUES })));
     this.addPattern(new UnitAfterPattern(new ScalePattern(NOTATION)));
     this.addPattern(new UnitAfterPattern(new FractionPattern()));
     this.addPattern(new DotOrdinalPattern(true));
@@ -639,9 +641,6 @@ class German extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
-    if (match.separator === "′") {
-      return German.#primes(match);
-    }
     if (match.numbers.length === 3) {
       return this.#readSeconds(match);
     }
@@ -653,7 +652,7 @@ class German extends PatternLanguage {
         match.suffix === "" &&
         match.numbers[1].integer !== "00" &&
         !TIME_WORDS.has(match.context.before()) &&
-        PatternLanguage.mentions(match.context, SPORT_WORDS);
+        mentions(match.context, SPORT_WORDS);
       if (!fitsClock(match) || decimal || score) {
         return undefined;
       }
@@ -837,8 +836,7 @@ class German extends PatternLanguage {
     const [first, second] = match.numbers.slice(-2).map((number) => number.integer);
     const years =
       first.length === 4 &&
-      a >= 1900n &&
-      a < 2100n &&
+      isYearValue(a, 1900n, 2099n) &&
       ((second.length === 2 && b === (a + 1n) % 100n) || (second.length === 4 && b === a + 1n));
     if (years) {
       return `${year(a)} ${second.length === 2 ? cardinal(b) : year(b)}`;
@@ -868,22 +866,16 @@ class German extends PatternLanguage {
   }
 
   // 1'27"23: eine Minute siebenundzwanzig Sekunden und dreiundzwanzig Hundertstel; 6'2": sechs Fuß zwei Zoll
-  static #primes(match: Match): string | undefined {
-    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
-    const words = match.numbers.map((number, i) => {
-      const n = value(number);
-      if (match.unit === "ft") {
-        const unit = UNITS[i === 0 ? "ft" : "″"];
-        return `${n === 1n ? "ein" : cardinal(n)} ${unit.many}`;
-      }
-      const unit = PRIME_UNITS[first + i];
-      return n === 1n ? `eine ${unit.one}` : `${cardinal(n)} ${unit.many}`;
-    });
-    const fraction = match.numbers[match.numbers.length - 1].fraction;
-    if (fraction !== "") {
-      words.push(`und ${cardinal(parseValue(fraction) ?? 0n)} ${SECOND_FRACTIONS[fraction.length - 1]}`);
+  protected override readPrime(number: Numeral, unit: Prime, _match: Match): string {
+    const n = value(number);
+    const forms = PRIME_UNITS[unit];
+    if (unit === Prime.FOOT || unit === Prime.INCH) {
+      return `${n === 1n ? "ein" : cardinal(n)} ${forms.many}`;
     }
-    return join(words);
+    return n === 1n ? `eine ${forms.one}` : `${cardinal(n)} ${forms.many}`;
+  }
+  protected override readPrimeFraction(digits: string, _match: Match): string | undefined {
+    return `und ${cardinal(parseValue(digits) ?? 0n)} ${SECOND_FRACTIONS[digits.length - 1]}`;
   }
 
   // An amount with its scale: drei Millionen, zehntausend

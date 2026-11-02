@@ -249,7 +249,7 @@ std::pair<std::vector<std::u32string>, std::u32string> surroundings(const Contex
          made_of(before[before.size() - 2], U"0123456789,.")) {
     before.resize(before.size() - 2);
   }
-  if (!before.empty() && (before.back() == U"minus" || before.back() == U"plus" || before.back() == U"+")) {
+  if (!before.empty() && kSigns.contains(before.back())) {
     before.pop_back(); // do minus siedmiu stopni, od +12°C
   }
   // do nawet siedmiuset, przez około cztery: the preposition before a particle governs the number
@@ -288,7 +288,7 @@ std::optional<Context> enumerated(const Context& context) {
     return std::nullopt;
   }
   // spośród 510 ocen i 68 recenzji: a conjunction, as a comma
-  if (std::u32string w = context.before(); w != U"czy" && kConjunctions.contains(w) && unicode::isalpha(head[end])) {
+  if (std::u32string w = context.before(); kListConjunctions.contains(w) && unicode::isalpha(head[end])) {
     end = end + 1 - w.size();
   } else if (head[end] != U',') {
     return std::nullopt;
@@ -437,7 +437,7 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
 
   // 1990-1994: the end of a range of years stays a cardinal, as its start (but od 2020 do 2022 reads ordinals)
   auto year = [](std::u32string_view w) { return w.size() == 4 && made_of(w, kDigits); };
-  if (w1 == U"do" && year(w2) && n >= 1000 && n <= 2100 && w3 != U"od" && noun != U"roku" && noun != U"r") {
+  if (w1 == U"do" && year(w2) && is_year_value(n) && w3 != U"od" && noun != U"roku" && noun != U"r") {
     return {Form::CARDINAL, Case::NOMINATIVE};
   }
 
@@ -477,7 +477,7 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
                               Case::GENITIVE;
     return {Form::ORDINAL, c};
   }
-  if (kMonthWords.contains(w1) && n >= 1000 && n <= 2100) {
+  if (kMonthWords.contains(w1) && is_year_value(n)) {
     return {Form::ORDINAL, Case::GENITIVE};
   }
   // października 18, 2017: a day after its month, and the year after them
@@ -488,15 +488,15 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
                kMonthsGenitive.end();
   };
   bool day_after_month = month_at(1) && n >= 1 && n <= 31 && context.tail().starts_with(U',');
-  bool year_after_day = context.head().ends_with(U", ") && n >= 1000 && n <= 2100 && month_at(2) &&
-                        made_of(stripped(written.back()), kDigits);
+  bool year_after_day =
+      context.head().ends_with(U", ") && is_year_value(n) && month_at(2) && made_of(stripped(written.back()), kDigits);
   if (day_after_month || year_after_day) {
     return {Form::ORDINAL, Case::GENITIVE};
   }
-  if ((w1 == U"w" || w1 == U"we") && n >= 1000 && n <= 2100 && !genitive_plurals().contains(noun)) {
+  if ((w1 == U"w" || w1 == U"we") && is_year_value(n) && !genitive_plurals().contains(noun)) {
     return {Form::ORDINAL, Case::LOCATIVE};
   }
-  if (auto it = kYearPrepositions.find(w1); it != kYearPrepositions.end() && n >= 1900 && n <= 2100 && !counted(noun)) {
+  if (auto it = kYearPrepositions.find(w1); it != kYearPrepositions.end() && is_year_value(n, 1900) && !counted(noun)) {
     return {Form::ORDINAL, it->second}; // od dwa tysiące dwudziestego do dwa tysiące dwudziestego drugiego
   }
   if (starts_with_any(w1, kOrdinalHeadings) && n < 100 && !counted(noun)) {
@@ -506,7 +506,7 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
   // w 4 lidze, na 6 kroku, 22 urodziny: before a form of a noun no count takes (a singular, or a noun with no
   // singular), a number is an ordinal agreeing with it; but nr 4 turnieju is a label
   if (auto it = ordinal_nouns().find(noun);
-      it != ordinal_nouns().end() && n >= 2 && !decimal && !w1.starts_with(U"numer") && w1 != U"nr" &&
+      it != ordinal_nouns().end() && n >= 2 && !decimal && !w1.starts_with(kNumberStem) && w1 != kNumberAbbreviation &&
       std::ranges::none_of(it->second, [](const NounForm& form) { return form.plural && !form.plural_only; })) {
     NounForm form = noun_form(noun, w1);
     return {Form::ORDINAL, form.grammatical_case, form.gender, form.plural};
@@ -565,7 +565,7 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
 std::u32string ordinal_cue(const Context& context) {
   std::u32string w1 = context.before();
   auto head = words_of(context.head());
-  if (w1 != U"czy" && kConjunctions.contains(w1) && head.size() > 1) {
+  if (kListConjunctions.contains(w1) && head.size() > 1) {
     std::u32string_view previous = head[head.size() - 2];
     if (previous.ends_with(U'.') && made_of(previous.substr(0, previous.size() - 1), kDigits)) {
       return context.before(3);
@@ -670,8 +670,8 @@ Cues cues_of(const Match& match) {
         std::u32string word = words.size() > i ? strings::to_lower(stripped(words[i])) : U"";
         NounForm next = noun_form(word, w1);
         // został 11. kierowcą: an instrumental after a form of "zostać" or "być", in the gender of the verb
-        std::u32string verb = kCopulas.contains(w1) || w1.starts_with(U"zosta") ? w1 : context.before(2);
-        if (word.ends_with(U'ą') && (kCopulas.contains(verb) || verb.starts_with(U"zosta"))) {
+        std::u32string verb = kCopulas.contains(w1) || w1.starts_with(kBecomeStem) ? w1 : context.before(2);
+        if (word.ends_with(U'ą') && (kCopulas.contains(verb) || verb.starts_with(kBecomeStem))) {
           next.grammatical_case = Case::INSTRUMENTAL;
           next.gender = verb.ends_with(U"ła") ? Gender::FEMININE :
                         verb.ends_with(U"ło") ? Gender::NEUTER :
@@ -701,7 +701,8 @@ Cues cues_of(const Match& match) {
         word_begin--;
       }
       std::u32string_view word = head.substr(word_begin, word_end - word_begin);
-      cues.numbered = digits < head.size() && word_end < digits && (word.starts_with(U"numer") || word == U"nr");
+      cues.numbered =
+          digits < head.size() && word_end < digits && (word.starts_with(kNumberStem) || word == kNumberAbbreviation);
       return cues;
     }
 
@@ -960,8 +961,7 @@ public:
     add_pattern(std::make_unique<GluedDatePattern>());
     add_pattern(std::make_unique<RomanDatePattern>());
     add_pattern(std::make_unique<FractionUnitPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, std::unordered_set<std::u32string>{},
-                                               kHeightCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, PrimeFormat{.cues = kPrimeCues, .heights = kHeightCues}));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -1045,9 +1045,6 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
-    if (match.separator == U'′') {
-      return primes(match);
-    }
     const auto& minutes = match.numbers[1].integer;
     bool round = minutes == U"00" || minutes == U"15" || minutes == U"30" || minutes == U"45";
     bool decimal = match.separator == U'.' && !round && !kTimeWords.contains(match.context.before());
@@ -1319,20 +1316,12 @@ protected:
 
 private:
   // 8'22": osiem minut dwadzieścia dwie sekundy; 5'5": pięć stóp pięć cali
-  static std::optional<std::u32string> primes(const Match& match) {
-    static const std::array<std::u32string_view, 3> units = {U"h", U"min", U"s"};
-    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
-    std::vector<std::u32string> words;
-    for (size_t i = 0; i < match.numbers.size(); ++i) {
-      Number whole{.integer = to_digits(value(match.numbers[i]))};
-      const Noun& unit = match.unit == U"ft" ? (i == 0 ? kFoot : kInch) : kUnits.at(std::u32string(units[first + i]));
-      words.push_back(amount(whole, unit, Case::NOMINATIVE));
-    }
-    const std::u32string& fraction = match.numbers.back().fraction;
-    if (!fraction.empty()) {
-      words.push_back(cardinal(parse_value(fraction).value_or(0)));
-    }
-    return join(words);
+  std::u32string read_prime(const Number& number, Prime unit, const Match& /*match*/) const override {
+    Number whole{.integer = to_digits(value(number))};
+    return amount(whole, kPrimeUnits.at(unit), Case::NOMINATIVE);
+  }
+  std::optional<std::u32string> read_prime_fraction(std::u32string_view digits, const Match& /*match*/) const override {
+    return cardinal(parse_value(digits).value_or(0));
   }
 
   // The case of a fraction, from the word before it: około jednej piątej, w jednej czwartej, zjadł jedną szóstą
@@ -1388,7 +1377,7 @@ public:
     if (kHourWords.contains(match.context.before(2)) || (start > 0 && head[start - 1] == U':')) {
       return U"-";
     }
-    auto year = [](const Number& n) { return n.integer.size() == 4 && value(n) >= 1000 && value(n) <= 2100; };
+    auto year = [](const Number& n) { return n.integer.size() == 4 && is_year_value(value(n)); };
     auto after = words_of(match.context.tail());
     std::u32string noun =
         after.size() >= 2 && made_of(stripped(after[0]), U"0123456789,.") && after[0] == stripped(after[0]) ?

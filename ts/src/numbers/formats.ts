@@ -72,6 +72,24 @@ export function suffixFormat(fields: Partial<SuffixFormat> = {}): SuffixFormat {
   return { space: false, wordEnd: true, apostrophes: false, boundaries: ".,", sentenceDot: false, ...fields };
 }
 
+// How a language reads numbers written with prime marks: 3'16", 5'9", 23″ (see PrimePattern).
+export interface PrimeFormat {
+  // Lowercase words of a text which make its minutes and seconds (3'16") and a lone 23″ a time; without one, they are
+  // left as written and a lone 23″ is inches.
+  cues: ReadonlySet<string>;
+  feet: boolean; // 5'9" is feet and inches, and a lone 400' is feet
+  // Lowercase words among the three before or after a lone 10' which make it minutes: durante más de 10', aos 6′ do
+  // segundo tempo; without one, it is left as written.
+  minutes: ReadonlySet<string>;
+  // Lowercase words among the eight before or the three after a 5'5" which make it feet and inches when no word of
+  // the text is one of the cues: Mam 5'5" wzrostu, Er ist 6'2" groß.
+  heights: ReadonlySet<string>;
+}
+
+export function primeFormat(fields: Partial<PrimeFormat> = {}): PrimeFormat {
+  return { cues: new Set(), feet: false, minutes: new Set(), heights: new Set(), ...fields };
+}
+
 // Fractions with their own words, keyed "numerator/denominator": "1/2" -> half
 export type Fractions = Readonly<Record<string, string>>;
 

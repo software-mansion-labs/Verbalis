@@ -450,8 +450,7 @@ public:
     add_pattern(std::make_unique<YearMonthPattern>());
     add_pattern(std::make_unique<AreaCodePattern>());
     add_pattern(std::make_unique<SecondsPattern>(kSecondsSuffixes, true));
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, std::unordered_set<std::u32string>{},
-                                               kHeightCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, PrimeFormat{.cues = kPrimeCues, .heights = kHeightCues}));
     add_pattern(std::make_unique<UnitAfterPattern>(std::make_unique<ScalePattern>(kNotation)));
     add_pattern(std::make_unique<UnitAfterPattern>(std::make_unique<FractionPattern>()));
     add_pattern(std::make_unique<DotOrdinalPattern>(true));
@@ -543,9 +542,6 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
-    if (match.separator == U'′') {
-      return primes(match);
-    }
     if (match.numbers.size() == 3) {
       return read_seconds(match);
     }
@@ -738,7 +734,7 @@ private:
     size_t n = match.numbers.size();
     const auto& first = match.numbers[n - 2].integer;
     const auto& second = match.numbers[n - 1].integer;
-    bool years = first.size() == 4 && a >= 1900 && a < 2100 &&
+    bool years = first.size() == 4 && is_year_value(a, 1900, 2099) &&
                  ((second.size() == 2 && b == (a + 1) % 100) || (second.size() == 4 && b == a + 1));
     if (years) {
       return year(a) + U" " + (second.size() == 2 ? cardinal(b) : year(b));
@@ -771,25 +767,17 @@ private:
   }
 
   // 1'27"23: eine Minute siebenundzwanzig Sekunden und dreiundzwanzig Hundertstel; 6'2": sechs Fuß zwei Zoll
-  static std::optional<std::u32string> primes(const Match& match) {
-    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
-    std::vector<std::u32string> words;
-    for (size_t i = 0; i < match.numbers.size(); ++i) {
-      uint64_t n = value(match.numbers[i]);
-      if (match.unit == U"ft") {
-        const Forms& unit = kUnits.at(i == 0 ? U"ft" : U"″");
-        words.push_back((n == 1 ? U"ein" : cardinal(n)) + U" " + unit.many);
-        continue;
-      }
-      const Forms& unit = kPrimeUnits[first + i];
-      words.push_back(n == 1 ? U"eine " + unit.one : cardinal(n) + U" " + unit.many);
+  std::u32string read_prime(const Number& number, Prime unit, const Match& /*match*/) const override {
+    uint64_t n = value(number);
+    const Forms& forms = kPrimeUnits.at(unit);
+    if (unit == Prime::FOOT || unit == Prime::INCH) {
+      return (n == 1 ? U"ein" : cardinal(n)) + U" " + forms.many;
     }
-    const std::u32string& fraction = match.numbers.back().fraction;
-    if (!fraction.empty()) {
-      words.push_back(U"und " + cardinal(parse_value(fraction).value_or(0)) + U" " +
-                      std::u32string(kSecondFractions[fraction.size() - 1]));
-    }
-    return join(words);
+    return n == 1 ? U"eine " + forms.one : cardinal(n) + U" " + forms.many;
+  }
+  std::optional<std::u32string> read_prime_fraction(std::u32string_view digits, const Match& /*match*/) const override {
+    return U"und " + cardinal(parse_value(digits).value_or(0)) + U" " +
+           std::u32string(kSecondFractions[digits.size() - 1]);
   }
 
   // An amount with its scale: drei Millionen, zehntausend

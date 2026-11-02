@@ -200,14 +200,15 @@ bool is_year(const Match& match) {
   uint64_t n = value(number);
   std::u32string previous = match.context.before();
   bool dimension = previous == U"par" || previous == U"fois"; // 1920x1080, read before
-  return !number.grouped && number.fraction.empty() && n >= 1000 && n < 2100 && !counted(match.context) && !dimension;
+  return !number.grouped && number.fraction.empty() && is_year_value(n, 1000, 2099) && !counted(match.context) &&
+         !dimension;
 }
 
 Cues cues_of(const Match& match) {
   std::u32string previous = match.context.before();
   // 1 ou 2 places: the noun after the second number
   std::u32string next = match.context.after(), second = match.context.after(2);
-  bool coordinated = (next == U"ou" || next == U"et") && !second.empty() && unicode::isdigit(second[0]);
+  bool coordinated = kConjunctions.contains(next) && !second.empty() && unicode::isdigit(second[0]);
   return {.feminine = coordinated ? feminine(match.context.after(3)) : counted(match.context) && feminine(next),
           .plural_s = !kOrdinalWords.contains(previous) && !is_year(match),
           .equation = match.kind == Kind::DIMENSION && match.context.tail().find(U'=') != std::u32string_view::npos};
@@ -360,8 +361,7 @@ public:
     add_pattern(std::make_unique<EuroCentsPattern>());
     add_pattern(std::make_unique<MetersPattern>());
     add_pattern(std::make_unique<HalfUnitPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, std::unordered_set<std::u32string>{},
-                                               kHeightCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, PrimeFormat{.cues = kPrimeCues, .heights = kHeightCues}));
     add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSuffixes, U" \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSuffixes));
     add_pattern(std::make_unique<RomanOrdinalPattern>(kRomanOrdinalSuffixes));
@@ -377,10 +377,10 @@ protected:
     if (is_code(number, match)) {
       return digits(number.integer);
     }
-    // 05 mai: a zero-padded day before its month
-    if (number.integer.size() == 2 && number.integer[0] == U'0' && number.fraction.empty() &&
+    // 00 mai: zéro, not a day (unpadded_day reads every other zero-padded day)
+    if (number.integer == U"00" && number.fraction.empty() &&
         std::ranges::find(kMonths, strings::to_lower(match.context.after())) != kMonths.end()) {
-      return value(number) == 1 ? ordinal(1) : cardinal(value(number));
+      return cardinal(0);
     }
     // 3 1/2 km: trois kilomètres (et demi)
     if (match.kind == Kind::FRACTION && !match.unit.empty()) {
@@ -416,8 +416,8 @@ protected:
     // Without a year only a zero-padded day or month is a date, or a slashed one after "le" which no "de" follows:
     // 05/11, le 22/9, but not 3/4, nor le 1/3 des voix
     std::u32string next = match.context.after();
-    bool dated = match.separator == U'/' && match.context.before() == U"le" && next != U"de" && next != U"des" &&
-                 next != U"du" && !match.context.tail().starts_with(U" d'");
+    bool dated = match.separator == U'/' && match.context.before() == U"le" && !kFractionWords.contains(next) &&
+                 !match.context.tail().starts_with(U" d'");
     if (match.numbers.size() != 3 && match.numbers[0].integer[0] != U'0' && match.numbers[1].integer[0] != U'0' &&
         !dated) {
       return std::nullopt;
@@ -463,9 +463,6 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
-    if (match.separator == U'′') {
-      return primes(match);
-    }
     if (match.numbers.size() == 2) {
       // à 18.30, but à 0.40%
       bool decimal = match.separator == U'.' &&
@@ -504,7 +501,7 @@ protected:
     if (suffix.starts_with(U"nd")) {
       words = suffix.starts_with(U"nde") ? U"seconde" : U"second";
     } else {
-      bool feminine = suffix == U"re" || suffix == U"ère" || suffix == U"ere" || suffix == U"res" || suffix == U"ères";
+      bool feminine = kFeminineOrdinalSuffixes.contains(suffix);
       words = ordinal(value(match.numbers[0]), feminine);
     }
     return words + (suffix.ends_with(U's') ? U"s" : U"");
@@ -595,21 +592,15 @@ protected:
 private:
   // 1'27"23: une minute vingt-sept secondes et vingt-trois centièmes; 23"42: vingt-trois secondes quarante-deux;
   // 6'2": six pieds deux pouces
-  static std::optional<std::u32string> primes(const Match& match) {
-    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
-    std::vector<std::u32string> words;
-    for (size_t i = 0; i < match.numbers.size(); ++i) {
-      uint64_t n = value(match.numbers[i]);
-      bool feet = match.unit == U"ft";
-      const Forms& unit = feet ? (i == 0 ? kFoot : kInch) : kPrimeUnits[first + i];
-      words.push_back(cardinal(n, !feet) + U" " + (n < 2 ? unit.one : unit.many));
-    }
-    const std::u32string& fraction = match.numbers.back().fraction;
-    if (!fraction.empty()) {
-      std::u32string hundredths = cardinal(parse_value(fraction).value_or(0));
-      words.push_back(first == 1 && fraction.size() == 2 ? U"et " + hundredths + U" centièmes" : hundredths);
-    }
-    return join(words);
+  std::u32string read_prime(const Number& number, Prime unit, const Match& /*match*/) const override {
+    uint64_t n = value(number);
+    const Forms& forms = kPrimeUnits.at(unit);
+    bool feet = unit == Prime::FOOT || unit == Prime::INCH;
+    return cardinal(n, !feet) + U" " + (n < 2 ? forms.one : forms.many);
+  }
+  std::optional<std::u32string> read_prime_fraction(std::u32string_view digits, const Match& match) const override {
+    std::u32string hundredths = cardinal(parse_value(digits).value_or(0));
+    return match.unit == U"min" && digits.size() == 2 ? U"et " + hundredths + U" centièmes" : hundredths;
   }
 };
 } // namespace

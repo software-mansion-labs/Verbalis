@@ -8,7 +8,8 @@ dynamic = ["version"]
 description = "Rewrites text the way it is read aloud: numbers, dates, symbols, abbreviations, and web addresses as words."
 readme = "README.md"
 license = "MIT"
-# Only the licences of code in the package: the others cover test code and data, which no package ships
+# Only the licences of code in the package: the others cover test code and data, which no package ships. The npm
+# package copies this list on prepack (ts/package.json), so keep it a one-line JSON array.
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "licenses/cn2an-MIT.txt", "licenses/Unicode-3.0.txt"]
 authors = [{ name = "Software Mansion" }]
 requires-python = ">=3.10"

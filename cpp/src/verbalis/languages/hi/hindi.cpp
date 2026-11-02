@@ -211,7 +211,7 @@ protected:
   std::u32string read_code_digits(std::u32string_view text) const override {
     // A380: तीन सौ अस्सी, 5000mAh: पाँच हज़ार, census2011: दो हज़ार ग्यारह, but ABCDE1234F digit by digit
     auto n = code_value(text, 4);
-    bool number = n && (*n < 1000 || *n % 100 == 0 || (*n >= 1900 && *n < 2100));
+    bool number = n && (*n < 1000 || *n % 100 == 0 || is_year_value(*n, 1900, 2099));
     return number ? cardinal(*n) : digits(text);
   }
 

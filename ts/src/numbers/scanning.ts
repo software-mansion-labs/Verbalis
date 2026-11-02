@@ -2,11 +2,12 @@
  * Scanning numbers: written numbers at a position of a text, on top of the shared scanning in text/scan.ts, and the
  * shared steps of the languages' readings: values of digits, digit-by-digit decisions, and the parts of codes.
  */
-import { digitsEnd, isDigitAfter } from "../text/scan.ts";
+import { stripped, wordsOf, type Context } from "../text/context.ts";
+import { digitsEnd, isDigitAfter, type Keys } from "../text/scan.ts";
 import { contains, str, textOf, toLower, type Text } from "../text/strings.ts";
 import { isAlpha, isDigit, isLower, isSpace, isUpper } from "../text/unicode.ts";
 import type { Fractions, RomanCues } from "./formats.ts";
-import { numeral, type Match, type Numeral } from "./match.ts";
+import { Kind, numeral, type Match, type Numeral } from "./match.ts";
 
 // The digits starting at a position, as a number.
 export function digitsAt(text: Text, position: number): Numeral {
@@ -125,6 +126,58 @@ export function unpaddedDay(number: Numeral, match: Match, months: readonly stri
     return undefined;
   }
   return { ...number, integer: i.slice(1) };
+}
+
+// Whether a value can be a year: from 1000 to 2100 by default.
+export function isYearValue(value: bigint, from = 1000n, to = 2100n): boolean {
+  return value >= from && value <= to;
+}
+
+const ELISIONS = "'’´";
+
+// A score rather than a range: a range of at most three digits that drops or ties (3-1, 1-1), or follows an
+// elided article (l'1-2), in a text with a word of sport (a prefix of sportWords). Not 3-15 años, nor 14-2b.
+export function isScore(range: Match, sportWords: Keys): boolean {
+  if (range.kind !== Kind.RANGE) {
+    return false;
+  }
+  const from = range.numbers[0];
+  const to = range.numbers[1];
+  const head = range.context.head();
+  const tail = range.context.tail();
+  const start = head.length - from.integer.length;
+  const end = to.integer.length;
+
+  // Not part of a code, a decimal, or a time: 14-2b, 4,5-5,5, 18:30-20:30
+  const gluedBefore = start > 0 && (isAlpha(head[start - 1]) || contains(".,:-", head[start - 1]));
+  const gluedAfter =
+    end < tail.length &&
+    (isAlpha(tail[end]) || (contains(".,:", tail[end]) && end + 1 < tail.length && isDigit(tail[end + 1])));
+  if (from.integer.length > 3 || to.integer.length > 3 || gluedBefore || gluedAfter) {
+    return false;
+  }
+  const elided = start > 0 && contains(ELISIONS, head[start - 1]);
+  return (value(to) <= value(from) || elided) && mentions(range.context, sportWords);
+}
+
+// Whether a word of the text around a match starts with one of the stems.
+export function mentions(context: Context, stems: Keys): boolean {
+  const any = (text: Text): boolean =>
+    wordsOf(text).some((word) => {
+      const bare = bareWord(word); // dell'Atalanta, (Sabato)
+      return stems.some((stem) => bare.startsWith(stem));
+    });
+  return any(context.head()) || any(context.tail());
+}
+
+/** A word as cues are matched: lowercase, without punctuation, and after an elision: "D'avance," -> "avance". */
+export function bareWord(word: Text): string {
+  const lower = toLower(str(stripped(word)));
+  let elision = lower.length - 1;
+  while (elision >= 0 && !contains(ELISIONS, lower[elision])) {
+    elision--;
+  }
+  return lower.slice(elision + 1);
 }
 
 // The value of the digits of a code or phone number, or undefined if they read digit by digit: a leading zero, more
@@ -333,18 +386,19 @@ export function codeParts(written: string): string[] {
   return parts;
 }
 
-const SINGLE_PRIMES = "'′’´";
-const CLOSING_QUOTES = '"”»';
+/** Marks of minutes or feet; two of them, or one of DOUBLE_PRIMES, mark seconds or inches. */
+export const PRIMES = "'′’´";
+export const DOUBLE_PRIMES = '"″”';
 
-// The length of a mark of seconds or inches at a position: 1 (", ″, ”), 2 ('', ’’), or 0 if none stands there.
-function markLength(text: Text, position: number): number {
-  if (position < text.length && contains('"″”', text[position])) {
+/** The quotation marks that may close a quotation right after an inch mark: 55"”. */
+export const CLOSING_QUOTES = '"”»';
+
+/** The length of a mark of seconds or inches at a position: 1 (", ″, ”), 2 ('', ’’), or 0 if none stands there. */
+export function doublePrimeAt(text: Text, position: number): number {
+  if (position < text.length && contains(DOUBLE_PRIMES, text[position])) {
     return 1;
   }
-  const two =
-    position + 1 < text.length &&
-    contains(SINGLE_PRIMES, text[position]) &&
-    contains(SINGLE_PRIMES, text[position + 1]);
+  const two = position + 1 < text.length && contains(PRIMES, text[position]) && contains(PRIMES, text[position + 1]);
   return two ? 2 : 0;
 }
 
@@ -356,7 +410,7 @@ interface Quotes {
 
 // Whether the mark at a position, right after a digit, marks inches or seconds, given the quotations open before it
 function inchMarkIn(text: Text, position: number, quotes: Quotes): boolean {
-  const next = position + markLength(text, position);
+  const next = position + doublePrimeAt(text, position);
   if (next < text.length && contains(CLOSING_QUOTES, text[next])) {
     return true; // 55"": inches, then the quotation mark
   }
@@ -373,7 +427,7 @@ function inchMarkIn(text: Text, position: number, quotes: Quotes): boolean {
     start--;
   }
   const feet = start > 0 && isSpace(text[start - 1]) ? start - 1 : start;
-  if (feet > 1 && contains(SINGLE_PRIMES, text[feet - 1]) && isDigit(text[feet - 2])) {
+  if (feet > 1 && contains(PRIMES, text[feet - 1]) && isDigit(text[feet - 2])) {
     return true; // 5'5": the inches of feet and inches
   }
   if (quotes.curly > 0 || quotes.straight) {
@@ -408,7 +462,7 @@ function scanQuotes(text: Text, position: number): [Quotes, boolean] {
   const quotes: Quotes = { curly: 0, straight: false };
   for (let i = 0; i < position;) {
     const c = text[i];
-    const length = markLength(text, i);
+    const length = doublePrimeAt(text, i);
     const digit = i > 0 && isDigit(text[i - 1]);
     if (length > 0 && digit) {
       if (!inchMarkIn(text, i, quotes)) {
@@ -434,7 +488,7 @@ function scanQuotes(text: Text, position: number): [Quotes, boolean] {
   const inch =
     position > 0 &&
     position < text.length &&
-    markLength(text, position) > 0 &&
+    doublePrimeAt(text, position) > 0 &&
     isDigit(text[position - 1]) &&
     inchMarkIn(text, position, quotes);
   return [quotes, inch];

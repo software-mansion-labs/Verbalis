@@ -91,7 +91,7 @@ std::optional<std::u32string> PatternLanguage::read_match(const Match& match) co
     case Kind::FRACTION:
       return read_mixed_fraction(match);
     case Kind::TIME:
-      return read_time(match);
+      return match.separator == U'′' ? read_primes(match) : read_time(match);
     case Kind::MONEY:
       return read_amount(match, &PatternLanguage::read_money);
     case Kind::SCALE:
@@ -161,6 +161,25 @@ std::optional<std::u32string> PatternLanguage::read_time(const Match& match) con
   return read_each(match);
 }
 
+std::optional<std::u32string> PatternLanguage::read_primes(const Match& match) const {
+  return join(prime_words(match));
+}
+
+std::vector<std::u32string> PatternLanguage::prime_words(const Match& match) const {
+  // A time counts on from the unit of its first number: 2h11'13" from hours, 1'27"23 from minutes, 23"42 seconds
+  size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
+  std::vector<std::u32string> words;
+  for (size_t i = 0; i < match.numbers.size(); ++i) {
+    Prime unit = match.unit == U"ft" ? (i == 0 ? Prime::FOOT : Prime::INCH) : static_cast<Prime>(first + i);
+    words.push_back(read_prime(match.numbers[i], unit, match));
+  }
+  const std::u32string& fraction = match.numbers.back().fraction;
+  if (auto tail = fraction.empty() ? std::nullopt : read_prime_fraction(fraction, match)) {
+    words.push_back(*tail);
+  }
+  return words;
+}
+
 std::optional<std::u32string> PatternLanguage::read_ordinal(const Match& match) const {
   return read_number(match.numbers[0], match);
 }
@@ -224,48 +243,6 @@ std::optional<std::u32string> PatternLanguage::read_joiner(const Match& match) c
 
 std::u32string PatternLanguage::read_range(const Number& /*from*/, const Number& /*to*/, const Match& /*match*/) const {
   return joiners_.range;
-}
-
-namespace {
-constexpr std::u32string_view kElisions = U"'’´";
-
-bool is_in(std::u32string_view chars, char32_t c) {
-  return chars.find(c) != std::u32string_view::npos;
-}
-} // namespace
-
-bool PatternLanguage::is_score(const Match& range, const text::Keys& sport_words) {
-  if (range.kind != Kind::RANGE) {
-    return false;
-  }
-  const Number& from = range.numbers[0];
-  const Number& to = range.numbers[1];
-  std::u32string_view head = range.context.head(), tail = range.context.tail();
-  size_t start = head.size() - from.integer.size(), end = to.integer.size();
-
-  // Not part of a code, a decimal, or a time: 14-2b, 4,5-5,5, 18:30-20:30
-  bool glued_before = start > 0 && (unicode::isalpha(head[start - 1]) || is_in(U".,:-", head[start - 1]));
-  bool glued_after =
-      end < tail.size() && (unicode::isalpha(tail[end]) ||
-                            (is_in(U".,:", tail[end]) && end + 1 < tail.size() && unicode::isdigit(tail[end + 1])));
-  if (from.integer.size() > 3 || to.integer.size() > 3 || glued_before || glued_after) {
-    return false;
-  }
-  bool elided = start > 0 && is_in(kElisions, head[start - 1]);
-  return (numbers::value(to) <= numbers::value(from) || elided) && mentions(range.context, sport_words);
-}
-
-bool PatternLanguage::mentions(const Context& context, const text::Keys& stems) {
-  auto any = [&](std::u32string_view text) {
-    return std::ranges::any_of(text::words_of(text), [&](std::u32string_view word) {
-      // dell'Atalanta, (Sabato): the word after an elision, without punctuation
-      size_t elision = word.find_last_of(kElisions);
-      word = text::stripped(elision == std::u32string_view::npos ? word : word.substr(elision + 1));
-      std::u32string lower = text::strings::to_lower(word);
-      return std::ranges::any_of(stems, [&](const auto& stem) { return lower.starts_with(stem); });
-    });
-  };
-  return any(context.head()) || any(context.tail());
 }
 
 // ---------------------------

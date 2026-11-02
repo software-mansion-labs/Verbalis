@@ -230,7 +230,8 @@ public:
   Italian() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues, kHeightCues));
+    add_pattern(std::make_unique<PrimePattern>(
+        kNotation, PrimeFormat{.cues = kPrimeCues, .minutes = kMinuteCues, .heights = kHeightCues}));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -334,9 +335,6 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
-    if (match.separator == U'′') {
-      return primes(match);
-    }
     // With a dot, a time comes after "alle" or from 13 on: alle 9.30, 21.30, but versione 2.79
     uint64_t hours = value(match.numbers[0]), minutes = value(match.numbers[1]);
     bool decimal =
@@ -450,23 +448,20 @@ protected:
 private:
   // 1'12"76: un minuto e dodici secondi e settantasei centesimi; 2h11'13": due ore undici minuti e tredici secondi, but
   // un'ora e quattordici minuti e ventuno secondi
-  static std::optional<std::u32string> primes(const Match& match) {
-    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
-    std::vector<std::u32string> words;
-    for (size_t i = 0; i < match.numbers.size(); ++i) {
-      const Forms& unit = match.unit == U"ft" ? (i == 0 ? kFoot : kInch) : kPrimeUnits[first + i];
-      words.push_back(counted(value(match.numbers[i]), unit));
-    }
-    const std::u32string& fraction = match.numbers.back().fraction;
-    if (!fraction.empty()) {
-      words.push_back(counted(parse_value(fraction).value_or(0), kSecondFractions[fraction.size() - 1]));
-    }
+  std::optional<std::u32string> read_primes(const Match& match) const override {
+    std::vector<std::u32string> words = prime_words(match);
     std::u32string out = words[0];
     for (size_t i = 1; i < words.size(); ++i) {
-      bool hours = i == 1 && first == 0 && value(match.numbers[0]) > 1 && words.size() > 2;
+      bool hours = i == 1 && match.unit == U"h" && value(match.numbers[0]) > 1 && words.size() > 2;
       out += (hours ? U" " : U" e ") + words[i];
     }
     return out;
+  }
+  std::u32string read_prime(const Number& number, Prime unit, const Match& /*match*/) const override {
+    return counted(value(number), kPrimeUnits.at(unit));
+  }
+  std::optional<std::u32string> read_prime_fraction(std::u32string_view digits, const Match& /*match*/) const override {
+    return counted(parse_value(digits).value_or(0), kSecondFractions[digits.size() - 1]);
   }
 
   // A whole number before its noun: un euro, una sterlina, due euro

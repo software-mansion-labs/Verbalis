@@ -3,7 +3,7 @@ import type { Terms } from "../../steps/terms.ts";
 import type { Context } from "../../text/context.ts";
 import { afterName, beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
-import type { Forms, Joiners } from "../grammar.ts";
+import { Prime, type Forms, type Joiners } from "../grammar.ts";
 
 // Up to 29, each a single word
 export const ONES = [
@@ -162,12 +162,12 @@ export const MINUTE_CUES: ReadonlySet<string> = new Set(["durante", "pt", "st"])
 
 // Words around a 5'5" which make it feet and inches: mide 5'5"
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mide", "altura", "estatura", "alto", "alta"]);
-export const FOOT: Forms = { one: "pie", many: "pies" };
 
-// A time written with prime marks: hours, minutes, and seconds
-export const PRIME_UNITS: readonly Forms[] = [
-  { one: "hora", many: "horas" }, { one: "minuto", many: "minutos" }, { one: "segundo", many: "segundos" },
-];
+// A time written with prime marks: hours, minutes, and seconds; and a height, in feet and inches
+export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
+  [Prime.HOUR]: { one: "hora", many: "horas" }, [Prime.MINUTE]: { one: "minuto", many: "minutos" }, [Prime.SECOND]: { one: "segundo", many: "segundos" },
+  [Prime.FOOT]: { one: "pie", many: "pies" },   [Prime.INCH]: INCH,
+};
 
 // Each scale by its singular: millones -> millón
 export const SCALES: Readonly<Record<string, string>> = {

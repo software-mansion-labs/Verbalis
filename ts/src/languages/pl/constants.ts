@@ -6,7 +6,7 @@ import { beforeName, beforeNumber, beforeValue, type Condition, type Reading, ty
 import type { Keys } from "../../text/scan.ts";
 import { toLower } from "../../text/strings.ts";
 import { isDigit } from "../../text/unicode.ts";
-import { Case, Gender, type Joiners } from "../grammar.ts";
+import { Case, Gender, Prime, type Joiners } from "../grammar.ts";
 
 // A noun's forms after a number: singular, then plural, each in the order of Case.
 export interface Noun {
@@ -318,6 +318,16 @@ export const COPULAS: ReadonlySet<string> = new Set([
   "jest", "są", "był", "była", "było", "były", "będzie", "będą", "to",
 ]);
 
+// The stem of "zostać" (został, została), which takes an instrumental as a copula does: został 11. kierowcą
+export const BECOME_STEM = "zosta";
+
+// The word "numer", by its stem (numeru, numerem), and its abbreviation: nr 4 turnieju, numerem 3x38
+export const NUMBER_STEM = "numer";
+export const NUMBER_ABBREVIATION = "nr";
+
+// Signs between a preposition and its number: do minus siedmiu stopni, od +12°C
+export const SIGNS: ReadonlySet<string> = new Set(["minus", "plus", "+"]);
+
 // Prepositions before a bare year (od 2020 do 2022), with the case of the year ordinal after them
 export const YEAR_PREPOSITIONS: ReadonlyMap<string, Case> = new Map<string, Case>([
   ["od", Case.GENITIVE], ["do", Case.GENITIVE], ["z", Case.GENITIVE], ["ze", Case.GENITIVE],
@@ -439,7 +449,13 @@ export const INCH = noun("cal cala calowi cal calem calu cale cali calom cale ca
 
 // Words around a 5'5" which make it feet and inches, and a foot: Mam 5'5" wzrostu
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["wzrost", "wzrostu", "mierzy", "wysoki", "wysoka"]);
-export const FOOT = noun("stopa stopy stopie stopę stopą stopie stopy stóp stopom stopy stopami stopach");
+
+// The units of a time or a height written with prime marks: 8'22", 5'5"
+export const PRIME_UNITS: Readonly<Record<Prime, Noun>> = {
+  [Prime.HOUR]: UNITS["h"], [Prime.MINUTE]: UNITS["min"], [Prime.SECOND]: UNITS["s"],
+  [Prime.FOOT]: noun("stopa stopy stopie stopę stopą stopie stopy stóp stopom stopy stopami stopach"),
+  [Prime.INCH]: INCH,
+};
 
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
 export const TIME_UNITS: ReadonlySet<string> = new Set(["h", "min", "s", "ms", "godz.", "sek."]);
@@ -466,6 +482,9 @@ export const DECADE_WORDS: ReadonlyMap<string, Case> = new Map<string, Case>([
 ]);
 
 export const CONJUNCTIONS: ReadonlySet<string> = new Set(["a", "i", "lub", "albo", "czy", "oraz"]);
+
+// Conjunctions which join the items of a list, as a comma does: spośród 510 ocen i 68 recenzji (but not "czy")
+export const LIST_CONJUNCTIONS: ReadonlySet<string> = new Set(["a", "i", "lub", "albo", "oraz"]);
 
 // XIX w.: the abbreviation of wiek after a Roman numeral
 export const CENTURY_ABBREVIATIONS: Keys = ["w."];

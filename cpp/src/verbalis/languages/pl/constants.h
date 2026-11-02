@@ -342,6 +342,16 @@ inline const std::unordered_set<std::u32string> kCopulas = {
   U"jest", U"są", U"był", U"była", U"było", U"były", U"będzie", U"będą", U"to"
 };
 
+// The stem of "zostać" (został, została), which takes an instrumental as a copula does: został 11. kierowcą
+inline const std::u32string kBecomeStem = U"zosta";
+
+// The word "numer", by its stem (numeru, numerem), and its abbreviation: nr 4 turnieju, numerem 3x38
+inline const std::u32string kNumberStem = U"numer";
+inline const std::u32string kNumberAbbreviation = U"nr";
+
+// Signs between a preposition and its number: do minus siedmiu stopni, od +12°C
+inline const std::unordered_set<std::u32string> kSigns = {U"minus", U"plus", U"+"};
+
 // Prepositions before a bare year (od 2020 do 2022), with the case of the year ordinal after them
 inline const std::unordered_map<std::u32string, Case> kYearPrepositions = {
   {U"od", Case::GENITIVE}, {U"do", Case::GENITIVE}, {U"z", Case::GENITIVE}, {U"ze", Case::GENITIVE},
@@ -459,7 +469,13 @@ inline const Noun kInch = noun(U"cal cala calowi cal calem calu cale cali calom 
 
 // Words around a 5'5" which make it feet and inches, and a foot: Mam 5'5" wzrostu
 inline const std::unordered_set<std::u32string> kHeightCues = {U"wzrost", U"wzrostu", U"mierzy", U"wysoki", U"wysoka"};
-inline const Noun kFoot = noun(U"stopa stopy stopie stopę stopą stopie stopy stóp stopom stopy stopami stopach");
+
+// The units of a time or a height written with prime marks: 8'22", 5'5"
+inline const std::unordered_map<Prime, Noun> kPrimeUnits = {
+  {Prime::HOUR, kUnits.at(U"h")}, {Prime::MINUTE, kUnits.at(U"min")}, {Prime::SECOND, kUnits.at(U"s")},
+  {Prime::FOOT, noun(U"stopa stopy stopie stopę stopą stopie stopy stóp stopom stopy stopami stopach")},
+  {Prime::INCH, kInch},
+};
 
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place
 inline const std::unordered_set<std::u32string_view> kTimeUnits = {U"h", U"min", U"s", U"ms", U"godz.", U"sek."};
@@ -485,6 +501,9 @@ inline const std::unordered_map<std::u32string, Case> kDecadeWords = {
 };
 
 inline const std::unordered_set<std::u32string> kConjunctions = {U"a", U"i", U"lub", U"albo", U"czy", U"oraz"};
+
+// Conjunctions which join the items of a list, as a comma does: spośród 510 ocen i 68 recenzji (but not "czy")
+inline const std::unordered_set<std::u32string> kListConjunctions = {U"a", U"i", U"lub", U"albo", U"oraz"};
 
 // Names which take a regnal number, by case (nominative, genitive, dative, accusative, instrumental, locative)
 // and gender: Jan Paweł II (drugi), Jana Pawła II (drugiego), Elżbiety II (drugiej)

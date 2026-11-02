@@ -29,5 +29,7 @@ struct Forms {
 // Vocabulary of readings: languages build their own readings out of these
 enum class Case { NOMINATIVE = 0, GENITIVE, DATIVE, ACCUSATIVE, INSTRUMENTAL, LOCATIVE };
 enum class Gender { MASCULINE = 0, FEMININE, NEUTER };
+// The unit a number of a prime match counts: 1'27"23 counts a MINUTE and SECONDs, 5'9" FEET and INCHes
+enum class Prime { HOUR = 0, MINUTE, SECOND, FOOT, INCH };
 
 } // namespace verbalis::languages

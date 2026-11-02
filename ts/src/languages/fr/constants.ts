@@ -5,7 +5,7 @@ import type { Keys } from "../../text/scan.ts";
 import { afterAny, beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import { size } from "../../text/strings.ts";
 import { isUpper } from "../../text/unicode.ts";
-import type { Forms, Joiners } from "../grammar.ts";
+import { Prime, type Forms, type Joiners } from "../grammar.ts";
 
 export const ONES = [
   "zéro", "un",   "deux",  "trois",  "quatre",   "cinq",   "six",   "sept",     "huit",     "neuf",
@@ -91,6 +91,9 @@ export const FRACTIONS: Fractions = {
 // Words after a fraction which mark it as one: 1/3 d'eau
 export const FRACTION_WORDS: ReadonlySet<string> = new Set(["de", "du", "des", "d'"]);
 
+// Conjunctions between two numbers which share the noun after the second: 1 ou 2 places
+export const CONJUNCTIONS: ReadonlySet<string> = new Set(["et", "ou"]);
+
 // Nouns in -e, -té, -tion, -sion, and -aison are feminine unless listed below or ending like a masculine noun; other
 // feminine nouns are listed
 export const FEMININE_NOUNS: ReadonlySet<string> = new Set([
@@ -151,15 +154,17 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
   "maillot", "marathon", "sprint", "finale", "demi-finales", "minutes", "secondes", "podium",
 ]);
 
-// A time written with prime marks: hours, minutes, and seconds; and an inch, as a lone 20"
-export const PRIME_UNITS: readonly Forms[] = [
-  { one: "heure", many: "heures" }, { one: "minute", many: "minutes" }, { one: "seconde", many: "secondes" },
-];
+// An inch, as a lone 20"
 export const INCH: Forms = { one: "pouce", many: "pouces" };
 
 // Words around a 6'2" which make it feet and inches: il mesure 6'2"
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mesure", "taille", "grand", "grande"]);
-export const FOOT: Forms = { one: "pied", many: "pieds" };
+
+// A time written with prime marks: hours, minutes, and seconds; and a height, in feet and inches
+export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
+  [Prime.HOUR]: { one: "heure", many: "heures" }, [Prime.MINUTE]: { one: "minute", many: "minutes" }, [Prime.SECOND]: { one: "seconde", many: "secondes" },
+  [Prime.FOOT]: { one: "pied", many: "pieds" },   [Prime.INCH]: INCH,
+};
 
 // XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals
 export const ROMAN_ORDINAL_SUFFIXES: Keys = ["er", "re", "ère", "e", "ème"];
@@ -232,6 +237,9 @@ export const ORDINAL_SUFFIXES = [
   "ères", "èmes", "ère", "ere", "ème", "eme", "ers", "er", "res", "re", "es", "ndes", "nde", "nds", "nd",
   "e",    "è",
 ];
+
+// 1re, 1ères: the suffixes of a feminine ordinal
+export const FEMININE_ORDINAL_SUFFIXES: ReadonlySet<string> = new Set(["re", "ère", "ere", "res", "ères"]);
 
 export const SYMBOLS: Readings = {
   "&": ["et"],       "+": ["plus"],    "=": ["égale"],   "@": ["arobase"], "%": ["pour cent"],

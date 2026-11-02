@@ -181,10 +181,12 @@ inline const std::unordered_set<std::u32string> kMinuteCues = {U"durante", U"pt"
 
 // Words around a 5'5" which make it feet and inches: mide 5'5"
 inline const std::unordered_set<std::u32string> kHeightCues = {U"mide", U"altura", U"estatura", U"alto", U"alta"};
-inline const Forms kFoot = {U"pie", U"pies"};
 
-// A time written with prime marks: hours, minutes, and seconds
-inline const std::array<Forms, 3> kPrimeUnits = {{{U"hora", U"horas"}, {U"minuto", U"minutos"}, {U"segundo", U"segundos"}}};
+// A time written with prime marks: hours, minutes, and seconds; and a height, in feet and inches
+inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
+  {Prime::HOUR, {U"hora", U"horas"}}, {Prime::MINUTE, {U"minuto", U"minutos"}}, {Prime::SECOND, {U"segundo", U"segundos"}},
+  {Prime::FOOT, {U"pie", U"pies"}},   {Prime::INCH, kInch},
+};
 
 // Words after a fraction which mark it as one: el 1/3 de
 inline const std::unordered_set<std::u32string> kFractionWords = {U"de", U"del"};

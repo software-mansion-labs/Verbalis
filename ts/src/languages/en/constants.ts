@@ -5,7 +5,7 @@ import { Context, wordsOf } from "../../text/context.ts";
 import { beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import { contains, startsWith, str } from "../../text/strings.ts";
 import { isDigit, isUpper, isWord } from "../../text/unicode.ts";
-import type { Forms, Joiners } from "../grammar.ts";
+import { Prime, type Forms, type Joiners } from "../grammar.ts";
 
 export const ONES = [
   "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
@@ -183,6 +183,16 @@ export const TIME_WORDS: ReadonlySet<string> = new Set([
   "at", "from", "until", "till", "to", "by", "around", "about", "before", "after", "since", "between",
   "and", "is", "it's", "or",
 ]);
+
+// Words after a number which make it an amount, not a time: at 1.50 times, 2.53 percent
+export const AMOUNT_WORDS: ReadonlySet<string> = new Set(["times", "percent"]);
+
+// A time written with prime marks (hours, minutes, seconds), and a height in feet and inches: 1'27"23, 5'9"
+export const INCH: Forms = { one: "inch", many: "inches" };
+export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
+  [Prime.HOUR]: { one: "hour", many: "hours" }, [Prime.MINUTE]: { one: "minute", many: "minutes" }, [Prime.SECOND]: { one: "second", many: "seconds" },
+  [Prime.FOOT]: { one: "foot", many: "feet" }, [Prime.INCH]: INCH,
+};
 
 // Words after an amount that do not make it an adjective ("$5 a month" vs "a $5 bill")
 export const STOP_WORDS: ReadonlySet<string> = new Set([

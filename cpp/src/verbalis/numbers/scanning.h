@@ -53,6 +53,19 @@ bool is_spoken_digits(const Number& number, size_t longest);
 std::optional<Number> unpadded_day(const Number& number, const Match& match, std::span<const std::u32string> months,
                                    std::u32string_view of = U"");
 
+// Whether a value can be a year: from 1000 to 2100 by default.
+bool is_year_value(uint64_t value, uint64_t from = 1000, uint64_t to = 2100);
+
+// A score rather than a range: a range of at most three digits that drops or ties (3-1, 1-1), or follows an
+// elided article (l'1-2), in a text with a word of sport (a prefix of sport_words). Not 3-15 años, nor 14-2b.
+bool is_score(const Match& range, const text::Keys& sport_words);
+
+// Whether a word of the text around a match starts with one of the stems.
+bool mentions(const text::Context& context, const text::Keys& stems);
+
+// A word as cues are matched: lowercase, without punctuation, and after an elision: "D'avance," -> "avance".
+std::u32string bare_word(std::u32string_view word);
+
 // The value of the digits of a code or phone number, or nullopt if they read digit by digit: a leading zero, more than
 // longest digits, or too long to hold.
 std::optional<uint64_t> code_value(std::u32string_view digits, size_t longest);
@@ -99,6 +112,16 @@ std::optional<RomanRole> roman_role(const Match& match, const RomanCues& cues);
 // The parts of a code (MP3, H.264, F-16s): digits with their decimals, ".digits", runs of other characters,
 // and single apostrophes, dots and hyphens.
 std::vector<std::u32string_view> code_parts(std::u32string_view code);
+
+// Marks of minutes or feet; two of them, or one of kDoublePrimes, mark seconds or inches.
+inline constexpr std::u32string_view kPrimes = U"'′’´";
+inline constexpr std::u32string_view kDoublePrimes = U"\"″”";
+
+// The quotation marks that may close a quotation right after an inch mark: 55"”.
+inline constexpr std::u32string_view kClosingQuotes = U"\"”»";
+
+// The length of a mark of seconds or inches at a position: 1 (", ″, ”), 2 ('', ’’), or 0 if none stands there.
+size_t double_prime_at(std::u32string_view text, size_t position);
 
 // Whether the double mark at a position right after a number (", ″, ”, '') marks inches or seconds rather than a
 // quotation: a mark another quotation mark follows (55""), and the inches of feet and inches (5'5"); else only with no

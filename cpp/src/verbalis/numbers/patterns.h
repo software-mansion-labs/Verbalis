@@ -140,23 +140,13 @@ private:
  */
 class PrimePattern : public Pattern {
 public:
-  /**
-   * @param cues lowercase words of a text which make its minutes and seconds (3'16") and a lone 23″ a time; without
-   *        one, they are left as written and a lone 23″ is inches.
-   * @param feet reads 5'9" as feet and inches, and a lone 400' as feet.
-   * @param minutes lowercase words among the three before or after a lone 10' which make it minutes: durante más de
-   *        10', aos 6′ do segundo tempo; without one, it is left as written.
-   * @param heights lowercase words among the eight before or the three after a 5'5" which make it feet and inches
-   *        when no word of the text is one of the cues: Mam 5'5" wzrostu, Er ist 6'2" groß.
-   */
-  PrimePattern(const Notation& notation, std::unordered_set<std::u32string> cues, bool feet = false,
-               std::unordered_set<std::u32string> minutes = {}, std::unordered_set<std::u32string> heights = {})
+  PrimePattern(const Notation& notation, PrimeFormat format)
       : Pattern(Kind::TIME),
         decimals_(notation.decimal_separators),
-        cues_(std::move(cues)),
-        feet_(feet),
-        minutes_(std::move(minutes)),
-        heights_(std::move(heights)) {}
+        cues_(std::move(format.cues)),
+        feet_(format.feet),
+        minutes_(std::move(format.minutes)),
+        heights_(std::move(format.heights)) {}
 
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
 
@@ -361,8 +351,8 @@ public:
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
 
 private:
-  // The date without (zero) or with its year, if it ends at a valid position: with glue, also before a letter
-  std::optional<Match> complete(std::u32string_view text, Match date, size_t position, bool glue) const;
+  // The date without (zero) or with its year, if it starts and ends at a valid position
+  std::optional<Match> complete(std::u32string_view text, Match date, size_t position) const;
 
   DateFormat format_;
 };

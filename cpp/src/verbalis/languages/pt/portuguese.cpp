@@ -268,8 +268,7 @@ bool decade(const Match& match) {
   std::u32string word = match.context.before();
   bool marked = word == U"anos" || word == U"década" || (word == U"de" && match.context.before(2) == U"década") ||
                 match.text.starts_with(U'\'') || match.context.head().ends_with(U'\'');
-  return n % 10 == 0 &&
-         ((number.integer.size() == 2 && marked) || (number.integer.size() == 4 && n >= 1000 && n <= 2100));
+  return n % 10 == 0 && ((number.integer.size() == 2 && marked) || (number.integer.size() == 4 && is_year_value(n)));
 }
 
 // A day and a month marked as a date by the word before them, or by parentheses: dia 15/9, quinta-feira (16/3);
@@ -384,7 +383,8 @@ public:
     add_pattern(std::make_unique<DatePattern>(kDotDateFormat));
     add_pattern(std::make_unique<ReorderedDatePattern>());
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues, kHeightCues));
+    add_pattern(std::make_unique<PrimePattern>(
+        kNotation, PrimeFormat{.cues = kPrimeCues, .minutes = kMinuteCues, .heights = kHeightCues}));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -410,7 +410,7 @@ protected:
     }
     // Em 2020 havia, de 1904 a 1949: a year counts nothing after it
     bool year = (kYearWords.contains(match.context.before()) || !counted(match.context)) &&
-                number.integer.size() == 4 && !number.grouped && value(number) >= 1000 && value(number) <= 2100;
+                number.integer.size() == 4 && !number.grouped && is_year_value(value(number));
     // 1200-871 Lisboa: the second part of a postal code
     std::u32string_view head = match.context.head();
     bool postal = number.integer.size() == 3 && head.size() >= 5 && head.ends_with(U'-') &&
@@ -436,7 +436,7 @@ protected:
     // Without a year, a zero-padded, marked or named date: 03/04, dia 15/9, quinta-feira (16/3), 19.ago; but 1/4 do
     // salário, 3/4
     bool padded = match.numbers[0].integer[0] == U'0' || match.numbers[1].integer[0] == U'0';
-    bool named = std::ranges::any_of(match.text, [](char32_t c) { return unicode::isalpha(c); });
+    bool named = std::ranges::any_of(match.text, unicode::isalpha);
     if (!named &&
         (match.separator != U'/' || (!padded && (is_marked_fraction(match, kFractionWords) || !dated(match))))) {
       return std::nullopt;
@@ -448,9 +448,7 @@ protected:
     // 2021-2022, 20 2021-2022, 1685-1750: a range of years; 500-1000: a range of round numbers; 213 456 789 pessoas:
     // a count
     if (match.kind == Kind::PHONE) {
-      auto year = [](const Number& group) {
-        return group.integer.size() == 4 && value(group) >= 1000 && value(group) <= 2100;
-      };
+      auto year = [](const Number& group) { return group.integer.size() == 4 && is_year_value(value(group)); };
       const auto& numbers = match.numbers;
       size_t n = numbers.size();
       uint64_t from = value(numbers[n - 2]), to = value(numbers[n - 1]);
@@ -487,9 +485,6 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
-    if (match.separator == U'′') {
-      return primes(match);
-    }
     // A dot makes a time only after an hour word or before "h": às 21.30, 21.30h, but 1.71
     bool decimal = match.separator == U'.' && match.suffix.empty() && !kHourWords.contains(match.context.before());
     if (!fits_clock(match) || decimal) {
@@ -653,24 +648,19 @@ private:
   }
 
   // 2'14'': dois minutos e catorze segundos; 1'12''00: um minuto e doze segundos e zero centésimos
-  static std::optional<std::u32string> primes(const Match& match) {
-    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
-    auto counted = [](uint64_t n, const Forms& unit, Gender gender) {
-      return cardinal(n, gender) + U" " + (n == 1 ? unit.one : unit.many);
-    };
-    std::vector<std::u32string> words;
-    for (size_t i = 0; i < match.numbers.size(); ++i) {
-      bool feet = match.unit == U"ft";
-      Gender gender = (feet ? i == 1 : first + i == 0) ? Gender::FEMININE : Gender::MASCULINE;
-      const Forms& unit = feet ? (i == 0 ? kFoot : kInch) : kPrimeUnits[first + i];
-      words.push_back(counted(value(match.numbers[i]), unit, gender));
-    }
-    const std::u32string& fraction = match.numbers.back().fraction;
-    if (!fraction.empty()) {
-      words.push_back(
-          counted(parse_value(fraction).value_or(0), kSecondFractions[fraction.size() - 1], Gender::MASCULINE));
-    }
-    return join(words, U" e ");
+  std::optional<std::u32string> read_primes(const Match& match) const override {
+    return join(prime_words(match), U" e ");
+  }
+  std::u32string read_prime(const Number& number, Prime unit, const Match& /*match*/) const override {
+    uint64_t n = value(number);
+    const Forms& forms = kPrimeUnits.at(unit);
+    Gender gender = unit == Prime::HOUR || unit == Prime::INCH ? Gender::FEMININE : Gender::MASCULINE;
+    return cardinal(n, gender) + U" " + (n == 1 ? forms.one : forms.many);
+  }
+  std::optional<std::u32string> read_prime_fraction(std::u32string_view digits, const Match& /*match*/) const override {
+    uint64_t n = parse_value(digits).value_or(0);
+    const Forms& forms = kSecondFractions[digits.size() - 1];
+    return cardinal(n) + U" " + (n == 1 ? forms.one : forms.many);
   }
 };
 } // namespace

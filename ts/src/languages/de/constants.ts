@@ -4,7 +4,7 @@ import type { Keys } from "../../text/scan.ts";
 import type { Context } from "../../text/context.ts";
 import { afterAny, beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import { isDigit } from "../../text/unicode.ts";
-import { Gender, type Forms, type Joiners } from "../grammar.ts";
+import { Gender, Prime, type Forms, type Joiners } from "../grammar.ts";
 
 export const ONES = [
   "null",   "eins",    "zwei",    "drei",      "vier",      "fünf",      "sechs",    "sieben",    "acht",     "neun",
@@ -248,10 +248,12 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
 // Words around a 6'2" which make it feet and inches: Er ist 6'2" groß
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["groß", "größe", "misst", "körpergröße"]);
 
-// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second
-export const PRIME_UNITS: readonly Forms[] = [
-  { one: "Stunde", many: "Stunden" }, { one: "Minute", many: "Minuten" }, { one: "Sekunde", many: "Sekunden" },
-];
+// A time or a height written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; feet
+// and inches
+export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
+  [Prime.HOUR]: { one: "Stunde", many: "Stunden" }, [Prime.MINUTE]: { one: "Minute", many: "Minuten" },
+  [Prime.SECOND]: { one: "Sekunde", many: "Sekunden" }, [Prime.FOOT]: UNITS["ft"], [Prime.INCH]: UNITS["″"],
+};
 export const SECOND_FRACTIONS = ["Zehntel", "Hundertstel", "Tausendstel"] as const;
 
 // Words after hours, minutes, and seconds, which the reading says: 02:02:23 Uhr, 13:46:36 Stunden

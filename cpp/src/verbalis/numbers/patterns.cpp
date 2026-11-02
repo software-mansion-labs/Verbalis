@@ -6,6 +6,7 @@
 #include <verbalis/text/unicode.h>
 
 #include <algorithm>
+#include <array>
 #include <iterator>
 
 namespace verbalis::numbers {
@@ -20,9 +21,8 @@ constexpr std::u32string_view kNumberBoundaries = U".,";
 // What may not stand right before an amount: also a hyphen, as in i9-14900K.
 constexpr std::u32string_view kAmountBoundaries = U".,-";
 
-// Marks of minutes or feet; two of them, or one of kDoublePrimes, mark seconds or inches.
-constexpr std::u32string_view kPrimes = U"'′’´";
-constexpr std::u32string_view kDoublePrimes = U"\"″”";
+// Time zones, acronyms whose hyphen signs the number after them: GMT -4
+constexpr std::array<std::u32string_view, 2> kTimeZones = {U"GMT", U"UTC"};
 
 // Value of a short run of digits (a day, a month or an hour).
 int small_value(std::u32string_view digits) {
@@ -364,11 +364,12 @@ bool SignPattern::joins(std::u32string_view text, size_t position) {
     start--;
   }
   std::u32string_view word = text.substr(start, end - start);
-  bool acronym = word.size() >= 2 && std::ranges::all_of(word, unicode::isupper) && word != U"GMT" && word != U"UTC";
+  bool acronym = word.size() >= 2 && std::ranges::all_of(word, unicode::isupper) &&
+                 std::ranges::find(kTimeZones, word) == kTimeZones.end();
 
   size_t digits = digits_end(text, position + 1);
   uint64_t n = parse_value(text.substr(position + 1, digits - position - 1)).value_or(0);
-  bool year = digits == position + 5 && n >= 1900 && n < 2100 && !is_digit_after(text, digits, U".,");
+  bool year = digits == position + 5 && is_year_value(n, 1900, 2099) && !is_digit_after(text, digits, U".,");
 
   // A closing hyphen ends a word, after a space, before the sentence ends: -2015 a 2017-
   bool pair = false;
@@ -718,7 +719,7 @@ std::optional<Match> NumberPattern::match(std::u32string_view text, size_t posit
 DatePattern::DatePattern(DateFormat format) : Pattern(Kind::DATE), format_(std::move(format)) {}
 
 std::optional<Match> DatePattern::match(std::u32string_view text, size_t position) const {
-  // Letters may touch a date with a four-digit year: Amora01/09/2015, 04/08/2006L'UE
+  // A letter may touch the date (complete() checks its year)
   bool glued = position > 0 && unicode::isalpha(text[position - 1]);
   size_t day_end = digits_end(text, position);
   if ((!glued && !is_clear_before(text, position, format_.boundaries)) || day_end == position ||
@@ -767,27 +768,33 @@ std::optional<Match> DatePattern::match(std::u32string_view text, size_t positio
       year = skip_space(text, year);
     }
     size_t length = digits_end(text, year) - year;
-    if ((length == 4 || (length == 2 && format_.short_year)) && (length == 4 || !glued)) {
+    if (length == 4 || (length == 2 && format_.short_year)) {
       Match dated = date;
       dated.numbers.push_back(digits_at(text, year));
       std::u32string& digits = dated.numbers.back().integer;
       if (length == 2 && (small_value(digits) < format_.year_pivot || format_.full_years)) {
         digits.insert(0, small_value(digits) < format_.year_pivot ? U"20" : U"19");
       }
-      if (auto result = complete(text, dated, year + length, length == 4)) {
+      if (auto result = complete(text, dated, year + length)) {
         return result;
       }
     }
   }
   // A named month needs no year: (19.ago)
   bool named = !unicode::isdigit(text[month]);
-  if ((format_.year_required && !named) || glued) {
+  if (format_.year_required && !named) {
     return std::nullopt;
   }
-  return complete(text, date, format_.closing_separator ? month_end + 1 : month_end, false);
+  return complete(text, date, format_.closing_separator ? month_end + 1 : month_end);
 }
 
-std::optional<Match> DatePattern::complete(std::u32string_view text, Match date, size_t position, bool glue) const {
+std::optional<Match> DatePattern::complete(std::u32string_view text, Match date, size_t position) const {
+  // Letters may touch a date with a four-digit year (as written), on either side: Amora01/09/2015, 04/08/2006L'UE
+  bool full_year = date.numbers.size() == 3 && date.numbers[2].span.end - date.numbers[2].span.begin == 4;
+  if (!full_year && date.span.begin > 0 && unicode::isalpha(text[date.span.begin - 1])) {
+    return std::nullopt;
+  }
+
   // An abbreviation after the year: 2024 r.
   if (date.numbers.size() == 3) {
     size_t suffix = skip_space(text, position);
@@ -802,7 +809,7 @@ std::optional<Match> DatePattern::complete(std::u32string_view text, Match date,
     }
   }
 
-  bool letter = glue && position < text.size() && unicode::isalpha(text[position]);
+  bool letter = full_year && position < text.size() && unicode::isalpha(text[position]);
   if ((!is_clear_after(text, position) && !letter) || is_digit_after(text, position, format_.boundaries)) {
     return std::nullopt;
   }
@@ -993,16 +1000,6 @@ std::optional<Match> SecondsPattern::match(std::u32string_view text, size_t posi
 }
 
 namespace {
-// The length of a mark of seconds or inches at a position: 1 (", ″), 2 ('', ’’), or 0 if none stands there.
-size_t double_prime_at(std::u32string_view text, size_t position) {
-  if (position < text.size() && strings::contains(kDoublePrimes, text[position])) {
-    return 1;
-  }
-  bool two = position + 1 < text.size() && strings::contains(kPrimes, text[position]) &&
-             strings::contains(kPrimes, text[position + 1]);
-  return two ? 2 : 0;
-}
-
 // Whether a single mark of minutes or feet stands at a position.
 bool prime_at(std::u32string_view text, size_t position) {
   return position < text.size() && strings::contains(kPrimes, text[position]) && double_prime_at(text, position) == 0;
@@ -1058,7 +1055,7 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
     bool marked = at < text.size() && (strings::contains(kPrimes, text[at]) ||
                                        strings::contains(kDoublePrimes, text[at]) || text[at] == U'-');
     bool closes = (time.numbers.size() > 1 || unit == U"ft") && at < text.size() &&
-                  strings::contains(std::u32string_view(U"\"”»"), text[at]) && is_clear_after(text, at + 1) &&
+                  strings::contains(kClosingQuotes, text[at]) && is_clear_after(text, at + 1) &&
                   in_double_quotation(text, position);
     if (!closes && (!is_clear_after(text, at) || is_digit_after(text, at, U".,") || marked)) {
       return std::nullopt;
@@ -1150,8 +1147,7 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
       return ending(fraction_end, U"s");
     }
     // „telewizor 55"”: inches, then the mark that closes the quotation
-    if (after < text.size() && (text[after] == U'"' || text[after] == U'”' || text[after] == U'»') &&
-        is_clear_after(text, after + 1)) {
+    if (after < text.size() && strings::contains(kClosingQuotes, text[after]) && is_clear_after(text, after + 1)) {
       time.kind = Kind::UNIT;
       time.span = {position, after};
       time.unit = U"″";
@@ -1172,8 +1168,7 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
 
 bool PrimePattern::cued(std::u32string_view text, const std::unordered_set<std::u32string>& cues) {
   return std::ranges::any_of(words_of(text), [&cues](auto word) {
-    std::u32string lower = strings::to_lower(stripped(word));
-    return cues.contains(lower.substr(lower.find_last_of(U"'’") + 1)); // d'avance
+    return cues.contains(bare_word(word)); // d'avance
   });
 }
 

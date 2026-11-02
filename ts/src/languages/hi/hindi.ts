@@ -19,6 +19,7 @@ import {
   romanRole,
   value,
   unpaddedDay,
+  isYearValue,
 } from "../../numbers/scanning.ts";
 import { isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
 import { type Text } from "../../text/strings.ts";
@@ -254,7 +255,7 @@ class Hindi extends PatternLanguage {
   protected override readCodeDigits(text: string): string {
     // A380: तीन सौ अस्सी, 5000mAh: पाँच हज़ार, census2011: दो हज़ार ग्यारह, but ABCDE1234F digit by digit
     const n = codeValue(text, 4);
-    const number = n !== undefined && (n < 1000n || n % 100n === 0n || (n >= 1900n && n < 2100n));
+    const number = n !== undefined && (n < 1000n || n % 100n === 0n || isYearValue(n, 1900n, 2099n));
     return number ? cardinal(n) : digits(text);
   }
 

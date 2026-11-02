@@ -112,6 +112,9 @@ inline const std::map<std::pair<uint64_t, uint64_t>, std::u32string> kFractions 
 // Words after a fraction which mark it as one: 1/3 d'eau
 inline const std::unordered_set<std::u32string> kFractionWords = {U"de", U"du", U"des", U"d'"};
 
+// Conjunctions between two numbers which share the noun after the second: 1 ou 2 places
+inline const std::unordered_set<std::u32string> kConjunctions = {U"et", U"ou"};
+
 // Nouns in -e, -té, -tion, -sion, and -aison are feminine unless listed below or ending like a masculine noun; other
 // feminine nouns are listed
 inline const std::unordered_set<std::u32string> kFeminineNouns = {
@@ -172,13 +175,17 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"maillot", U"marathon", U"sprint", U"finale", U"demi-finales", U"minutes", U"secondes", U"podium"
 };
 
-// A time written with prime marks: hours, minutes, and seconds; and an inch, as a lone 20"
-inline const std::array<Forms, 3> kPrimeUnits = {{{U"heure", U"heures"}, {U"minute", U"minutes"}, {U"seconde", U"secondes"}}};
+// An inch, as a lone 20"
 inline const Forms kInch = {U"pouce", U"pouces"};
 
 // Words around a 6'2" which make it feet and inches: il mesure 6'2"
 inline const std::unordered_set<std::u32string> kHeightCues = {U"mesure", U"taille", U"grand", U"grande"};
-inline const Forms kFoot = {U"pied", U"pieds"};
+
+// A time written with prime marks: hours, minutes, and seconds; and a height, in feet and inches
+inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
+  {Prime::HOUR, {U"heure", U"heures"}}, {Prime::MINUTE, {U"minute", U"minutes"}}, {Prime::SECOND, {U"seconde", U"secondes"}},
+  {Prime::FOOT, {U"pied", U"pieds"}},   {Prime::INCH, kInch},
+};
 
 // XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals
 inline const Keys kRomanOrdinalSuffixes = {U"er", U"re", U"ère", U"e", U"ème"};
@@ -250,6 +257,9 @@ inline const Keys kOrdinalSuffixes = {
   U"ères", U"èmes", U"ère", U"ere", U"ème", U"eme", U"ers", U"er", U"res", U"re", U"es", U"ndes", U"nde", U"nds", U"nd",
   U"e",    U"è"
 };
+
+// 1re, 1ères: the suffixes of a feminine ordinal
+inline const std::unordered_set<std::u32string_view> kFeminineOrdinalSuffixes = {U"re", U"ère", U"ere", U"res", U"ères"};
 
 using ::verbalis::text::Readings;
 

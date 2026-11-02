@@ -183,6 +183,50 @@ std::optional<Number> unpadded_day(const Number& number, const Match& match, std
   return day;
 }
 
+bool is_year_value(uint64_t value, uint64_t from, uint64_t to) {
+  return value >= from && value <= to;
+}
+
+namespace {
+constexpr std::u32string_view kElisions = U"'’´";
+} // namespace
+
+std::u32string bare_word(std::u32string_view word) {
+  std::u32string lower = strings::to_lower(stripped(word));
+  return lower.substr(lower.find_last_of(kElisions) + 1);
+}
+
+bool is_score(const Match& range, const Keys& sport_words) {
+  if (range.kind != Kind::RANGE) {
+    return false;
+  }
+  const Number& from = range.numbers[0];
+  const Number& to = range.numbers[1];
+  std::u32string_view head = range.context.head(), tail = range.context.tail();
+  size_t start = head.size() - from.integer.size(), end = to.integer.size();
+
+  // Not part of a code, a decimal, or a time: 14-2b, 4,5-5,5, 18:30-20:30
+  bool glued_before = start > 0 && (unicode::isalpha(head[start - 1]) || strings::contains(U".,:-", head[start - 1]));
+  bool glued_after =
+      end < tail.size() && (unicode::isalpha(tail[end]) || (strings::contains(U".,:", tail[end]) &&
+                                                            end + 1 < tail.size() && unicode::isdigit(tail[end + 1])));
+  if (from.integer.size() > 3 || to.integer.size() > 3 || glued_before || glued_after) {
+    return false;
+  }
+  bool elided = start > 0 && strings::contains(kElisions, head[start - 1]);
+  return (value(to) <= value(from) || elided) && mentions(range.context, sport_words);
+}
+
+bool mentions(const Context& context, const Keys& stems) {
+  auto any = [&](std::u32string_view text) {
+    return std::ranges::any_of(words_of(text), [&](std::u32string_view word) {
+      std::u32string bare = bare_word(word); // dell'Atalanta, (Sabato)
+      return std::ranges::any_of(stems, [&](const auto& stem) { return bare.starts_with(stem); });
+    });
+  };
+  return any(context.head()) || any(context.tail());
+}
+
 std::u32string to_digits(uint64_t value) {
   std::u32string digits;
   do {
@@ -318,20 +362,16 @@ std::vector<std::u32string_view> code_parts(std::u32string_view code) {
   return parts;
 }
 
-namespace {
-constexpr std::u32string_view kSinglePrimes = U"'′’´";
-constexpr std::u32string_view kClosingQuotes = U"\"”»";
-
-// The length of a mark of seconds or inches at a position: 1 (", ″, ”), 2 ('', ’’), or 0 if none stands there.
-size_t mark_length(std::u32string_view text, size_t position) {
-  if (position < text.size() && strings::contains(std::u32string_view(U"\"″”"), text[position])) {
+size_t double_prime_at(std::u32string_view text, size_t position) {
+  if (position < text.size() && strings::contains(kDoublePrimes, text[position])) {
     return 1;
   }
-  bool two = position + 1 < text.size() && strings::contains(kSinglePrimes, text[position]) &&
-             strings::contains(kSinglePrimes, text[position + 1]);
+  bool two = position + 1 < text.size() && strings::contains(kPrimes, text[position]) &&
+             strings::contains(kPrimes, text[position + 1]);
   return two ? 2 : 0;
 }
 
+namespace {
 // The quotations open before a mark: curly ones („ “ « … ” ») counted, a straight one toggled.
 struct Quotes {
   int curly = 0;
@@ -340,7 +380,7 @@ struct Quotes {
 
 // Whether the mark at a position, right after a digit, marks inches or seconds, given the quotations open before it
 bool inch_mark_in(std::u32string_view text, size_t position, const Quotes& quotes) {
-  size_t next = position + mark_length(text, position);
+  size_t next = position + double_prime_at(text, position);
   if (next < text.size() && strings::contains(kClosingQuotes, text[next])) {
     return true; // 55"": inches, then the quotation mark
   }
@@ -352,7 +392,7 @@ bool inch_mark_in(std::u32string_view text, size_t position, const Quotes& quote
     --start;
   }
   size_t feet = start > 0 && unicode::isspace(text[start - 1]) ? start - 1 : start;
-  if (feet > 1 && strings::contains(kSinglePrimes, text[feet - 1]) && unicode::isdigit(text[feet - 2])) {
+  if (feet > 1 && strings::contains(kPrimes, text[feet - 1]) && unicode::isdigit(text[feet - 2])) {
     return true; // 5'5": the inches of feet and inches
   }
   if (quotes.curly > 0 || quotes.straight) {
@@ -385,7 +425,7 @@ std::pair<Quotes, bool> scan_quotes(std::u32string_view text, size_t position) {
   Quotes quotes;
   for (size_t i = 0; i < position;) {
     char32_t c = text[i];
-    size_t length = mark_length(text, i);
+    size_t length = double_prime_at(text, i);
     bool digit = i > 0 && unicode::isdigit(text[i - 1]);
     if (length > 0 && digit) {
       if (!inch_mark_in(text, i, quotes)) { // „7×7″, "Redmi 7": the mark closes the open quotation
@@ -403,7 +443,7 @@ std::pair<Quotes, bool> scan_quotes(std::u32string_view text, size_t position) {
     }
     i += length == 2 ? 2 : 1;
   }
-  bool inch = position > 0 && position < text.size() && mark_length(text, position) > 0 &&
+  bool inch = position > 0 && position < text.size() && double_prime_at(text, position) > 0 &&
               unicode::isdigit(text[position - 1]) && inch_mark_in(text, position, quotes);
   return {quotes, inch};
 }
@@ -414,7 +454,7 @@ bool is_inch_mark(std::u32string_view text, size_t position) {
 }
 
 bool in_double_quotation(std::u32string_view text, size_t position) {
-  auto [quotes, inch] = scan_quotes(text, position);
+  Quotes quotes = scan_quotes(text, position).first;
   return quotes.curly > 0 || quotes.straight;
 }
 

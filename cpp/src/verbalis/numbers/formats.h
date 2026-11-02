@@ -53,6 +53,20 @@ struct SuffixFormat {
   bool sentence_dot = false;         // A dot closing the suffix is left to a sentence it also closes
 };
 
+// How a language reads numbers written with prime marks: 3'16", 5'9", 23″ (see PrimePattern).
+struct PrimeFormat {
+  // Lowercase words of a text which make its minutes and seconds (3'16") and a lone 23″ a time; without one, they are
+  // left as written and a lone 23″ is inches.
+  std::unordered_set<std::u32string> cues;
+  bool feet = false; // 5'9" is feet and inches, and a lone 400' is feet
+  // Lowercase words among the three before or after a lone 10' which make it minutes: durante más de 10', aos 6′ do
+  // segundo tempo; without one, it is left as written.
+  std::unordered_set<std::u32string> minutes;
+  // Lowercase words among the eight before or the three after a 5'5" which make it feet and inches when no word of
+  // the text is one of the cues: Mam 5'5" wzrostu, Er ist 6'2" groß.
+  std::unordered_set<std::u32string> heights;
+};
+
 // How numbers are written in a language, read by the generic patterns.
 // Fractions with their own words, by numerator and denominator: 1/2 -> half
 using Fractions = std::map<std::pair<uint64_t, uint64_t>, std::u32string>;

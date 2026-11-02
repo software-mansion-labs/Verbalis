@@ -7,6 +7,7 @@ import {
   RomanPattern,
   PrimePattern,
 } from "../../numbers/patterns.ts";
+import { primeFormat } from "../../numbers/formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -24,12 +25,13 @@ import {
   RomanRole,
   isOrdinalDegree,
   unpaddedDay,
+  isScore,
 } from "../../numbers/scanning.ts";
 import { isClearAfter, isClearBefore, join } from "../../text/scan.ts";
 import { contains, size, split, toLower, type Text } from "../../text/strings.ts";
 import { stripped, wordsOf } from "../../text/context.ts";
 import { isDigit, isLower, isSpace, isUpper } from "../../text/unicode.ts";
-import type { Forms } from "../grammar.ts";
+import { Prime, type Forms } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CENTS,
@@ -69,7 +71,6 @@ import {
   FEMININE_ROMAN_NOUNS,
   ORDINAL_NOUNS,
   INCH,
-  FOOT,
   HEIGHT_CUES,
   PRIME_CUES,
   MINUTE_CUES,
@@ -321,7 +322,9 @@ class Italian extends PatternLanguage {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES, HEIGHT_CUES));
+    this.addPattern(
+      new PrimePattern(NOTATION, primeFormat({ cues: PRIME_CUES, minutes: MINUTE_CUES, heights: HEIGHT_CUES })),
+    );
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -433,9 +436,6 @@ class Italian extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
-    if (match.separator === "′") {
-      return Italian.#primes(match);
-    }
     // With a dot, a time comes after "alle" or from 13 on: alle 9.30, 21.30, but versione 2.79
     const hours = value(match.numbers[0]);
     const minutes = value(match.numbers[1]);
@@ -555,24 +555,23 @@ class Italian extends PatternLanguage {
 
   // 350-450 grammi keeps its hyphen, but a score is "a": vinto 2-1 (due a uno)
   protected override readRange(_from: Numeral, _to: Numeral, match: Match): string {
-    return PatternLanguage.isScore(match, SPORT_WORDS) ? this.joiners().score : this.joiners().range;
+    return isScore(match, SPORT_WORDS) ? this.joiners().score : this.joiners().range;
   }
 
   // 1'12"76: un minuto e dodici secondi e settantasei centesimi; 2h11'13": due ore undici minuti e tredici secondi, but
   // un'ora e quattordici minuti e ventuno secondi
-  static #primes(match: Match): string | undefined {
-    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
-    const words = match.numbers.map((number, i) =>
-      countedValue(value(number), match.unit === "ft" ? (i === 0 ? FOOT : INCH) : PRIME_UNITS[first + i]),
-    );
-    const fraction = match.numbers[match.numbers.length - 1].fraction;
-    if (fraction !== "") {
-      words.push(countedValue(parseValue(fraction) ?? 0n, SECOND_FRACTIONS[fraction.length - 1]));
-    }
+  protected override readPrimes(match: Match): string | undefined {
+    const words = this.primeWords(match);
     return words.reduce((out, word, i) => {
-      const hours = i === 1 && first === 0 && value(match.numbers[0]) > 1n && words.length > 2;
+      const hours = i === 1 && match.unit === "h" && value(match.numbers[0]) > 1n && words.length > 2;
       return out + (hours ? " " : " e ") + word;
     });
+  }
+  protected override readPrime(number: Numeral, unit: Prime, _match: Match): string {
+    return countedValue(value(number), PRIME_UNITS[unit]);
+  }
+  protected override readPrimeFraction(digits: string, _match: Match): string | undefined {
+    return countedValue(parseValue(digits) ?? 0n, SECOND_FRACTIONS[digits.length - 1]);
   }
 
   // An amount with its scale: settantaquattromila, tre milioni

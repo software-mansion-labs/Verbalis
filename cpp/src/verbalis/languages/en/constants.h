@@ -203,6 +203,16 @@ inline const std::unordered_set<std::u32string> kTimeWords = {
   U"and", U"is", U"it's", U"or"
 };
 
+// Words after a number which make it an amount, not a time: at 1.50 times, 2.53 percent
+inline const std::unordered_set<std::u32string> kAmountWords = {U"times", U"percent"};
+
+// A time written with prime marks (hours, minutes, seconds), and a height in feet and inches: 1'27"23, 5'9"
+inline const Forms kInch = {U"inch", U"inches"};
+inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
+  {Prime::HOUR, {U"hour", U"hours"}}, {Prime::MINUTE, {U"minute", U"minutes"}}, {Prime::SECOND, {U"second", U"seconds"}},
+  {Prime::FOOT, {U"foot", U"feet"}}, {Prime::INCH, kInch},
+};
+
 // Words after an amount that do not make it an adjective ("$5 a month" vs "a $5 bill")
 inline const std::unordered_set<std::u32string> kStopWords = {
   U"a", U"an", U"the", U"and", U"or", U"but", U"nor", U"in", U"on", U"at", U"to", U"for", U"of", U"per", U"with",

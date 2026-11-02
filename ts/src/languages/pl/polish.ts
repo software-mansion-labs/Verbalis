@@ -20,6 +20,8 @@ import {
   romanRole,
   romanValue,
   toDigits,
+  isYearValue,
+  mentions,
 } from "../../numbers/scanning.ts";
 import { Context, PUNCTUATION, stripped, wordsOf } from "../../text/context.ts";
 import type { Span } from "../../text/document.ts";
@@ -36,8 +38,8 @@ import {
 } from "../../text/scan.ts";
 import { contains, size, startsWith, str, toLower, type Text } from "../../text/strings.ts";
 import { isDigit, isLower, isSpace, isUpper, isWord, isAlpha } from "../../text/unicode.ts";
-import { keysOf, type RomanCues } from "../../numbers/formats.ts";
-import { Case, Gender } from "../grammar.ts";
+import { keysOf, primeFormat, type RomanCues } from "../../numbers/formats.ts";
+import { Case, Gender, Prime } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   ADJECTIVE_ENDINGS,
@@ -103,9 +105,14 @@ import {
   REGNAL_NAMES,
   ROMAN_NOUNS,
   INCH,
-  FOOT,
   HEIGHT_CUES,
   PRIME_CUES,
+  BECOME_STEM,
+  LIST_CONJUNCTIONS,
+  NUMBER_ABBREVIATION,
+  NUMBER_STEM,
+  PRIME_UNITS,
+  SIGNS,
 } from "./constants.ts";
 
 // Whether a number reads as a count or as an ordinal (years, days of a month, headings)
@@ -348,7 +355,7 @@ function surroundings(context: Context): [string[], string] {
   ) {
     before.length -= 2;
   }
-  if (before.length > 0 && ["minus", "plus", "+"].includes(before[before.length - 1])) {
+  if (before.length > 0 && SIGNS.has(before[before.length - 1])) {
     before.pop(); // do minus siedmiu stopni, od +12°C
   }
   // do nawet siedmiuset, przez około cztery: the preposition before a particle governs the number
@@ -393,7 +400,7 @@ function enumerated(context: Context): Context | undefined {
   }
   // spośród 510 ocen i 68 recenzji: a conjunction, as a comma
   const w = context.before();
-  if (w !== "czy" && CONJUNCTIONS.has(w) && isAlpha(head[end])) {
+  if (LIST_CONJUNCTIONS.has(w) && isAlpha(head[end])) {
     end = end + 1 - size(w);
   } else if (head[end] !== ",") {
     return undefined;
@@ -553,7 +560,7 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
 
   // 1990-1994: the end of a range of years stays a cardinal, as its start (but od 2020 do 2022 reads ordinals)
   const year = (w: string): boolean => w.length === 4 && madeOf(w, DIGITS);
-  if (w1 === "do" && year(w2) && n >= 1000n && n <= 2100n && w3 !== "od" && noun !== "roku" && noun !== "r") {
+  if (w1 === "do" && year(w2) && isYearValue(n) && w3 !== "od" && noun !== "roku" && noun !== "r") {
     return inflection(Form.CARDINAL, Case.NOMINATIVE);
   }
 
@@ -601,7 +608,7 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
       : Case.GENITIVE;
     return inflection(Form.ORDINAL, c);
   }
-  if (MONTH_WORDS.has(w1) && n >= 1000n && n <= 2100n) {
+  if (MONTH_WORDS.has(w1) && isYearValue(n)) {
     return inflection(Form.ORDINAL, Case.GENITIVE);
   }
   // października 18, 2017: a day after its month, and the year after them
@@ -615,18 +622,17 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
     head.length >= 2 &&
     head[head.length - 2] === "," &&
     head[head.length - 1] === " " &&
-    n >= 1000n &&
-    n <= 2100n &&
+    isYearValue(n) &&
     monthAt(2) &&
     madeOf(str(stripped(written[written.length - 1])), DIGITS);
   if (dayAfterMonth || yearAfterDay) {
     return inflection(Form.ORDINAL, Case.GENITIVE);
   }
-  if ((w1 === "w" || w1 === "we") && n >= 1000n && n <= 2100n && !genitivePlurals().has(noun)) {
+  if ((w1 === "w" || w1 === "we") && isYearValue(n) && !genitivePlurals().has(noun)) {
     return inflection(Form.ORDINAL, Case.LOCATIVE);
   }
   const yearCase = YEAR_PREPOSITIONS.get(w1);
-  if (yearCase !== undefined && n >= 1900n && n <= 2100n && !counted(noun)) {
+  if (yearCase !== undefined && isYearValue(n, 1900n) && !counted(noun)) {
     return inflection(Form.ORDINAL, yearCase); // od dwa tysiące dwudziestego do dwa tysiące dwudziestego drugiego
   }
   if (startsWithAny(w1, ORDINAL_HEADINGS) && n < 100n && !counted(noun)) {
@@ -640,8 +646,8 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
     forms !== undefined &&
     n >= 2n &&
     !decimal &&
-    !w1.startsWith("numer") &&
-    w1 !== "nr" &&
+    !w1.startsWith(NUMBER_STEM) &&
+    w1 !== NUMBER_ABBREVIATION &&
     !forms.some((form) => form.plural && !form.pluralOnly)
   ) {
     const form = nounForm(noun, w1);
@@ -726,7 +732,7 @@ function fractionWords(a: bigint, b: bigint, c: Case): string {
 function ordinalCue(context: Context): string {
   const w1 = context.before();
   const head = wordsOf(context.head());
-  if (w1 !== "czy" && CONJUNCTIONS.has(w1) && head.length > 1) {
+  if (LIST_CONJUNCTIONS.has(w1) && head.length > 1) {
     const previous = head[head.length - 2];
     if (previous.at(-1) === "." && madeOf(str(previous, 0, previous.length - 1), DIGITS)) {
       return context.before(3);
@@ -836,8 +842,8 @@ function cuesOf(match: Match): Cues {
         const word = words.length > i ? toLower(str(stripped(words[i]))) : "";
         const next = { ...nounForm(word, w1) };
         // został 11. kierowcą: an instrumental after a form of "zostać" or "być", in the gender of the verb
-        const verb = COPULAS.has(w1) || w1.startsWith("zosta") ? w1 : context.before(2);
-        if (word.endsWith("ą") && (COPULAS.has(verb) || verb.startsWith("zosta"))) {
+        const verb = COPULAS.has(w1) || w1.startsWith(BECOME_STEM) ? w1 : context.before(2);
+        if (word.endsWith("ą") && (COPULAS.has(verb) || verb.startsWith(BECOME_STEM))) {
           next.grammaticalCase = Case.INSTRUMENTAL;
           // prettier-ignore
           next.gender =
@@ -869,7 +875,8 @@ function cuesOf(match: Match): Cues {
         wordBegin--;
       }
       const word = str(head, wordBegin, wordEnd);
-      cues.numbered = digits < head.length && wordEnd < digits && (word.startsWith("numer") || word === "nr");
+      cues.numbered =
+        digits < head.length && wordEnd < digits && (word.startsWith(NUMBER_STEM) || word === NUMBER_ABBREVIATION);
       return cues;
     }
 
@@ -1173,7 +1180,7 @@ class Polish extends PatternLanguage {
     this.addPattern(new GluedDatePattern());
     this.addPattern(new RomanDatePattern());
     this.addPattern(new FractionUnitPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, new Set(), HEIGHT_CUES));
+    this.addPattern(new PrimePattern(NOTATION, primeFormat({ cues: PRIME_CUES, heights: HEIGHT_CUES })));
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -1264,9 +1271,6 @@ class Polish extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
-    if (match.separator === "′") {
-      return Polish.#primes(match);
-    }
     const minutes = match.numbers[1].integer;
     const round = minutes === "00" || minutes === "15" || minutes === "30" || minutes === "45";
     const decimal = match.separator === "." && !round && !TIME_WORDS.has(match.context.before());
@@ -1276,7 +1280,7 @@ class Polish extends PatternLanguage {
       match.suffix === "" &&
       minutes !== "00" &&
       !TIME_WORDS.has(match.context.before()) &&
-      PatternLanguage.mentions(match.context, SPORT_WORDS);
+      mentions(match.context, SPORT_WORDS);
     if (!fitsClock(match) || decimal || score) {
       return undefined;
     }
@@ -1551,7 +1555,7 @@ class Polish extends PatternLanguage {
     if (HOUR_WORDS.has(match.context.before(2)) || (start > 0 && head[start - 1] === ":")) {
       return "-";
     }
-    const year = (n: Numeral): boolean => n.integer.length === 4 && value(n) >= 1000n && value(n) <= 2100n;
+    const year = (n: Numeral): boolean => n.integer.length === 4 && isYearValue(value(n));
     const after = wordsOf(match.context.tail());
     const noun =
       after.length >= 2 && madeOf(str(stripped(after[0])), "0123456789,.") && str(after[0]) === str(stripped(after[0]))
@@ -1563,19 +1567,12 @@ class Polish extends PatternLanguage {
 
   // The case of an amount, or of the end of its range after "do": 4-5 proc. cztery do pięciu procent
   // 8'22": osiem minut dwadzieścia dwie sekundy; 5'5": pięć stóp pięć cali
-  static #primes(match: Match): string | undefined {
-    const units = ["h", "min", "s"];
-    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
-    const words = match.numbers.map((number, i) => {
-      const whole = numeral({ span: { begin: 0, end: 0 }, integer: toDigits(value(number)) });
-      const unit = match.unit === "ft" ? (i === 0 ? FOOT : INCH) : UNITS[units[first + i]];
-      return amount(whole, unit, Case.NOMINATIVE);
-    });
-    const fraction = match.numbers[match.numbers.length - 1].fraction;
-    if (fraction !== "") {
-      words.push(cardinal(parseValue(fraction) ?? 0n));
-    }
-    return join(words);
+  protected override readPrime(number: Numeral, unit: Prime, _match: Match): string {
+    const whole = numeral({ span: { begin: 0, end: 0 }, integer: toDigits(value(number)) });
+    return amount(whole, PRIME_UNITS[unit], Case.NOMINATIVE);
+  }
+  protected override readPrimeFraction(digits: string, _match: Match): string | undefined {
+    return cardinal(parseValue(digits) ?? 0n);
   }
 
   #amountCase(match: Match): Case {

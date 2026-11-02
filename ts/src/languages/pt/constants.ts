@@ -2,7 +2,7 @@ import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions
 import type { Terms } from "../../steps/terms.ts";
 import { beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
 import type { Keys } from "../../text/scan.ts";
-import type { Forms, Joiners } from "../grammar.ts";
+import { Prime, type Forms, type Joiners } from "../grammar.ts";
 
 // Brazilian forms: dezesseis, bilhão
 export const ONES = [
@@ -108,10 +108,7 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
 // Words around a lone 10' which make it minutes: aos 6′ do segundo tempo
 export const MINUTE_CUES: ReadonlySet<string> = new Set(["tempo"]);
 
-// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
-export const PRIME_UNITS: readonly Forms[] = [
-  { one: "hora", many: "horas" }, { one: "minuto", many: "minutos" }, { one: "segundo", many: "segundos" },
-];
+// The tenths to thousandths of a second of a time written with prime marks; and an inch
 export const SECOND_FRACTIONS: readonly Forms[] = [
   { one: "décimo", many: "décimos" }, { one: "centésimo", many: "centésimos" }, { one: "milésimo", many: "milésimos" },
 ];
@@ -119,7 +116,12 @@ export const INCH: Forms = { one: "polegada", many: "polegadas" };
 
 // Words around a 5'5" which make it feet and inches: ele mede 5'5"
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mede", "altura", "alto", "alta"]);
-export const FOOT: Forms = { one: "pé", many: "pés" };
+
+// A time or a height written with prime marks
+export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
+  [Prime.HOUR]: { one: "hora", many: "horas" }, [Prime.MINUTE]: { one: "minuto", many: "minutos" }, [Prime.SECOND]: { one: "segundo", many: "segundos" },
+  [Prime.FOOT]: { one: "pé", many: "pés" },     [Prime.INCH]: INCH,
+};
 
 // Words before an hour, which make it feminine: às duas, das dez
 export const HOUR_WORDS: ReadonlySet<string> = new Set(["às", "à", "as", "das", "pelas"]);

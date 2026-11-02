@@ -2,7 +2,7 @@ import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions
 import type { Terms } from "../../steps/terms.ts";
 import type { Keys } from "../../text/scan.ts";
 import { beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
-import type { Forms, Joiners } from "../grammar.ts";
+import { Prime, type Forms, type Joiners } from "../grammar.ts";
 
 export const ONES = [
   "zero", "uno", "due", "tre", "quattro", "cinque", "sei",
@@ -95,10 +95,7 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
 // Words around a lone 10' which make it minutes: ha giocato solo 120'
 export const MINUTE_CUES: ReadonlySet<string> = new Set(["giocato"]);
 
-// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
-export const PRIME_UNITS: readonly Forms[] = [
-  { one: "ora", many: "ore" }, { one: "minuto", many: "minuti" }, { one: "secondo", many: "secondi" },
-];
+// The tenths to thousandths of a second of a time written with prime marks; and an inch
 export const SECOND_FRACTIONS: readonly Forms[] = [
   { one: "decimo", many: "decimi" }, { one: "centesimo", many: "centesimi" }, { one: "millesimo", many: "millesimi" },
 ];
@@ -106,7 +103,12 @@ export const INCH: Forms = { one: "pollice", many: "pollici" };
 
 // Words around a 5'5" which make it feet and inches: è alto 5'5"
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["alto", "alta", "altezza", "misura"]);
-export const FOOT: Forms = { one: "piede", many: "piedi" };
+
+// A time or a height written with prime marks
+export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
+  [Prime.HOUR]: { one: "ora", many: "ore" },     [Prime.MINUTE]: { one: "minuto", many: "minuti" }, [Prime.SECOND]: { one: "secondo", many: "secondi" },
+  [Prime.FOOT]: { one: "piede", many: "piedi" }, [Prime.INCH]: INCH,
+};
 
 // Words before a time with a dot, which make it a time: alle 21.30
 export const TIME_WORDS: ReadonlySet<string> = new Set(["alle", "ore", "dalle", "le", "verso", "entro", "per"]);

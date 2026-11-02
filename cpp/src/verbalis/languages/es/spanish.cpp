@@ -293,8 +293,7 @@ Cues cues_of(const Match& match) {
   // A year or a numbered item counts nothing after it: en 1971 publicó, en 2031 estaría, número 1 (ESEA)
   std::u32string previous = match.context.before();
   bool year = match.kind == Kind::NUMBER && kYearWords.contains(previous) && match.numbers[0].integer.size() == 4 &&
-              match.numbers[0].fraction.empty() && !match.numbers[0].grouped && value(match.numbers[0]) >= 1000 &&
-              value(match.numbers[0]) <= 2100;
+              match.numbers[0].fraction.empty() && !match.numbers[0].grouped && is_year_value(value(match.numbers[0]));
   Cues cues{.one = alone || year || is_number_word(previous) ? One::UNO : one_of(match.context)};
 
   if (match.kind == Kind::MONEY) {
@@ -573,7 +572,8 @@ public:
     add_pattern(std::make_unique<FractionPattern>());
     add_pattern(std::make_unique<PrefixedMoneyPattern>(kNotation, kCurrencyWords));
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues, kHeightCues));
+    add_pattern(std::make_unique<PrimePattern>(
+        kNotation, PrimeFormat{.cues = kPrimeCues, .minutes = kMinuteCues, .heights = kHeightCues}));
     add_pattern(std::make_unique<CompactTimePattern>());
     add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSigns, U". \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSigns, kOrdinalSignFormat));
@@ -652,7 +652,7 @@ protected:
       return std::nullopt;
     }
     // 1990-2000 is a range of years
-    auto year = [](const Number& n) { return value(n) >= 1000 && value(n) <= 2100; };
+    auto year = [](const Number& n) { return is_year_value(value(n)); };
     if (match.numbers.size() == 2 && year(match.numbers[0]) && year(match.numbers[1])) {
       return std::nullopt;
     }
@@ -667,7 +667,7 @@ protected:
     }
     // Not a number with its year (117/2004) or a code (023/2006, 8/12-2K, SUP-REC-15/2011)
     std::u32string previous = match.context.before();
-    bool year = a > 1 && b >= 1900 && b < 2100;
+    bool year = a > 1 && is_year_value(b, 1900, 2099);
     bool code = match.numbers[match.numbers.size() - 2].integer.starts_with(U'0') ||
                 match.context.tail().starts_with(U'-') || match.context.head().ends_with(U'-');
     bool alone = match.context.head().empty() && match.context.tail().empty(); // 3/2 alone: tres medios
@@ -725,9 +725,6 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
-    if (match.separator == U'′') {
-      return primes(match);
-    }
     bool hour = std::ranges::find(kHourSuffixes, match.suffix) != kHourSuffixes.end();
     bool morning = std::ranges::find(kMorningSuffixes, match.suffix) != kMorningSuffixes.end();
     bool evening = std::ranges::find(kEveningSuffixes, match.suffix) != kEveningSuffixes.end();
@@ -941,24 +938,17 @@ protected:
 private:
   // 1'34"704: un minuto treinta y cuatro segundos y setecientas cuatro milésimas; 2h 08'29": dos horas ocho minutos
   // veintinueve segundos; 5'5": cinco pies y cinco pulgadas
-  static std::optional<std::u32string> primes(const Match& match) {
-    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
-    std::vector<std::u32string> words;
-    for (size_t i = 0; i < match.numbers.size(); ++i) {
-      bool feet = match.unit == U"ft";
-      const Forms& unit = feet ? (i == 0 ? kFoot : kInch) : kPrimeUnits[first + i];
-      uint64_t n = value(match.numbers[i]);
-      bool feminine = feet ? i == 1 : first + i == 0;
-      // 5'5": cinco pies y cinco pulgadas
-      std::u32string joiner = feet && i == 1 ? U"y " : U"";
-      words.push_back(joiner + cardinal(n, feminine ? One::UNA : One::UN) + U" " + (n == 1 ? unit.one : unit.many));
-    }
-    const std::u32string& fraction = match.numbers.back().fraction;
-    if (!fraction.empty()) {
-      std::u32string thousandths = cardinal(parse_value(fraction).value_or(0), One::UNA);
-      words.push_back(fraction.size() == 3 ? U"y " + thousandths + U" milésimas" : thousandths);
-    }
-    return join(words);
+  std::u32string read_prime(const Number& number, Prime unit, const Match& /*match*/) const override {
+    const Forms& forms = kPrimeUnits.at(unit);
+    uint64_t n = value(number);
+    bool feminine = unit == Prime::HOUR || unit == Prime::INCH;
+    // 5'5": cinco pies y cinco pulgadas
+    std::u32string joiner = unit == Prime::INCH ? U"y " : U"";
+    return joiner + cardinal(n, feminine ? One::UNA : One::UN) + U" " + (n == 1 ? forms.one : forms.many);
+  }
+  std::optional<std::u32string> read_prime_fraction(std::u32string_view digits, const Match& /*match*/) const override {
+    std::u32string thousandths = cardinal(parse_value(digits).value_or(0), One::UNA);
+    return digits.size() == 3 ? U"y " + thousandths + U" milésimas" : thousandths;
   }
 
   // An amount with its scale: dos millones, un billón, cinco mil

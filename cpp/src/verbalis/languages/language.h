@@ -72,6 +72,9 @@ protected:
 
   const Joiners& joiners() const { return joiners_; }
 
+  // The words of a prime match: each number with its unit by read_prime, then the fraction by read_prime_fraction
+  std::vector<std::u32string> prime_words(const Match& match) const;
+
   // A number, in the context of its match: 42, 1 000,5, .5
   virtual std::u32string read_number(const Number& number, const Match& match) const = 0;
 
@@ -96,6 +99,18 @@ protected:
   // A fraction, after its whole number if it has one (3 1/2), by the joiners
   virtual std::optional<std::u32string> read_mixed_fraction(const Match& match) const;
   virtual std::optional<std::u32string> read_time(const Match& match) const;
+  // A time or a length written with prime marks (2h11'13", 1'27"23, 5'9"; see numbers::PrimePattern): its prime_words
+  // joined by spaces
+  virtual std::optional<std::u32string> read_primes(const Match& match) const;
+  // One number of a prime match with its unit (27 SECOND), as the number alone by default
+  virtual std::u32string read_prime(const Number& number, Prime /*unit*/, const Match& match) const {
+    return read_number(number, match);
+  }
+  // The fraction of the seconds of a prime match (the 23 of 1'27"23), none by default
+  virtual std::optional<std::u32string> read_prime_fraction(std::u32string_view /*digits*/,
+                                                            const Match& /*match*/) const {
+    return std::nullopt;
+  }
   virtual std::optional<std::u32string> read_ordinal(const Match& match) const;
   virtual std::optional<std::u32string> read_decade(const Match& match) const;
   virtual std::optional<std::u32string> read_compound(const Match& match) const;
@@ -112,12 +127,6 @@ protected:
   // Symbols between numbers (DIFFERENCE, SUM, RANGE, DIMENSION, SIGN, SCORE), from the joiners by default
   virtual std::optional<std::u32string> read_joiner(const Match& match) const;
   virtual std::u32string read_range(const Number& from, const Number& to, const Match& match) const;
-
-  // A score rather than a range: a range of at most three digits that drops or ties (3-1, 1-1), or follows an
-  // elided article (l'1-2), in a text with a word of sport (a prefix of sport_words). Not 3-15 años, nor 14-2b.
-  static bool is_score(const Match& range, const text::Keys& sport_words);
-  // Whether a word of the text around a match starts with one of the stems
-  static bool mentions(const text::Context& context, const text::Keys& stems);
 
   // The plural of a reading, for codes like F-16s; none by default.
   virtual std::optional<std::u32string> plural(std::u32string_view /*words*/) const { return std::nullopt; }

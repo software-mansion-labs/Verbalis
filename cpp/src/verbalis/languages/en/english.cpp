@@ -537,10 +537,9 @@ public:
 
 // A straight double quote as a unit: 27" monitor
 constexpr std::u32string_view kInchMark = U"\"";
-const Forms kInches = {U"inch", U"inches"};
 
 const Forms& unit_forms(std::u32string_view unit) {
-  return unit == kInchMark ? kInches : kUnits.at(std::u32string(unit));
+  return unit == kInchMark ? kInch : kUnits.at(std::u32string(unit));
 }
 
 // Whether a straight double quote right after a number is an inch mark (27" monitor), not the end of a quotation
@@ -688,7 +687,7 @@ public:
     add_pattern(std::make_unique<MarkedRangePattern>());
     add_pattern(std::make_unique<ProductPattern>());
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, std::unordered_set<std::u32string>{}, true));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, PrimeFormat{.feet = true}));
     add_pattern(std::make_unique<PricePattern>());
     add_pattern(std::make_unique<SuffixedFractionPattern>());
     add_pattern(std::make_unique<FractionUnitPattern>());
@@ -839,9 +838,6 @@ protected:
   }
 
   std::optional<std::u32string> read_time(const Match& match) const override {
-    if (match.separator == U'′') {
-      return primes(match);
-    }
     uint64_t hours = value(match.numbers[0]);
     std::u32string suffix = ampm(match.suffix);
 
@@ -898,8 +894,8 @@ protected:
     // 1.13 is a decimal, unless a time is expected: at 10.30; but 2.53% and 4.00%, at 1.50 times, and 2.30 kg
     std::u32string_view tail = match.context.tail();
     std::u32string word = match.context.after();
-    bool amount = tail.starts_with(U'%') || tail.starts_with(U" %") || word == U"times" || word == U"percent" ||
-                  kUnits.contains(word);
+    bool amount =
+        tail.starts_with(U'%') || tail.starts_with(U" %") || kAmountWords.contains(word) || kUnits.contains(word);
     bool decimal =
         match.separator == U'.' && match.suffix.empty() && (amount || !kTimeWords.contains(match.context.before()));
     if (!fits_clock(match) || decimal) {
@@ -1075,19 +1071,11 @@ protected:
 
 private:
   // 5'9": five feet nine inches; 1'27"23: one minute twenty-seven point two three seconds
-  std::u32string primes(const Match& match) const {
-    static const std::array<Forms, 3> times = {{{U"hour", U"hours"}, {U"minute", U"minutes"}, {U"second", U"seconds"}}};
-    static const std::array<Forms, 2> lengths = {{{U"foot", U"feet"}, {U"inch", U"inches"}}};
-    size_t first = match.unit == U"h" ? 0 : match.unit == U"min" ? 1 : 2;
-    std::vector<std::u32string> words;
-    for (size_t i = 0; i < match.numbers.size(); ++i) {
-      const Number& number = match.numbers[i];
-      const Forms& unit = match.unit == U"ft" ? lengths[i] : times[first + i];
-      bool one = number.fraction.empty() && value(number) == 1;
-      std::u32string count = number.fraction.empty() ? cardinal(value(number)) : read_number(number, match);
-      words.push_back(count + U" " + (one ? unit.one : unit.many));
-    }
-    return join(words);
+  std::u32string read_prime(const Number& number, Prime unit, const Match& match) const override {
+    const Forms& forms = kPrimeUnits.at(unit);
+    bool one = number.fraction.empty() && value(number) == 1;
+    std::u32string count = number.fraction.empty() ? cardinal(value(number)) : read_number(number, match);
+    return count + U" " + (one ? forms.one : forms.many);
   }
 
   // An integer as a year, a day of a month or a count, digit by digit if it is a code

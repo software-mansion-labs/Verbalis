@@ -8,6 +8,7 @@ import {
   RomanPattern,
   PrimePattern,
 } from "../../numbers/patterns.ts";
+import { primeFormat } from "../../numbers/formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -25,11 +26,14 @@ import {
   RomanRole,
   isOrdinalDegree,
   unpaddedDay,
+  isScore,
+  isYearValue,
+  mentions,
 } from "../../numbers/scanning.ts";
 import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
 import { contains, size, startsWith, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isDigit, isLower } from "../../text/unicode.ts";
-import { Gender, type Forms } from "../grammar.ts";
+import { Gender, Prime } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CURRENCIES,
@@ -77,7 +81,6 @@ import {
   FEMININE_ORDINAL_ARTICLES,
   ORDINAL_NOUNS,
   INCH,
-  FOOT,
   HEIGHT_CUES,
   PRIME_CUES,
   MINUTE_CUES,
@@ -346,10 +349,7 @@ function isDecade(match: Match): boolean {
     (word === "de" && match.context.before(2) === "década") ||
     match.text.startsWith("'") ||
     head[head.length - 1] === "'";
-  return (
-    n % 10n === 0n &&
-    ((number.integer.length === 2 && marked) || (number.integer.length === 4 && n >= 1000n && n <= 2100n))
-  );
+  return n % 10n === 0n && ((number.integer.length === 2 && marked) || (number.integer.length === 4 && isYearValue(n)));
 }
 
 // A day and a month marked as a date by the word before them, or by parentheses: dia 15/9, quinta-feira (16/3);
@@ -466,7 +466,9 @@ class Portuguese extends PatternLanguage {
     this.addPattern(new DatePattern(DOT_DATE_FORMAT));
     this.addPattern(new ReorderedDatePattern());
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES, HEIGHT_CUES));
+    this.addPattern(
+      new PrimePattern(NOTATION, primeFormat({ cues: PRIME_CUES, minutes: MINUTE_CUES, heights: HEIGHT_CUES })),
+    );
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -501,8 +503,7 @@ class Portuguese extends PatternLanguage {
       (YEAR_WORDS.has(match.context.before()) || !counted(match.context)) &&
       number.integer.length === 4 &&
       !number.grouped &&
-      value(number) >= 1000n &&
-      value(number) <= 2100n;
+      isYearValue(value(number));
     // 1200-871 Lisboa: the second part of a postal code
     const head = match.context.head();
     const postal =
@@ -545,7 +546,7 @@ class Portuguese extends PatternLanguage {
     // 2021-2022, 20 2021-2022, 1685-1750: a range of years; 500-1000: a range of round numbers; 213 456 789 pessoas:
     // a count
     if (match.kind === Kind.PHONE) {
-      const year = (group: Numeral) => group.integer.length === 4 && value(group) >= 1000n && value(group) <= 2100n;
+      const year = (group: Numeral) => group.integer.length === 4 && isYearValue(value(group));
       const numbers = match.numbers;
       const n = numbers.length;
       const from = value(numbers[n - 2]);
@@ -581,9 +582,6 @@ class Portuguese extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
-    if (match.separator === "′") {
-      return Portuguese.#primes(match);
-    }
     // A dot makes a time only after an hour word or before "h": às 21.30, 21.30h, but 1.71
     const decimal = match.separator === "." && match.suffix === "" && !HOUR_WORDS.has(match.context.before());
     if (!fitsClock(match) || decimal) {
@@ -742,7 +740,7 @@ class Portuguese extends PatternLanguage {
 
   protected override readRange(from: Numeral, to: Numeral, match: Match): string {
     // 2016-2022 and 10-15 read "a"; formations and splits (4-3-3, 60-40) keep "-", but scores read "a": venceu 5-2
-    if (PatternLanguage.isScore(match, SPORT_WORDS)) {
+    if (isScore(match, SPORT_WORDS)) {
       return this.joiners().score;
     }
     const plain = from.fraction === "" && to.fraction === "" && !from.grouped && !to.grouped;
@@ -758,7 +756,7 @@ class Portuguese extends PatternLanguage {
       match.separator === "/" &&
       numbers[0].integer.length <= 2 &&
       numbers[1].integer.length <= 2 &&
-      PatternLanguage.mentions(match.context, SET_WORDS)
+      mentions(match.context, SET_WORDS)
     );
   }
   #readSetScore(match: Match): string {
@@ -766,20 +764,19 @@ class Portuguese extends PatternLanguage {
   }
 
   // 2'14'': dois minutos e catorze segundos; 1'12''00: um minuto e doze segundos e zero centésimos
-  static #primes(match: Match): string | undefined {
-    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
-    const counted = (n: bigint, unit: Forms, gender: Gender) =>
-      `${cardinal(n, gender)} ${n === 1n ? unit.one : unit.many}`;
-    const feet = match.unit === "ft";
-    const words = match.numbers.map((number, i) => {
-      const gender = (feet ? i === 1 : first + i === 0) ? Gender.FEMININE : Gender.MASCULINE;
-      return counted(value(number), feet ? (i === 0 ? FOOT : INCH) : PRIME_UNITS[first + i], gender);
-    });
-    const fraction = match.numbers[match.numbers.length - 1].fraction;
-    if (fraction !== "") {
-      words.push(counted(parseValue(fraction) ?? 0n, SECOND_FRACTIONS[fraction.length - 1], Gender.MASCULINE));
-    }
-    return join(words, " e ");
+  protected override readPrimes(match: Match): string | undefined {
+    return join(this.primeWords(match), " e ");
+  }
+  protected override readPrime(number: Numeral, unit: Prime, _match: Match): string {
+    const n = value(number);
+    const forms = PRIME_UNITS[unit];
+    const gender = unit === Prime.HOUR || unit === Prime.INCH ? Gender.FEMININE : Gender.MASCULINE;
+    return `${cardinal(n, gender)} ${n === 1n ? forms.one : forms.many}`;
+  }
+  protected override readPrimeFraction(digits: string, _match: Match): string | undefined {
+    const n = parseValue(digits) ?? 0n;
+    const forms = SECOND_FRACTIONS[digits.length - 1];
+    return `${cardinal(n)} ${n === 1n ? forms.one : forms.many}`;
   }
 }
 

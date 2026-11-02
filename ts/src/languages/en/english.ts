@@ -40,10 +40,11 @@ import {
 } from "../../text/scan.ts";
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isDigit, isUpper } from "../../text/unicode.ts";
-import { keysOf } from "../../numbers/formats.ts";
-import type { Forms } from "../grammar.ts";
+import { keysOf, primeFormat } from "../../numbers/formats.ts";
+import { Prime, type Forms } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
+  AMOUNT_WORDS,
   CENTS,
   CURRENCIES,
   CURRENCY_KEYS,
@@ -55,6 +56,7 @@ import {
   FRACTIONS,
   GROUP_SCALES,
   IRREGULAR_ORDINALS,
+  INCH,
   IRREGULAR_PLURALS,
   JOINERS,
   MONTH_WORDS,
@@ -65,6 +67,7 @@ import {
   ONES,
   ORDINAL_SUFFIXES,
   PHONE_FORMATS,
+  PRIME_UNITS,
   RANGE_WORDS,
   SCALE_WORDS,
   SCALES,
@@ -702,10 +705,9 @@ class EquationMinusPattern extends Pattern {
 
 // A straight double quote as a unit: 27" monitor
 const INCH_MARK = '"';
-const INCHES: Forms = { one: "inch", many: "inches" };
 
 function unitForms(unit: string): Forms {
-  return unit === INCH_MARK ? INCHES : UNITS[unit];
+  return unit === INCH_MARK ? INCH : UNITS[unit];
 }
 
 // Whether a straight double quote right after a number is an inch mark (27" monitor), not the end of a quotation
@@ -853,7 +855,7 @@ class English extends PatternLanguage {
     this.addPattern(new MarkedRangePattern());
     this.addPattern(new ProductPattern());
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, new Set(), true));
+    this.addPattern(new PrimePattern(NOTATION, primeFormat({ feet: true })));
     this.addPattern(new PricePattern());
     this.addPattern(new SuffixedFractionPattern());
     this.addPattern(new FractionUnitPattern());
@@ -1000,9 +1002,6 @@ class English extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
-    if (match.separator === "′") {
-      return this.#primes(match);
-    }
     const hours = value(match.numbers[0]);
     const suffix = ampm(match.suffix);
 
@@ -1065,11 +1064,7 @@ class English extends PatternLanguage {
     const tail = match.context.tail();
     const word = match.context.after();
     const amount =
-      tail[0] === "%" ||
-      (tail[0] === " " && tail[1] === "%") ||
-      word === "times" ||
-      word === "percent" ||
-      Object.hasOwn(UNITS, word);
+      tail[0] === "%" || (tail[0] === " " && tail[1] === "%") || AMOUNT_WORDS.has(word) || Object.hasOwn(UNITS, word);
     const decimal =
       match.separator === "." && match.suffix === "" && (amount || !TIME_WORDS.has(match.context.before()));
     if (!fitsClock(match) || decimal) {
@@ -1253,24 +1248,11 @@ class English extends PatternLanguage {
 
   // An integer as a year, a day of a month or a count, digit by digit if it is a code
   // 5'9": five feet nine inches; 1'27"23: one minute twenty-seven point two three seconds
-  #primes(match: Match): string {
-    const times: readonly Forms[] = [
-      { one: "hour", many: "hours" },
-      { one: "minute", many: "minutes" },
-      { one: "second", many: "seconds" },
-    ];
-    const lengths: readonly Forms[] = [
-      { one: "foot", many: "feet" },
-      { one: "inch", many: "inches" },
-    ];
-    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
-    const words = match.numbers.map((number, i) => {
-      const unit = match.unit === "ft" ? lengths[i] : times[first + i];
-      const one = number.fraction === "" && value(number) === 1n;
-      const count = number.fraction === "" ? cardinal(value(number)) : this.readNumber(number, match);
-      return `${count} ${one ? unit.one : unit.many}`;
-    });
-    return join(words);
+  protected override readPrime(number: Numeral, unit: Prime, match: Match): string {
+    const forms = PRIME_UNITS[unit];
+    const one = number.fraction === "" && value(number) === 1n;
+    const count = number.fraction === "" ? cardinal(value(number)) : this.readNumber(number, match);
+    return `${count} ${one ? forms.one : forms.many}`;
   }
 
   #integer(number: Numeral, cues: Cues): string {

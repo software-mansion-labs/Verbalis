@@ -132,8 +132,7 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
 // Words around a lone 10' which make it minutes: aos 6′ do segundo tempo
 inline const std::unordered_set<std::u32string> kMinuteCues = {U"tempo"};
 
-// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
-inline const std::array<Forms, 3> kPrimeUnits = {{{U"hora", U"horas"}, {U"minuto", U"minutos"}, {U"segundo", U"segundos"}}};
+// The tenths to thousandths of a second of a time written with prime marks; and an inch
 inline const std::array<Forms, 3> kSecondFractions = {
   {{U"décimo", U"décimos"}, {U"centésimo", U"centésimos"}, {U"milésimo", U"milésimos"}}
 };
@@ -141,7 +140,12 @@ inline const Forms kInch = {U"polegada", U"polegadas"};
 
 // Words around a 5'5" which make it feet and inches: ele mede 5'5"
 inline const std::unordered_set<std::u32string> kHeightCues = {U"mede", U"altura", U"alto", U"alta"};
-inline const Forms kFoot = {U"pé", U"pés"};
+
+// A time or a height written with prime marks
+inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
+  {Prime::HOUR, {U"hora", U"horas"}}, {Prime::MINUTE, {U"minuto", U"minutos"}}, {Prime::SECOND, {U"segundo", U"segundos"}},
+  {Prime::FOOT, {U"pé", U"pés"}},     {Prime::INCH, kInch},
+};
 
 // Words before an hour, which make it feminine: às duas, das dez
 inline const std::unordered_set<std::u32string> kHourWords = {U"às", U"à", U"as", U"das", U"pelas"};

@@ -11,6 +11,7 @@ import {
   RomanPattern,
   PrimePattern,
 } from "../../numbers/patterns.ts";
+import { primeFormat } from "../../numbers/formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -29,6 +30,8 @@ import {
   RomanRole,
   isOrdinalDegree,
   unpaddedDay,
+  isScore,
+  isYearValue,
 } from "../../numbers/scanning.ts";
 import {
   digitsEnd,
@@ -42,7 +45,7 @@ import {
 } from "../../text/scan.ts";
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isDigit, isLower, isSpace, isWord } from "../../text/unicode.ts";
-import type { Forms } from "../grammar.ts";
+import { Prime, type Forms } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   TIME_ZONES,
@@ -92,7 +95,6 @@ import {
   ORDINAL_ARTICLES,
   FEMININE_ORDINAL_ARTICLES,
   ORDINAL_NOUNS,
-  FOOT,
   HEIGHT_CUES,
   PRIME_CUES,
   MINUTE_CUES,
@@ -370,8 +372,7 @@ function cuesOf(match: Match): Cues {
     match.numbers[0].integer.length === 4 &&
     match.numbers[0].fraction === "" &&
     !match.numbers[0].grouped &&
-    value(match.numbers[0]) >= 1000n &&
-    value(match.numbers[0]) <= 2100n;
+    isYearValue(value(match.numbers[0]));
   const cues: Cues = {
     one: alone || year || isNumberWord(previous) ? One.UNO : oneOf(match.context),
     named: false,
@@ -684,7 +685,9 @@ class Spanish extends PatternLanguage {
     this.addPattern(new FractionPattern());
     this.addPattern(new PrefixedMoneyPattern(NOTATION, CURRENCY_WORDS));
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES, HEIGHT_CUES));
+    this.addPattern(
+      new PrimePattern(NOTATION, primeFormat({ cues: PRIME_CUES, minutes: MINUTE_CUES, heights: HEIGHT_CUES })),
+    );
     this.addPattern(new CompactTimePattern());
     this.addPattern(new GroupedOrdinalPattern(ORDINAL_SIGNS, ". \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SIGNS, ORDINAL_SIGN_FORMAT));
@@ -769,7 +772,7 @@ class Spanish extends PatternLanguage {
       return undefined;
     }
     // 1990-2000 is a range of years
-    const year = (n: Numeral): boolean => value(n) >= 1000n && value(n) <= 2100n;
+    const year = (n: Numeral): boolean => isYearValue(value(n));
     if (match.numbers.length === 2 && year(match.numbers[0]) && year(match.numbers[1])) {
       return undefined;
     }
@@ -789,7 +792,7 @@ class Spanish extends PatternLanguage {
     }
     // Not a number with its year (117/2004) or a code (023/2006, 8/12-2K, SUP-REC-15/2011)
     const previous = match.context.before();
-    const year = a > 1n && b >= 1900n && b < 2100n;
+    const year = a > 1n && isYearValue(b, 1900n, 2099n);
     const head = match.context.head();
     const code =
       match.numbers[match.numbers.length - 2].integer.startsWith("0") ||
@@ -848,9 +851,6 @@ class Spanish extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
-    if (match.separator === "′") {
-      return Spanish.#primes(match);
-    }
     const hour = HOUR_SUFFIXES.includes(match.suffix);
     const morning = MORNING_SUFFIXES.includes(match.suffix);
     const evening = EVENING_SUFFIXES.includes(match.suffix);
@@ -1058,28 +1058,22 @@ class Spanish extends PatternLanguage {
 
   // 10-17 años keeps its hyphen, but a score is "a": ganó 2-0 (dos a cero)
   protected override readRange(_from: Numeral, _to: Numeral, match: Match): string {
-    return PatternLanguage.isScore(match, SPORT_WORDS) ? this.joiners().score : this.joiners().range;
+    return isScore(match, SPORT_WORDS) ? this.joiners().score : this.joiners().range;
   }
 
   // 1'34"704: un minuto treinta y cuatro segundos y setecientas cuatro milésimas; 2h 08'29": dos horas ocho minutos
   // veintinueve segundos
-  static #primes(match: Match): string | undefined {
-    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
-    const words = match.numbers.map((number, i) => {
-      const feet = match.unit === "ft";
-      const unit = feet ? (i === 0 ? FOOT : INCH) : PRIME_UNITS[first + i];
-      const n = value(number);
-      const feminine = feet ? i === 1 : first + i === 0;
-      // 5'5": cinco pies y cinco pulgadas
-      const joiner = feet && i === 1 ? "y " : "";
-      return `${joiner}${cardinal(n, feminine ? One.UNA : One.UN)} ${n === 1n ? unit.one : unit.many}`;
-    });
-    const fraction = match.numbers[match.numbers.length - 1].fraction;
-    if (fraction !== "") {
-      const thousandths = cardinal(parseValue(fraction) ?? 0n, One.UNA);
-      words.push(fraction.length === 3 ? `y ${thousandths} milésimas` : thousandths);
-    }
-    return join(words);
+  protected override readPrime(number: Numeral, unit: Prime, _match: Match): string {
+    const forms = PRIME_UNITS[unit];
+    const n = value(number);
+    const feminine = unit === Prime.HOUR || unit === Prime.INCH;
+    // 5'5": cinco pies y cinco pulgadas
+    const joiner = unit === Prime.INCH ? "y " : "";
+    return `${joiner}${cardinal(n, feminine ? One.UNA : One.UN)} ${n === 1n ? forms.one : forms.many}`;
+  }
+  protected override readPrimeFraction(digits: string, _match: Match): string | undefined {
+    const thousandths = cardinal(parseValue(digits) ?? 0n, One.UNA);
+    return digits.length === 3 ? `y ${thousandths} milésimas` : thousandths;
   }
 
   // An amount with its scale: dos millones, cinco mil

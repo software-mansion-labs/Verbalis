@@ -8,6 +8,7 @@ import {
   RomanPattern,
   RomanOrdinalPattern,
 } from "../../numbers/patterns.ts";
+import { primeFormat } from "../../numbers/formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "../../numbers/match.ts";
 import {
   codeValue,
@@ -23,21 +24,24 @@ import {
   romanRole,
   RomanRole,
   unpaddedDay,
+  isYearValue,
 } from "../../numbers/scanning.ts";
 import { stripped, wordsOf, type Context } from "../../text/context.ts";
 import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join, keysAt, skipSpace } from "../../text/scan.ts";
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
 import { isAlpha, isDigit, isLower, isUpper } from "../../text/unicode.ts";
-import type { Forms } from "../grammar.ts";
+import { Prime, type Forms } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CODE_WORDS,
+  CONJUNCTIONS,
   CURRENCIES,
   DASH_DATE_FORMAT,
   DATE_FORMAT,
   DECADE_WORDS,
   FEMININE_ENDINGS,
   FEMININE_NOUNS,
+  FEMININE_ORDINAL_SUFFIXES,
   FRACTION_WORDS,
   FRACTIONS,
   INCH,
@@ -51,7 +55,6 @@ import {
   ORDINAL_SUFFIXES,
   ORDINAL_WORDS,
   PHONE_FORMAT,
-  FOOT,
   HEIGHT_CUES,
   PRIME_CUES,
   PRIME_UNITS,
@@ -255,14 +258,16 @@ function isYear(match: Match): boolean {
   const n = value(number);
   const previous = match.context.before();
   const dimension = previous === "par" || previous === "fois"; // 1920x1080, read before
-  return !number.grouped && number.fraction === "" && n >= 1000n && n < 2100n && !counted(match.context) && !dimension;
+  return (
+    !number.grouped && number.fraction === "" && isYearValue(n, 1000n, 2099n) && !counted(match.context) && !dimension
+  );
 }
 
 function cuesOf(match: Match): Cues {
   const previous = match.context.before();
   // 1 ou 2 places: the noun after the second number
   const next = match.context.after();
-  const coordinated = (next === "ou" || next === "et") && isDigit(match.context.after(2)[0]);
+  const coordinated = CONJUNCTIONS.has(next) && isDigit(match.context.after(2)[0]);
   return {
     feminine: coordinated ? feminine(match.context.after(3)) : counted(match.context) && feminine(next),
     pluralS: !ORDINAL_WORDS.has(previous) && !isYear(match),
@@ -444,7 +449,7 @@ class French extends PatternLanguage {
     this.addPattern(new EuroCentsPattern());
     this.addPattern(new MetersPattern());
     this.addPattern(new HalfUnitPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, new Set(), HEIGHT_CUES));
+    this.addPattern(new PrimePattern(NOTATION, primeFormat({ cues: PRIME_CUES, heights: HEIGHT_CUES })));
     this.addPattern(new GroupedOrdinalPattern(ORDINAL_SUFFIXES, " \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SUFFIXES));
     this.addPattern(new RomanOrdinalPattern(ROMAN_ORDINAL_SUFFIXES));
@@ -460,14 +465,13 @@ class French extends PatternLanguage {
     if (isCode(number, match)) {
       return digits(number.integer);
     }
-    // 05 mai: a zero-padded day before its month
+    // 00 mai: zéro, not a day (unpaddedDay reads every other zero-padded day)
     if (
-      number.integer.length === 2 &&
-      number.integer[0] === "0" &&
+      number.integer === "00" &&
       number.fraction === "" &&
       (MONTHS as readonly string[]).includes(toLower(match.context.after()))
     ) {
-      return value(number) === 1n ? ordinal(1n) : cardinal(value(number));
+      return cardinal(0n);
     }
     // 3 1/2 km: trois kilomètres (et demi)
     if (match.kind === Kind.FRACTION && match.unit !== "") {
@@ -509,9 +513,7 @@ class French extends PatternLanguage {
     const dated =
       match.separator === "/" &&
       match.context.before() === "le" &&
-      next !== "de" &&
-      next !== "des" &&
-      next !== "du" &&
+      !FRACTION_WORDS.has(next) &&
       !(tail[0] === " " && tail[1] === "d" && tail[2] === "'");
     if (
       match.numbers.length !== 3 &&
@@ -563,9 +565,6 @@ class French extends PatternLanguage {
   }
 
   protected override readTime(match: Match): string | undefined {
-    if (match.separator === "′") {
-      return French.#primes(match);
-    }
     if (match.numbers.length === 2) {
       // à 18.30, but à 0.40%
       const decimal =
@@ -604,7 +603,7 @@ class French extends PatternLanguage {
     if (suffix.startsWith("nd")) {
       words = suffix.startsWith("nde") ? "seconde" : "second";
     } else {
-      const feminine = suffix === "re" || suffix === "ère" || suffix === "ere" || suffix === "res" || suffix === "ères";
+      const feminine = FEMININE_ORDINAL_SUFFIXES.has(suffix);
       words = ordinal(value(match.numbers[0]), feminine);
     }
     return words + (suffix.endsWith("s") ? "s" : "");
@@ -701,20 +700,15 @@ class French extends PatternLanguage {
 
   // 1'27"23: une minute vingt-sept secondes et vingt-trois centièmes; 23"42: vingt-trois secondes quarante-deux;
   // 6'2": six pieds deux pouces
-  static #primes(match: Match): string | undefined {
-    const first = match.unit === "h" ? 0 : match.unit === "min" ? 1 : 2;
-    const words = match.numbers.map((number, i) => {
-      const n = value(number);
-      const feet = match.unit === "ft";
-      const unit = feet ? (i === 0 ? FOOT : INCH) : PRIME_UNITS[first + i];
-      return `${cardinal(n, !feet)} ${n < 2n ? unit.one : unit.many}`;
-    });
-    const fraction = match.numbers[match.numbers.length - 1].fraction;
-    if (fraction !== "") {
-      const hundredths = cardinal(parseValue(fraction) ?? 0n);
-      words.push(first === 1 && fraction.length === 2 ? `et ${hundredths} centièmes` : hundredths);
-    }
-    return join(words);
+  protected override readPrime(number: Numeral, unit: Prime, _match: Match): string {
+    const n = value(number);
+    const forms = PRIME_UNITS[unit];
+    const feet = unit === Prime.FOOT || unit === Prime.INCH;
+    return `${cardinal(n, !feet)} ${n < 2n ? forms.one : forms.many}`;
+  }
+  protected override readPrimeFraction(digits: string, match: Match): string | undefined {
+    const hundredths = cardinal(parseValue(digits) ?? 0n);
+    return match.unit === "min" && digits.length === 2 ? `et ${hundredths} centièmes` : hundredths;
   }
 }
 

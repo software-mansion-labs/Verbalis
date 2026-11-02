@@ -32,3 +32,7 @@ export type Case = (typeof Case)[keyof typeof Case];
 
 export const Gender = { MASCULINE: 0, FEMININE: 1, NEUTER: 2 } as const;
 export type Gender = (typeof Gender)[keyof typeof Gender];
+
+// The unit a number of a prime match counts: 1'27"23 counts a MINUTE and SECONDs, 5'9" FEET and INCHes
+export const Prime = { HOUR: 0, MINUTE: 1, SECOND: 2, FOOT: 3, INCH: 4 } as const;
+export type Prime = (typeof Prime)[keyof typeof Prime];

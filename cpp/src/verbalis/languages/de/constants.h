@@ -268,9 +268,11 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
 // Words around a 6'2" which make it feet and inches: Er ist 6'2" groß
 inline const std::unordered_set<std::u32string> kHeightCues = {U"groß", U"größe", U"misst", U"körpergröße"};
 
-// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second
-inline const std::array<Forms, 3> kPrimeUnits = {
-  {{U"Stunde", U"Stunden"}, {U"Minute", U"Minuten"}, {U"Sekunde", U"Sekunden"}}
+// A time or a height written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; feet
+// and inches
+inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
+  {Prime::HOUR, {U"Stunde", U"Stunden"}}, {Prime::MINUTE, {U"Minute", U"Minuten"}},
+  {Prime::SECOND, {U"Sekunde", U"Sekunden"}}, {Prime::FOOT, kUnits.at(U"ft")}, {Prime::INCH, kUnits.at(U"″")},
 };
 inline const std::array<std::u32string_view, 3> kSecondFractions = {U"Zehntel", U"Hundertstel", U"Tausendstel"};
 

@@ -127,8 +127,7 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
 // Words around a lone 10' which make it minutes: ha giocato solo 120'
 inline const std::unordered_set<std::u32string> kMinuteCues = {U"giocato"};
 
-// A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
-inline const std::array<Forms, 3> kPrimeUnits = {{{U"ora", U"ore"}, {U"minuto", U"minuti"}, {U"secondo", U"secondi"}}};
+// The tenths to thousandths of a second of a time written with prime marks; and an inch
 inline const std::array<Forms, 3> kSecondFractions = {
   {{U"decimo", U"decimi"}, {U"centesimo", U"centesimi"}, {U"millesimo", U"millesimi"}}
 };
@@ -136,7 +135,12 @@ inline const Forms kInch = {U"pollice", U"pollici"};
 
 // Words around a 5'5" which make it feet and inches: è alto 5'5"
 inline const std::unordered_set<std::u32string> kHeightCues = {U"alto", U"alta", U"altezza", U"misura"};
-inline const Forms kFoot = {U"piede", U"piedi"};
+
+// A time or a height written with prime marks
+inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
+  {Prime::HOUR, {U"ora", U"ore"}},     {Prime::MINUTE, {U"minuto", U"minuti"}}, {Prime::SECOND, {U"secondo", U"secondi"}},
+  {Prime::FOOT, {U"piede", U"piedi"}}, {Prime::INCH, kInch},
+};
 
 // Words before a time with a dot, which make it a time: alle 21.30
 inline const std::unordered_set<std::u32string> kTimeWords = {
