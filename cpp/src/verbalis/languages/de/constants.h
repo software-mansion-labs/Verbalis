@@ -47,7 +47,7 @@ inline const std::unordered_map<std::u32string, std::u32string> kOrdinalStems = 
 // Currencies, and prices per unit (12 €/m²): their reading after "pro" follows the whole price
 inline const std::unordered_map<std::u32string, std::u32string> kCurrencies = {
   {U"€", U"Euro"}, {U"Euro", U"Euro"}, {U"EUR", U"Euro"}, {U"$", U"Dollar"}, {U"Dollar", U"Dollar"}, {U"£", U"Pfund"},
-  {U"CHF", U"Franken"}, {U"USD", U"Dollar"}, {U"GBP", U"Pfund"}, {U"PLN", U"Złoty"},
+  {U"CHF", U"Franken"}, {U"USD", U"US-Dollar"}, {U"GBP", U"Pfund"}, {U"PLN", U"Złoty"},
   {U"€/m²", U"Euro pro Quadratmeter"},
   {U"€/qm", U"Euro pro Quadratmeter"},
   {U"€/kWh", U"Euro pro Kilowattstunde"},

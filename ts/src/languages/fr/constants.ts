@@ -28,7 +28,7 @@ export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "€": { one: "euro", many: "euros" },    "$": { one: "dollar", many: "dollars" }, "£": { one: "livre", many: "livres" },
   "CHF": { one: "franc suisse", many: "francs suisses" }, "M€": { one: "million d'euros", many: "millions d'euros" },
   "€uros": { one: "euro", many: "euros" },
-  "EUR": { one: "euro", many: "euros" }, "USD": { one: "dollar", many: "dollars" }, "GBP": { one: "livre", many: "livres" },
+  "EUR": { one: "euro", many: "euros" }, "USD": { one: "dollar américain", many: "dollars américains" }, "GBP": { one: "livre", many: "livres" },
   "PLN": { one: "zloty", many: "zlotys" }, "CZK": { one: "couronne tchèque", many: "couronnes tchèques" },
   "M$": { one: "million de dollars", many: "millions de dollars" }, "G$": { one: "milliard de dollars", many: "milliards de dollars" },
   // A price per unit: 2 000 €/mois

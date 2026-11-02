@@ -634,21 +634,21 @@ const Unit* unit_at(std::u32string_view s, size_t i) {
   return found;
 }
 
-// The unit a price is per, after a slash: "/kg" -> "每千克", "/个" -> "每" (the character stays)
+// The unit a price is per, after a slash: "/kg" -> "一千克", "/个" -> "一" (the character stays): a price per one unit
 std::optional<Reading> per_unit(std::u32string_view s, size_t i) {
   if (at(s, i) != U'/') {
     return std::nullopt;
   }
   if (const Unit* unit = unit_at(s, i + 1); unit && unit->per.empty() && !unit->word.empty()) {
-    return Reading{1 + unit->symbol.size(), U"每" + unit->word};
+    return Reading{1 + unit->symbol.size(), U"一" + unit->word};
   }
   if (char32_t c = at(s, i + 1); c >= U'\u4e00' && c <= U'\u9fff') {
-    return Reading{1, U"每"};
+    return Reading{1, U"一"};
   }
   return std::nullopt;
 }
 
-// "$1.5万" -> "一点五万美元", "$5/kg" -> "五美元每千克"
+// "$1.5万" -> "一点五万美元", "$5/kg" -> "五美元一千克"
 std::optional<Reading> read_money(std::u32string_view s, size_t i) {
   for (const auto& [symbol, name] : kCurrencies) {
     if (!starts_with(s, i, symbol) || (is_letter(symbol[0]) && is_letter(before(s, i)))) {
@@ -676,7 +676,7 @@ std::optional<Reading> read_money(std::u32string_view s, size_t i) {
   return std::nullopt;
 }
 
-// "5元/kg" -> "五元每千克", "10元/个" -> "十元每个"
+// "5元/kg" -> "五元一千克", "10元/个" -> "十元一个"
 std::optional<Reading> read_price(std::u32string_view s, size_t i) {
   size_t n = number_at(s, i);
   if (n == 0 || !free_before(s, i)) {

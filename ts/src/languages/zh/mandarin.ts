@@ -717,23 +717,23 @@ function unitAt(s: Text, i: number): Unit | undefined {
   return found;
 }
 
-// The unit a price is per, after a slash: "/kg" -> "每千克", "/个" -> "每" (the character stays)
+// The unit a price is per, after a slash: "/kg" -> "一千克", "/个" -> "一" (the character stays): a price per one unit
 function perUnit(s: Text, i: number): Reading | undefined {
   if (at(s, i) !== "/") {
     return undefined;
   }
   const unit = unitAt(s, i + 1);
   if (unit !== undefined && unit.per === "" && unit.word !== "") {
-    return { length: 1 + unit.symbol.length, words: "每" + unit.word };
+    return { length: 1 + unit.symbol.length, words: "一" + unit.word };
   }
   const c = at(s, i + 1);
   if (c >= "\u4e00" && c <= "\u9fff") {
-    return { length: 1, words: "每" };
+    return { length: 1, words: "一" };
   }
   return undefined;
 }
 
-// "$1.5万" -> "一点五万美元", "$5/kg" -> "五美元每千克"
+// "$1.5万" -> "一点五万美元", "$5/kg" -> "五美元一千克"
 function readMoney(s: Text, i: number): Reading | undefined {
   for (const { symbol, name } of CURRENCIES) {
     if (!startsWith(s, i, symbol) || (isLetter(symbol[0]) && isLetter(before(s, i)))) {
@@ -763,7 +763,7 @@ function readMoney(s: Text, i: number): Reading | undefined {
   return undefined;
 }
 
-// "5元/kg" -> "五元每千克", "10元/个" -> "十元每个"
+// "5元/kg" -> "五元一千克", "10元/个" -> "十元一个"
 function readPrice(s: Text, i: number): Reading | undefined {
   const n = numberAt(s, i);
   if (n === 0 || !freeBefore(s, i)) {

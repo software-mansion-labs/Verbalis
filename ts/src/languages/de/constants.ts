@@ -26,7 +26,7 @@ export const ORDINAL_STEMS: Readonly<Record<string, string>> = {
 // Currencies, and prices per unit (12 €/m²): their reading after "pro" follows the whole price
 export const CURRENCIES: Readonly<Record<string, string>> = {
   "€": "Euro", "Euro": "Euro", "EUR": "Euro", "$": "Dollar", "Dollar": "Dollar", "£": "Pfund",
-  "CHF": "Franken", "USD": "Dollar", "GBP": "Pfund", "PLN": "Złoty",
+  "CHF": "Franken", "USD": "US-Dollar", "GBP": "Pfund", "PLN": "Złoty",
   "€/m²": "Euro pro Quadratmeter",
   "€/qm": "Euro pro Quadratmeter",
   "€/kWh": "Euro pro Kilowattstunde",

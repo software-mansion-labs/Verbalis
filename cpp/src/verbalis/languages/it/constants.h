@@ -48,7 +48,7 @@ inline const std::vector<std::u32string> kMonths = {
 inline const std::unordered_map<std::u32string, Forms> kCurrencies = {
   {U"€", {U"euro", U"euro"}},          {U"EUR", {U"euro", U"euro"}},       {U"eur", {U"euro", U"euro"}},
   {U"euro", {U"euro", U"euro"}},       {U"Euro", {U"euro", U"euro"}},
-  {U"$", {U"dollaro", U"dollari"}},    {U"US$", {U"dollaro", U"dollari"}}, {U"USD", {U"dollaro", U"dollari"}},
+  {U"$", {U"dollaro", U"dollari"}},    {U"US$", {U"dollaro", U"dollari"}}, {U"USD", {U"dollaro statunitense", U"dollari statunitensi"}},
   {U"£", {U"sterlina", U"sterline"}},  {U"GBP", {U"sterlina", U"sterline"}},
   {U"¥", {U"yen", U"yen"}},            {U"₽", {U"rublo", U"rubli"}},       {U"RUB", {U"rublo", U"rubli"}},
   {U"CHF", {U"franco svizzero", U"franchi svizzeri"}}, {U"₹", {U"rupia", U"rupie"}},

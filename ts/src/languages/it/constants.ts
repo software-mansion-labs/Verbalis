@@ -27,7 +27,7 @@ export const MONTHS: readonly string[] = [
 export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "€": { one: "euro", many: "euro" },          "EUR": { one: "euro", many: "euro" },       "eur": { one: "euro", many: "euro" },
   "euro": { one: "euro", many: "euro" },       "Euro": { one: "euro", many: "euro" },
-  "$": { one: "dollaro", many: "dollari" },    "US$": { one: "dollaro", many: "dollari" }, "USD": { one: "dollaro", many: "dollari" },
+  "$": { one: "dollaro", many: "dollari" },    "US$": { one: "dollaro", many: "dollari" }, "USD": { one: "dollaro statunitense", many: "dollari statunitensi" },
   "£": { one: "sterlina", many: "sterline" },  "GBP": { one: "sterlina", many: "sterline" },
   "¥": { one: "yen", many: "yen" },            "₽": { one: "rublo", many: "rubli" },       "RUB": { one: "rublo", many: "rubli" },
   "CHF": { one: "franco svizzero", many: "franchi svizzeri" }, "₹": { one: "rupia", many: "rupie" },

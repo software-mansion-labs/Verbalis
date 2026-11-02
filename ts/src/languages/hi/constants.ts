@@ -72,7 +72,7 @@ export const LARGE_CARDINALS: ReadonlyArray<readonly [bigint, string]> = [
 export const CURRENCIES: Readonly<Record<string, string>> = {
   "$": "डॉलर", "€": "यूरो", "£": "पाउंड", "₹": "रुपये", "¥": "येन", "₺": "लीरा",
   "₩": "वॉन",  "৳": "टका",  "₦": "नाइरा",
-  "EUR": "यूरो", "USD": "डॉलर", "GBP": "पाउंड", "PLN": "ज़्लॉटी", "CHF": "स्विस फ़्रैंक",
+  "EUR": "यूरो", "USD": "अमेरिकी डॉलर", "GBP": "पाउंड", "PLN": "ज़्लॉटी", "CHF": "स्विस फ़्रैंक",
   "CZK": "चेक कोरुना",
 };
 

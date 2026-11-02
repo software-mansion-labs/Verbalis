@@ -40,7 +40,7 @@ export const MONTHS: readonly string[] = [
 export const CURRENCIES: Readonly<Record<string, Forms>> = {
   "R$": { one: "real", many: "reais" }, "US$": { one: "dólar", many: "dólares" }, "$": { one: "dólar", many: "dólares" },
   "€": { one: "euro", many: "euros" },  "£": { one: "libra", many: "libras" }, EUR: { one: "euro", many: "euros" },
-  USD: { one: "dólar", many: "dólares" }, GBP: { one: "libra", many: "libras" }, PLN: { one: "zloty", many: "zlotys" },
+  USD: { one: "dólar americano", many: "dólares americanos" }, GBP: { one: "libra", many: "libras" }, PLN: { one: "zloty", many: "zlotys" },
   CHF: { one: "franco suíço", many: "francos suíços" }, CZK: { one: "coroa checa", many: "coroas checas" },
   // A currency written as a word after a number, read as a decimal: 66,23 euros
   euros: { one: "euro", many: "euros" },

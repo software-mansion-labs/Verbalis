@@ -104,7 +104,7 @@ inline const auto kCurrencies = std::to_array<Currency>({
   {U"GBP", U"英镑"}, {U"JPY", U"日元"}, {U"PLN", U"兹罗提"}, {U"CHF", U"瑞士法郎"}, {U"CZK", U"捷克克朗"}
 });
 
-// Currencies written as words after a number, before a unit they price: "5元/kg" -> "五元每千克"
+// Currencies written as words after a number, before a unit they price: "5元/kg" -> "五元一千克"
 inline const auto kPriceCurrencies = std::to_array<std::u32string>({
   U"元", U"圆", U"圓", U"块", U"塊", U"美元", U"欧元", U"港元", U"日元", U"英镑"
 });

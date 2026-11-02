@@ -101,7 +101,7 @@ export const CURRENCIES: readonly Currency[] = [
 ];
 
 // Scale words written after the number of an amount, longest first: "$1.5万" -> "一点五万美元"
-// Currencies written as words after a number, before a unit they price: "5元/kg" -> "五元每千克"
+// Currencies written as words after a number, before a unit they price: "5元/kg" -> "五元一千克"
 export const PRICE_CURRENCIES = ["元", "圆", "圓", "块", "塊", "美元", "欧元", "港元", "日元", "英镑"] as const;
 
 export const SCALES = [

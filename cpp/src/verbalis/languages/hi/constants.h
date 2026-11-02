@@ -84,7 +84,7 @@ inline const std::map<std::int64_t, std::u32string> kLargeCardinals = {
 inline const std::unordered_map<std::u32string, std::u32string> kCurrencies = {
   {U"$", U"डॉलर"}, {U"€", U"यूरो"}, {U"£", U"पाउंड"}, {U"₹", U"रुपये"}, {U"¥", U"येन"}, {U"₺", U"लीरा"},
   {U"₩", U"वॉन"},  {U"৳", U"टका"},  {U"₦", U"नाइरा"},
-  {U"EUR", U"यूरो"}, {U"USD", U"डॉलर"}, {U"GBP", U"पाउंड"}, {U"PLN", U"ज़्लॉटी"}, {U"CHF", U"स्विस फ़्रैंक"},
+  {U"EUR", U"यूरो"}, {U"USD", U"अमेरिकी डॉलर"}, {U"GBP", U"पाउंड"}, {U"PLN", U"ज़्लॉटी"}, {U"CHF", U"स्विस फ़्रैंक"},
   {U"CZK", U"चेक कोरुना"}
 };
 
