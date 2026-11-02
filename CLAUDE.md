@@ -18,7 +18,8 @@ three expose the same API: `Verbalizer(language, options)` with `process(text)` 
 - `tests/cpp/`: C++ tests, through the public API (`verbalize.h`), and the parity runner.
   `tests/parity/outputs/`: the parity outputs, one JSONL file per language.
 - `tests/lang/`: the test data. `<lang>/corpus.jsonl` is the target (below); `<lang>/gold.jsonl` holds the NeMo and
-  WeTextProcessing cases; `score.py` scores both. The scripts and agents that built the corpus are at tag `corpus-v1`.
+  WeTextProcessing cases; `accepted.jsonl` holds readings the user accepted beyond the corpus's; `score.py` scores
+  them. The scripts and agents that built the corpus are at tag `corpus-v1`.
 - `knowledge/`: what was decided and why. Read `knowledge/provenance.md` before changing the core.
 - `python/`: the Python package. `src/bindings.cpp` binds the public C++ API with nanobind (module
   `verbalis._verbalis`; its stub `verbalis/_verbalis.pyi` is committed and checked by `test_stub.py`); `verbalis/` is the package; `CMakeLists.txt` builds it

@@ -13,7 +13,9 @@ apart; tests/lang/<lang>/notes.md lists them. Exits 1 if a case that
 passed in scores.json fails now: a behaviour change may fix gold cases, but must not break them.
 
 The corpus (tests/lang/<lang>/corpus.jsonl) holds real sentences with reviewed readings: the target Verbalis must reach,
-frozen at tag corpus-v1 (tests/lang/corpus.sha256). Its passing sentences join the ratchet. "approved" are outputs a
+frozen at tag corpus-v1 (tests/lang/corpus.sha256). Its passing sentences join the ratchet. tests/lang/accepted.jsonl
+adds, per sentence, a reading the user accepted where it differs from the corpus (one line per decision); a sentence
+passes when it matches either. "approved" are outputs a
 reviewer passed; "written" are readings a reviewer or judge wrote, which Verbalis may not reach yet; "cross-checked"
 readings DeepSeek also wrote, blind.
 """
@@ -30,6 +32,7 @@ from verbalis import Verbalizer
 
 ROOT = Path(__file__).parent
 SCORES = ROOT / "scores.json"
+ACCEPTED = ROOT / "accepted.jsonl"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--classes", action="store_true")
@@ -98,6 +101,11 @@ if args.show:
 corpus_passing = {}
 print(f"\n{'corpus':10}{'sentences':>10}{'match':>9}   {'approved':>18}   {'written':>18}   {'by a person':>12}"
       f"{'cross-checked':>15}{'disputed':>10}")
+accepted = defaultdict(set)  # (lang, input) -> readings the user accepted beyond the corpus's
+for line in ACCEPTED.read_text(encoding="utf-8").splitlines() if ACCEPTED.exists() else []:
+    if line:
+        entry = json.loads(line)
+        accepted[(entry["lang"], entry["input"])].add(normalized(entry["output"]))
 for path in sorted(ROOT.glob("*/corpus.jsonl")):
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
     if not rows:
@@ -111,7 +119,7 @@ for path in sorted(ROOT.glob("*/corpus.jsonl")):
             continue
         counts["cross"][0] += row.get("deepseek") == "agrees"
         output = verbalizer.process(row["input"])
-        ok = normalized(output) in {normalized(o) for o in row["outputs"]}
+        ok = normalized(output) in {normalized(o) for o in row["outputs"]} | accepted[(lang, row["input"])]
         for name in ("all", row["how"], row["by"]):
             counts[name][0] += 1
             counts[name][2] += ok

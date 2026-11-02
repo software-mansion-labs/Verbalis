@@ -28,6 +28,14 @@ blind second Haiku pass, DeepSeek (every sentence), GPT-6 Luna (disputes), and G
 a judge) cross-checked them; the user settled 257 Polish sentences. The scripts and agent files are at tag `corpus-v1`
 (`tools/review/`, `.claude/agents/`).
 
+## Accepted readings
+
+`accepted.jsonl` holds, one line per sentence, a reading the user accepted where it differs from the corpus's:
+`{"lang", "input", "output", "by", "date", "commit", "decision"}`. The corpus stays frozen; `score.py` passes a
+sentence that matches either, and the ratchet guards the accepted readings like any other. Each line comes from a
+decision recorded in its commit (an expanded abbreviation, a score read with "a", a short year read in full).
+Merging it into a later corpus is the user's decision.
+
 ## Gold set: NeMo and WeTextProcessing cases
 
 `<lang>/gold.jsonl` holds 3,197 short cases written by those projects, each with its acceptable readings:
