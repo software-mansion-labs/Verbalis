@@ -10,6 +10,8 @@ find_package(nanobind CONFIG REQUIRED)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cpp ${CMAKE_CURRENT_BINARY_DIR}/cpp)
 
 nanobind_add_module(_verbalis STABLE_ABI NB_STATIC src/bindings.cpp)
+# The bindings use designated initializers, which MSVC accepts only as C++20
+target_compile_features(_verbalis PRIVATE cxx_std_20)
 target_link_libraries(_verbalis PRIVATE verbalis::verbalis)
 
 install(TARGETS _verbalis LIBRARY DESTINATION verbalis)
