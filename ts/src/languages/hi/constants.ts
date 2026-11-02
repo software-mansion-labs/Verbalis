@@ -196,6 +196,10 @@ export const COUNT_CUES: ReadonlySet<string> = new Set([
   "को", "से", "में", "के", "की", "का", "ने", "पर", "तक", "संख्या", "लगभग", "करीब", "कुल", "और",
 ]);
 
+// Words before a hyphen and a number which make it a minus, with the count cues: तापमान -7; after another word, the
+// hyphen joins (कोविड -19, सेक्टर -1).
+export const SIGN_CUES: ReadonlySet<string> = new Set(["तापमान", "पारा"]);
+
 // English ordinals as said in Hindi: 7th क्रॉस -> सेवंथ क्रॉस. By number up to 19; then the tens and their ordinals.
 export const ENGLISH_ORDINALS: readonly string[] = [
   "",          "फ़र्स्ट",     "सेकंड",      "थर्ड",       "फ़ोर्थ",      "फ़िफ्थ",     "सिक्स्थ",

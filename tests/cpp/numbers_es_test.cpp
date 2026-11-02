@@ -71,6 +71,20 @@ REGISTER_TEST(numbers_es_test) {
   ASSERT_EQUALS(U"Argentina ganó dos a cero y empató uno a uno; vivió diez-diecisiete años.",
                 verbalize("es", U"Argentina ganó 2-0 y empató 1-1; vivió 10-17 años.", only(&Options::numbers)));
 
+  // A hyphen after a word joins it to the number; a minus needs no word before it, or a time zone: GMT -4
+  ASSERT_EQUALS(U"Viajó por Portugal -dos mil quince a dos mil diecisiete-, con COVID -diecinueve y GMT menos cuatro.",
+                verbalize("es", U"Viajó por Portugal -2015 a 2017-, con COVID -19 y GMT -4.", only(&Options::numbers)));
+  ASSERT_EQUALS(
+      U"Fue el cinco de mayo, detenido durante más de diez minutos, gol (treinta y seis minutos PT).",
+      verbalize("es", U"Fue el 05 de mayo, detenido durante más de 10', gol (36' PT).", only(&Options::numbers)));
+
+  // The noun after a second number sets the gender; a year, a numbered item, or a bracket takes none
+  ASSERT_EQUALS(
+      U"Para cuatrocientas y quinientas entrevistas, doscientos dias; en mil novecientos setenta y uno publicó, Arte "
+      U"número uno (ESEA).",
+      verbalize("es", U"Para 400 y 500 entrevistas, 200 dias; en 1971 publicó, Arte número 1 (ESEA).",
+                only(&Options::numbers)));
+
   return true;
 }
 

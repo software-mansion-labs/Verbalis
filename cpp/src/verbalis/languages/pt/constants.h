@@ -129,6 +129,9 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"maratona", U"minutos", U"segundos", U"pódio", U"vídeo", U"filme", U"duração"
 };
 
+// Words around a lone 10' which make it minutes: aos 6′ do segundo tempo
+inline const std::unordered_set<std::u32string> kMinuteCues = {U"tempo"};
+
 // A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
 inline const std::array<Forms, 3> kPrimeUnits = {{{U"hora", U"horas"}, {U"minuto", U"minutos"}, {U"segundo", U"segundos"}}};
 inline const std::array<Forms, 3> kSecondFractions = {
@@ -150,7 +153,8 @@ inline const std::unordered_set<std::u32string> kMasculineInA = {
   U"dia", U"mapa", U"problema", U"sistema", U"programa", U"tema", U"idioma", U"clima", U"planeta", U"poema",
   U"cometa", U"drama", U"esquema", U"sofá", U"diagrama", U"teorema", U"telefonema", U"cinema", U"prisma",
   U"pijama", U"aroma", U"dilema", U"fantasma", U"panorama", U"enigma", U"dogma", U"carisma", U"atleta", U"guia",
-  U"pila", U"grama", U"quilograma", U"miligrama", U"micrograma"
+  U"pila", U"grama", U"quilograma", U"miligrama", U"micrograma", U"motorista", U"regista", U"jornalista", U"turista",
+  U"artista", U"ciclista", U"especialista", U"analista", U"economista"
 };
 inline const std::unordered_set<std::u32string> kFeminineNouns = {
   U"vez", U"mão", U"foto", U"moto", U"mulher", U"flor", U"noite", U"tarde", U"parte", U"gente", U"lei", U"luz",
@@ -173,7 +177,7 @@ inline const std::unordered_set<std::u32string> kStopWords = {
   U"este", U"esta", U"estes", U"estas", U"esse", U"essa", U"esses", U"essas", U"isso", U"isto", U"já", U"agora",
   U"quando", U"onde", U"muito", U"também", U"se", U"lhe", U"me", U"te", U"ao", U"à", U"aos", U"às", U"pelo",
   U"pela", U"pelos", U"pelas", U"não", U"sim", U"meu", U"minha", U"seu", U"sua",
-  U"nada", U"ainda", U"apenas", U"embora", U"fora"
+  U"nada", U"ainda", U"apenas", U"embora", U"fora", U"cerca"
 };
 
 // D. Pedro II (segundo), Bento XVI (dezesseis), século XXI (vinte e um), capítulo IV (quatro), a II Guerra (Segunda)
@@ -243,10 +247,12 @@ inline const Keys kSportWords = {
 inline const Keys kSetWords = {U"parcia", U"sets"};
 
 // 24/03/2022, 07-11-2018, 15/09
-inline const DateFormat kDateFormat = {.separators = U"/-", .boundaries = U".,/-", .year_required = false};
+inline const DateFormat kDateFormat = {.separators = U"/-", .boundaries = U".,/-", .year_required = false,
+                                         .months = kMonths};
 
 // 15.03.2024: with dots, only with a full year
-inline const DateFormat kDotDateFormat = {.separators = U".", .boundaries = U".,/-", .short_year = false};
+inline const DateFormat kDotDateFormat = {.separators = U".", .boundaries = U".,/-", .short_year = false,
+                                            .months = kMonths};
 
 // (11) 98765-4321, 11 98765-4321, 0800-123456, 3456-7890, 213 456 789 (after a word of kPhoneWords), 555-1234: the
 // longest first

@@ -124,6 +124,9 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"classifica", U"maratona", U"minuti", U"secondi", U"podio", U"traguardo"
 };
 
+// Words around a lone 10' which make it minutes: ha giocato solo 120'
+inline const std::unordered_set<std::u32string> kMinuteCues = {U"giocato"};
+
 // A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
 inline const std::array<Forms, 3> kPrimeUnits = {{{U"ora", U"ore"}, {U"minuto", U"minuti"}, {U"secondo", U"secondi"}}};
 inline const std::array<Forms, 3> kSecondFractions = {
@@ -199,8 +202,13 @@ inline const Keys kSportWords = {
   U"sfida", U"impone"
 };
 
-// 24/03/2022, 24.03.2022, 24-03-2022
-inline const DateFormat kDateFormat = {.separators = U"/.-", .boundaries = U".,/-"};
+// 24/03/2022, 24.03.2022, 24-03-2022, and dal 21/9 (with kDateArticles)
+inline const DateFormat kDateFormat = {.separators = U"/.-", .boundaries = U".,/-", .year_required = false};
+
+// Articles before a day and a month without a year which make them a date: dal 21/9, del 25.02.
+inline const std::unordered_set<std::u32string> kDateArticles = {
+  U"il", U"dal", U"al", U"del", U"nel", U"entro", U"l", U"dall", U"all", U"dell", U"nell"
+};
 
 // 333 1234567, 06 1234 5678, 06 12345678
 inline const std::vector<PhoneFormat> kPhoneFormats = {
@@ -262,7 +270,8 @@ inline const std::unordered_set<std::u32string> kCountWords = {
   U"oltre",  U"ha",      U"ho",     U"hai",     U"hanno",  U"abbiamo", U"avete",  U"aveva",   U"avevano", U"c'è",
   U"è",      U"era",     U"costa",  U"pesa",    U"dura",   U"misura",  U"già",    U"ancora",  U"appena", U"quasi",
   U"manca",  U"mancano", U"resta",  U"restano", U"rimane", U"più",     U"meno",   U"che",     U"cioè",   U"sotto",
-  U"sopra",  U"verso",   U"contro", U"senza",   U"servono", U"serve",  U"basta",  U"bastano"
+  U"sopra",  U"verso",   U"contro", U"senza",   U"servono", U"serve",  U"basta",  U"bastano", U"x",
+  U"incluso", U"inclusa", U"inclusi", U"incluse", U"compreso", U"compresa", U"compresi", U"comprese"
 };
 
 // Nouns in -a which are masculine (un problema), and nouns in -e which are feminine (una notte)

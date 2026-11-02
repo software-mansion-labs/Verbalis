@@ -22,11 +22,12 @@ import {
   value,
   romanRole,
   RomanRole,
+  unpaddedDay,
 } from "../../numbers/scanning.ts";
 import { stripped, wordsOf, type Context } from "../../text/context.ts";
 import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join, keysAt, skipSpace } from "../../text/scan.ts";
 import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
-import { isAlpha, isLower, isUpper } from "../../text/unicode.ts";
+import { isAlpha, isDigit, isLower, isUpper } from "../../text/unicode.ts";
 import type { Forms } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
@@ -257,8 +258,11 @@ function isYear(match: Match): boolean {
 
 function cuesOf(match: Match): Cues {
   const previous = match.context.before();
+  // 1 ou 2 places: the noun after the second number
+  const next = match.context.after();
+  const coordinated = (next === "ou" || next === "et") && isDigit(match.context.after(2)[0]);
   return {
-    feminine: counted(match.context) && feminine(match.context.after()),
+    feminine: coordinated ? feminine(match.context.after(3)) : counted(match.context) && feminine(next),
     pluralS: !ORDINAL_WORDS.has(previous) && !isYear(match),
     equation: match.kind === Kind.DIMENSION && match.context.tail().includes("="),
   };
@@ -446,8 +450,22 @@ class French extends PatternLanguage {
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
+    // 04 juin: a day, despite its leading zero
+    const day = unpaddedDay(number, match, MONTHS);
+    if (day) {
+      return this.readNumber(day, match);
+    }
     if (isCode(number, match)) {
       return digits(number.integer);
+    }
+    // 05 mai: a zero-padded day before its month
+    if (
+      number.integer.length === 2 &&
+      number.integer[0] === "0" &&
+      number.fraction === "" &&
+      (MONTHS as readonly string[]).includes(toLower(match.context.after()))
+    ) {
+      return value(number) === 1n ? ordinal(1n) : cardinal(value(number));
     }
     // 3 1/2 km: trois kilomètres (et demi)
     if (match.kind === Kind.FRACTION && match.unit !== "") {
@@ -476,14 +494,29 @@ class French extends PatternLanguage {
     const shortVersion =
       match.separator === "." &&
       numbers.length === 3 &&
-      numbers[2].integer.length === 2 &&
+      numbers[2].span.end - numbers[2].span.begin === 2 &&
       numbers[0].integer.length === 1 &&
       numbers[1].integer.length === 1;
     if (shortVersion || VERSION_WORDS.has(match.context.before())) {
       return undefined;
     }
-    // Without a year only a zero-padded day or month is a date: 05/11, but not 3/4
-    if (match.numbers.length !== 3 && match.numbers[0].integer[0] !== "0" && match.numbers[1].integer[0] !== "0") {
+    // Without a year only a zero-padded day or month is a date, or a slashed one after "le" which no "de" follows:
+    // 05/11, le 22/9, but not 3/4, nor le 1/3 des voix
+    const next = match.context.after();
+    const tail = match.context.tail();
+    const dated =
+      match.separator === "/" &&
+      match.context.before() === "le" &&
+      next !== "de" &&
+      next !== "des" &&
+      next !== "du" &&
+      !(tail[0] === " " && tail[1] === "d" && tail[2] === "'");
+    if (
+      match.numbers.length !== 3 &&
+      match.numbers[0].integer[0] !== "0" &&
+      match.numbers[1].integer[0] !== "0" &&
+      !dated
+    ) {
       return undefined;
     }
     const day = value(match.numbers[0]);

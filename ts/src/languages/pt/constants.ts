@@ -105,6 +105,9 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
   "maratona", "minutos", "segundos", "pódio", "vídeo", "filme", "duração",
 ]);
 
+// Words around a lone 10' which make it minutes: aos 6′ do segundo tempo
+export const MINUTE_CUES: ReadonlySet<string> = new Set(["tempo"]);
+
 // A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
 export const PRIME_UNITS: readonly Forms[] = [
   { one: "hora", many: "horas" }, { one: "minuto", many: "minutos" }, { one: "segundo", many: "segundos" },
@@ -128,7 +131,8 @@ export const MASCULINE_IN_A: ReadonlySet<string> = new Set([
   "dia", "mapa", "problema", "sistema", "programa", "tema", "idioma", "clima", "planeta", "poema",
   "cometa", "drama", "esquema", "sofá", "diagrama", "teorema", "telefonema", "cinema", "prisma",
   "pijama", "aroma", "dilema", "fantasma", "panorama", "enigma", "dogma", "carisma", "atleta", "guia",
-  "pila", "grama", "quilograma", "miligrama", "micrograma",
+  "pila", "grama", "quilograma", "miligrama", "micrograma", "motorista", "regista", "jornalista", "turista",
+  "artista", "ciclista", "especialista", "analista", "economista",
 ]);
 export const FEMININE_NOUNS: ReadonlySet<string> = new Set([
   "vez", "mão", "foto", "moto", "mulher", "flor", "noite", "tarde", "parte", "gente", "lei", "luz",
@@ -149,7 +153,7 @@ export const STOP_WORDS: ReadonlySet<string> = new Set([
   "este", "esta", "estes", "estas", "esse", "essa", "esses", "essas", "isso", "isto", "já", "agora",
   "quando", "onde", "muito", "também", "se", "lhe", "me", "te", "ao", "à", "aos", "às", "pelo",
   "pela", "pelos", "pelas", "não", "sim", "meu", "minha", "seu", "sua",
-  "nada", "ainda", "apenas", "embora", "fora",
+  "nada", "ainda", "apenas", "embora", "fora", "cerca",
 ]);
 
 // D. João Iº: an ordinal marker on a Roman numeral
@@ -217,10 +221,10 @@ export const SPORT_WORDS: Keys = [
 export const SET_WORDS: Keys = ["parcia", "sets"];
 
 // 24/03/2022, 07-11-2018
-export const DATE_FORMAT = dateFormat({ separators: "/-", boundaries: ".,/-", yearRequired: false });
+export const DATE_FORMAT = dateFormat({ separators: "/-", boundaries: ".,/-", yearRequired: false, months: MONTHS });
 
 // 15.03.2024: with dots, only with a full year
-export const DOT_DATE_FORMAT = dateFormat({ separators: ".", boundaries: ".,/-", shortYear: false });
+export const DOT_DATE_FORMAT = dateFormat({ separators: ".", boundaries: ".,/-", shortYear: false, months: MONTHS });
 
 // (11) 98765-4321, 0800-123456, 3456-7890, 213 456 789 (after a word of PHONE_WORDS): the longest first
 export const PHONE_FORMATS = [

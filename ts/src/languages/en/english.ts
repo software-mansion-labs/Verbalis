@@ -925,6 +925,16 @@ class English extends PatternLanguage {
         (year.integer.length === 4 ? pairs(value(year)) : cardinal(value(year)))
       );
     }
+    // 4.2.16 is a version: a dotted date with a two-digit year has a two-digit day and month (17.02.16)
+    const numbers = match.numbers;
+    if (
+      match.separator === "." &&
+      numbers.length === 3 &&
+      numbers[2].span.end - numbers[2].span.begin === 2 &&
+      (numbers[0].integer.length === 1 || numbers[1].integer.length === 1)
+    ) {
+      return undefined;
+    }
     // 10/06/2005: October sixth (25/12/2020 has its day first); 15.01.2020: the fifteenth of January
     let day = value(match.numbers[0]);
     let month = value(match.numbers[1]);

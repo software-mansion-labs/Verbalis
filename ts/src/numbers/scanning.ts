@@ -107,6 +107,26 @@ export function isSpokenDigits(number: Numeral, longest: number): boolean {
   return (i.length > 1 && i[0] === "0") || (i.length >= longest && !number.grouped && !i.endsWith("000"));
 }
 
+/**
+ * A day of a month written with a leading zero, without it: 05 de mayo, 04 juin; undefined for any other number.
+ * @param months lowercase.
+ * @param of a word which may stand between the day and the month: "de".
+ */
+export function unpaddedDay(number: Numeral, match: Match, months: readonly string[], of = ""): Numeral | undefined {
+  const i = number.integer;
+  if (i.length !== 2 || i[0] !== "0" || i[1] === "0" || number.fraction !== "") {
+    return undefined;
+  }
+  let next = toLower(match.context.after());
+  if (of !== "" && next === of) {
+    next = toLower(match.context.after(2));
+  }
+  if (next === "" || !months.includes(next)) {
+    return undefined;
+  }
+  return { ...number, integer: i.slice(1) };
+}
+
 // The value of the digits of a code or phone number, or undefined if they read digit by digit: a leading zero, more
 // than longest digits, or too long to hold.
 export function codeValue(digits: string, longest: number): bigint | undefined {

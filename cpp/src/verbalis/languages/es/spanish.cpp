@@ -249,13 +249,24 @@ bool feminine(std::u32string_view noun) {
 One one_of(const Context& context) {
   std::u32string word = context.after();
   std::u32string previous = context.before();
+  // 400 y 500 entrevistas: the noun after the second number
+  if ((word == U"y" || word == U"o") && unicode::isdigit(context.after(2).empty() ? U' ' : context.after(2)[0])) {
+    word = context.after(3);
+  }
   if (previous == U"la" || previous == U"las") {
     return One::UNA;
   }
   if (word.empty() || !unicode::isalpha(word[0]) || kStopWords.contains(strings::to_lower(word))) {
     return One::UNO;
   }
-  return feminine(word) ? One::UNA : One::UN;
+  if (!feminine(word)) {
+    return One::UN;
+  }
+  // Only a lowercase word right after the number is a feminine noun it counts, not a name or a bracket: Arte nº 1
+  // (ESEA), CG/812 Sustitución
+  std::u32string_view tail = context.tail();
+  size_t next = tail.find_first_not_of(U' ');
+  return next != std::u32string_view::npos && unicode::islower(tail[next]) ? One::UNA : One::UNO;
 }
 
 // A word before a numbered item, whose number is not a fraction or a date: nº 12/45, expediente 3/5
@@ -279,7 +290,12 @@ struct Cues {
 Cues cues_of(const Match& match) {
   // A decade or a compound stands alone: los 80s, 4-carriles
   bool alone = match.kind == Kind::DECADE || match.kind == Kind::COMPOUND;
-  Cues cues{.one = alone ? One::UNO : one_of(match.context)};
+  // A year or a numbered item counts nothing after it: en 1971 publicó, en 2031 estaría, número 1 (ESEA)
+  std::u32string previous = match.context.before();
+  bool year = match.kind == Kind::NUMBER && kYearWords.contains(previous) && match.numbers[0].integer.size() == 4 &&
+              match.numbers[0].fraction.empty() && !match.numbers[0].grouped && value(match.numbers[0]) >= 1000 &&
+              value(match.numbers[0]) <= 2100;
+  Cues cues{.one = alone || year || is_number_word(previous) ? One::UNO : one_of(match.context)};
 
   if (match.kind == Kind::MONEY) {
     // $5.000 dólares, $3 millones de dólares
@@ -557,7 +573,7 @@ public:
     add_pattern(std::make_unique<FractionPattern>());
     add_pattern(std::make_unique<PrefixedMoneyPattern>(kNotation, kCurrencyWords));
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues));
     add_pattern(std::make_unique<CompactTimePattern>());
     add_pattern(std::make_unique<GroupedOrdinalPattern>(kOrdinalSigns, U". \u00a0\u202f"));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kOrdinalSigns, kOrdinalSignFormat));
@@ -569,6 +585,10 @@ public:
 
 protected:
   std::u32string read_number(const Number& number, const Match& match) const override {
+    // 05 de mayo: a day, despite its leading zero
+    if (auto day = unpadded_day(number, match, kMonths, U"de")) {
+      return read_number(*day, match);
+    }
     // extensión 12: digit by digit
     if (match.context.before() == U"extensión" && number.fraction.empty() && number.integer.size() > 1) {
       return digits(number.integer);
@@ -592,7 +612,7 @@ protected:
       return cardinal(value(match.numbers[0])) + U" de " + cardinal(value(match.numbers[1]));
     }
 
-    // 30-2-1990 and 30.2.1990 need a full year (3.8.10 is a version)
+    // 30-2-1990 and 30.2.1990 need a year written in full (3.8.10 is a version)
     uint64_t day = value(match.numbers[0]), month = value(match.numbers[1]);
     bool slash = match.separator == U'/';
     // 3/2 as the whole text, or 1 5/3: after a whole number, a fraction
@@ -604,7 +624,9 @@ protected:
         match.context.head().ends_with(U' ')) {
       return std::nullopt;
     }
-    if (!slash && match.separator != U' ' && (match.numbers.size() < 3 || match.numbers[2].integer.size() != 4)) {
+    bool named = std::ranges::any_of(match.text, unicode::isalpha); // 15-Mayo-14: a month as a word
+    if (!slash && match.separator != U' ' && !named &&
+        (match.numbers.size() < 3 || match.numbers[2].span.end - match.numbers[2].span.begin != 4)) {
       return std::nullopt;
     }
 

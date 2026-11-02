@@ -393,6 +393,13 @@ protected:
       uint64_t n = value(match.numbers[0]);
       return n == 2 ? U" स्क्वेर्ड" : n == 3 ? U" क्यूब" : U" टु द पावर " + cardinal(n);
     }
+    // कोविड -19, डीजेएम -800: a hyphen after a word joins it to the number, unless the word cues a minus (तापमान -7)
+    std::u32string_view head = match.context.head();
+    std::u32string before = match.context.before();
+    if (match.kind == Kind::SIGN && head.size() >= 2 && head.back() == U' ' &&
+        unicode::isalpha(head[head.size() - 2]) && !kCountCues.contains(before) && !kSignCues.contains(before)) {
+      return std::nullopt;
+    }
     return PatternLanguage::read_joiner(match);
   }
 
@@ -421,9 +428,7 @@ private:
   static bool is_spoken_digits(const Number& number, const Match& match) {
     const auto& i = number.integer;
     // 04 जून: a day before a month, despite its leading zero
-    std::u32string next = match.context.after();
-    bool day = i.size() == 2 && !next.empty() && std::ranges::find(kMonths, next) != kMonths.end();
-    if (!day && numbers::is_spoken_digits(number, 12)) {
+    if (!unpadded_day(number, match, kMonths) && numbers::is_spoken_digits(number, 12)) {
       return true;
     }
     if (match.kind != Kind::NUMBER || number.grouped || i.size() < 4) {

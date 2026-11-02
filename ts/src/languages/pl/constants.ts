@@ -276,7 +276,7 @@ export const LOCATIVE_PREPOSITIONS: ReadonlySet<string> = new Set(["w", "we", "o
 export const COMPLEX_PREPOSITIONS: ReadonlyMap<string, string> = new Map([
   ["ciągu", "w"], ["trakcie", "w"], ["czasie", "w"], ["wyniku", "w"], ["przypadku", "w"],
   ["zakresie", "w"], ["ramach", "w"], ["celu", "w"], ["postaci", "w"], ["powodu", "z"],
-  ["przeciągu", "w"], ["okresie", "w"],
+  ["przeciągu", "w"], ["okresie", "w"], ["kierunku", "w"],
 ]);
 
 // Stems of amount nouns: a number after them is their genitive attribute (od kwoty trzystu tysięcy)
@@ -285,7 +285,7 @@ export const AMOUNT_NOUNS = [
   "poziom", "stan", "strat", "strac", "wartoś", "liczb", "cen", "koszt", "opłat", "kar", "moc",
   "wag", "wadz", "pojemnoś", "powierzchn", "prędkoś", "temperatur", "objętoś", "odległoś", "armi",
   "grup", "okres", "limit", "próg", "prog", "budżet", "deficyt", "nadwyżk", "dochod", "dochód",
-  "przychod", "przychód", "wydatk", "wzrost", "spad", "zysk", "dotacj", "wynagrodzen", "pensj",
+  "przychod", "przychód", "wydatk", "wzrost", "spad", "zysk", "dotacj", "wynagrodzen", "pensj", "list",
 ] as const;
 
 export const NOUN_ENDINGS: ReadonlySet<string> = new Set([
@@ -304,6 +304,15 @@ export const CLITICS: ReadonlySet<string> = new Set([
   "mi", "ci", "mu", "jej", "nam", "wam", "im", "się", "sobie", "już", "jeszcze", "teraz", "tu",
   "tam", "aż", "nawet",
 ]);
+
+// Particles between a preposition and the number it governs: do nawet siedmiuset (but około, blisko and ponad
+// govern their own case: przez około pięciu minut)
+export const PARTICLES: ReadonlySet<string> = new Set([
+  "nawet", "aż", "prawie", "niemal", "zaledwie", "tylko", "jedynie",
+]);
+
+// Adverbs of degree between an ordinal and its adjective: 21. najbardziej zakorkowanym
+export const DEGREE_ADVERBS: ReadonlySet<string> = new Set(["najbardziej", "najmniej", "bardziej", "mniej"]);
 
 export const COPULAS: ReadonlySet<string> = new Set([
   "jest", "są", "był", "była", "było", "były", "będzie", "będą", "to",
@@ -350,7 +359,7 @@ export const FEMININE_PLURALS = [
   "osob", "osób", "godzin", "minut", "sekund", "złotówk", "kobiet", "stron", "sztuk", "rzecz", "częś",
   "noc", "dob", "klas", "wersj", "sesj", "edycj", "zapał", "tablic", "butelk", "szklank", "łyżk",
   "dziewczyn", "dziewcząt", "córk", "córek", "siostr", "sióstr", "matk", "matek", "rodzin", "uczennic",
-  "zawodniczk", "zawodniczek", "kropl", "łyżecz",
+  "zawodniczk", "zawodniczek", "kropl", "łyżecz", "cukini",
 ] as const;
 
 // Words before a time with a dot, which make it a time: o 18.30
@@ -415,6 +424,8 @@ export const ORDINAL_NOUNS: readonly (readonly [Gender, string])[] = [
   [Gender.MASCULINE, "kongres kongresu kongresowi kongres kongresem kongresie kongresy kongresów kongresom kongresy kongresami kongresach"],
   [Gender.MASCULINE, "krok kroku krokowi krok krokiem kroku kroki kroków krokom kroki krokami krokach"],
   [Gender.MASCULINE, "rząd rzędu rzędowi rząd rzędem rzędzie rzędy rzędów rzędom rzędy rzędami rzędach"],
+  [Gender.MASCULINE, "kilometr kilometra kilometrowi kilometr kilometrem kilometrze kilometry kilometrów kilometrom kilometry kilometrami kilometrach"],
+  [Gender.MASCULINE, "numer numeru numerowi numer numerem numerze numery numerów numerom numery numerami numerach"],
 ];
 
 // Words of a text about time, which make its 8'22" minutes and seconds, and a lone 25″ seconds
@@ -437,9 +448,12 @@ export const HOUR_WORDS: ReadonlyMap<string, Case> = new Map<string, Case>([
   ["godzinach", Case.NOMINATIVE],
 ]);
 
-// Stems of headings: Punkt 3., w punkcie 5.; the ones of ORDINAL_HEADINGS read as ordinals even without a dot
-export const HEADINGS = ["podpunkt", "punkt", "punkc", "rozdział", "paragraf", "artykuł", "pkt"] as const;
-export const ORDINAL_HEADINGS = ["podpunkt", "punkt", "punkc", "paragraf", "pkt"] as const;
+// Stems of headings: Punkt 3., w punkcie 5., w numerze 9. (but numer 82. stays a label); the ones of
+// ORDINAL_HEADINGS read as ordinals even without a dot
+export const HEADINGS = [
+  "podpunkt", "punkt", "punkc", "rozdział", "paragraf", "artykuł", "pkt", "ustęp", "numerz", "poziom",
+] as const;
+export const ORDINAL_HEADINGS = ["podpunkt", "punkt", "punkc", "paragraf", "pkt", "częś"] as const;
 
 // Words before the ordinal of a decade, with its case: z lat 70., w latach 80.
 export const DECADE_WORDS: ReadonlyMap<string, Case> = new Map<string, Case>([
@@ -557,8 +571,10 @@ export const SPORT_WORDS: Keys = [
   "lig", "siatkar", "piłkar", "zwycię", "porażk", "turniej", "kibic", "spotkani",
 ];
 
-// 15.08.2020 r.: the year has four digits, "r." may follow it
-export const DATE_FORMAT = dateFormat({ separators: ".", boundaries: ".,", shortYear: false, suffixes: ["r."] });
+// 15.08.2020 r., 5.07.24, 31/07/2018: "r." may follow the year, and a two-digit one is read in full
+export const DATE_FORMAT = dateFormat({
+  separators: "./", boundaries: ".,", suffixes: ["r."], yearPivot: 30, fullYears: true,
+});
 
 // 600 123 456, 22 123 45 67 (after a word of PHONE_WORDS), 600-123-456, 68-324-22-55
 export const PHONE_FORMATS = [
@@ -615,7 +631,11 @@ export const SYMBOLS: Readings = {
   ">": [{ words: "powyżej", when: beforeValue }],
   "≤": [{ words: "nie więcej niż", when: beforeValue }],
   "≥": [{ words: "co najmniej", when: beforeValue }],
-  "~": [{ words: "około", when: beforeValue }],
+  // około ~180: "około" once
+  "~": [
+    { words: "", when: (context) => beforeValue(context) && context.before() === "około" },
+    { words: "około", when: beforeValue },
+  ],
 };
 
 // Prepositions before an inflected abbreviation, by the case they give it: przy ul. Długiej, od ul. Długiej
@@ -786,6 +806,7 @@ export const TERMS: Terms = {
     "art.": declined("artykuł|artykułu|artykułowi|artykuł|artykułem|artykule", beforeNumber),
     "str.": declined("strona|strony|stronie|stronę|stroną|stronie", beforeNumber),
     "poz.": [{ words: "pozycja", when: beforeNumber }],
+    "cz.": [{ words: "część", when: beforeSpacedNumber }],
     "ok.": [{ words: "około", when: beforeAmount }],
     ok: [{ words: "około", when: beforeAmount }], // ok 50°C; "jest ok" stays
     "Ok.": [{ words: "Około", when: beforeAmount }],

@@ -137,7 +137,7 @@ inline const std::vector<std::u32string> kMasculineEndings = {U"age", U"ège", U
 inline const std::unordered_set<std::u32string> kStopWords = {
   U"avec", U"dans", U"pour", U"mais", U"donc", U"puis", U"sur", U"sous", U"par", U"chez", U"vers", U"entre", U"sans",
   U"contre", U"comme", U"selon", U"alors", U"aussi", U"déjà", U"encore", U"très", U"plus", U"moins", U"tout",
-  U"tous", U"toute", U"toutes", U"des"
+  U"tous", U"toute", U"toutes", U"des", U"cette", U"ces"
 };
 
 inline const std::unordered_set<std::u32string> kNumberWords = {

@@ -18,6 +18,7 @@ import {
   parseValue,
   romanRole,
   value,
+  unpaddedDay,
 } from "../../numbers/scanning.ts";
 import { isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
 import { type Text } from "../../text/strings.ts";
@@ -30,6 +31,7 @@ import {
   CODE_CUES,
   CODE_WORDS,
   COUNT_CUES,
+  SIGN_CUES,
   CURRENCIES,
   CURRENCY_WORDS,
   DATE_FORMAT,
@@ -429,6 +431,19 @@ class Hindi extends PatternLanguage {
       const n = value(match.numbers[0]);
       return n === 2n ? " स्क्वेर्ड" : n === 3n ? " क्यूब" : ` टु द पावर ${cardinal(n)}`;
     }
+    // कोविड -19, डीजेएम -800: a hyphen after a word joins it to the number, unless the word cues a minus (तापमान -7)
+    const head = match.context.head();
+    const before = match.context.before();
+    if (
+      match.kind === Kind.SIGN &&
+      head.length >= 2 &&
+      head[head.length - 1] === " " &&
+      isAlpha(head[head.length - 2]) &&
+      !COUNT_CUES.has(before) &&
+      !SIGN_CUES.has(before)
+    ) {
+      return undefined;
+    }
     return super.readJoiner(match);
   }
 
@@ -457,9 +472,7 @@ class Hindi extends PatternLanguage {
   #isSpokenDigits(number: Numeral, match: Match): boolean {
     const i = number.integer;
     // 04 जून: a day before a month, despite its leading zero
-    const next = match.context.after();
-    const day = i.length === 2 && next !== "" && MONTHS.includes(next);
-    if (!day && isSpokenDigits(number, 12)) {
+    if (!unpaddedDay(number, match, MONTHS) && isSpokenDigits(number, 12)) {
       return true;
     }
     if (match.kind !== Kind.NUMBER || number.grouped || i.length < 4) {

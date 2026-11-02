@@ -77,6 +77,10 @@ REGISTER_TEST(numbers_de_test) {
       U"einundzwanzig.",
       verbalize("de", U"Die Füchse siegten mit 37:29 (20:13), Anpfiff um 15:21.", only(&Options::numbers)));
 
+  // A spaced date after a weekday, with a space before its year, or in parentheses
+  ASSERT_EQUALS(U"Am Freitag, siebter Juni zweitausendneunzehn und (sechzehnter Dezember).",
+                verbalize("de", U"Am Freitag, 7. 6. 2019 und (16. 12.)."));
+
   return true;
 }
 

@@ -205,7 +205,10 @@ bool is_year(const Match& match) {
 
 Cues cues_of(const Match& match) {
   std::u32string previous = match.context.before();
-  return {.feminine = counted(match.context) && feminine(match.context.after()),
+  // 1 ou 2 places: the noun after the second number
+  std::u32string next = match.context.after(), second = match.context.after(2);
+  bool coordinated = (next == U"ou" || next == U"et") && !second.empty() && unicode::isdigit(second[0]);
+  return {.feminine = coordinated ? feminine(match.context.after(3)) : counted(match.context) && feminine(next),
           .plural_s = !kOrdinalWords.contains(previous) && !is_year(match),
           .equation = match.kind == Kind::DIMENSION && match.context.tail().find(U'=') != std::u32string_view::npos};
 }
@@ -366,8 +369,17 @@ public:
 
 protected:
   std::u32string read_number(const Number& number, const Match& match) const override {
+    // 04 juin: a day, despite its leading zero
+    if (auto day = unpadded_day(number, match, kMonths)) {
+      return read_number(*day, match);
+    }
     if (is_code(number, match)) {
       return digits(number.integer);
+    }
+    // 05 mai: a zero-padded day before its month
+    if (number.integer.size() == 2 && number.integer[0] == U'0' && number.fraction.empty() &&
+        std::ranges::find(kMonths, strings::to_lower(match.context.after())) != kMonths.end()) {
+      return value(number) == 1 ? ordinal(1) : cardinal(value(number));
     }
     // 3 1/2 km: trois kilomètres (et demi)
     if (match.kind == Kind::FRACTION && !match.unit.empty()) {
@@ -394,13 +406,19 @@ protected:
     }
     // 3.8.10 after "version", or with a one-digit day and month and a short year, is a version
     const auto& numbers = match.numbers;
-    bool short_version = match.separator == U'.' && numbers.size() == 3 && numbers[2].integer.size() == 2 &&
-                         numbers[0].integer.size() == 1 && numbers[1].integer.size() == 1;
+    bool short_version = match.separator == U'.' && numbers.size() == 3 &&
+                         numbers[2].span.end - numbers[2].span.begin == 2 && numbers[0].integer.size() == 1 &&
+                         numbers[1].integer.size() == 1;
     if (short_version || kVersionWords.contains(match.context.before())) {
       return std::nullopt;
     }
-    // Without a year only a zero-padded day or month is a date: 05/11, but not 3/4
-    if (match.numbers.size() != 3 && match.numbers[0].integer[0] != U'0' && match.numbers[1].integer[0] != U'0') {
+    // Without a year only a zero-padded day or month is a date, or a slashed one after "le" which no "de" follows:
+    // 05/11, le 22/9, but not 3/4, nor le 1/3 des voix
+    std::u32string next = match.context.after();
+    bool dated = match.separator == U'/' && match.context.before() == U"le" && next != U"de" && next != U"des" &&
+                 next != U"du" && !match.context.tail().starts_with(U" d'");
+    if (match.numbers.size() != 3 && match.numbers[0].integer[0] != U'0' && match.numbers[1].integer[0] != U'0' &&
+        !dated) {
       return std::nullopt;
     }
     uint64_t day = value(match.numbers[0]);

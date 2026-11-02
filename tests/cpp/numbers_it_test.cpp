@@ -67,6 +67,16 @@ REGISTER_TEST(numbers_it_test) {
   ASSERT_EQUALS(U"In due ore undici minuti e tredici secondi, su uno schermo da diciannove pollici.",
                 verbalize("it", U"In 2h11'13\", su uno schermo da 19″.", only(&Options::numbers)));
 
+  // 1 after a participle counts its noun; a range takes the gender of a plural in -e
+  ASSERT_EQUALS(U"Inclusa una bevanda e una-due volte al giorno.",
+                verbalize("it", U"Inclusa 1 bevanda e 1-2 volte al giorno.", only(&Options::numbers)));
+
+  // A day and a month without a year after an article, unless they may be a fraction or a decimal
+  ASSERT_EQUALS(
+      U"Dal ventuno settembre al ventisei settembre, il due terzi dei voti, al ventiquattro virgola tre per "
+      U"cento, del venticinque febbraio.",
+      verbalize("it", U"Dal 21/9 al 26/9, il 2/3 dei voti, al 24.3%, del 25.02."));
+
   return true;
 }
 

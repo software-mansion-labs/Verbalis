@@ -126,6 +126,9 @@ REGISTER_TEST(numbers_hi_context_test) {
   ASSERT_EQUALS(U"(PCB/PCM) विषय", verbalize("hi", U"(PCB/PCM) विषय"));
   ASSERT_EQUALS(U"green हाइफ़न turner डॉट org", verbalize("hi", U"green-turner.org"));
 
+  ASSERT_EQUALS(U"कोविड -उन्नीस के समय तापमान माइनस सात था।",
+                verbalize("hi", U"कोविड -19 के समय तापमान -7 था।", only(&Options::numbers)));
+
   return true;
 }
 

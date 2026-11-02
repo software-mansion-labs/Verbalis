@@ -230,7 +230,7 @@ public:
   Italian() : PatternLanguage({.terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -242,6 +242,10 @@ public:
 
 protected:
   std::u32string read_number(const Number& number, const Match& match) const override {
+    // 09 gennaio: a day, despite its leading zero
+    if (auto day = unpadded_day(number, match, kMonths)) {
+      return read_number(*day, match);
+    }
     if (number.fraction.empty()) {
       // 1034500 alone: the whole text is a number, not a code
       auto n = parse_value(number.integer);
@@ -254,6 +258,15 @@ protected:
       // 1 maggio: primo maggio; ha 1 figlio: un figlio
       if (std::ranges::find(kMonths, strings::to_lower(match.context.after())) != kMonths.end()) {
         return U"primo";
+      }
+      // 1-2 volte, 1-3 gocce: una-due, a range before a feminine plural (in -e)
+      std::u32string_view tail = match.context.tail();
+      size_t space = tail.find(U' ');
+      if (tail.starts_with(U'-') && space > 1 && space != std::u32string_view::npos &&
+          std::ranges::all_of(tail.substr(1, space - 1), unicode::isdigit)) {
+        auto words = words_of(tail.substr(space));
+        std::u32string noun(words.empty() ? U"" : stripped(words[0]));
+        return is_noun(noun) && noun.ends_with(U'e') ? U"una" : U"uno";
       }
       return match.kind == Kind::NUMBER && counts_noun(match) ? one_before(match.context.after()) : U"uno";
     }
@@ -278,8 +291,19 @@ protected:
 
   std::optional<std::u32string> read_date(const Match& match) const override {
     uint64_t day = value(match.numbers[0]);
-    return (day == 1 ? U"primo" : cardinal(day)) + U" " + kMonths[value(match.numbers[1]) - 1] + U" " +
-           cardinal(value(match.numbers[2]));
+    std::u32string words = (day == 1 ? U"primo" : cardinal(day)) + U" " + kMonths[value(match.numbers[1]) - 1];
+    if (match.numbers.size() == 3) {
+      return words + U" " + cardinal(value(match.numbers[2]));
+    }
+    // Without a year, after an article and with a day which can't be a month or a zero-padded number: dal 21/9, del
+    // 25.02., but not il 2/3 dei voti, nor the decimal of al 24.3%
+    bool padded = match.numbers[0].integer[0] == U'0' || match.numbers[1].integer[0] == U'0';
+    bool decimal =
+        (match.separator == U'.' && match.numbers[1].integer.size() != 2) || match.context.tail().starts_with(U'%');
+    if (!kDateArticles.contains(match.context.before()) || (day <= 12 && !padded) || decimal) {
+      return std::nullopt;
+    }
+    return words;
   }
 
   std::optional<std::u32string> read_phone(const Match& match) const override {

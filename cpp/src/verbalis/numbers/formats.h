@@ -23,6 +23,13 @@ struct DateFormat {
   bool closing_separator = false; // A separator also closes the month: 1.5. and 1.5.2024
   bool spaced = false;            // An optional space after the day: 12. 5.
   Keys suffixes;                  // Abbreviations after the year: 2024 r.
+  // A two-digit year below the pivot is in the 2000s (24: 2024); one from it on is in the 1900s (98: 1998) with
+  // full_years, and stays as written (98) without
+  int year_pivot = 30;
+  bool full_years = false;
+  // The names of the months, lowercase: a month may be written as its name or its first three letters or more, in
+  // any case (23/Ago/2013, 06-jun-2012)
+  std::vector<std::u32string> months;
 };
 
 // How a phone number is written: its groups of digits and what separates them.

@@ -199,8 +199,11 @@ inline const std::unordered_set<std::u32string> kGenitive = {
   U"wegen", U"während", U"trotz", U"statt", U"innerhalb", U"außerhalb"
 };
 
-// Words before a date (am 12. 3.), and before a year (im Jahr 1945, and months)
-inline const std::unordered_set<std::u32string> kDateCues = {U"am", U"vom", U"zum", U"bis", U"ab", U"seit", U"den", U"der"};
+// Words before a date (am 12. 3., Freitag, 7. 6. 2019), and before a year (im Jahr 1945, and months)
+inline const std::unordered_set<std::u32string> kDateCues = {
+  U"am", U"vom", U"zum", U"bis", U"ab", U"seit", U"den", U"der", U"termine", U"montag", U"dienstag", U"mittwoch",
+  U"donnerstag", U"freitag", U"samstag", U"sonntag"
+};
 inline const std::unordered_set<std::u32string> kYearCues = {
   U"jahr", U"jahre", U"jahren", U"im", U"seit", U"bis", U"von", U"ab", U"anfang", U"ende", U"mitte", U"sommer",
   U"winter", U"frühjahr", U"herbst", U"frühling", U"anno", U"januar", U"februar", U"märz", U"april", U"mai",

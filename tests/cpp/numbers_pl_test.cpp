@@ -73,6 +73,39 @@ REGISTER_TEST(numbers_pl_test) {
   ASSERT_EQUALS(U"Siatkarki objęły prowadzenie dwadzieścia do szesnastu, mecz o dwudziestej szesnaście.",
                 verbalize("pl", U"Siatkarki objęły prowadzenie 20:16, mecz o 20:16.", only(&Options::numbers)));
 
+  // A number before a form of a noun no count takes is an ordinal; a label (nr 4) stays a cardinal
+  ASSERT_EQUALS(
+      U"W czwartej lidze, w trzydziestej piątej minucie, na szóstym kroku, moje dwudzieste drugie urodziny, "
+      U"numer cztery turnieju.",
+      verbalize("pl", U"W 4 lidze, w 35 minucie, na 6 kroku, moje 22 urodziny, nr 4 turnieju."));
+
+  // The case of a cardinal past a particle, after a conjunction, and an adjective before a feminine noun
+  ASSERT_EQUALS(
+      U"Do nawet siedmiuset złotych, spośród pięciuset dziesięciu ocen i sześćdziesięciu ośmiu recenzji, "
+      U"na dwie równe części.",
+      verbalize("pl", U"Do nawet 700 zł, spośród 510 ocen i 68 recenzji, na 2 równe części."));
+
+  // Years after "przed" and "w samym roku"; dot ordinals after an adverb and after "został"
+  ASSERT_EQUALS(
+      U"Przed tysiąc dziewięćset dziewięćdziesiątym dziewiątym rokiem, w samym roku dwa tysiące szesnastym, "
+      U"dwudziestym pierwszym najbardziej zakorkowanym, został jedenastym kierowcą.",
+      verbalize("pl", U"Przed 1999 r., w samym roku 2016, 21. najbardziej zakorkowanym, został 11. kierowcą."));
+
+  // cz. 2 is a heading; ~ after "około" isn't read twice
+  ASSERT_EQUALS(U"Kuchnia część druga, około stu osiemdziesięciu złotych.",
+                verbalize("pl", U"Kuchnia cz. 2, około ~180 zł."));
+
+  // Dates in more shapes: a day and a month in parentheses or zero-padded (not the version 1.10), a two-digit year,
+  // slashes, a day glued to its month, and a day after its month
+  ASSERT_EQUALS(U"Wtorek (drugiego stycznia), dzień dwudziestego dziewiątego czerwca i wersja jeden dziesięć.",
+                verbalize("pl", U"Wtorek (2.01), dzień 29.06 i wersja 1.10."));
+  ASSERT_EQUALS(
+      U"Ukazał się trzydziestego maja dwa tysiące dwudziestego trzeciego roku, ważna do trzydziestego "
+      U"pierwszego lipca dwa tysiące osiemnastego.",
+      verbalize("pl", U"Ukazał się 30.05.23 r., ważna do 31/07/2018."));
+  ASSERT_EQUALS(U"Jutro (siedemnastego stycznia) i kwietnia czternastego, dwa tysiące siedemnastego.",
+                verbalize("pl", U"Jutro (17stycznia) i kwietnia 14, 2017."));
+
   return true;
 }
 

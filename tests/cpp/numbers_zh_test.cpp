@@ -90,6 +90,9 @@ REGISTER_TEST(numbers_zh_special_forms_test) {
   ASSERT_EQUALS(U"COVID-十九", numbers(U"COVID-19"));
   ASSERT_EQUALS(U"九十九a一-六", numbers(U"9９a1-6"));
 
+  // A day and a month in parentheses
+  ASSERT_EQUALS(U"昨日 (十月二十四日) 她", verbalize("zh", U"昨日（24/10）她"));
+
   return true;
 }
 

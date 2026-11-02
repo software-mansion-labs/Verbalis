@@ -500,8 +500,9 @@ protected:
     if (match.separator == U'-' && match.numbers.size() == 2) {
       return std::u32string(kMonths[value(match.numbers[1]) - 1]) + U" " + year(value(match.numbers[0]));
     }
-    // "am 12. 3." is a date, "Platz 1. 2 Tore" is not
-    if (match.text.find(U' ') != std::u32string_view::npos && !kDateCues.contains(match.context.before())) {
+    // "am 12. 3." and "(16. 12.)" are dates, "Platz 1. 2 Tore" is not
+    if (match.text.find(U' ') != std::u32string_view::npos && !kDateCues.contains(match.context.before()) &&
+        !match.context.head().ends_with(U'(')) {
       return std::nullopt;
     }
     std::u32string words =

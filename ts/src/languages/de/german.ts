@@ -601,8 +601,9 @@ class German extends PatternLanguage {
     if (match.separator === "-" && match.numbers.length === 2) {
       return `${MONTHS[Number(value(match.numbers[1])) - 1]} ${year(value(match.numbers[0]))}`;
     }
-    // "am 12. 3." is a date, "Platz 1. 2 Tore" is not
-    if (match.text.includes(" ") && !DATE_CUES.has(match.context.before())) {
+    // "am 12. 3." and "(16. 12.)" are dates, "Platz 1. 2 Tore" is not
+    const head = match.context.head();
+    if (match.text.includes(" ") && !DATE_CUES.has(match.context.before()) && head[head.length - 1] !== "(") {
       return undefined;
     }
     const words = `${ordinal(value(match.numbers[0]), ending(cuesOf(match)))} ${MONTHS[Number(value(match.numbers[1])) - 1]}`;

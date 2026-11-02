@@ -73,6 +73,16 @@ REGISTER_TEST(numbers_fr_test) {
   ASSERT_EQUALS(U"Un film de trois'seize\" et un écran plat vingt pouces, le mot \"dix\".",
                 verbalize("fr", U"Un film de 3'16\" et un écran plat 20\", le mot \"10\".", only(&Options::numbers)));
 
+  ASSERT_EQUALS(U"Le quatre juin.", verbalize("fr", U"Le 04 juin.", only(&Options::numbers)));
+
+  // The noun after a second number sets the gender; a demonstrative is not a noun
+  ASSERT_EQUALS(U"De une ou deux places, en Ligue un cette saison.",
+                verbalize("fr", U"De 1 ou 2 places, en Ligue 1 cette saison.", only(&Options::numbers)));
+
+  // A two-digit year with a leading zero, a slashed day and month after "le" (not before "des"), a padded day
+  ASSERT_EQUALS(U"Le dix-huit août deux mille huit, le vingt-deux septembre, le un tiers des voix, du cinq mai.",
+                verbalize("fr", U"Le 18/08/08, le 22/9, le 1/3 des voix, du 05 mai."));
+
   return true;
 }
 

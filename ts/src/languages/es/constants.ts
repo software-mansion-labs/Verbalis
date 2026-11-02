@@ -157,6 +157,9 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
   "minuto", "minutos", "segundos", "maratón", "clasificación", "podio",
 ]);
 
+// Words around a lone 10' which make it minutes: durante más de 10', (36' PT), (49' ST)
+export const MINUTE_CUES: ReadonlySet<string> = new Set(["durante", "pt", "st"]);
+
 // A time written with prime marks: hours, minutes, and seconds
 export const PRIME_UNITS: readonly Forms[] = [
   { one: "hora", many: "horas" }, { one: "minuto", many: "minutos" }, { one: "segundo", many: "segundos" },
@@ -226,7 +229,7 @@ export const EVENING_SUFFIXES: Keys = ["p. m.", "p.m.", "p.m", "pm"];
 
 // Nouns in -a, -ión, -dad, ... are feminine unless listed below; other feminine nouns are listed
 export const MASCULINE_IN_A: ReadonlySet<string> = new Set([
-  "día", "mapa", "problema", "sistema", "programa", "tema", "idioma", "clima", "planeta", "poema",
+  "día", "dia", "mapa", "problema", "sistema", "programa", "tema", "idioma", "clima", "planeta", "poema",
   "dilema", "drama", "esquema", "sofá", "papá", "cometa", "fantasma", "panorama", "diagrama", "teorema",
   "córdoba", "lempira", "balboa",
 ]);
@@ -237,6 +240,9 @@ export const FEMININE_NOUNS: ReadonlySet<string> = new Set([
   "superficie", "imagen", "orden", "edición",
 ]);
 export const FEMININE_ENDINGS = ["a", "ión", "dad", "tad", "tud", "umbre", "sis", "itis"] as const;
+
+// Words before a year: en 1971 publicó
+export const YEAR_WORDS: ReadonlySet<string> = new Set(["en", "de", "del", "desde", "hasta", "año"]);
 
 // Words after a number which are not the noun it counts
 export const STOP_WORDS: ReadonlySet<string> = new Set([
@@ -309,7 +315,7 @@ export const SPORT_WORDS: Keys = [
 ];
 
 // 14/07/2023, 31/12/99
-export const DATE_FORMAT = dateFormat({ separators: "/-.", boundaries: ".,/-", yearRequired: false });
+export const DATE_FORMAT = dateFormat({ separators: "/-.", boundaries: ".,/-", yearRequired: false, months: MONTHS });
 
 // 600-123-456, 600 123 456 (after a word of PHONE_WORDS)
 export const PHONE_FORMATS = [

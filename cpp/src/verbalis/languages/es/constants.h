@@ -176,6 +176,9 @@ inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"minuto", U"minutos", U"segundos", U"maratón", U"clasificación", U"podio"
 };
 
+// Words around a lone 10' which make it minutes: durante más de 10', (36' PT), (49' ST)
+inline const std::unordered_set<std::u32string> kMinuteCues = {U"durante", U"pt", U"st"};
+
 // A time written with prime marks: hours, minutes, and seconds
 inline const std::array<Forms, 3> kPrimeUnits = {{{U"hora", U"horas"}, {U"minuto", U"minutos"}, {U"segundo", U"segundos"}}};
 
@@ -204,7 +207,7 @@ inline const Keys kEveningSuffixes = {U"p. m.", U"p.m.", U"p.m", U"pm"};
 
 // Nouns in -a, -ión, -dad, ... are feminine unless listed below; other feminine nouns are listed
 inline const std::unordered_set<std::u32string> kMasculineInA = {
-  U"día", U"mapa", U"problema", U"sistema", U"programa", U"tema", U"idioma", U"clima", U"planeta", U"poema",
+  U"día", U"dia", U"mapa", U"problema", U"sistema", U"programa", U"tema", U"idioma", U"clima", U"planeta", U"poema",
   U"dilema", U"drama", U"esquema", U"sofá", U"papá", U"cometa", U"fantasma", U"panorama", U"diagrama", U"teorema",
   U"córdoba", U"lempira", U"balboa"
 };
@@ -215,6 +218,9 @@ inline const std::unordered_set<std::u32string> kFeminineNouns = {
   U"superficie", U"imagen", U"orden", U"edición"
 };
 inline const std::vector<std::u32string> kFeminineEndings = {U"a", U"ión", U"dad", U"tad", U"tud", U"umbre", U"sis", U"itis"};
+
+// Words before a year: en 1971 publicó
+inline const std::unordered_set<std::u32string> kYearWords = {U"en", U"de", U"del", U"desde", U"hasta", U"año"};
 
 // Words after a number which are not the noun it counts
 inline const std::unordered_set<std::u32string> kStopWords = {
@@ -288,7 +294,8 @@ inline const Keys kSportWords = {
 };
 
 // 14/07/2023, 31/12/99, 15/06
-inline const DateFormat kDateFormat = {.separators = U"/-.", .boundaries = U".,/-", .year_required = false};
+inline const DateFormat kDateFormat = {.separators = U"/-.", .boundaries = U".,/-", .year_required = false,
+                                         .months = kMonths};
 
 // 600-123-456, 600 123 456 (after a word of kPhoneWords)
 inline const std::vector<PhoneFormat> kPhoneFormats = {

@@ -323,6 +323,11 @@ function readNumericDate(s: Text, i: number): Reading | undefined {
   if (a.length === 2 && b.length === 2 && (a[0] === "0" || b[0] === "0") && isMonthDay(valueOf(a), valueOf(b))) {
     return words("", a, b);
   }
+  // (24/10): a day which can't be a month, then the month, in parentheses
+  const parenthesized = contains("(（", at(s, i - 1)) && contains(")）", at(s, j));
+  if (parenthesized && separator === "/" && valueOf(a) > 12n && isMonthDay(valueOf(b), valueOf(a))) {
+    return words("", b, a);
+  }
   return undefined;
 }
 

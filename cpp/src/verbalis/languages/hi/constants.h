@@ -214,6 +214,10 @@ inline const std::unordered_set<std::u32string> kCountCues = {
   U"को", U"से", U"में", U"के", U"की", U"का", U"ने", U"पर", U"तक", U"संख्या", U"लगभग", U"करीब", U"कुल", U"और"
 };
 
+// Words before a hyphen and a number which make it a minus, with the count cues: तापमान -7; after another word, the
+// hyphen joins (कोविड -19, सेक्टर -1).
+inline const std::unordered_set<std::u32string> kSignCues = {U"तापमान", U"पारा"};
+
 // English ordinals as said in Hindi: 7th क्रॉस -> सेवंथ क्रॉस. By number up to 19; then the tens and their ordinals.
 inline const std::array<std::u32string, 20> kEnglishOrdinals = {
   U"",          U"फ़र्स्ट",     U"सेकंड",      U"थर्ड",       U"फ़ोर्थ",      U"फ़िफ्थ",     U"सिक्स्थ",

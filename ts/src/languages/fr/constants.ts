@@ -116,7 +116,7 @@ export const MASCULINE_ENDINGS = ["age", "ège", "isme", "ème", "aire", "tre", 
 export const STOP_WORDS: ReadonlySet<string> = new Set([
   "avec", "dans", "pour", "mais", "donc", "puis", "sur", "sous", "par", "chez", "vers", "entre", "sans",
   "contre", "comme", "selon", "alors", "aussi", "déjà", "encore", "très", "plus", "moins", "tout",
-  "tous", "toute", "toutes", "des",
+  "tous", "toute", "toutes", "des", "cette", "ces",
 ]);
 
 export const NUMBER_WORDS: ReadonlySet<string> = new Set([

@@ -144,19 +144,27 @@ public:
    * @param cues lowercase words of a text which make its minutes and seconds (3'16") and a lone 23″ a time; without
    *        one, they are left as written and a lone 23″ is inches.
    * @param feet reads 5'9" as feet and inches, and a lone 400' as feet.
+   * @param minutes lowercase words among the three before or after a lone 10' which make it minutes: durante más de
+   *        10', aos 6′ do segundo tempo; without one, it is left as written.
    */
-  PrimePattern(const Notation& notation, std::unordered_set<std::u32string> cues, bool feet = false)
-      : Pattern(Kind::TIME), decimals_(notation.decimal_separators), cues_(std::move(cues)), feet_(feet) {}
+  PrimePattern(const Notation& notation, std::unordered_set<std::u32string> cues, bool feet = false,
+               std::unordered_set<std::u32string> minutes = {})
+      : Pattern(Kind::TIME),
+        decimals_(notation.decimal_separators),
+        cues_(std::move(cues)),
+        feet_(feet),
+        minutes_(std::move(minutes)) {}
 
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
 
 private:
   // Whether a word of a text is one of the cues
-  bool cued(std::u32string_view text) const;
+  static bool cued(std::u32string_view text, const std::unordered_set<std::u32string>& cues);
 
   std::u32string decimals_;
   std::unordered_set<std::u32string> cues_;
   bool feet_;
+  std::unordered_set<std::u32string> minutes_;
 };
 
 // XIXe, XIIवीं: an ordinal written in Roman numerals, with a suffix; one letter only if it is I, V or X.
@@ -200,6 +208,13 @@ public:
   SignPattern() : Pattern(Kind::SIGN) {}
 
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
+
+private:
+  /**
+   * Whether a hyphen after a word and a space joins the number to the word rather than signs it: after an acronym
+   * (COVID -19, but GMT -4), before a year (Enhogar -2016), or opening a dash pair (por décimo -1.000 euros la serie-).
+   */
+  static bool joins(std::u32string_view text, size_t position);
 };
 
 // 18:30, 10.30 pm, 21h30: hours and minutes, with an optional suffix.
@@ -342,8 +357,8 @@ public:
   std::optional<Match> match(std::u32string_view text, size_t position) const override;
 
 private:
-  // The date without (zero) or with its year, if it ends at a valid position
-  std::optional<Match> complete(std::u32string_view text, Match date, size_t position) const;
+  // The date without (zero) or with its year, if it ends at a valid position: with glue, also before a letter
+  std::optional<Match> complete(std::u32string_view text, Match date, size_t position, bool glue) const;
 
   DateFormat format_;
 };

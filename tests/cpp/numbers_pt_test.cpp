@@ -37,8 +37,8 @@ REGISTER_TEST(numbers_pt_test) {
   ASSERT_EQUALS(U"São três milhões de habitantes e um bilhão, quatro K e quinhentos mil seguidores.",
                 verbalize("pt", U"São 3 mi de habitantes e 1 bi, 4K e 500k seguidores.", only(&Options::numbers)));
   ASSERT_EQUALS(
-      U"Subiu vinte e cinco por cento e três vírgula cinco por cento ao ano, um vírgula cinco quilômetro e dois quilos "
-      U"e um grama.",
+      U"Subiu vinte e cinco por cento e três vírgula cinco por cento ao ano, um vírgula cinco quilômetro e dois "
+      U"quilos e um grama.",
       verbalize("pt", U"Subiu 25% e 3,5% ao ano, 1,5 km e 2 kg e 1 g.", only(&Options::numbers)));
   ASSERT_EQUALS(
       U"São um milhão de pessoas, dois mil e trezentos e um milhão e duzentos mil, dois mil e um e mil quinhentos e "
@@ -77,6 +77,23 @@ REGISTER_TEST(numbers_pt_test) {
   // Scores: a falling range among words of sport, and slashed pairs among words of sets
   ASSERT_EQUALS(U"O Braga venceu cinco a dois, com parciais de três a seis, seis a dois e sete a seis (oito a seis).",
                 verbalize("pt", U"O Braga venceu 5-2, com parciais de 3/6, 6/2 e 7/6 (8/6).", only(&Options::numbers)));
+
+  ASSERT_EQUALS(U"Aos seis minutos do segundo tempo, em oito de abril.",
+                verbalize("pt", U"Aos 6′ do segundo tempo, em 08 de abril.", only(&Options::numbers)));
+
+  // A year and a postal code take no gender; a decimal before a unit reads masculine and counts the plural
+  ASSERT_EQUALS(
+      U"De mil novecentos e quatro a mil novecentos e quarenta e nove, Linguateca dois mil e sete (Faculdade), "
+      U"duzentos e cinquenta motoristas, um vírgula noventa e cinco metro e mil e duzentos-oitocentos e setenta e um "
+      U"Lisboa.",
+      verbalize("pt", U"De 1904 a 1949, Linguateca 2007 (Faculdade), 250 motoristas, 1,95 m e 1200-871 Lisboa.",
+                only(&Options::numbers)));
+
+  // A month as a word in a numeric date, which needs no year then, and letters touching a date with a full year
+  ASSERT_EQUALS(
+      U"Em vinte e três de agosto de dois mil e treze e Amora primeiro de setembro de dois mil e quinze a "
+      U"(dezenove de agosto).",
+      verbalize("pt", U"Em 23/Ago/2013 e Amora01/09/2015 a (19.ago)."));
 
   return true;
 }

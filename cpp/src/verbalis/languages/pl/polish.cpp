@@ -29,11 +29,11 @@ struct Inflection {
   Form form = Form::CARDINAL; // An ordinal for years, days of a month and headings
   Case grammatical_case = Case::NOMINATIVE;
   Gender gender = Gender::MASCULINE;
+  bool plural = false; // lata 70., 18 urodziny: an ordinal in the plural
 };
 
 // What the words around a match say about reading its numbers: the inflection of its first number, and more
 struct Cues : Inflection {
-  bool plural = false;                 // lata 70.: an ordinal in the plural
   Case amount_case = Case::NOMINATIVE; // The case of an amount (5 kg): of its number and its noun
   bool numbered = false;               // numerem 3x38: the "x" of a document number stands for a slash
 };
@@ -188,6 +188,7 @@ struct NounForm {
   Case grammatical_case = Case::NOMINATIVE;
   Gender gender = Gender::MASCULINE;
   bool plural = false;
+  bool plural_only = false; // urodziny: never a form a count takes
 };
 
 // Whether a word is made only of given characters (and is not empty).
@@ -248,8 +249,13 @@ std::pair<std::vector<std::u32string>, std::u32string> surroundings(const Contex
          made_of(before[before.size() - 2], U"0123456789,.")) {
     before.resize(before.size() - 2);
   }
-  if (!before.empty() && before.back() == U"minus") {
-    before.pop_back(); // do minus siedmiu stopni
+  if (!before.empty() && (before.back() == U"minus" || before.back() == U"plus" || before.back() == U"+")) {
+    before.pop_back(); // do minus siedmiu stopni, od +12°C
+  }
+  // do nawet siedmiuset, przez około cztery: the preposition before a particle governs the number
+  if (before.size() >= 2 && kParticles.contains(before.back()) &&
+      kPrepositionCases.contains(before[before.size() - 2])) {
+    before.pop_back();
   }
   if (!before.empty() && kCurrencyWords.contains(before.back())) {
     before.pop_back();
@@ -278,7 +284,13 @@ std::pair<std::vector<std::u32string>, std::u32string> surroundings(const Contex
 std::optional<Context> enumerated(const Context& context) {
   std::u32string_view head = context.head();
   size_t end = head.find_last_not_of(U" \t\n\r");
-  if (end == std::u32string_view::npos || head[end] != U',') {
+  if (end == std::u32string_view::npos) {
+    return std::nullopt;
+  }
+  // spośród 510 ocen i 68 recenzji: a conjunction, as a comma
+  if (std::u32string w = context.before(); w != U"czy" && kConjunctions.contains(w) && unicode::isalpha(head[end])) {
+    end = end + 1 - w.size();
+  } else if (head[end] != U',') {
     return std::nullopt;
   }
 
@@ -343,7 +355,7 @@ const std::unordered_map<std::u32string, std::vector<NounForm>>& ordinal_nouns()
         if (!plural_only) {
           result[n.singular[c]].push_back({static_cast<Case>(c), gender, false});
         }
-        result[n.plural[c]].push_back({static_cast<Case>(c), gender, true});
+        result[n.plural[c]].push_back({static_cast<Case>(c), gender, true, plural_only});
       }
     }
     return result;
@@ -392,6 +404,7 @@ NounForm noun_form(std::u32string_view word, std::u32string_view preposition) {
       {U"ów", {Case::GENITIVE, Gender::MASCULINE, true}},
       {U"iem", {Case::INSTRUMENTAL, Gender::MASCULINE}},
       {U"em", {Case::INSTRUMENTAL, Gender::MASCULINE}},
+      {U"ym", {locative ? Case::LOCATIVE : Case::INSTRUMENTAL, Gender::MASCULINE}},
       {U"ą", {instrumental ? Case::INSTRUMENTAL : Case::ACCUSATIVE, Gender::FEMININE}},
       {U"ę", {Case::ACCUSATIVE, Gender::FEMININE}},
       {U"a", {Case::NOMINATIVE, Gender::FEMININE}},
@@ -414,6 +427,7 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
   auto [before, next] = surroundings(context);
   std::u32string w1 = before.empty() ? U"" : before.back();
   std::u32string w2 = before.size() < 2 ? U"" : before[before.size() - 2];
+  std::u32string w3 = before.size() < 3 ? U"" : before[before.size() - 3];
   std::u32string noun = year_abbreviation ? U"roku" : next; // 2020 r.
 
   // do lat 3, od lat 5: an age in the case of the preposition before "lat" (but z lat 1991-2020 are years)
@@ -423,7 +437,6 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
 
   // 1990-1994: the end of a range of years stays a cardinal, as its start (but od 2020 do 2022 reads ordinals)
   auto year = [](std::u32string_view w) { return w.size() == 4 && made_of(w, kDigits); };
-  std::u32string w3 = before.size() < 3 ? U"" : before[before.size() - 3];
   if (w1 == U"do" && year(w2) && n >= 1000 && n <= 2100 && w3 != U"od" && noun != U"roku" && noun != U"r") {
     return {Form::CARDINAL, Case::NOMINATIVE};
   }
@@ -431,10 +444,10 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
   // 1. Years, days and headings are ordinals
   bool locative = kLocativePrepositions.contains(w1);
   if ((noun == U"roku" || noun == U"rok" || noun == U"rokiem") && !decimal) {
-    Case c = noun == U"rok"    ? Case::NOMINATIVE :
-             noun == U"rokiem" ? Case::INSTRUMENTAL :
-             locative          ? Case::LOCATIVE :
-                                 Case::GENITIVE;
+    Case c = noun == U"rok"                                             ? Case::NOMINATIVE :
+             noun == U"rokiem" || (year_abbreviation && w1 == U"przed") ? Case::INSTRUMENTAL :
+             locative                                                   ? Case::LOCATIVE :
+                                                                          Case::GENITIVE;
     return {Form::ORDINAL, c};
   }
   if (w1 == U"dnia") {
@@ -443,8 +456,10 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
   if (auto hour = kHourWords.find(w1); hour != kHourWords.end() && n <= 24 && !decimal && !counted(noun)) {
     return {Form::ORDINAL, hour->second, Gender::FEMININE}; // o godzinie piętnastej
   }
-  if (w1 == U"roku" || w1 == U"rok") {
-    bool w2_locative = kLocativePrepositions.contains(w2);
+  // w (samym) roku 2016; but roku 76 pracowników counts
+  if ((w1 == U"roku" || w1 == U"rok") && !counted(noun)) {
+    bool w2_locative =
+        kLocativePrepositions.contains(w2) || (w2.ends_with(U"ym") && kLocativePrepositions.contains(w3) && n >= 1000);
     return {Form::ORDINAL, w1 == U"rok" ? Case::NOMINATIVE : w2_locative ? Case::LOCATIVE : Case::GENITIVE};
   }
   // od pierwszego do piątego lipca: the first day of a range, before "do" and a day of a month
@@ -465,14 +480,36 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
   if (kMonthWords.contains(w1) && n >= 1000 && n <= 2100) {
     return {Form::ORDINAL, Case::GENITIVE};
   }
+  // października 18, 2017: a day after its month, and the year after them
+  auto written = words_of(context.head());
+  auto month_at = [&](size_t back) {
+    return written.size() >= back &&
+           std::ranges::find(kMonthsGenitive, strings::to_lower(stripped(written[written.size() - back]))) !=
+               kMonthsGenitive.end();
+  };
+  bool day_after_month = month_at(1) && n >= 1 && n <= 31 && context.tail().starts_with(U',');
+  bool year_after_day = context.head().ends_with(U", ") && n >= 1000 && n <= 2100 && month_at(2) &&
+                        made_of(stripped(written.back()), kDigits);
+  if (day_after_month || year_after_day) {
+    return {Form::ORDINAL, Case::GENITIVE};
+  }
   if ((w1 == U"w" || w1 == U"we") && n >= 1000 && n <= 2100 && !genitive_plurals().contains(noun)) {
     return {Form::ORDINAL, Case::LOCATIVE};
   }
   if (auto it = kYearPrepositions.find(w1); it != kYearPrepositions.end() && n >= 1900 && n <= 2100 && !counted(noun)) {
     return {Form::ORDINAL, it->second}; // od dwa tysiące dwudziestego do dwa tysiące dwudziestego drugiego
   }
-  if (starts_with_any(w1, kOrdinalHeadings) && n < 100) {
-    return {Form::ORDINAL, noun_form(w1, w2).grammatical_case}; // w punkcie drugim
+  if (starts_with_any(w1, kOrdinalHeadings) && n < 100 && !counted(noun)) {
+    NounForm heading = noun_form(w1, w2);
+    return {Form::ORDINAL, heading.grammatical_case, heading.gender}; // w punkcie drugim, część druga
+  }
+  // w 4 lidze, na 6 kroku, 22 urodziny: before a form of a noun no count takes (a singular, or a noun with no
+  // singular), a number is an ordinal agreeing with it; but nr 4 turnieju is a label
+  if (auto it = ordinal_nouns().find(noun);
+      it != ordinal_nouns().end() && n >= 2 && !decimal && !w1.starts_with(U"numer") && w1 != U"nr" &&
+      std::ranges::none_of(it->second, [](const NounForm& form) { return form.plural && !form.plural_only; })) {
+    NounForm form = noun_form(noun, w1);
+    return {Form::ORDINAL, form.grammatical_case, form.gender, form.plural};
   }
 
   // 2. The case of a cardinal: from a preposition, a governing word or a number it continues
@@ -513,7 +550,10 @@ Inflection inflection_of(const Context& context, uint64_t n, bool decimal, bool 
   // jedna godzina, jednej godziny, but jednego stopnia (a masculine genitive in -a)
   bool nominative_feminine = noun.ends_with(U'a') && result.grammatical_case == Case::NOMINATIVE;
   bool genitive_feminine = (noun.ends_with(U'y') || noun.ends_with(U'i')) && result.grammatical_case == Case::GENITIVE;
-  if (((nominative_feminine || genitive_feminine) && n == 1) || starts_with_any(noun, kFemininePlurals)) {
+  // na 2 równe części: the noun after an adjective
+  bool adjective = noun.ends_with(U'e') || noun.ends_with(U"ych") || noun.ends_with(U"ich");
+  std::u32string head_noun = adjective && after.size() >= 2 ? strings::to_lower(stripped(after[1])) : noun;
+  if (((nominative_feminine || genitive_feminine) && n == 1) || starts_with_any(head_noun, kFemininePlurals)) {
     result.gender = Gender::FEMININE;
   } else if (noun == U"euro") {
     result.gender = Gender::NEUTER;
@@ -624,8 +664,20 @@ Cues cues_of(const Match& match) {
       } else if (starts_with_any(w1, kHeadings) && value(match.numbers[0]) < 100) {
         cues.grammatical_case = noun_form(w1, context.before(2)).grammatical_case; // Punkt 3., w punkcie 5.
       } else {
+        // 21. najbardziej zakorkowanym: the word after an adverb of degree
         auto words = words_of(context.tail());
-        NounForm next = noun_form(words.empty() ? U"" : strings::to_lower(stripped(words[0])), w1);
+        size_t i = !words.empty() && kDegreeAdverbs.contains(strings::to_lower(stripped(words[0]))) ? 1 : 0;
+        std::u32string word = words.size() > i ? strings::to_lower(stripped(words[i])) : U"";
+        NounForm next = noun_form(word, w1);
+        // został 11. kierowcą: an instrumental after a form of "zostać" or "być", in the gender of the verb
+        std::u32string verb = kCopulas.contains(w1) || w1.starts_with(U"zosta") ? w1 : context.before(2);
+        if (word.ends_with(U'ą') && (kCopulas.contains(verb) || verb.starts_with(U"zosta"))) {
+          next.grammatical_case = Case::INSTRUMENTAL;
+          next.gender = verb.ends_with(U"ła") ? Gender::FEMININE :
+                        verb.ends_with(U"ło") ? Gender::NEUTER :
+                        verb.ends_with(U'ł')  ? Gender::MASCULINE :
+                                                next.gender;
+        }
         cues.grammatical_case = next.grammatical_case;
         cues.gender = next.gender;
         cues.plural = next.plural;
@@ -752,8 +804,9 @@ private:
   Keys units_;
 };
 
-// 04.02., 23.07-22.08: a day and a month of two digits each, without a year: before a closing dot, or as a
-// range of two such dates (its numbers are then both days and months)
+// 04.02., 23.07-22.08, (2.01), 29.06: a day and a month of two digits (the day of one before a padded month),
+// without a year: before a closing dot, as a range of two such dates (its numbers are then both days and months), in
+// parentheses, or with a two-digit day and a zero-padded month
 class YearlessDatePattern : public Pattern {
 public:
   YearlessDatePattern() : Pattern(Kind::DATE) {}
@@ -763,12 +816,14 @@ public:
       return std::nullopt;
     }
     auto date_at = [&](size_t at) -> std::optional<std::pair<Number, Number>> {
-      if (digits_end(text, at) != at + 2 || at + 5 > text.size() || text[at + 2] != U'.' ||
-          digits_end(text, at + 3) != at + 5) {
+      size_t dot = digits_end(text, at);
+      if (dot == at || dot > at + 2 || dot + 3 > text.size() || text[dot] != U'.' ||
+          digits_end(text, dot + 1) != dot + 3) {
         return std::nullopt;
       }
-      Number day = digits_at(text, at), month = digits_at(text, at + 3);
-      if (value(day) < 1 || value(day) > 31 || value(month) < 1 || value(month) > 12) {
+      Number day = digits_at(text, at), month = digits_at(text, dot + 1);
+      bool padded = day.integer.size() == 2 || month.integer[0] == U'0'; // 4.02, but not the version 1.10
+      if (value(day) < 1 || value(day) > 31 || value(month) < 1 || value(month) > 12 || !padded) {
         return std::nullopt;
       }
       return std::pair{day, month};
@@ -777,13 +832,13 @@ public:
     if (!first) {
       return std::nullopt;
     }
-    size_t end = position + 5;
+    size_t end = first->second.span.end;
     // 23.07-22.08: a range
     if (end < text.size() && text[end] == U'-') {
-      if (auto second = date_at(end + 1);
-          second && is_clear_after(text, end + 6) && !is_digit_after(text, end + 6, U".")) {
+      if (auto second = date_at(end + 1); second && is_clear_after(text, second->second.span.end) &&
+                                          !is_digit_after(text, second->second.span.end, U".")) {
         return Match{.kind = Kind::DATE,
-                     .span = {position, end + 6},
+                     .span = {position, second->second.span.end},
                      .numbers = {first->first, first->second, second->first, second->second},
                      .separator = U'-'};
       }
@@ -797,7 +852,48 @@ public:
                    .numbers = {first->first, first->second},
                    .separator = U'.'};
     }
+    // (21.11), 29.06
+    bool parenthesized = position > 0 && text[position - 1] == U'(' && end < text.size() && text[end] == U')';
+    bool padded = first->first.integer.size() == 2 && first->second.integer[0] == U'0';
+    if ((parenthesized || padded) && is_clear_after(text, end) && !is_digit_after(text, end, U".,")) {
+      return Match{
+          .kind = Kind::DATE, .span = {position, end}, .numbers = {first->first, first->second}, .separator = U'.'};
+    }
     return std::nullopt;
+  }
+};
+
+// Jean18 listopada, 17stycznia, 24maja 2018: a day glued to the letters before it or to its month, the month in the
+// genitive, and the year if written
+class GluedDatePattern : public Pattern {
+public:
+  GluedDatePattern() : Pattern(Kind::DATE) {}
+
+  std::optional<Match> match(std::u32string_view text, size_t position) const override {
+    size_t day_end = digits_end(text, position);
+    if (day_end == position || day_end > position + 2 || (position > 0 && unicode::isdigit(text[position - 1]))) {
+      return std::nullopt;
+    }
+    size_t month = skip_space(text, day_end);
+    bool glued = (position > 0 && unicode::isalpha(text[position - 1])) || month == day_end;
+    auto name = std::ranges::find_if(kMonthsGenitive, [&](auto m) {
+      return text.substr(month).starts_with(m) && is_clear_after(text, month + m.size());
+    });
+    Number day = digits_at(text, position);
+    if (!glued || name == kMonthsGenitive.end() || value(day) < 1 || value(day) > 31) {
+      return std::nullopt;
+    }
+    size_t month_end = month + name->size();
+    Match date{.kind = Kind::DATE,
+               .span = {position, month_end},
+               .numbers = {day, {.integer = to_digits(static_cast<uint64_t>(name - kMonthsGenitive.begin()) + 1)}},
+               .separator = U' '};
+    if (size_t year = skip_space(text, month_end);
+        year > month_end && digits_end(text, year) == year + 4 && is_clear_after(text, year + 4)) {
+      date.numbers.push_back(digits_at(text, year));
+      date.span.end = year + 4;
+    }
+    return date;
   }
 };
 
@@ -861,6 +957,7 @@ public:
       : PatternLanguage({.characters = &kCharacters, .terms = &kTerms, .symbols = &kSymbols}, kNotation, kJoiners) {
     add_pattern(std::make_unique<DatePattern>(kDateFormat));
     add_pattern(std::make_unique<YearlessDatePattern>());
+    add_pattern(std::make_unique<GluedDatePattern>());
     add_pattern(std::make_unique<RomanDatePattern>());
     add_pattern(std::make_unique<FractionUnitPattern>());
     add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
@@ -885,7 +982,7 @@ protected:
       return digits(number.integer);
     }
     if (cues.form == Form::ORDINAL) {
-      return ordinal(*n, cues.grammatical_case, cues.gender);
+      return ordinal(*n, cues.grammatical_case, cues.gender, cues.plural);
     }
     return cardinal(*n, cues.grammatical_case, cues.gender);
   }
@@ -1103,7 +1200,12 @@ protected:
   }
 
   std::optional<std::u32string> read_plain(const Match& match) const override {
-    return read_number(match.numbers[0], match) + (match.suffix == U"r." ? U" roku" : U"");
+    if (match.suffix != U"r.") {
+      return read_number(match.numbers[0], match);
+    }
+    // przed 1999 r.: przed tysiąc dziewięćset dziewięćdziesiątym dziewiątym rokiem
+    bool instrumental = cues_of(match).grammatical_case == Case::INSTRUMENTAL;
+    return read_number(match.numbers[0], match) + (instrumental ? U" rokiem" : U" roku");
   }
 
   std::optional<std::u32string> read_money(const Number& number, const Match& match) const override {

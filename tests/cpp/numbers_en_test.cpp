@@ -83,6 +83,14 @@ REGISTER_TEST(numbers_en_test) {
       verbalize("en-us", U"He is 5'9\" tall, the room is 26'8 x 17'5, fly over 400', not 'Hera Pheri 3'.",
                 only(&Options::numbers)));
 
+  ASSERT_EQUALS(
+      U"The garage is nineteen feet seven inches by nineteen feet seven inches, an approximately sixty percent share.",
+      verbalize("en", U"The garage is 19’07” x 19’07”, a ~60% share."));
+
+  // A dotted date with a two-digit year, but not a version
+  ASSERT_EQUALS(U"On (the seventeenth of February twenty sixteen), items four point two point sixteen.",
+                verbalize("en-us", U"On (17.02.16), items 4.2.16."));
+
   return true;
 }
 

@@ -266,8 +266,19 @@ export abstract class PatternLanguage extends Language {
 
   #readMatch(match: Match): string | undefined {
     switch (match.kind) {
-      case Kind.DATE:
-        return this.readDate(match);
+      case Kind.DATE: {
+        // Amora01/09/2015: words apart from the letters they touch
+        let words = this.readDate(match);
+        const head = match.context.head();
+        const tail = match.context.tail();
+        if (words !== undefined && head.length > 0 && isAlpha(head[head.length - 1])) {
+          words = " " + words;
+        }
+        if (words !== undefined && tail.length > 0 && isAlpha(tail[0])) {
+          words += " ";
+        }
+        return words;
+      }
       case Kind.INTERNATIONAL_PHONE:
         return this.#readInternationalPhone(match);
       case Kind.PHONE:

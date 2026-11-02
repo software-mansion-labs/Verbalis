@@ -248,8 +248,8 @@ inline const Joiners kJoiners = {
   .fraction = U" and ", .half = U" and a half", .rating = U"out of"
 };
 
-// 27.03.2026, 27-03-2026: the year has four digits (3.8.10 is a version)
-inline const DateFormat kDateFormat = {.separators = U".-", .boundaries = U".,/-", .short_year = false};
+// 27.03.2026, 27-03-2026, 17.02.16: a two-digit year is in the 2000s up to 29 (3.8.10 is a version)
+inline const DateFormat kDateFormat = {.separators = U".-", .boundaries = U".,/-", .year_pivot = 30};
 
 // 1-555-123-4567, (555) 123-4567, 555.123.4567, 555 123 4567, 555-1234: the longest first, each its own pass
 inline const std::vector<PhoneFormat> kPhoneFormats = {
@@ -291,6 +291,13 @@ inline const Readings kSymbols = {
 using ::verbalis::text::before_name;
 using ::verbalis::text::before_number;
 using ::verbalis::steps::Terms;
+
+// Before a word read with a vowel first: a ~60% (an approximately sixty percent), a approx. 5
+inline bool before_approximately(const ::verbalis::text::Context& context) {
+  std::u32string_view tail = context.tail();
+  return tail.starts_with(U" approx.") ||
+         (tail.starts_with(U" ~") && ::verbalis::text::before_value(::verbalis::text::Context(tail, {1, 2})));
+}
 
 // After the name of a street: 1428 Elm St., on 5th St.; on Main St. unless a name follows (Ascension St. Joseph),
 // and not at the start of a sentence (Visit St. Louis)
@@ -419,6 +426,8 @@ inline const Terms kTermsBase = {
     {U"&c", {U"et cetera"}},
     {U"No", {{U"number", before_number}}},
     {U"approx.", {U"approximately"}},
+    {U"a", {{U"an", before_approximately}}},
+    {U"A", {{U"An", before_approximately}}},
   },
   .web = {.dot = U"dot", .at = U"at", .slash = U"slash", .hyphen = U"dash", .underscore = U"underscore",
           .backslash = U"backslash", .colon = U"colon",

@@ -1,9 +1,9 @@
 import { dateFormat, keysOf, notation, phoneFormat, suffixFormat, type Fractions, type RomanCues } from "../../numbers/formats.ts";
 import type { Terms } from "../../steps/terms.ts";
 import type { Keys } from "../../text/scan.ts";
-import { wordsOf, type Context } from "../../text/context.ts";
+import { Context, wordsOf } from "../../text/context.ts";
 import { beforeName, beforeNumber, beforeValue, type Readings } from "../../text/readings.ts";
-import { contains, str } from "../../text/strings.ts";
+import { contains, startsWith, str } from "../../text/strings.ts";
 import { isDigit, isUpper, isWord } from "../../text/unicode.ts";
 import type { Forms, Joiners } from "../grammar.ts";
 
@@ -230,8 +230,8 @@ export const JOINERS: Joiners = {
   fraction: " and ", half: " and a half", rating: "out of",
 };
 
-// 27.03.2026, 27-03-2026: the year has four digits (3.8.10 is a version)
-export const DATE_FORMAT = dateFormat({ separators: ".-", boundaries: ".,/-", shortYear: false });
+// 27.03.2026, 27-03-2026, 17.02.16: a two-digit year is in the 2000s up to 29 (3.8.10 is a version)
+export const DATE_FORMAT = dateFormat({ separators: ".-", boundaries: ".,/-", yearPivot: 30 });
 
 // 1-555-123-4567, (555) 123-4567, 555.123.4567, 555 123 4567, 555-1234: the longest first, each its own pass
 export const PHONE_FORMATS = [
@@ -265,6 +265,12 @@ export const SYMBOLS: Readings = {
   "≥": [{ words: "greater than or equal to", when: beforeValue }],
   "~": [{ words: "approximately", when: beforeValue }],
 };
+
+// Before a word read with a vowel first: a ~60% (an approximately sixty percent), a approx. 5
+function beforeApproximately(context: Context): boolean {
+  const tail = context.tail();
+  return startsWith(tail, 0, " approx.") || (startsWith(tail, 0, " ~") && beforeValue(new Context(tail, { begin: 1, end: 2 })));
+}
 
 // After the name of a street: 1428 Elm St., on 5th St.; on Main St. unless a name follows (Ascension St. Joseph),
 // and not at the start of a sentence (Visit St. Louis)
@@ -397,6 +403,8 @@ const TERMS_BASE: Terms = {
     "&c": ["et cetera"],
     "No": [{ words: "number", when: beforeNumber }],
     "approx.": ["approximately"],
+    a: [{ words: "an", when: beforeApproximately }],
+    A: [{ words: "An", when: beforeApproximately }],
   },
   web: { dot: "dot", at: "at", slash: "slash", hyphen: "dash", underscore: "underscore", backslash: "backslash", colon: "colon",
     digits: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"],

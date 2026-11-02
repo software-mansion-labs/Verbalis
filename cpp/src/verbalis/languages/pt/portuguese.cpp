@@ -384,7 +384,7 @@ public:
     add_pattern(std::make_unique<DatePattern>(kDotDateFormat));
     add_pattern(std::make_unique<ReorderedDatePattern>());
     add_pattern(std::make_unique<SecondsPattern>());
-    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, kPrimeCues, false, kMinuteCues));
     for (const auto& format : kPhoneFormats) {
       add_pattern(std::make_unique<PhonePattern>(format));
     }
@@ -395,6 +395,10 @@ public:
 
 protected:
   std::u32string read_number(const Number& number, const Match& match) const override {
+    // 08 de abril: a day, despite its leading zero
+    if (auto day = unpadded_day(number, match, kMonths, U"de")) {
+      return read_number(*day, match);
+    }
     Cues cues = cues_of(match);
     if (number.fraction.empty() && cues.day && number.integer == U"1") {
       return U"primeiro";
@@ -404,10 +408,14 @@ protected:
                                               match.context.head().empty() && match.context.tail().empty()) {
       return cardinal(*n, Gender::MASCULINE);
     }
-    // Em 2020 havia: a year counts nothing after it
-    bool year = kYearWords.contains(match.context.before()) && number.integer.size() == 4 && !number.grouped &&
-                value(number) >= 1000 && value(number) <= 2100;
-    return number_with(number, number.fraction.empty() && !year ? cues.gender : Gender::MASCULINE);
+    // Em 2020 havia, de 1904 a 1949: a year counts nothing after it
+    bool year = (kYearWords.contains(match.context.before()) || !counted(match.context)) &&
+                number.integer.size() == 4 && !number.grouped && value(number) >= 1000 && value(number) <= 2100;
+    // 1200-871 Lisboa: the second part of a postal code
+    std::u32string_view head = match.context.head();
+    bool postal = number.integer.size() == 3 && head.size() >= 5 && head.ends_with(U'-') &&
+                  std::ranges::all_of(head.substr(head.size() - 5, 4), unicode::isdigit);
+    return number_with(number, number.fraction.empty() && !year && !postal ? cues.gender : Gender::MASCULINE);
   }
 
   std::u32string read_code_digits(std::u32string_view text) const override {
@@ -425,9 +433,12 @@ protected:
       return words + U" de " + cardinal(value(match.numbers[2]));
     }
 
-    // Without a year, a zero-padded or marked date: 03/04, dia 15/9, quinta-feira (16/3); but 1/4 do salário, 3/4
+    // Without a year, a zero-padded, marked or named date: 03/04, dia 15/9, quinta-feira (16/3), 19.ago; but 1/4 do
+    // salário, 3/4
     bool padded = match.numbers[0].integer[0] == U'0' || match.numbers[1].integer[0] == U'0';
-    if (match.separator != U'/' || (!padded && (is_marked_fraction(match, kFractionWords) || !dated(match)))) {
+    bool named = std::ranges::any_of(match.text, [](char32_t c) { return unicode::isalpha(c); });
+    if (!named &&
+        (match.separator != U'/' || (!padded && (is_marked_fraction(match, kFractionWords) || !dated(match))))) {
       return std::nullopt;
     }
     return words;
@@ -614,8 +625,10 @@ protected:
     }
     const Forms& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
     std::u32string_view first_word = std::u32string_view(unit.one).substr(0, unit.one.find(U' '));
-    Gender gender = feminine(first_word) ? Gender::FEMININE : Gender::MASCULINE;
-    return number_with(number, gender) + U" " + (value(number) == 1 ? unit.one : unit.many);
+    // 1,90 m: um vírgula noventa metro, a decimal reads masculine, and the unit agrees with its integer part
+    Gender gender = feminine(first_word) && number.fraction.empty() ? Gender::FEMININE : Gender::MASCULINE;
+    bool one = is_one(number) || (number.integer == U"1" && !number.fraction.empty());
+    return number_with(number, gender) + U" " + (one ? unit.one : unit.many);
   }
 
   std::u32string read_range(const Number& from, const Number& to, const Match& match) const override {

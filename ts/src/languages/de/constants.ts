@@ -178,8 +178,11 @@ export const GENITIVE: ReadonlySet<string> = new Set([
   "wegen", "während", "trotz", "statt", "innerhalb", "außerhalb",
 ]);
 
-// Words before a date (am 12. 3.), and before a year (im Jahr 1945, and months)
-export const DATE_CUES: ReadonlySet<string> = new Set(["am", "vom", "zum", "bis", "ab", "seit", "den", "der"]);
+// Words before a date (am 12. 3., Freitag, 7. 6. 2019), and before a year (im Jahr 1945, and months)
+export const DATE_CUES: ReadonlySet<string> = new Set([
+  "am", "vom", "zum", "bis", "ab", "seit", "den", "der", "termine", "montag", "dienstag", "mittwoch",
+  "donnerstag", "freitag", "samstag", "sonntag",
+]);
 export const YEAR_CUES: ReadonlySet<string> = new Set([
   "jahr", "jahre", "jahren", "im", "seit", "bis", "von", "ab", "anfang", "ende", "mitte", "sommer",
   "winter", "frühjahr", "herbst", "frühling", "anno", "januar", "februar", "märz", "april", "mai",

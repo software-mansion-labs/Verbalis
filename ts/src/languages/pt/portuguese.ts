@@ -24,6 +24,7 @@ import {
   romanRole,
   RomanRole,
   isOrdinalDegree,
+  unpaddedDay,
 } from "../../numbers/scanning.ts";
 import { digitsEnd, isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
 import { contains, size, startsWith, str, toLower, type Text } from "../../text/strings.ts";
@@ -77,6 +78,7 @@ import {
   ORDINAL_NOUNS,
   INCH,
   PRIME_CUES,
+  MINUTE_CUES,
   PRIME_UNITS,
   SECOND_FRACTIONS,
 } from "./constants.ts";
@@ -462,7 +464,7 @@ class Portuguese extends PatternLanguage {
     this.addPattern(new DatePattern(DOT_DATE_FORMAT));
     this.addPattern(new ReorderedDatePattern());
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES));
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -472,6 +474,11 @@ class Portuguese extends PatternLanguage {
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
+    // 08 de abril: a day, despite its leading zero
+    const day = unpaddedDay(number, match, MONTHS, "de");
+    if (day) {
+      return this.readNumber(day, match);
+    }
     const cues = cuesOf(match);
     if (number.fraction === "" && cues.day && number.integer === "1") {
       return "primeiro";
@@ -487,14 +494,21 @@ class Portuguese extends PatternLanguage {
     ) {
       return cardinal(n, Gender.MASCULINE);
     }
-    // Em 2020 havia: a year counts nothing after it
+    // Em 2020 havia, de 1904 a 1949: a year counts nothing after it
     const year =
-      YEAR_WORDS.has(match.context.before()) &&
+      (YEAR_WORDS.has(match.context.before()) || !counted(match.context)) &&
       number.integer.length === 4 &&
       !number.grouped &&
       value(number) >= 1000n &&
       value(number) <= 2100n;
-    return numberWith(number, number.fraction === "" && !year ? cues.gender : Gender.MASCULINE);
+    // 1200-871 Lisboa: the second part of a postal code
+    const head = match.context.head();
+    const postal =
+      number.integer.length === 3 &&
+      head.length >= 5 &&
+      head[head.length - 1] === "-" &&
+      head.slice(head.length - 5, head.length - 1).every((c) => isDigit(c));
+    return numberWith(number, number.fraction === "" && !year && !postal ? cues.gender : Gender.MASCULINE);
   }
 
   protected override readCodeDigits(text: string): string {
@@ -512,9 +526,14 @@ class Portuguese extends PatternLanguage {
       return `${words} de ${cardinal(value(match.numbers[2]))}`;
     }
 
-    // Without a year, a zero-padded or marked date: 03/04, dia 15/9, quinta-feira (16/3); but 1/4 do salário, 3/4
+    // Without a year, a zero-padded, marked or named date: 03/04, dia 15/9, quinta-feira (16/3), 19.ago; but 1/4 do
+    // salário, 3/4
     const padded = match.numbers[0].integer[0] === "0" || match.numbers[1].integer[0] === "0";
-    if (match.separator !== "/" || (!padded && (isMarkedFraction(match, FRACTION_WORDS) || !dated(match)))) {
+    const named = [...match.text].some((c) => isAlpha(c));
+    if (
+      !named &&
+      (match.separator !== "/" || (!padded && (isMarkedFraction(match, FRACTION_WORDS) || !dated(match))))
+    ) {
       return undefined;
     }
     return words;
@@ -713,8 +732,10 @@ class Portuguese extends PatternLanguage {
     }
     const unit = match.unit === "″" ? INCH : UNITS[match.unit];
     const firstWord = unit.one.split(" ")[0];
-    const gender = feminine(firstWord) ? Gender.FEMININE : Gender.MASCULINE;
-    return `${numberWith(number, gender)} ${value(number) === 1n ? unit.one : unit.many}`;
+    // 1,90 m: um vírgula noventa metro, a decimal reads masculine, and the unit agrees with its integer part
+    const gender = feminine(firstWord) && number.fraction === "" ? Gender.FEMININE : Gender.MASCULINE;
+    const one = isOne(number) || (number.integer === "1" && number.fraction !== "");
+    return `${numberWith(number, gender)} ${one ? unit.one : unit.many}`;
   }
 
   protected override readRange(from: Numeral, to: Numeral, match: Match): string {

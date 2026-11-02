@@ -300,7 +300,7 @@ inline const std::unordered_set<std::u32string> kLocativePrepositions = {U"w", U
 inline const std::unordered_map<std::u32string, std::u32string> kComplexPrepositions = {
   {U"ciągu", U"w"}, {U"trakcie", U"w"}, {U"czasie", U"w"}, {U"wyniku", U"w"}, {U"przypadku", U"w"},
   {U"zakresie", U"w"}, {U"ramach", U"w"}, {U"celu", U"w"}, {U"postaci", U"w"}, {U"powodu", U"z"},
-  {U"przeciągu", U"w"}, {U"okresie", U"w"}
+  {U"przeciągu", U"w"}, {U"okresie", U"w"}, {U"kierunku", U"w"}
 };
 
 // Stems of amount nouns: a number after them is their genitive attribute (od kwoty trzystu tysięcy)
@@ -309,7 +309,7 @@ inline const std::vector<std::u32string> kAmountNouns = {
   U"poziom", U"stan", U"strat", U"strac", U"wartoś", U"liczb", U"cen", U"koszt", U"opłat", U"kar", U"moc",
   U"wag", U"wadz", U"pojemnoś", U"powierzchn", U"prędkoś", U"temperatur", U"objętoś", U"odległoś", U"armi",
   U"grup", U"okres", U"limit", U"próg", U"prog", U"budżet", U"deficyt", U"nadwyżk", U"dochod", U"dochód",
-  U"przychod", U"przychód", U"wydatk", U"wzrost", U"spad", U"zysk", U"dotacj", U"wynagrodzen", U"pensj"
+  U"przychod", U"przychód", U"wydatk", U"wzrost", U"spad", U"zysk", U"dotacj", U"wynagrodzen", U"pensj", U"list"
 };
 
 inline const std::unordered_set<std::u32string> kNounEndings = {
@@ -328,6 +328,15 @@ inline const std::unordered_set<std::u32string> kClitics = {
   U"mi", U"ci", U"mu", U"jej", U"nam", U"wam", U"im", U"się", U"sobie", U"już", U"jeszcze", U"teraz", U"tu",
   U"tam", U"aż", U"nawet"
 };
+
+// Particles between a preposition and the number it governs: do nawet siedmiuset (but około, blisko and ponad
+// govern their own case: przez około pięciu minut)
+inline const std::unordered_set<std::u32string> kParticles = {
+  U"nawet", U"aż", U"prawie", U"niemal", U"zaledwie", U"tylko", U"jedynie"
+};
+
+// Adverbs of degree between an ordinal and its adjective: 21. najbardziej zakorkowanym
+inline const std::unordered_set<std::u32string> kDegreeAdverbs = {U"najbardziej", U"najmniej", U"bardziej", U"mniej"};
 
 inline const std::unordered_set<std::u32string> kCopulas = {
   U"jest", U"są", U"był", U"była", U"było", U"były", U"będzie", U"będą", U"to"
@@ -370,7 +379,7 @@ inline const std::vector<std::u32string> kFemininePlurals = {
   U"osob", U"osób", U"godzin", U"minut", U"sekund", U"złotówk", U"kobiet", U"stron", U"sztuk", U"rzecz", U"częś",
   U"noc", U"dob", U"klas", U"wersj", U"sesj", U"edycj", U"zapał", U"tablic", U"butelk", U"szklank", U"łyżk",
   U"dziewczyn", U"dziewcząt", U"córk", U"córek", U"siostr", U"sióstr", U"matk", U"matek", U"rodzin", U"uczennic",
-  U"zawodniczk", U"zawodniczek", U"kropl", U"łyżecz"
+  U"zawodniczk", U"zawodniczek", U"kropl", U"łyżecz", U"cukini"
 };
 
 // Words before a time with a dot, which make it a time: o 18.30
@@ -434,7 +443,9 @@ inline const std::vector<std::pair<Gender, std::u32string_view>> kOrdinalNouns =
   {Gender::MASCULINE, U"festiwal festiwalu festiwalowi festiwal festiwalem festiwalu festiwale festiwali festiwalom festiwale festiwalami festiwalach"},
   {Gender::MASCULINE, U"kongres kongresu kongresowi kongres kongresem kongresie kongresy kongresów kongresom kongresy kongresami kongresach"},
   {Gender::MASCULINE, U"krok kroku krokowi krok krokiem kroku kroki kroków krokom kroki krokami krokach"},
-  {Gender::MASCULINE, U"rząd rzędu rzędowi rząd rzędem rzędzie rzędy rzędów rzędom rzędy rzędami rzędach"}
+  {Gender::MASCULINE, U"rząd rzędu rzędowi rząd rzędem rzędzie rzędy rzędów rzędom rzędy rzędami rzędach"},
+  {Gender::MASCULINE, U"kilometr kilometra kilometrowi kilometr kilometrem kilometrze kilometry kilometrów kilometrom kilometry kilometrami kilometrach"},
+  {Gender::MASCULINE, U"numer numeru numerowi numer numerem numerze numery numerów numerom numery numerami numerach"}
 };
 
 // Words of a text about time, which make its 8'22" minutes and seconds, and a lone 25″ seconds
@@ -457,11 +468,11 @@ inline const std::unordered_map<std::u32string, Case> kHourWords = {
   {U"godzinach", Case::NOMINATIVE}
 };
 
-// Stems of headings: Punkt 3., w punkcie 5.; the ones of kOrdinalHeadings read as ordinals even without a dot
+// Stems of headings: Punkt 3., w punkcie 5., w numerze 9. (but numer 82. stays a label); the ones of kOrdinalHeadings read as ordinals even without a dot
 inline const std::vector<std::u32string> kHeadings = {
-  U"podpunkt", U"punkt", U"punkc", U"rozdział", U"paragraf", U"artykuł", U"pkt"
+  U"podpunkt", U"punkt", U"punkc", U"rozdział", U"paragraf", U"artykuł", U"pkt", U"ustęp", U"numerz", U"poziom"
 };
-inline const std::vector<std::u32string> kOrdinalHeadings = {U"podpunkt", U"punkt", U"punkc", U"paragraf", U"pkt"};
+inline const std::vector<std::u32string> kOrdinalHeadings = {U"podpunkt", U"punkt", U"punkc", U"paragraf", U"pkt", U"częś"};
 
 // Words before the ordinal of a decade, with its case: z lat 70., w latach 80.
 inline const std::unordered_map<std::u32string, Case> kDecadeWords = {
@@ -584,8 +595,10 @@ inline const Keys kSportWords = {
   U"lig", U"siatkar", U"piłkar", U"zwycię", U"porażk", U"turniej", U"kibic", U"spotkani"
 };
 
-// 15.08.2020 r.: the year has four digits, "r." may follow it
-inline const DateFormat kDateFormat = {.separators = U".", .boundaries = U".,", .short_year = false, .suffixes = {U"r."}};
+// 15.08.2020 r., 5.07.24, 31/07/2018: "r." may follow the year, and a two-digit one is read in full
+inline const DateFormat kDateFormat = {
+  .separators = U"./", .boundaries = U".,", .suffixes = {U"r."}, .year_pivot = 30, .full_years = true
+};
 
 // 600 123 456, 22 123 45 67 (after a word of kPhoneWords), 600-123-456, 68-324-22-55
 inline const std::vector<PhoneFormat> kPhoneFormats = {
@@ -644,7 +657,9 @@ inline const Readings kSymbols = {
   {U">", {{U"powyżej", before_value}}},
   {U"≤", {{U"nie więcej niż", before_value}}},
   {U"≥", {{U"co najmniej", before_value}}},
-  {U"~", {{U"około", before_value}}}
+  // około ~180: "około" once
+  {U"~", {{U"", [](const ::verbalis::text::Context& context) { return before_value(context) && context.before() == U"około"; }},
+          {U"około", before_value}}}
 };
 
 using ::verbalis::text::before_name;
@@ -818,6 +833,7 @@ inline const Terms kTerms = {
     {U"art.", declined(U"artykuł|artykułu|artykułowi|artykuł|artykułem|artykule", before_number)},
     {U"str.", declined(U"strona|strony|stronie|stronę|stroną|stronie", before_number)},
     {U"poz.", {{U"pozycja", before_number}}},
+    {U"cz.", {{U"część", before_spaced_number}}},
     {U"ok.", {{U"około", before_amount}}},
     {U"ok", {{U"około", before_amount}}}, // ok 50°C; "jest ok" stays
     {U"Ok.", {{U"Około", before_amount}}},

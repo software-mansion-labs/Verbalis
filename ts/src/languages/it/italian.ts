@@ -23,9 +23,11 @@ import {
   romanRole,
   RomanRole,
   isOrdinalDegree,
+  unpaddedDay,
 } from "../../numbers/scanning.ts";
 import { isClearAfter, isClearBefore, join } from "../../text/scan.ts";
 import { contains, size, split, toLower, type Text } from "../../text/strings.ts";
+import { stripped, wordsOf } from "../../text/context.ts";
 import { isDigit, isLower, isSpace, isUpper } from "../../text/unicode.ts";
 import type { Forms } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
@@ -41,6 +43,7 @@ import {
   ELIDED_ARTICLES,
   VERSION_WORDS,
   CURRENCIES,
+  DATE_ARTICLES,
   DATE_FORMAT,
   FRACTION_WORDS,
   FRACTIONS,
@@ -67,6 +70,7 @@ import {
   ORDINAL_NOUNS,
   INCH,
   PRIME_CUES,
+  MINUTE_CUES,
   PRIME_UNITS,
   SECOND_FRACTIONS,
 } from "./constants.ts";
@@ -315,7 +319,7 @@ class Italian extends PatternLanguage {
     super({ terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES));
     for (const format of PHONE_FORMATS) {
       this.addPattern(new PhonePattern(format));
     }
@@ -326,6 +330,11 @@ class Italian extends PatternLanguage {
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
+    // 09 gennaio: a day, despite its leading zero
+    const day = unpaddedDay(number, match, MONTHS);
+    if (day) {
+      return this.readNumber(day, match);
+    }
     if (number.fraction === "") {
       // 1034500 alone: the whole text is a number, not a code
       const n = parseValue(number.integer);
@@ -343,6 +352,14 @@ class Italian extends PatternLanguage {
       // 1 maggio: primo maggio; ha 1 figlio: un figlio
       if (MONTHS.includes(toLower(match.context.after()))) {
         return "primo";
+      }
+      // 1-2 volte, 1-3 gocce: una-due, a range before a feminine plural (in -e)
+      const tail = match.context.tail();
+      const space = tail.indexOf(" ");
+      if (tail[0] === "-" && space > 1 && tail.slice(1, space).every((c) => isDigit(c))) {
+        const words = wordsOf(tail.slice(space));
+        const noun = words.length === 0 ? "" : stripped(words[0]).join("");
+        return isNoun(noun) && noun.endsWith("e") ? "una" : "uno";
       }
       return match.kind === Kind.NUMBER && countsNoun(match) ? oneBefore(match.context.after()) : "uno";
     }
@@ -374,10 +391,19 @@ class Italian extends PatternLanguage {
 
   protected override readDate(match: Match): string | undefined {
     const day = value(match.numbers[0]);
-    return (
-      `${day === 1n ? "primo" : cardinal(day)} ${MONTHS[Number(value(match.numbers[1])) - 1]} ` +
-      cardinal(value(match.numbers[2]))
-    );
+    const words = `${day === 1n ? "primo" : cardinal(day)} ${MONTHS[Number(value(match.numbers[1])) - 1]}`;
+    if (match.numbers.length === 3) {
+      return `${words} ${cardinal(value(match.numbers[2]))}`;
+    }
+    // Without a year, after an article and with a day which can't be a month or a zero-padded number: dal 21/9, del
+    // 25.02., but not il 2/3 dei voti, nor the decimal of al 24.3%
+    const padded = match.numbers[0].integer[0] === "0" || match.numbers[1].integer[0] === "0";
+    const decimal =
+      (match.separator === "." && match.numbers[1].integer.length !== 2) || match.context.tail()[0] === "%";
+    if (!DATE_ARTICLES.has(match.context.before()) || (day <= 12n && !padded) || decimal) {
+      return undefined;
+    }
+    return words;
   }
 
   protected override readPhone(match: Match): string | undefined {

@@ -10,11 +10,11 @@ import {
 } from "../text/scan.ts";
 import { stripped, wordsOf } from "../text/context.ts";
 import { contains, size, startsWith, str, toLower, type Text } from "../text/strings.ts";
-import { isAlnum, isAlpha, isDigit, isLatin, isSpace, isWord } from "../text/unicode.ts";
+import { isAlnum, isAlpha, isDigit, isLatin, isSpace, isUpper, isWord } from "../text/unicode.ts";
 import type { DateFormat, Notation, PhoneFormat, SuffixFormat } from "./formats.ts";
 import { keysOf, suffixFormat } from "./formats.ts";
 import { Kind, match, numeral, type Match, type Numeral } from "./match.ts";
-import { digitsAt, numbersAt, romanValue, toDigits, value } from "./scanning.ts";
+import { digitsAt, numbersAt, parseValue, romanValue, toDigits, value } from "./scanning.ts";
 
 /**
  * A pattern of a numeric expression. It finds the structure of a match only; how to read it is a language's decision.
@@ -39,6 +39,10 @@ const NUMBER_BOUNDARIES = ".,";
 
 // What may not stand right before an amount: also a hyphen, as in i9-14900K.
 const AMOUNT_BOUNDARIES = ".,-";
+
+// Marks of minutes or feet; two of them, or one of DOUBLE_PRIMES, mark seconds or inches.
+const PRIMES = "'′’´";
+const DOUBLE_PRIMES = '"″”';
 
 // Value of a short run of digits (a day, a month or an hour).
 function smallValue(digits: string): number {
@@ -319,6 +323,8 @@ class DimensionPattern extends Pattern {
     let numberEnd = 0;
     if (position > 0 && isDigit(text[position - 1])) {
       numberEnd = position;
+    } else if (position > 1 && contains(DOUBLE_PRIMES, text[position - 1]) && isDigit(text[position - 2])) {
+      numberEnd = position; // 19’07” x 19’07”: after inches
     } else {
       for (const unit of this.#units) {
         const length = size(unit);
@@ -456,10 +462,6 @@ export class SecondsPattern extends Pattern {
   }
 }
 
-// Marks of minutes or feet; two of them, or one of DOUBLE_PRIMES, mark seconds or inches.
-const PRIMES = "'′’´";
-const DOUBLE_PRIMES = '"″”';
-
 // The length of a mark of seconds or inches at a position: 1 (", ″), 2 ('', ’’), or 0 if none stands there.
 function doublePrimeAt(text: Text, position: number): number {
   if (position < text.length && contains(DOUBLE_PRIMES, text[position])) {
@@ -515,17 +517,21 @@ export class PrimePattern extends Pattern {
   readonly #decimals: string;
   readonly #cues: ReadonlySet<string>;
   readonly #feet: boolean;
+  readonly #minutes: ReadonlySet<string>;
 
   /**
    * @param cues lowercase words of a text which make its minutes and seconds (3'16") and a lone 23″ a time; without
    *        one, they are left as written and a lone 23″ is inches.
    * @param feet reads 5'9" as feet and inches, and a lone 400' as feet.
+   * @param minutes lowercase words among the three before or after a lone 10' which make it minutes: durante más de
+   *        10', aos 6′ do segundo tempo; without one, it is left as written.
    */
-  constructor(notation: Notation, cues: ReadonlySet<string>, feet = false) {
+  constructor(notation: Notation, cues: ReadonlySet<string>, feet = false, minutes: ReadonlySet<string> = new Set()) {
     super(Kind.TIME);
     this.#decimals = notation.decimalSeparators;
     this.#cues = cues;
     this.#feet = feet;
+    this.#minutes = minutes;
   }
 
   match(text: Text, position: number): Match | undefined {
@@ -566,7 +572,7 @@ export class PrimePattern extends Pattern {
       if (secondsEnd - end === 2 && doublePrimeAt(text, secondsEnd)) {
         time.numbers.push(digitsAt(text, end));
         end = secondsEnd + doublePrimeAt(text, secondsEnd);
-      } else if (!this.#cued(text)) {
+      } else if (!this.#cued(text, this.#cues)) {
         return undefined; // 10h15' may be a clock time
       }
       return ending(end, "h");
@@ -603,14 +609,26 @@ export class PrimePattern extends Pattern {
         if (this.#feet) {
           return ending(after, "ft");
         }
-        if (number.fraction !== "" || !this.#cued(text)) {
+        if (number.fraction !== "" || !this.#cued(text, this.#cues)) {
           return undefined;
         }
         return ending(after, "min");
       }
       // 400': feet, unless the mark closes a quotation
-      if (!this.#feet || inQuotation(text, end, true)) {
+      if (inQuotation(text, end, true)) {
         return undefined;
+      }
+      if (!this.#feet) {
+        // durante más de 10': minutes, by a cue among the three words before it or after it
+        let start = position;
+        for (let spaces = 0; start > 0 && spaces < 4; --start) {
+          spaces += isSpace(text[start - 1]) ? 1 : 0;
+        }
+        let stop = end + 1;
+        for (let spaces = 0; stop < text.length && spaces < 4; ++stop) {
+          spaces += isSpace(text[stop]) ? 1 : 0;
+        }
+        return this.#cued(text.slice(start, stop), this.#minutes) ? ending(end + 1, "min") : undefined;
       }
       time.kind = Kind.UNIT;
       return ending(end + 1, "ft");
@@ -649,7 +667,7 @@ export class PrimePattern extends Pattern {
       for (let spaces = 0; stop < text.length && spaces < 4; ++stop) {
         spaces += isSpace(text[stop]) ? 1 : 0;
       }
-      if (number.fraction === "" && this.#cued(text.slice(start, stop))) {
+      if (number.fraction === "" && this.#cued(text.slice(start, stop), this.#cues)) {
         return ending(after, "s");
       }
       time.kind = Kind.UNIT;
@@ -659,10 +677,10 @@ export class PrimePattern extends Pattern {
   }
 
   // Whether a word of a text is one of the cues
-  #cued(text: Text): boolean {
+  #cued(text: Text, cues: ReadonlySet<string>): boolean {
     return wordsOf(text).some((word) => {
       const lower = toLower(str(stripped(word)));
-      return this.#cues.has(lower.slice(Math.max(lower.lastIndexOf("'"), lower.lastIndexOf("’")) + 1)); // d'avance
+      return cues.has(lower.slice(Math.max(lower.lastIndexOf("'"), lower.lastIndexOf("’")) + 1)); // d'avance
     });
   }
 }
@@ -789,11 +807,46 @@ class SignPattern extends Pattern {
     if (
       (text[position] !== "-" && text[position] !== "−") ||
       !isClearBefore(text, position, NUMBER_BOUNDARIES) ||
-      !isDigitAfter(text, position + 1)
+      !isDigitAfter(text, position + 1) ||
+      SignPattern.#joins(text, position)
     ) {
       return undefined;
     }
     return match({ kind: Kind.SIGN, span: { begin: position, end: position + 1 } });
+  }
+
+  /**
+   * Whether a hyphen after a word and a space joins the number to the word rather than signs it: after an acronym
+   * (COVID -19, but GMT -4), before a year (Enhogar -2016), or opening a dash pair (por décimo -1.000 euros la serie-).
+   */
+  static #joins(text: Text, position: number): boolean {
+    const end = position - 1;
+    if (position < 2 || text[end] !== " " || !isAlpha(text[end - 1])) {
+      return false;
+    }
+    let start = end;
+    while (start > 0 && isAlpha(text[start - 1])) {
+      start--;
+    }
+    const word = str(text, start, end);
+    const acronym =
+      end - start >= 2 && text.slice(start, end).every((c) => isUpper(c)) && word !== "GMT" && word !== "UTC";
+
+    const digits = digitsEnd(text, position + 1);
+    const n = parseValue(str(text, position + 1, digits)) ?? 0n;
+    const year = digits === position + 5 && n >= 1900n && n < 2100n && !isDigitAfter(text, digits, ".,");
+
+    // A closing hyphen ends a word, after a space, before the sentence ends: -2015 a 2017-
+    let pair = false;
+    let spaced = false;
+    for (let i = digits; i < text.length && !pair; ++i) {
+      if ((text[i] === "." || text[i] === "!" || text[i] === "?") && !isDigitAfter(text, i + 1)) {
+        break;
+      }
+      spaced = spaced || text[i] === " ";
+      pair = spaced && text[i] === "-" && isWord(text[i - 1]) && isClearAfter(text, i + 1);
+    }
+    return acronym || year || pair;
   }
 }
 
@@ -1263,9 +1316,11 @@ export class DatePattern extends Pattern {
 
   match(text: Text, position: number): Match | undefined {
     const format = this.#format;
+    // Letters may touch a date with a four-digit year: Amora01/09/2015, 04/08/2006L'UE
+    const glued = position > 0 && isAlpha(text[position - 1]);
     const dayEnd = digitsEnd(text, position);
     if (
-      !isClearBefore(text, position, format.boundaries) ||
+      (!glued && !isClearBefore(text, position, format.boundaries)) ||
       dayEnd === position ||
       dayEnd > position + 2 ||
       dayEnd >= text.length ||
@@ -1276,12 +1331,24 @@ export class DatePattern extends Pattern {
 
     const separator = text[dayEnd];
     const month = format.spaced ? skipSpace(text, dayEnd + 1) : dayEnd + 1;
-    const monthEnd = digitsEnd(text, month);
-    if (monthEnd === month || monthEnd > month + 2) {
+    let monthEnd = digitsEnd(text, month);
+    let monthNumber = digitsAt(text, month);
+    if (monthEnd === month && format.months.length > 0) {
+      // 23/Ago/2013: the name of the month, or its first three letters or more
+      while (monthEnd < text.length && isAlpha(text[monthEnd])) {
+        monthEnd++;
+      }
+      const name = toLower(str(text, month, monthEnd));
+      const index = format.months.findIndex((m) => m.startsWith(name));
+      if (size(name) < 3 || index < 0) {
+        return undefined;
+      }
+      monthNumber = numeral({ span: { begin: month, end: monthEnd }, integer: toDigits(BigInt(index + 1)) });
+    } else if (monthEnd === month || monthEnd > month + 2) {
       return undefined;
     }
 
-    const date = match({ kind: Kind.DATE, numbers: [digitsAt(text, position), digitsAt(text, month)], separator });
+    const date = match({ kind: Kind.DATE, numbers: [digitsAt(text, position), monthNumber], separator });
     const d = smallValue(date.numbers[0].integer);
     const m = smallValue(date.numbers[1].integer);
     if (d < 1 || d > 31 || m < 1 || m > 12) {
@@ -1297,24 +1364,35 @@ export class DatePattern extends Pattern {
 
     // With a year first, then (if allowed) without it
     if (closed) {
-      const year = monthEnd + 1;
+      // 7. 6. 2019: a spaced date may also have a space before a four-digit year
+      let year = monthEnd + 1;
+      if (format.spaced && digitsEnd(text, skipSpace(text, year)) === skipSpace(text, year) + 4) {
+        year = skipSpace(text, year);
+      }
       const length = digitsEnd(text, year) - year;
-      if (length === 4 || (length === 2 && format.shortYear)) {
-        const dated = { ...date, span: { ...date.span }, numbers: [...date.numbers, digitsAt(text, year)] };
-        const result = this.#complete(text, dated, year + length);
+      if ((length === 4 || (length === 2 && format.shortYear)) && (length === 4 || !glued)) {
+        const written = digitsAt(text, year);
+        const y = smallValue(written.integer);
+        if (length === 2 && (y < format.yearPivot || format.fullYears)) {
+          written.integer = (y < format.yearPivot ? "20" : "19") + written.integer;
+        }
+        const dated = { ...date, span: { ...date.span }, numbers: [...date.numbers, written] };
+        const result = this.#complete(text, dated, year + length, length === 4);
         if (result) {
           return result;
         }
       }
     }
-    if (format.yearRequired) {
+    // A named month needs no year: (19.ago)
+    const named = !isDigit(text[month]);
+    if ((format.yearRequired && !named) || glued) {
       return undefined;
     }
-    return this.#complete(text, date, format.closingSeparator ? monthEnd + 1 : monthEnd);
+    return this.#complete(text, date, format.closingSeparator ? monthEnd + 1 : monthEnd, false);
   }
 
-  // The date without (zero) or with its year, if it ends at a valid position
-  #complete(text: Text, date: Match, position: number): Match | undefined {
+  // The date without (zero) or with its year, if it ends at a valid position: with glue, also before a letter
+  #complete(text: Text, date: Match, position: number, glue: boolean): Match | undefined {
     const format = this.#format;
 
     // An abbreviation after the year: 2024 r.
@@ -1331,7 +1409,8 @@ export class DatePattern extends Pattern {
       }
     }
 
-    if (!isClearAfter(text, position) || isDigitAfter(text, position, format.boundaries)) {
+    const letter = glue && position < text.length && isAlpha(text[position]);
+    if ((!isClearAfter(text, position) && !letter) || isDigitAfter(text, position, format.boundaries)) {
       return undefined;
     }
     date.span.end = position;

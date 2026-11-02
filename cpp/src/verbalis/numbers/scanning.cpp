@@ -165,6 +165,24 @@ bool is_spoken_digits(const Number& number, size_t longest) {
   return (i.size() > 1 && i[0] == U'0') || (i.size() >= longest && !number.grouped && !i.ends_with(U"000"));
 }
 
+std::optional<Number> unpadded_day(const Number& number, const Match& match, std::span<const std::u32string> months,
+                                   std::u32string_view of) {
+  const auto& i = number.integer;
+  if (i.size() != 2 || i[0] != U'0' || i[1] == U'0' || !number.fraction.empty()) {
+    return std::nullopt;
+  }
+  std::u32string next = strings::to_lower(match.context.after());
+  if (!of.empty() && next == of) {
+    next = strings::to_lower(match.context.after(2));
+  }
+  if (next.empty() || std::ranges::find(months, next) == months.end()) {
+    return std::nullopt;
+  }
+  Number day = number;
+  day.integer.erase(0, 1);
+  return day;
+}
+
 std::u32string to_digits(uint64_t value) {
   std::u32string digits;
   do {

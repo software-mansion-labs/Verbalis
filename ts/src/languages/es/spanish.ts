@@ -28,6 +28,7 @@ import {
   toDigits,
   RomanRole,
   isOrdinalDegree,
+  unpaddedDay,
 } from "../../numbers/scanning.ts";
 import {
   digitsEnd,
@@ -79,6 +80,7 @@ import {
   SCALES,
   SPORT_WORDS,
   STOP_WORDS,
+  YEAR_WORDS,
   SYMBOLS,
   TENS,
   TERMS,
@@ -91,6 +93,7 @@ import {
   FEMININE_ORDINAL_ARTICLES,
   ORDINAL_NOUNS,
   PRIME_CUES,
+  MINUTE_CUES,
   PRIME_UNITS,
 } from "./constants.ts";
 
@@ -314,15 +317,26 @@ function feminine(noun: string): boolean {
 
 // The form of "uno" from the noun after a number: veintiún años, veintiuna personas; a la 1
 function oneOf(context: Context): One {
-  const word = context.after();
+  let word = context.after();
   const previous = context.before();
+  // 400 y 500 entrevistas: the noun after the second number
+  if ((word === "y" || word === "o") && isDigit(context.after(2)[0])) {
+    word = context.after(3);
+  }
   if (previous === "la" || previous === "las") {
     return One.UNA;
   }
   if (word === "" || !isAlpha(String.fromCodePoint(word.codePointAt(0) as number)) || STOP_WORDS.has(toLower(word))) {
     return One.UNO;
   }
-  return feminine(word) ? One.UNA : One.UN;
+  if (!feminine(word)) {
+    return One.UN;
+  }
+  // Only a lowercase word right after the number is a feminine noun it counts, not a name or a bracket: Arte nº 1
+  // (ESEA), CG/812 Sustitución
+  const tail = context.tail();
+  const next = tail.findIndex((c) => c !== " ");
+  return next !== -1 && isLower(tail[next]) ? One.UNA : One.UNO;
 }
 
 // A word before a numbered item, whose number is not a fraction or a date: nº 12/45, expediente 3/5
@@ -346,7 +360,20 @@ interface Cues {
 function cuesOf(match: Match): Cues {
   // A decade or a compound stands alone: los 80s, 4-carriles
   const alone = match.kind === Kind.DECADE || match.kind === Kind.COMPOUND;
-  const cues: Cues = { one: alone ? One.UNO : oneOf(match.context), named: false };
+  // A year or a numbered item counts nothing after it: en 1971 publicó, en 2031 estaría, número 1 (ESEA)
+  const previous = match.context.before();
+  const year =
+    match.kind === Kind.NUMBER &&
+    YEAR_WORDS.has(previous) &&
+    match.numbers[0].integer.length === 4 &&
+    match.numbers[0].fraction === "" &&
+    !match.numbers[0].grouped &&
+    value(match.numbers[0]) >= 1000n &&
+    value(match.numbers[0]) <= 2100n;
+  const cues: Cues = {
+    one: alone || year || isNumberWord(previous) ? One.UNO : oneOf(match.context),
+    named: false,
+  };
 
   if (match.kind === Kind.MONEY) {
     // $5.000 dólares, $3 millones de dólares
@@ -655,7 +682,7 @@ class Spanish extends PatternLanguage {
     this.addPattern(new FractionPattern());
     this.addPattern(new PrefixedMoneyPattern(NOTATION, CURRENCY_WORDS));
     this.addPattern(new SecondsPattern());
-    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
+    this.addPattern(new PrimePattern(NOTATION, PRIME_CUES, false, MINUTE_CUES));
     this.addPattern(new CompactTimePattern());
     this.addPattern(new GroupedOrdinalPattern(ORDINAL_SIGNS, ". \u00a0\u202f"));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ORDINAL_SIGNS, ORDINAL_SIGN_FORMAT));
@@ -666,6 +693,11 @@ class Spanish extends PatternLanguage {
   }
 
   protected override readNumber(number: Numeral, match: Match): string {
+    // 05 de mayo: a day, despite its leading zero
+    const day = unpaddedDay(number, match, MONTHS, "de");
+    if (day) {
+      return this.readNumber(day, match);
+    }
     // extensión 12: digit by digit
     if (match.context.before() === "extensión" && number.fraction === "" && number.integer.length > 1) {
       return digits(number.integer);
@@ -684,7 +716,7 @@ class Spanish extends PatternLanguage {
       return `${cardinal(value(match.numbers[0]))} de ${cardinal(value(match.numbers[1]))}`;
     }
 
-    // 30-2-1990 and 30.2.1990 need a full year (3.8.10 is a version)
+    // 30-2-1990 and 30.2.1990 need a year written in full (3.8.10 is a version)
     const day = value(match.numbers[0]);
     const month = value(match.numbers[1]);
     const slash = match.separator === "/";
@@ -703,7 +735,13 @@ class Spanish extends PatternLanguage {
     ) {
       return undefined;
     }
-    if (!slash && match.separator !== " " && (match.numbers.length < 3 || match.numbers[2].integer.length !== 4)) {
+    const named = [...match.text].some((c) => isAlpha(c)); // 15-Mayo-14: a month as a word
+    if (
+      !slash &&
+      match.separator !== " " &&
+      !named &&
+      (match.numbers.length < 3 || match.numbers[2].span.end - match.numbers[2].span.begin !== 4)
+    ) {
       return undefined;
     }
 

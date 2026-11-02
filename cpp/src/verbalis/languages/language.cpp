@@ -62,8 +62,18 @@ void PatternLanguage::read_numbers(Document& document) const {
 
 std::optional<std::u32string> PatternLanguage::read_match(const Match& match) const {
   switch (match.kind) {
-    case Kind::DATE:
-      return read_date(match);
+    case Kind::DATE: {
+      // Amora01/09/2015: words apart from the letters they touch
+      auto words = read_date(match);
+      std::u32string_view head = match.context.head(), tail = match.context.tail();
+      if (words && !head.empty() && unicode::isalpha(head.back())) {
+        words->insert(0, U" ");
+      }
+      if (words && !tail.empty() && unicode::isalpha(tail.front())) {
+        words->push_back(U' ');
+      }
+      return words;
+    }
     case Kind::INTERNATIONAL_PHONE:
       return read_international_phone(match);
     case Kind::PHONE:

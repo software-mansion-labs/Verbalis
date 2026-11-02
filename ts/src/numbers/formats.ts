@@ -9,6 +9,13 @@ export interface DateFormat {
   closingSeparator: boolean; // A separator also closes the month: 1.5. and 1.5.2024
   spaced: boolean; // An optional space after the day: 12. 5.
   suffixes: Keys; // Abbreviations after the year: 2024 r.
+  // A two-digit year below the pivot is in the 2000s (24: 2024); one from it on is in the 1900s (98: 1998) with
+  // fullYears, and stays as written (98) without
+  yearPivot: number;
+  fullYears: boolean;
+  // The names of the months, lowercase: a month may be written as its name or its first three letters or more, in
+  // any case (23/Ago/2013, 06-jun-2012)
+  months: readonly string[];
 }
 
 export function dateFormat(fields: Partial<DateFormat> = {}): DateFormat {
@@ -20,6 +27,9 @@ export function dateFormat(fields: Partial<DateFormat> = {}): DateFormat {
     closingSeparator: false,
     spaced: false,
     suffixes: [],
+    yearPivot: 30,
+    fullYears: false,
+    months: [],
     ...fields,
   };
 }

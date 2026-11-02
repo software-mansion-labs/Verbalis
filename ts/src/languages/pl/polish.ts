@@ -34,7 +34,7 @@ import {
   skipSpace,
   type Keys,
 } from "../../text/scan.ts";
-import { contains, size, str, toLower, type Text } from "../../text/strings.ts";
+import { contains, size, startsWith, str, toLower, type Text } from "../../text/strings.ts";
 import { isDigit, isLower, isSpace, isUpper, isWord, isAlpha } from "../../text/unicode.ts";
 import { keysOf, type RomanCues } from "../../numbers/formats.ts";
 import { Case, Gender } from "../grammar.ts";
@@ -80,6 +80,8 @@ import {
   NOUN_ENDINGS,
   ONE,
   ORDINAL_HEADINGS,
+  PARTICLES,
+  DEGREE_ADVERBS,
   ORDINAL_STEMS,
   ORDINAL_SUFFIXES,
   PERCENT,
@@ -113,15 +115,15 @@ interface Inflection {
   form: Form; // An ordinal for years, days of a month and headings
   grammaticalCase: Case;
   gender: Gender;
+  plural: boolean; // lata 70., 18 urodziny: an ordinal in the plural
 }
 
 function inflection(form: Form = Form.CARDINAL, grammaticalCase: Case = Case.NOMINATIVE): Inflection {
-  return { form, grammaticalCase, gender: Gender.MASCULINE };
+  return { form, grammaticalCase, gender: Gender.MASCULINE, plural: false };
 }
 
 // What the words around a match say about reading its numbers: the inflection of its first number, and more
 interface Cues extends Inflection {
-  plural: boolean; // lata 70.: an ordinal in the plural
   amountCase: Case; // The case of an amount (5 kg): of its number and its noun
   numbered: boolean; // numerem 3x38: the "x" of a document number stands for a slash
 }
@@ -279,6 +281,7 @@ interface NounForm {
   grammaticalCase: Case;
   gender: Gender;
   plural: boolean;
+  pluralOnly?: boolean; // urodziny: never a form a count takes
 }
 
 // Whether a word is made only of given characters (and is not empty).
@@ -343,8 +346,16 @@ function surroundings(context: Context): [string[], string] {
   ) {
     before.length -= 2;
   }
-  if (before.length > 0 && before[before.length - 1] === "minus") {
-    before.pop(); // do minus siedmiu stopni
+  if (before.length > 0 && ["minus", "plus", "+"].includes(before[before.length - 1])) {
+    before.pop(); // do minus siedmiu stopni, od +12°C
+  }
+  // do nawet siedmiuset, przez około cztery: the preposition before a particle governs the number
+  if (
+    before.length >= 2 &&
+    PARTICLES.has(before[before.length - 1]) &&
+    PREPOSITION_CASES.has(before[before.length - 2])
+  ) {
+    before.pop();
   }
   if (before.length > 0 && CURRENCY_WORDS.has(before[before.length - 1])) {
     before.pop();
@@ -375,7 +386,14 @@ function enumerated(context: Context): Context | undefined {
   while (end >= 0 && contains(" \t\n\r", head[end])) {
     end--;
   }
-  if (end < 0 || head[end] !== ",") {
+  if (end < 0) {
+    return undefined;
+  }
+  // spośród 510 ocen i 68 recenzji: a conjunction, as a comma
+  const w = context.before();
+  if (w !== "czy" && CONJUNCTIONS.has(w) && isAlpha(head[end])) {
+    end = end + 1 - size(w);
+  } else if (head[end] !== ",") {
     return undefined;
   }
 
@@ -442,7 +460,7 @@ function ordinalNouns(): Map<string, NounForm[]> {
             continue;
           }
           const forms = ordinalNounForms.get(form) ?? [];
-          forms.push({ grammaticalCase: c as Case, gender, plural });
+          forms.push({ grammaticalCase: c as Case, gender, plural, pluralOnly });
           ordinalNounForms.set(form, forms);
         }
       }
@@ -496,6 +514,7 @@ function nounForm(word: string, preposition: string): NounForm {
     ["ów", { grammaticalCase: Case.GENITIVE, gender: Gender.MASCULINE, plural: true }],
     ["iem", { grammaticalCase: Case.INSTRUMENTAL, gender: Gender.MASCULINE, plural: false }],
     ["em", { grammaticalCase: Case.INSTRUMENTAL, gender: Gender.MASCULINE, plural: false }],
+    ["ym", { grammaticalCase: locative ? Case.LOCATIVE : Case.INSTRUMENTAL, gender: Gender.MASCULINE, plural: false }],
     [
       "ą",
       { grammaticalCase: instrumental ? Case.INSTRUMENTAL : Case.ACCUSATIVE, gender: Gender.FEMININE, plural: false },
@@ -522,18 +541,18 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   const [before, next] = surroundings(context);
   const w1 = before.length === 0 ? "" : before[before.length - 1];
   const w2 = before.length < 2 ? "" : before[before.length - 2];
+  const w3 = before.length < 3 ? "" : before[before.length - 3];
   const noun = yearAbbreviation ? "roku" : next; // 2020 r.
 
   // do lat 3, od lat 5: an age in the case of the preposition before "lat" (but z lat 1991-2020 are years)
   if (w1 === "lat" && PREPOSITION_CASES.has(w2) && n < 100n) {
-    return { form: Form.CARDINAL, grammaticalCase: PREPOSITION_CASES.get(w2)!, gender: Gender.MASCULINE };
+    return inflection(Form.CARDINAL, PREPOSITION_CASES.get(w2)!);
   }
 
   // 1990-1994: the end of a range of years stays a cardinal, as its start (but od 2020 do 2022 reads ordinals)
   const year = (w: string): boolean => w.length === 4 && madeOf(w, DIGITS);
-  const w3 = before.length < 3 ? "" : before[before.length - 3];
   if (w1 === "do" && year(w2) && n >= 1000n && n <= 2100n && w3 !== "od" && noun !== "roku" && noun !== "r") {
-    return { form: Form.CARDINAL, grammaticalCase: Case.NOMINATIVE, gender: Gender.MASCULINE };
+    return inflection(Form.CARDINAL, Case.NOMINATIVE);
   }
 
   // 1. Years, days and headings are ordinals
@@ -542,7 +561,7 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
     // prettier-ignore
     const c =
       noun === "rok" ? Case.NOMINATIVE
-      : noun === "rokiem" ? Case.INSTRUMENTAL
+      : noun === "rokiem" || (yearAbbreviation && w1 === "przed") ? Case.INSTRUMENTAL
       : locative ? Case.LOCATIVE
       : Case.GENITIVE;
     return inflection(Form.ORDINAL, c);
@@ -552,10 +571,12 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   }
   const hour = HOUR_WORDS.get(w1);
   if (hour !== undefined && n <= 24n && !decimal && !counted(noun)) {
-    return { form: Form.ORDINAL, grammaticalCase: hour, gender: Gender.FEMININE }; // o godzinie piętnastej
+    return { ...inflection(Form.ORDINAL, hour), gender: Gender.FEMININE }; // o godzinie piętnastej
   }
-  if (w1 === "roku" || w1 === "rok") {
-    const w2Locative = LOCATIVE_PREPOSITIONS.has(w2);
+  // w (samym) roku 2016; but roku 76 pracowników counts
+  if ((w1 === "roku" || w1 === "rok") && !counted(noun)) {
+    const w2Locative =
+      LOCATIVE_PREPOSITIONS.has(w2) || (w2.endsWith("ym") && LOCATIVE_PREPOSITIONS.has(w3) && n >= 1000n);
     return inflection(Form.ORDINAL, w1 === "rok" ? Case.NOMINATIVE : w2Locative ? Case.LOCATIVE : Case.GENITIVE);
   }
   // od pierwszego do piątego lipca: the first day of a range, before "do" and a day of a month
@@ -581,6 +602,24 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   if (MONTH_WORDS.has(w1) && n >= 1000n && n <= 2100n) {
     return inflection(Form.ORDINAL, Case.GENITIVE);
   }
+  // października 18, 2017: a day after its month, and the year after them
+  const head = context.head();
+  const written = wordsOf(head);
+  const monthAt = (back: number) =>
+    written.length >= back &&
+    (MONTHS_GENITIVE as readonly string[]).includes(toLower(str(stripped(written[written.length - back]))));
+  const dayAfterMonth = monthAt(1) && n >= 1n && n <= 31n && context.tail()[0] === ",";
+  const yearAfterDay =
+    head.length >= 2 &&
+    head[head.length - 2] === "," &&
+    head[head.length - 1] === " " &&
+    n >= 1000n &&
+    n <= 2100n &&
+    monthAt(2) &&
+    madeOf(str(stripped(written[written.length - 1])), DIGITS);
+  if (dayAfterMonth || yearAfterDay) {
+    return inflection(Form.ORDINAL, Case.GENITIVE);
+  }
   if ((w1 === "w" || w1 === "we") && n >= 1000n && n <= 2100n && !genitivePlurals().has(noun)) {
     return inflection(Form.ORDINAL, Case.LOCATIVE);
   }
@@ -588,8 +627,23 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   if (yearCase !== undefined && n >= 1900n && n <= 2100n && !counted(noun)) {
     return inflection(Form.ORDINAL, yearCase); // od dwa tysiące dwudziestego do dwa tysiące dwudziestego drugiego
   }
-  if (startsWithAny(w1, ORDINAL_HEADINGS) && n < 100n) {
-    return inflection(Form.ORDINAL, nounForm(w1, w2).grammaticalCase); // w punkcie drugim
+  if (startsWithAny(w1, ORDINAL_HEADINGS) && n < 100n && !counted(noun)) {
+    const heading = nounForm(w1, w2);
+    return { ...inflection(Form.ORDINAL, heading.grammaticalCase), gender: heading.gender }; // w punkcie drugim, część druga
+  }
+  // w 4 lidze, na 6 kroku, 22 urodziny: before a form of a noun no count takes (a singular, or a noun with no
+  // singular), a number is an ordinal agreeing with it; but nr 4 turnieju is a label
+  const forms = ordinalNouns().get(noun);
+  if (
+    forms !== undefined &&
+    n >= 2n &&
+    !decimal &&
+    !w1.startsWith("numer") &&
+    w1 !== "nr" &&
+    !forms.some((form) => form.plural && !form.pluralOnly)
+  ) {
+    const form = nounForm(noun, w1);
+    return { form: Form.ORDINAL, grammaticalCase: form.grammaticalCase, gender: form.gender, plural: form.plural };
   }
 
   // 2. The case of a cardinal: from a preposition, a governing word or a number it continues
@@ -632,7 +686,10 @@ function inflectionOf(context: Context, n: bigint, decimal: boolean, yearAbbrevi
   // jedna godzina, jednej godziny, but jednego stopnia (a masculine genitive in -a)
   const nominativeFeminine = noun.endsWith("a") && result.grammaticalCase === Case.NOMINATIVE;
   const genitiveFeminine = (noun.endsWith("y") || noun.endsWith("i")) && result.grammaticalCase === Case.GENITIVE;
-  if (((nominativeFeminine || genitiveFeminine) && n === 1n) || startsWithAny(noun, FEMININE_PLURALS)) {
+  // na 2 równe części: the noun after an adjective
+  const adjective = noun.endsWith("e") || noun.endsWith("ych") || noun.endsWith("ich");
+  const headNoun = adjective && after.length >= 2 ? toLower(str(stripped(after[1]))) : noun;
+  if (((nominativeFeminine || genitiveFeminine) && n === 1n) || startsWithAny(headNoun, FEMININE_PLURALS)) {
     result.gender = Gender.FEMININE;
   } else if (noun === "euro") {
     result.gender = Gender.NEUTER;
@@ -771,8 +828,22 @@ function cuesOf(match: Match): Cues {
       } else if (startsWithAny(w1, HEADINGS) && value(match.numbers[0]) < 100n) {
         cues.grammaticalCase = nounForm(w1, context.before(2)).grammaticalCase; // Punkt 3., w punkcie 5.
       } else {
+        // 21. najbardziej zakorkowanym: the word after an adverb of degree
         const words = wordsOf(context.tail());
-        const next = nounForm(words.length === 0 ? "" : toLower(str(stripped(words[0]))), w1);
+        const i = words.length > 0 && DEGREE_ADVERBS.has(toLower(str(stripped(words[0])))) ? 1 : 0;
+        const word = words.length > i ? toLower(str(stripped(words[i]))) : "";
+        const next = { ...nounForm(word, w1) };
+        // został 11. kierowcą: an instrumental after a form of "zostać" or "być", in the gender of the verb
+        const verb = COPULAS.has(w1) || w1.startsWith("zosta") ? w1 : context.before(2);
+        if (word.endsWith("ą") && (COPULAS.has(verb) || verb.startsWith("zosta"))) {
+          next.grammaticalCase = Case.INSTRUMENTAL;
+          // prettier-ignore
+          next.gender =
+            verb.endsWith("ła") ? Gender.FEMININE
+            : verb.endsWith("ło") ? Gender.NEUTER
+            : verb.endsWith("ł") ? Gender.MASCULINE
+            : next.gender;
+        }
         cues.grammaticalCase = next.grammaticalCase;
         cues.gender = next.gender;
         cues.plural = next.plural;
@@ -878,8 +949,9 @@ class DecadeRangePattern extends Pattern {
   }
 }
 
-// 04.02., 23.07-22.08: a day and a month of two digits each, without a year: before a closing dot, or as a
-// range of two such dates (its numbers are then both days and months)
+// 04.02., 23.07-22.08, (2.01), 29.06: a day and a month of two digits (the day of one before a padded month),
+// without a year: before a closing dot, as a range of two such dates (its numbers are then both days and months), in
+// parentheses, or with a two-digit day and a zero-padded month
 class YearlessDatePattern extends Pattern {
   constructor() {
     super(Kind.DATE);
@@ -890,17 +962,20 @@ class YearlessDatePattern extends Pattern {
       return undefined;
     }
     const dateAt = (at: number): [Numeral, Numeral] | undefined => {
+      const dot = digitsEnd(text, at);
       if (
-        digitsEnd(text, at) !== at + 2 ||
-        at + 5 > text.length ||
-        text[at + 2] !== "." ||
-        digitsEnd(text, at + 3) !== at + 5
+        dot === at ||
+        dot > at + 2 ||
+        dot + 3 > text.length ||
+        text[dot] !== "." ||
+        digitsEnd(text, dot + 1) !== dot + 3
       ) {
         return undefined;
       }
       const day = digitsAt(text, at);
-      const month = digitsAt(text, at + 3);
-      if (value(day) < 1n || value(day) > 31n || value(month) < 1n || value(month) > 12n) {
+      const month = digitsAt(text, dot + 1);
+      const padded = day.integer.length === 2 || month.integer[0] === "0"; // 4.02, but not the version 1.10
+      if (value(day) < 1n || value(day) > 31n || value(month) < 1n || value(month) > 12n || !padded) {
         return undefined;
       }
       return [day, month];
@@ -909,14 +984,14 @@ class YearlessDatePattern extends Pattern {
     if (!first) {
       return undefined;
     }
-    const end = position + 5;
+    const end = first[1].span.end;
     // 23.07-22.08: a range
     if (end < text.length && text[end] === "-") {
       const second = dateAt(end + 1);
-      if (second && isClearAfter(text, end + 6) && !isDigitAfter(text, end + 6, ".")) {
+      if (second && isClearAfter(text, second[1].span.end) && !isDigitAfter(text, second[1].span.end, ".")) {
         return matchOf({
           kind: Kind.DATE,
-          span: { begin: position, end: end + 6 },
+          span: { begin: position, end: second[1].span.end },
           numbers: [first[0], first[1], second[0], second[1]],
           separator: "-",
         });
@@ -928,7 +1003,50 @@ class YearlessDatePattern extends Pattern {
       const spanEnd = isSentenceEnd(text, end + 1, true) ? end : end + 1;
       return matchOf({ kind: Kind.DATE, span: { begin: position, end: spanEnd }, numbers: first, separator: "." });
     }
+    // (21.11), 29.06
+    const parenthesized = position > 0 && text[position - 1] === "(" && end < text.length && text[end] === ")";
+    const padded = first[0].integer.length === 2 && first[1].integer[0] === "0";
+    if ((parenthesized || padded) && isClearAfter(text, end) && !isDigitAfter(text, end, ".,")) {
+      return matchOf({ kind: Kind.DATE, span: { begin: position, end }, numbers: first, separator: "." });
+    }
     return undefined;
+  }
+}
+
+// Jean18 listopada, 17stycznia, 24maja 2018: a day glued to the letters before it or to its month, the month in the
+// genitive, and the year if written
+class GluedDatePattern extends Pattern {
+  constructor() {
+    super(Kind.DATE);
+  }
+
+  match(text: Text, position: number): Match | undefined {
+    const dayEnd = digitsEnd(text, position);
+    if (dayEnd === position || dayEnd > position + 2 || (position > 0 && isDigit(text[position - 1]))) {
+      return undefined;
+    }
+    const month = skipSpace(text, dayEnd);
+    const glued = (position > 0 && isAlpha(text[position - 1])) || month === dayEnd;
+    const index = MONTHS_GENITIVE.findIndex(
+      (m: string) => startsWith(text, month, m) && isClearAfter(text, month + m.length),
+    );
+    const day = digitsAt(text, position);
+    if (!glued || index < 0 || value(day) < 1n || value(day) > 31n) {
+      return undefined;
+    }
+    const monthEnd = month + MONTHS_GENITIVE[index].length;
+    const date = matchOf({
+      kind: Kind.DATE,
+      span: { begin: position, end: monthEnd },
+      numbers: [day, numeral({ span: { begin: 0, end: 0 }, integer: toDigits(BigInt(index + 1)) })],
+      separator: " ",
+    });
+    const year = skipSpace(text, monthEnd);
+    if (year > monthEnd && digitsEnd(text, year) === year + 4 && isClearAfter(text, year + 4)) {
+      date.numbers.push(digitsAt(text, year));
+      date.span.end = year + 4;
+    }
+    return date;
   }
 }
 
@@ -1050,6 +1168,7 @@ class Polish extends PatternLanguage {
     super({ characters: CHARACTERS, terms: TERMS, symbols: SYMBOLS }, NOTATION, JOINERS);
     this.addPattern(new DatePattern(DATE_FORMAT));
     this.addPattern(new YearlessDatePattern());
+    this.addPattern(new GluedDatePattern());
     this.addPattern(new RomanDatePattern());
     this.addPattern(new FractionUnitPattern());
     this.addPattern(new PrimePattern(NOTATION, PRIME_CUES));
@@ -1073,7 +1192,7 @@ class Polish extends PatternLanguage {
       return digits(number.integer);
     }
     if (cues.form === Form.ORDINAL) {
-      return ordinal(n, cues.grammaticalCase, cues.gender);
+      return ordinal(n, cues.grammaticalCase, cues.gender, cues.plural);
     }
     return cardinal(n, cues.grammaticalCase, cues.gender);
   }
@@ -1293,7 +1412,12 @@ class Polish extends PatternLanguage {
   }
 
   protected override readPlain(match: Match): string | undefined {
-    return this.readNumber(match.numbers[0], match) + (match.suffix === "r." ? " roku" : "");
+    if (match.suffix !== "r.") {
+      return this.readNumber(match.numbers[0], match);
+    }
+    // przed 1999 r.: przed tysiąc dziewięćset dziewięćdziesiątym dziewiątym rokiem
+    const instrumental = cuesOf(match).grammaticalCase === Case.INSTRUMENTAL;
+    return this.readNumber(match.numbers[0], match) + (instrumental ? " rokiem" : " roku");
   }
 
   protected override readMoney(number: Numeral, match: Match): string | undefined {

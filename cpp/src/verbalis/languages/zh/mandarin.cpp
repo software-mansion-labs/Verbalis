@@ -296,6 +296,11 @@ std::optional<Reading> read_numeric_date(std::u32string_view s, size_t i) {
   if (a.size() == 2 && b.size() == 2 && (a[0] == U'0' || b[0] == U'0') && is_month_day(value_of(a), value_of(b))) {
     return words(U"", a, b);
   }
+  // (24/10): a day which can't be a month, then the month, in parentheses
+  bool parenthesized = i > 0 && is_one_of(s[i - 1], U"(（") && is_one_of(at(s, j), U")）");
+  if (parenthesized && separator == U'/' && value_of(a) > 12 && is_month_day(value_of(b), value_of(a))) {
+    return words(U"", b, a);
+  }
   return std::nullopt;
 }
 

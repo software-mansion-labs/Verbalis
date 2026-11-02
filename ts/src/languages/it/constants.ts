@@ -92,6 +92,9 @@ export const PRIME_CUES: ReadonlySet<string> = new Set([
   "classifica", "maratona", "minuti", "secondi", "podio", "traguardo",
 ]);
 
+// Words around a lone 10' which make it minutes: ha giocato solo 120'
+export const MINUTE_CUES: ReadonlySet<string> = new Set(["giocato"]);
+
 // A time written with prime marks: hours, minutes, seconds, and tenths to thousandths of a second; and an inch
 export const PRIME_UNITS: readonly Forms[] = [
   { one: "ora", many: "ore" }, { one: "minuto", many: "minuti" }, { one: "secondo", many: "secondi" },
@@ -176,7 +179,7 @@ export const COUNT_WORDS: ReadonlySet<string> = new Set([
   "tra", "fra", "entro", "dopo", "oltre", "ha", "ho", "hai", "hanno", "abbiamo", "avete", "aveva", "avevano", "c'è",
   "è", "era", "costa", "pesa", "dura", "misura", "già", "ancora", "appena", "quasi", "manca", "mancano", "resta",
   "restano", "rimane", "più", "meno", "che", "cioè", "sotto", "sopra", "verso", "contro", "senza", "servono", "serve",
-  "basta", "bastano",
+  "basta", "bastano", "x", "incluso", "inclusa", "inclusi", "incluse", "compreso", "compresa", "compresi", "comprese",
 ]);
 
 // Nouns in -a which are masculine (un problema), and nouns in -e which are feminine (una notte)
@@ -248,8 +251,13 @@ export const SPORT_WORDS: Keys = [
   "sfida", "impone",
 ];
 
-// 24/03/2022, 24.03.2022, 24-03-2022
-export const DATE_FORMAT = dateFormat({ separators: "/.-", boundaries: ".,/-" });
+// 24/03/2022, 24.03.2022, 24-03-2022, and dal 21/9 (with DATE_ARTICLES)
+export const DATE_FORMAT = dateFormat({ separators: "/.-", boundaries: ".,/-", yearRequired: false });
+
+// Articles before a day and a month without a year which make them a date: dal 21/9, del 25.02.
+export const DATE_ARTICLES: ReadonlySet<string> = new Set([
+  "il", "dal", "al", "del", "nel", "entro", "l", "dall", "all", "dell", "nell",
+]);
 
 // 333 1234567, 06 1234 5678, 06 12345678
 export const PHONE_FORMATS = [

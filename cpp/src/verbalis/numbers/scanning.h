@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -43,6 +44,14 @@ bool is_one(const Number& number);
 
 // Whether an integer is read digit by digit: a leading zero, or a long code that is not a round amount.
 bool is_spoken_digits(const Number& number, size_t longest);
+
+/**
+ * A day of a month written with a leading zero, without it: 05 de mayo, 04 juin; nullopt for any other number.
+ * @param months lowercase.
+ * @param of a word which may stand between the day and the month: "de".
+ */
+std::optional<Number> unpadded_day(const Number& number, const Match& match, std::span<const std::u32string> months,
+                                   std::u32string_view of = U"");
 
 // The value of the digits of a code or phone number, or nullopt if they read digit by digit: a leading zero, more than
 // longest digits, or too long to hold.
