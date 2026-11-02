@@ -209,6 +209,7 @@ inline const Noun kPoint = noun(U"punkt punktu punktowi punkt punktem punkcie pu
 inline const Noun kCelsius = noun(U"stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza");
 
 inline const std::unordered_map<std::u32string, Noun> kUnits = {
+  {U"″", noun(U"cal cala calowi cal calem calu cale cali calom cale calami calach")},
   {U"km", kKilometre},   {U"m", kMetre},
   {U"m²", qualified(kMetre, kSquare)},           {U"m2", qualified(kMetre, kSquare)},
   {U"km²", qualified(kKilometre, kSquare)},      {U"km2", qualified(kKilometre, kSquare)},
@@ -461,11 +462,9 @@ inline const std::vector<std::pair<Gender, std::u32string_view>> kOrdinalNouns =
 // Words of a text about time, which make its 8'22" minutes and seconds, and a lone 25″ seconds
 inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"czas", U"czasem", U"bieg", U"biegu", U"wyścig", U"wyścigu", U"rekord", U"rekordem", U"wynik", U"wynikiem",
-  U"etap", U"etapu", U"przewagą", U"przewagi", U"stratą", U"straty", U"maraton", U"maratonu", U"minut", U"sekund"
+  U"etap", U"etapu", U"przewagą", U"przewagi", U"stratą", U"straty", U"maraton", U"maratonu", U"minut", U"sekund",
+  U"przebiegł", U"przebiegła", U"biegł", U"biegła", U"czasie"
 };
-
-// An inch, as a lone 19''
-inline const Noun kInch = noun(U"cal cala calowi cal calem calu cale cali calom cale calami calach");
 
 // Words around a 5'5" which make it feet and inches, and a foot: Mam 5'5" wzrostu
 inline const std::unordered_set<std::u32string> kHeightCues = {U"wzrost", U"wzrostu", U"mierzy", U"wysoki", U"wysoka"};
@@ -474,7 +473,7 @@ inline const std::unordered_set<std::u32string> kHeightCues = {U"wzrost", U"wzro
 inline const std::unordered_map<Prime, Noun> kPrimeUnits = {
   {Prime::HOUR, kUnits.at(U"h")}, {Prime::MINUTE, kUnits.at(U"min")}, {Prime::SECOND, kUnits.at(U"s")},
   {Prime::FOOT, noun(U"stopa stopy stopie stopę stopą stopie stopy stóp stopom stopy stopami stopach")},
-  {Prime::INCH, kInch},
+  {Prime::INCH, kUnits.at(U"″")},
 };
 
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place

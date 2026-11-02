@@ -80,7 +80,6 @@ import {
   ORDINAL_ARTICLES,
   FEMININE_ORDINAL_ARTICLES,
   ORDINAL_NOUNS,
-  INCH,
   HEIGHT_CUES,
   PRIME_CUES,
   MINUTE_CUES,
@@ -730,7 +729,7 @@ class Portuguese extends PatternLanguage {
     if (match.unit === "s" && !match.text.endsWith(" s") && isDecade(match)) {
       return undefined;
     }
-    const unit = match.unit === "″" ? INCH : UNITS[match.unit];
+    const unit = UNITS[match.unit];
     const firstWord = unit.one.split(" ")[0];
     // 1,90 m: um vírgula noventa metro, a decimal reads masculine, and the unit agrees with its integer part
     const gender = feminine(firstWord) && number.fraction === "" ? Gender.FEMININE : Gender.MASCULINE;

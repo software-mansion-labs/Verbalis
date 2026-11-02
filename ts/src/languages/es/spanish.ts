@@ -1050,7 +1050,7 @@ class Spanish extends PatternLanguage {
     if (match.unit === "s" && !match.text.includes(" ")) {
       return undefined;
     }
-    const unit = match.unit === "″" ? INCH : UNITS[match.unit];
+    const unit = UNITS[match.unit];
     // 4,51/s: cuatro coma cincuenta y uno por segundo
     const one = unit.one.startsWith("por ") ? One.UNO : feminine(firstWord(unit.one)) ? One.UNA : One.UN;
     return `${numberWith(number, one)} ${isOne(number) ? unit.one : unit.many}`;

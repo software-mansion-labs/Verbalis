@@ -185,6 +185,7 @@ const POINT = noun("punkt punktu punktowi punkt punktem punkcie punkty punktów 
 const CELSIUS = noun("stopień Celsjusza|stopnia Celsjusza|stopniowi Celsjusza|stopień Celsjusza|stopniem Celsjusza|stopniu Celsjusza|stopnie Celsjusza|stopni Celsjusza|stopniom Celsjusza|stopnie Celsjusza|stopniami Celsjusza|stopniach Celsjusza");
 
 export const UNITS: Readonly<Record<string, Noun>> = {
+  "″": noun("cal cala calowi cal calem calu cale cali calom cale calami calach"),
   "km": KILOMETRE,   "m": METRE,
   "m²": qualified(METRE, SQUARE),           "m2": qualified(METRE, SQUARE),
   "km²": qualified(KILOMETRE, SQUARE),      "km2": qualified(KILOMETRE, SQUARE),
@@ -442,10 +443,8 @@ export const ORDINAL_NOUNS: readonly (readonly [Gender, string])[] = [
 export const PRIME_CUES: ReadonlySet<string> = new Set([
   "czas", "czasem", "bieg", "biegu", "wyścig", "wyścigu", "rekord", "rekordem", "wynik", "wynikiem",
   "etap", "etapu", "przewagą", "przewagi", "stratą", "straty", "maraton", "maratonu", "minut", "sekund",
+  "przebiegł", "przebiegła", "biegł", "biegła", "czasie",
 ]);
-
-// An inch, as a lone 19''
-export const INCH = noun("cal cala calowi cal calem calu cale cali calom cale calami calach");
 
 // Words around a 5'5" which make it feet and inches, and a foot: Mam 5'5" wzrostu
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["wzrost", "wzrostu", "mierzy", "wysoki", "wysoka"]);
@@ -454,7 +453,7 @@ export const HEIGHT_CUES: ReadonlySet<string> = new Set(["wzrost", "wzrostu", "m
 export const PRIME_UNITS: Readonly<Record<Prime, Noun>> = {
   [Prime.HOUR]: UNITS["h"], [Prime.MINUTE]: UNITS["min"], [Prime.SECOND]: UNITS["s"],
   [Prime.FOOT]: noun("stopa stopy stopie stopę stopą stopie stopy stóp stopom stopy stopami stopach"),
-  [Prime.INCH]: INCH,
+  [Prime.INCH]: UNITS["″"],
 };
 
 // Units of time, whose amount after "w" is a span (w 10 min: within ten minutes), not a place

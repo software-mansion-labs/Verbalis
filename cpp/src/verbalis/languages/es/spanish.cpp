@@ -924,7 +924,7 @@ protected:
     if (match.unit == U"s" && match.text.find(U' ') == std::u32string_view::npos) {
       return std::nullopt;
     }
-    const Forms& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
+    const Forms& unit = kUnits.at(std::u32string(match.unit));
     // 4,51/s: cuatro coma cincuenta y uno por segundo
     One one = unit.one.starts_with(U"por ") ? One::UNO : feminine(first_word(unit.one)) ? One::UNA : One::UN;
     return number_with(number, one) + U" " + (is_one(number) ? unit.one : unit.many);

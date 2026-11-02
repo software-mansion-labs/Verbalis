@@ -86,6 +86,8 @@ REGISTER_TEST(numbers_en_test) {
   ASSERT_EQUALS(
       U"The garage is nineteen feet seven inches by nineteen feet seven inches, an approximately sixty percent share.",
       verbalize("en", U"The garage is 19’07” x 19’07”, a ~60% share."));
+  ASSERT_EQUALS(U"The time was one minute twenty-three point four five seconds.",
+                verbalize("en", U"The time was 1'23\"45."));
   ASSERT_EQUALS(U"\"I'm five feet five inches\", she said.",
                 verbalize("en-us", U"\"I'm 5'5\"\", she said.", only(&Options::numbers)));
 

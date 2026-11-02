@@ -262,7 +262,7 @@ inline const std::unordered_set<std::u32string> kFeminineNames = {
 // Words of a text about time, which make its 3'16" minutes and seconds, and a lone 25″ seconds
 inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"zeit", U"lauf", U"rennen", U"rekord", U"etappe", U"vorsprung", U"rückstand", U"bestzeit", U"marathon",
-  U"minuten", U"sekunden", U"sieger", U"siegerin", U"gesamtwertung"
+  U"minuten", U"sekunden", U"sieger", U"siegerin", U"gesamtwertung", U"lief", U"laufen", U"gelaufen"
 };
 
 // Words around a 6'2" which make it feet and inches: Er ist 6'2" groß

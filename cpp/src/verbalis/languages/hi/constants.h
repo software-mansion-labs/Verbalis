@@ -112,11 +112,25 @@ inline const std::unordered_map<std::u32string, std::u32string> kUnits = {
   {U"yd", U"यार्ड"},            {U"µm", U"माइक्रोमीटर"},      {U"mi/hr", U"मील प्रति घंटा"}, {U"mph", U"मील प्रति घंटा"},
   {U"qt", U"क्वार्ट"},          {U"gal", U"गैलन"},          {U"pt", U"पिंट"},            {U"cg", U"सेंटीग्राम"},
   {U"dg", U"डेसीग्राम"},        {U"t", U"टन"},             {U"st", U"स्टोन"},           {U"lb", U"पाउंड"},
-  {U"oz", U"आउन्स"},           {U"q", U"क्विंटल"},          {U"yr", U"साल"},
+  {U"oz", U"आउन्स"},           {U"q", U"क्विंटल"},          {U"yr", U"साल"},             {U"″", U"इंच"},
   {U"W", U"वाट"},              {U"Km/h", U"किलोमीटर प्रति घंटा"}, {U"x", U"गुना"}, {U"Hz", U"हर्ट्ज़"},
   // Abbreviations with ० (read as 0) or ॰ as their dot: 34 किमी०, 20 कि॰मी॰, 6 मी॰, 3,000 कि॰
   {U"किमी0", U"किलोमीटर"},     {U"कि॰मी॰", U"किलोमीटर"},     {U"मी॰", U"मीटर"},           {U"कि॰", U"किलोग्राम"},
   {U"रु.", U"रुपये"}
+};
+
+// Words of a text about time, which make its 3'16" minutes and seconds, and a lone 25″ seconds
+inline const std::unordered_set<std::u32string> kPrimeCues = {
+  U"समय", U"दौड़", U"रेस", U"रिकॉर्ड", U"मैराथन", U"मिनट", U"सेकंड"
+};
+
+// Words around a 5'9" which make it feet and inches: उसकी लंबाई 5'9" है
+inline const std::unordered_set<std::u32string> kHeightCues = {U"लंबाई", U"कद", U"ऊंचाई", U"ऊँचाई", U"लंबा", U"लंबी"};
+
+// A time or a height written with prime marks: 1'23"45 -> एक मिनट तेईस दशमलव चार पाँच सेकंड
+inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
+  {Prime::HOUR, {U"घंटा", U"घंटे"}}, {Prime::MINUTE, {U"मिनट", U"मिनट"}}, {Prime::SECOND, {U"सेकंड", U"सेकंड"}},
+  {Prime::FOOT, {kUnits.at(U"ft"), kUnits.at(U"ft")}}, {Prime::INCH, {kUnits.at(U"″"), kUnits.at(U"″")}},
 };
 
 // Months: standard Gregorian month names in Hindi (used as-is in dates).

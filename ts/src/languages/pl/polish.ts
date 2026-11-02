@@ -104,7 +104,6 @@ import {
   CENTURY_ABBREVIATIONS,
   REGNAL_NAMES,
   ROMAN_NOUNS,
-  INCH,
   HEIGHT_CUES,
   PRIME_CUES,
   BECOME_STEM,
@@ -1461,7 +1460,7 @@ class Polish extends PatternLanguage {
   }
 
   protected override readUnit(number: Numeral, match: Match): string | undefined {
-    const unit = match.unit === "″" ? INCH : UNITS[match.unit];
+    const unit = UNITS[match.unit];
     return amount(number, unit, this.#amountCase(match));
   }
 

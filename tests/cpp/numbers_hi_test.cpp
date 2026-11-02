@@ -93,6 +93,10 @@ REGISTER_TEST(numbers_hi_context_test) {
   // Times with seconds and with a dot, money with its smaller unit, units
   ASSERT_EQUALS(U"बारह बजकर दस मिनट दस सेकंड", verbalize("hi", U"12:10:10"));
   ASSERT_EQUALS(U"रात ग्यारह पचपन बजे", verbalize("hi", U"रात 11.55 बजे"));
+
+  // Prime marks: three parts are a time; two are feet and inches by a word of height
+  ASSERT_EQUALS(U"समय एक मिनट तेईस दशमलव चार पाँच सेकंड रहा।", verbalize("hi", U"समय 1'23\"45 रहा।"));
+  ASSERT_EQUALS(U"उसकी लंबाई पाँच फीट नौ इंच है।", verbalize("hi", U"उसकी लंबाई 5'9\" है।"));
   ASSERT_EQUALS(U"इसकी कीमत नौ रुपये पचास पैसे है।", verbalize("hi", U"इसकी कीमत ₹9.50 है।"));
   ASSERT_EQUALS(U"एक रुपया पचास पैसे", verbalize("hi", U"₹1.50"));
   ASSERT_EQUALS(U"निन्यानवे सेंट", verbalize("hi", U"$0.99"));

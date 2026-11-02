@@ -181,6 +181,7 @@ public:
       add_pattern(std::make_unique<PhonePattern>(format));
     }
     add_pattern(std::make_unique<SecondsPattern>(Keys{}, true));
+    add_pattern(std::make_unique<PrimePattern>(kNotation, PrimeFormat{.cues = kPrimeCues, .heights = kHeightCues}));
     add_pattern(std::make_unique<PowerPattern>());
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, keys_of(kOrdinalSuffixes)));
     add_pattern(std::make_unique<SuffixPattern>(Kind::ORDINAL, kEnglishOrdinalSuffixes));
@@ -423,6 +424,14 @@ protected:
   }
 
 private:
+  // 5'9": पाँच फीट नौ इंच; 1'23"45: एक मिनट तेईस दशमलव चार पाँच सेकंड
+  std::u32string read_prime(const Number& number, Prime unit, const Match& match) const override {
+    const Forms& forms = kPrimeUnits.at(unit);
+    bool one = number.fraction.empty() && value(number) == 1;
+    std::u32string count = number.fraction.empty() ? cardinal(value(number)) : read_number(number, match);
+    return count + U" " + (one ? forms.one : forms.many);
+  }
+
   // Whether a number is read digit by digit: a leading zero, twelve digits or more, a mobile number (98765
   // 43210), a code after its word (पिन कोड 110023), or the postal code ending an address (रांची, झारखंड 736557)
   static bool is_spoken_digits(const Number& number, const Match& match) {

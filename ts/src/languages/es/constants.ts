@@ -154,7 +154,7 @@ export const INCH: Forms = { one: "pulgada", many: "pulgadas" };
 // Words of a text about time, which make its 7'11" minutes and seconds, and a lone 25″ seconds
 export const PRIME_CUES: ReadonlySet<string> = new Set([
   "tiempo", "carrera", "crono", "cronómetro", "récord", "ganador", "general", "etapa", "ventaja", "vuelta",
-  "minuto", "minutos", "segundos", "maratón", "clasificación", "podio",
+  "minuto", "minutos", "segundos", "maratón", "clasificación", "podio", "corrió", "correr", "marca",
 ]);
 
 // Words around a lone 10' which make it minutes: durante más de 10', (36' PT), (49' ST)
@@ -176,6 +176,7 @@ export const SCALES: Readonly<Record<string, string>> = {
 };
 
 export const UNITS: Readonly<Record<string, Forms>> = {
+  "″": INCH,
   "km":   { one: "kilómetro", many: "kilómetros" },         "m":    { one: "metro", many: "metros" },
   "cm":   { one: "centímetro", many: "centímetros" },       "mm":   { one: "milímetro", many: "milímetros" },
   "nm":   { one: "nanómetro", many: "nanómetros" },         "m²":   { one: "metro cuadrado", many: "metros cuadrados" },

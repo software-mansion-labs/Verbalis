@@ -436,7 +436,7 @@ protected:
         strings::contains(std::u32string_view(U".'’"), match.context.tail()[0])) {
       return std::nullopt;
     }
-    const Forms& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
+    const Forms& unit = kUnits.at(std::u32string(match.unit));
     return number.fraction.empty() ? counted(number, unit) : read_number(number, match) + U" " + unit.many;
   }
 

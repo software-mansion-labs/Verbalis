@@ -592,6 +592,19 @@ std::optional<Match> PercentPattern::match(std::u32string_view text, size_t posi
   return std::nullopt;
 }
 
+namespace {
+// Whether a number from `position` and the ″ right after it are inches, as PrimePattern reads a lone 18″: not the
+// seconds of coordinates (43°39′38″), nor a number of four digits (Sport 2024″), nor a decimal with a trailing zero or
+// more than two places (20.00″), nor a number whose mark closes a quotation (“Halo Wars 2″)
+bool is_inches(std::u32string_view text, size_t position, const Number& number) {
+  size_t previous = position > 0 && unicode::isspace(text[position - 1]) ? position - 1 : position;
+  bool coordinate = previous > 0 && (unicode::isdigit(text[previous - 1]) || text[previous - 1] == U'°' ||
+                                     strings::contains(kPrimes, text[previous - 1]));
+  return !coordinate && number.integer.size() <= 3 && number.fraction.size() <= 2 && !number.fraction.ends_with(U'0') &&
+         is_inch_mark(text, number.span.end);
+}
+} // namespace
+
 UnitPattern::UnitPattern(const Notation& notation)
     : Pattern(Kind::UNIT),
       notation_(notation),
@@ -607,7 +620,7 @@ std::optional<Match> UnitPattern::match(std::u32string_view text, size_t positio
     auto unit_at = [&](size_t start, const Keys& units) -> std::optional<Match> {
       for (auto unit : keys_at(text, start, units)) {
         size_t unit_end = start + unit.size();
-        if (!is_clear_after(text, unit_end, U"'")) {
+        if (!is_clear_after(text, unit_end, U"'") || (unit == U"″" && !is_inches(text, position, numbers.back()))) {
           continue;
         }
         // A dot closing both the unit and the text stays with the text: 5 Min.
@@ -1089,10 +1102,14 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
     size_t second = skip_space(text, end + 1);
     for (const Number& number : numbers_at(text, second, U"", decimals_)) {
       size_t mark = double_prime_at(text, number.span.end);
+      size_t after = number.span.end + mark;
+      size_t fraction_end = digits_end(text, after);
+      // Digits right after the seconds are their fraction, and make it a time even in feet: 1'27"23
+      bool timed = mark && number.fraction.empty() && fraction_end > after && fraction_end - after <= 3;
       // Mam 5'5" wzrostu: feet and inches by a word of height, unless the text is about time
       bool height = !feet_ && mark && number.fraction.empty() && value(number) < 12 && !cued(text, cues_) &&
                     cued(around(text, position, number.span.end + mark, 8, 4), heights_);
-      bool marked = mark && number.integer.size() <= 2 && value(number) < (feet_ ? 12 : 60);
+      bool marked = mark && number.integer.size() <= 2 && value(number) < (feet_ && !timed ? 12 : 60);
       // 26'8 x 17'5: inches without their mark
       bool bare = feet_ && !mark && second == end + 1 && number.fraction.empty() && number.integer.size() <= 2 &&
                   value(number) < 12 && !prime_at(text, number.span.end);
@@ -1100,10 +1117,7 @@ std::optional<Match> PrimePattern::match(std::u32string_view text, size_t positi
         continue;
       }
       time.numbers.push_back(number);
-      size_t after = number.span.end + mark;
-      size_t fraction_end = digits_end(text, after);
-      // Digits right after the seconds are their fraction, and make it a time even in feet: 1'27"23
-      if (mark && number.fraction.empty() && fraction_end > after && fraction_end - after <= 3) {
+      if (timed) {
         time.numbers.back().fraction = text.substr(after, fraction_end - after);
         time.numbers.back().span.end = fraction_end;
         return ending(fraction_end, U"min");

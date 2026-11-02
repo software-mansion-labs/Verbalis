@@ -589,6 +589,10 @@ export class PrimePattern extends Pattern {
       const second = skipSpace(text, end + 1);
       for (const number of numbersAt(text, second, "", this.#decimals)) {
         const mark = doublePrimeAt(text, number.span.end);
+        const after = number.span.end + mark;
+        const fractionEnd = digitsEnd(text, after);
+        // Digits right after the seconds are their fraction, and make it a time even in feet: 1'27"23
+        const timed = mark > 0 && number.fraction === "" && fractionEnd > after && fractionEnd - after <= 3;
         // Mam 5'5" wzrostu: feet and inches by a word of height, unless the text is about time
         const height =
           !this.#feet &&
@@ -597,7 +601,7 @@ export class PrimePattern extends Pattern {
           value(number) < 12n &&
           !this.#cued(text, this.#cues) &&
           this.#cued(around(text, position, number.span.end + mark, 8, 4), this.#heights);
-        const marked = mark > 0 && number.integer.length <= 2 && value(number) < (this.#feet ? 12n : 60n);
+        const marked = mark > 0 && number.integer.length <= 2 && value(number) < (this.#feet && !timed ? 12n : 60n);
         // 26'8 x 17'5: inches without their mark
         const bare =
           this.#feet &&
@@ -611,10 +615,7 @@ export class PrimePattern extends Pattern {
           continue;
         }
         time.numbers.push(number);
-        const after = number.span.end + mark;
-        const fractionEnd = digitsEnd(text, after);
-        // Digits right after the seconds are their fraction, and make it a time even in feet: 1'27"23
-        if (mark && number.fraction === "" && fractionEnd > after && fractionEnd - after <= 3) {
+        if (timed) {
           const seconds = time.numbers[time.numbers.length - 1];
           seconds.fraction = str(text, after, fractionEnd);
           seconds.span = { begin: seconds.span.begin, end: fractionEnd };
@@ -1138,6 +1139,22 @@ class PercentPattern extends Pattern {
   }
 }
 
+// Whether a number from `position` and the ″ right after it are inches, as PrimePattern reads a lone 18″: not the
+// seconds of coordinates (43°39′38″), nor a number of four digits (Sport 2024″), nor a decimal with a trailing zero or
+// more than two places (20.00″), nor a number whose mark closes a quotation (“Halo Wars 2″)
+function isInches(text: Text, position: number, number: Numeral): boolean {
+  const previous = position > 0 && isSpace(text[position - 1]) ? position - 1 : position;
+  const coordinate =
+    previous > 0 && (isDigit(text[previous - 1]) || text[previous - 1] === "°" || contains(PRIMES, text[previous - 1]));
+  return (
+    !coordinate &&
+    number.integer.length <= 3 &&
+    number.fraction.length <= 2 &&
+    !number.fraction.endsWith("0") &&
+    isInchMark(text, number.span.end)
+  );
+}
+
 // 5 kg, 10-15 km, 230 V; a unit of a single capital letter only after a space.
 class UnitPattern extends Pattern {
   readonly #notation: Notation;
@@ -1158,7 +1175,10 @@ class UnitPattern extends Pattern {
       const unitAt = (start: number, units: Keys): Match | undefined => {
         for (const unit of keysAt(text, start, units)) {
           let unitEnd = start + size(unit);
-          if (!isClearAfter(text, unitEnd, "'")) {
+          if (
+            !isClearAfter(text, unitEnd, "'") ||
+            (unit === "″" && !isInches(text, position, numbers[numbers.length - 1]))
+          ) {
             continue;
           }
           // A dot closing both the unit and the text stays with the text: 5 Min.

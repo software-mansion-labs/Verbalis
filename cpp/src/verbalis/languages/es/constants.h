@@ -133,6 +133,7 @@ inline const std::unordered_map<std::u32string, std::u32string> kScales = {
 };
 
 inline const std::unordered_map<std::u32string, Forms> kUnits = {
+  {U"″", {U"pulgada", U"pulgadas"}},
   {U"km", {U"kilómetro", U"kilómetros"}},         {U"m", {U"metro", U"metros"}},
   {U"cm", {U"centímetro", U"centímetros"}},       {U"mm", {U"milímetro", U"milímetros"}},
   {U"nm", {U"nanómetro", U"nanómetros"}},         {U"m²", {U"metro cuadrado", U"metros cuadrados"}},
@@ -168,12 +169,12 @@ inline const std::unordered_map<std::u32string, Forms> kUnits = {
 
 // An inch after a fraction: 3/4"
 inline const Keys kInchMarks = {U"\"", U"''", U"″", U"”"};
-inline const Forms kInch = {U"pulgada", U"pulgadas"};
+inline const Forms& kInch = kUnits.at(U"″");
 
 // Words of a text about time, which make its 7'11" minutes and seconds, and a lone 25″ seconds
 inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"tiempo", U"carrera", U"crono", U"cronómetro", U"récord", U"ganador", U"general", U"etapa", U"ventaja", U"vuelta",
-  U"minuto", U"minutos", U"segundos", U"maratón", U"clasificación", U"podio"
+  U"minuto", U"minutos", U"segundos", U"maratón", U"clasificación", U"podio", U"corrió", U"correr", U"marca"
 };
 
 // Words around a lone 10' which make it minutes: durante más de 10', (36' PT), (49' ST)

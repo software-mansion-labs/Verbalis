@@ -1248,7 +1248,7 @@ protected:
   }
 
   std::optional<std::u32string> read_unit(const Number& number, const Match& match) const override {
-    const Noun& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
+    const Noun& unit = kUnits.at(std::u32string(match.unit));
     return amount(number, unit, amount_case(match));
   }
 

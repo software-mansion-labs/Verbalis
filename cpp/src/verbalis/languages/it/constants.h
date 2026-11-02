@@ -74,6 +74,7 @@ inline const std::unordered_map<std::u32string, Forms> kScales = {
 
 // A singular ending in -a is feminine: una tonnellata, un'ora
 inline const std::unordered_map<std::u32string, Forms> kUnits = {
+  {U"″", {U"pollice", U"pollici"}},
   {U"km", {U"chilometro", U"chilometri"}},          {U"m", {U"metro", U"metri"}},
   {U"cm", {U"centimetro", U"centimetri"}},          {U"mm", {U"millimetro", U"millimetri"}},
   {U"m²", {U"metro quadro", U"metri quadri"}},      {U"m2", {U"metro quadro", U"metri quadri"}},
@@ -121,17 +122,16 @@ inline const std::unordered_set<std::u32string> kFractionWords = {U"di", U"del",
 // Words of a text about time, which make its 2'20" minutes and seconds, and a lone 25″ seconds
 inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"tempo", U"gara", U"prova", U"cronometro", U"crono", U"record", U"vantaggio", U"distacco", U"ritardo", U"tappa",
-  U"classifica", U"maratona", U"minuti", U"secondi", U"podio", U"traguardo"
+  U"classifica", U"maratona", U"minuti", U"secondi", U"podio", U"traguardo", U"corso", U"corsa", U"correre"
 };
 
 // Words around a lone 10' which make it minutes: ha giocato solo 120'
 inline const std::unordered_set<std::u32string> kMinuteCues = {U"giocato"};
 
-// The tenths to thousandths of a second of a time written with prime marks; and an inch
+// The tenths to thousandths of a second of a time written with prime marks
 inline const std::array<Forms, 3> kSecondFractions = {
   {{U"decimo", U"decimi"}, {U"centesimo", U"centesimi"}, {U"millesimo", U"millesimi"}}
 };
-inline const Forms kInch = {U"pollice", U"pollici"};
 
 // Words around a 5'5" which make it feet and inches: è alto 5'5"
 inline const std::unordered_set<std::u32string> kHeightCues = {U"alto", U"alta", U"altezza", U"misura"};
@@ -139,7 +139,7 @@ inline const std::unordered_set<std::u32string> kHeightCues = {U"alto", U"alta",
 // A time or a height written with prime marks
 inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
   {Prime::HOUR, {U"ora", U"ore"}},     {Prime::MINUTE, {U"minuto", U"minuti"}}, {Prime::SECOND, {U"secondo", U"secondi"}},
-  {Prime::FOOT, {U"piede", U"piedi"}}, {Prime::INCH, kInch},
+  {Prime::FOOT, {U"piede", U"piedi"}}, {Prime::INCH, kUnits.at(U"″")},
 };
 
 // Words before a time with a dot, which make it a time: alle 21.30

@@ -44,7 +44,6 @@ import {
   FEMININE_ORDINAL_SUFFIXES,
   FRACTION_WORDS,
   FRACTIONS,
-  INCH,
   JOINERS,
   MASCULINE_ENDINGS,
   MASCULINE_IN_E,
@@ -678,7 +677,7 @@ class French extends PatternLanguage {
       const whole = numeral({ span: { begin: 0, end: 0 }, integer: number.integer });
       return `${cardinal(n)} ${numberForm(whole, UNITS["m"])}` + (centimeters ? ` ${cardinal(centimeters)}` : "");
     }
-    const unit = match.unit === "″" ? INCH : UNITS[match.unit];
+    const unit = UNITS[match.unit];
     const space = unit.one.indexOf(" ");
     const firstWord = space === -1 ? unit.one : unit.one.slice(0, space);
     return `${gendered(number, cuesOf(match), feminine(firstWord))} ${numberForm(number, unit)}`;

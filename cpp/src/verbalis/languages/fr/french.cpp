@@ -571,7 +571,7 @@ protected:
       return cardinal(n) + U" " + number_form(whole, kUnits.at(U"m")) +
              (centimeters ? U" " + cardinal(centimeters) : U"");
     }
-    const Forms& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
+    const Forms& unit = kUnits.at(std::u32string(match.unit));
     std::u32string_view first_word = std::u32string_view(unit.one).substr(0, unit.one.find(U' '));
     return gendered(number, cues_of(match), feminine(first_word)) + U" " + number_form(number, unit);
   }

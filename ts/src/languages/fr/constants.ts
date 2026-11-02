@@ -44,6 +44,7 @@ export const SCALES: Readonly<Record<string, string>> = {
 };
 
 export const UNITS: Readonly<Record<string, Forms>> = {
+  "″": { one: "pouce", many: "pouces" },
   "km":     { one: "kilomètre", many: "kilomètres" },           "m":    { one: "mètre", many: "mètres" },
   "cm":     { one: "centimètre", many: "centimètres" },         "mm":   { one: "millimètre", many: "millimètres" },
   "nm":     { one: "nanomètre", many: "nanomètres" },           "m²":   { one: "mètre carré", many: "mètres carrés" },
@@ -152,10 +153,8 @@ export const TIME_WORDS: ReadonlySet<string> = new Set([
 export const PRIME_CUES: ReadonlySet<string> = new Set([
   "temps", "chrono", "chronomètre", "course", "record", "retard", "avance", "étape", "général", "vainqueur",
   "maillot", "marathon", "sprint", "finale", "demi-finales", "minutes", "secondes", "podium",
+  "couru", "courir", "chronométré",
 ]);
-
-// An inch, as a lone 20"
-export const INCH: Forms = { one: "pouce", many: "pouces" };
 
 // Words around a 6'2" which make it feet and inches: il mesure 6'2"
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mesure", "taille", "grand", "grande"]);
@@ -163,7 +162,7 @@ export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mesure", "taille", "gr
 // A time written with prime marks: hours, minutes, and seconds; and a height, in feet and inches
 export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
   [Prime.HOUR]: { one: "heure", many: "heures" }, [Prime.MINUTE]: { one: "minute", many: "minutes" }, [Prime.SECOND]: { one: "seconde", many: "secondes" },
-  [Prime.FOOT]: { one: "pied", many: "pieds" },   [Prime.INCH]: INCH,
+  [Prime.FOOT]: { one: "pied", many: "pieds" },   [Prime.INCH]: UNITS["″"],
 };
 
 // XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals

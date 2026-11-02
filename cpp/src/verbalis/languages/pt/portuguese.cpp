@@ -618,7 +618,7 @@ protected:
     if (match.unit == U"s" && !match.text.ends_with(U" s") && decade(match)) {
       return std::nullopt;
     }
-    const Forms& unit = match.unit == U"″" ? kInch : kUnits.at(std::u32string(match.unit));
+    const Forms& unit = kUnits.at(std::u32string(match.unit));
     std::u32string_view first_word = std::u32string_view(unit.one).substr(0, unit.one.find(U' '));
     // 1,90 m: um vírgula noventa metro, a decimal reads masculine, and the unit agrees with its integer part
     Gender gender = feminine(first_word) && number.fraction.empty() ? Gender::FEMININE : Gender::MASCULINE;

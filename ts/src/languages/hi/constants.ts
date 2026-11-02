@@ -5,7 +5,7 @@ import type { Context } from "../../text/context.ts";
 import type { Keys } from "../../text/scan.ts";
 import { afterAny, type Readings } from "../../text/readings.ts";
 import { isAlpha, isDigit } from "../../text/unicode.ts";
-import type { Joiners } from "../grammar.ts";
+import { Prime, type Forms, type Joiners } from "../grammar.ts";
 
 // Echo's classes, but the zero-width non-joiner and joiner stay: they decide how Devanagari letters join
 export const CHARACTERS: Characters = [
@@ -100,11 +100,25 @@ export const UNITS: Readonly<Record<string, string>> = {
   "yd": "यार्ड",            "µm": "माइक्रोमीटर",      "mi/hr": "मील प्रति घंटा", "mph": "मील प्रति घंटा",
   "qt": "क्वार्ट",          "gal": "गैलन",          "pt": "पिंट",            "cg": "सेंटीग्राम",
   "dg": "डेसीग्राम",        "t": "टन",             "st": "स्टोन",           "lb": "पाउंड",
-  "oz": "आउन्स",           "q": "क्विंटल",          "yr": "साल",
+  "oz": "आउन्स",           "q": "क्विंटल",          "yr": "साल",             "″": "इंच",
   "W": "वाट",              "Km/h": "किलोमीटर प्रति घंटा", "x": "गुना", "Hz": "हर्ट्ज़",
   // Abbreviations with ० (read as 0) or ॰ as their dot: 34 किमी०, 20 कि॰मी॰, 6 मी॰, 3,000 कि॰
   "किमी0": "किलोमीटर",     "कि॰मी॰": "किलोमीटर",     "मी॰": "मीटर",           "कि॰": "किलोग्राम",
   "रु.": "रुपये",
+};
+
+// Words of a text about time, which make its 3'16" minutes and seconds, and a lone 25″ seconds
+export const PRIME_CUES: ReadonlySet<string> = new Set([
+  "समय", "दौड़", "रेस", "रिकॉर्ड", "मैराथन", "मिनट", "सेकंड",
+]);
+
+// Words around a 5'9" which make it feet and inches: उसकी लंबाई 5'9" है
+export const HEIGHT_CUES: ReadonlySet<string> = new Set(["लंबाई", "कद", "ऊंचाई", "ऊँचाई", "लंबा", "लंबी"]);
+
+// A time or a height written with prime marks: 1'23"45 -> एक मिनट तेईस दशमलव चार पाँच सेकंड
+export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
+  [Prime.HOUR]: { one: "घंटा", many: "घंटे" }, [Prime.MINUTE]: { one: "मिनट", many: "मिनट" }, [Prime.SECOND]: { one: "सेकंड", many: "सेकंड" },
+  [Prime.FOOT]: { one: UNITS["ft"], many: UNITS["ft"] }, [Prime.INCH]: { one: UNITS["″"], many: UNITS["″"] },
 };
 
 // Months: standard Gregorian month names in Hindi (used as-is in dates).

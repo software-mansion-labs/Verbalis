@@ -55,6 +55,7 @@ export const SCALES: Readonly<Record<string, Forms>> = {
 };
 
 export const UNITS: Readonly<Record<string, Forms>> = {
+  "″": { one: "polegada", many: "polegadas" },
   "km":   { one: "quilômetro", many: "quilômetros" },        "m":    { one: "metro", many: "metros" },
   "cm":   { one: "centímetro", many: "centímetros" },        "mm":   { one: "milímetro", many: "milímetros" },
   "nm":   { one: "nanômetro", many: "nanômetros" },          "m²":   { one: "metro quadrado", many: "metros quadrados" },
@@ -102,17 +103,16 @@ export const SCALE_WORDS = ["milhão", "milhões", "bilhão", "bilhões", "trilh
 // Words of a text about time, which make its 2'14" minutes and seconds, and a lone 25″ seconds
 export const PRIME_CUES: ReadonlySet<string> = new Set([
   "tempo", "corrida", "prova", "cronómetro", "cronômetro", "recorde", "vantagem", "etapa", "classificação",
-  "maratona", "minutos", "segundos", "pódio", "vídeo", "filme", "duração",
+  "maratona", "minutos", "segundos", "pódio", "vídeo", "filme", "duração", "correu", "correr", "marca",
 ]);
 
 // Words around a lone 10' which make it minutes: aos 6′ do segundo tempo
 export const MINUTE_CUES: ReadonlySet<string> = new Set(["tempo"]);
 
-// The tenths to thousandths of a second of a time written with prime marks; and an inch
+// The tenths to thousandths of a second of a time written with prime marks
 export const SECOND_FRACTIONS: readonly Forms[] = [
   { one: "décimo", many: "décimos" }, { one: "centésimo", many: "centésimos" }, { one: "milésimo", many: "milésimos" },
 ];
-export const INCH: Forms = { one: "polegada", many: "polegadas" };
 
 // Words around a 5'5" which make it feet and inches: ele mede 5'5"
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mede", "altura", "alto", "alta"]);
@@ -120,7 +120,7 @@ export const HEIGHT_CUES: ReadonlySet<string> = new Set(["mede", "altura", "alto
 // A time or a height written with prime marks
 export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
   [Prime.HOUR]: { one: "hora", many: "horas" }, [Prime.MINUTE]: { one: "minuto", many: "minutos" }, [Prime.SECOND]: { one: "segundo", many: "segundos" },
-  [Prime.FOOT]: { one: "pé", many: "pés" },     [Prime.INCH]: INCH,
+  [Prime.FOOT]: { one: "pé", many: "pés" },     [Prime.INCH]: UNITS["″"],
 };
 
 // Words before an hour, which make it feminine: às duas, das dez

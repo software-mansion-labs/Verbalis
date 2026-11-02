@@ -64,6 +64,7 @@ inline const std::unordered_map<std::u32string, std::u32string> kScales = {
 };
 
 inline const std::unordered_map<std::u32string, Forms> kUnits = {
+  {U"″", {U"pouce", U"pouces"}},
   {U"km", {U"kilomètre", U"kilomètres"}},           {U"m", {U"mètre", U"mètres"}},
   {U"cm", {U"centimètre", U"centimètres"}},         {U"mm", {U"millimètre", U"millimètres"}},
   {U"nm", {U"nanomètre", U"nanomètres"}},           {U"m²", {U"mètre carré", U"mètres carrés"}},
@@ -172,11 +173,9 @@ inline const std::unordered_set<std::u32string> kTimeWords = {
 // Words of a text about time, which make its 3'16" minutes and seconds, and a lone 23″ seconds
 inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"temps", U"chrono", U"chronomètre", U"course", U"record", U"retard", U"avance", U"étape", U"général", U"vainqueur",
-  U"maillot", U"marathon", U"sprint", U"finale", U"demi-finales", U"minutes", U"secondes", U"podium"
+  U"maillot", U"marathon", U"sprint", U"finale", U"demi-finales", U"minutes", U"secondes", U"podium",
+  U"couru", U"courir", U"chronométré"
 };
-
-// An inch, as a lone 20"
-inline const Forms kInch = {U"pouce", U"pouces"};
 
 // Words around a 6'2" which make it feet and inches: il mesure 6'2"
 inline const std::unordered_set<std::u32string> kHeightCues = {U"mesure", U"taille", U"grand", U"grande"};
@@ -184,7 +183,7 @@ inline const std::unordered_set<std::u32string> kHeightCues = {U"mesure", U"tail
 // A time written with prime marks: hours, minutes, and seconds; and a height, in feet and inches
 inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
   {Prime::HOUR, {U"heure", U"heures"}}, {Prime::MINUTE, {U"minute", U"minutes"}}, {Prime::SECOND, {U"seconde", U"secondes"}},
-  {Prime::FOOT, {U"pied", U"pieds"}},   {Prime::INCH, kInch},
+  {Prime::FOOT, {U"pied", U"pieds"}},   {Prime::INCH, kUnits.at(U"″")},
 };
 
 // XIXe, Ier, Ire: the suffixes of an ordinal in Roman numerals

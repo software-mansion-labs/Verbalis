@@ -43,6 +43,7 @@ export const SCALES: Readonly<Record<string, Forms>> = {
 
 // A singular ending in -a is feminine: una tonnellata, un'ora
 export const UNITS: Readonly<Record<string, Forms>> = {
+  "″": { one: "pollice", many: "pollici" },
   "km": { one: "chilometro", many: "chilometri" },          "m": { one: "metro", many: "metri" },
   "cm": { one: "centimetro", many: "centimetri" },          "mm": { one: "millimetro", many: "millimetri" },
   "m²": { one: "metro quadro", many: "metri quadri" },      "m2": { one: "metro quadro", many: "metri quadri" },
@@ -89,17 +90,16 @@ export const FRACTION_WORDS: ReadonlySet<string> = new Set(["di", "del", "della"
 // Words of a text about time, which make its 2'20" minutes and seconds, and a lone 25″ seconds
 export const PRIME_CUES: ReadonlySet<string> = new Set([
   "tempo", "gara", "prova", "cronometro", "crono", "record", "vantaggio", "distacco", "ritardo", "tappa",
-  "classifica", "maratona", "minuti", "secondi", "podio", "traguardo",
+  "classifica", "maratona", "minuti", "secondi", "podio", "traguardo", "corso", "corsa", "correre",
 ]);
 
 // Words around a lone 10' which make it minutes: ha giocato solo 120'
 export const MINUTE_CUES: ReadonlySet<string> = new Set(["giocato"]);
 
-// The tenths to thousandths of a second of a time written with prime marks; and an inch
+// The tenths to thousandths of a second of a time written with prime marks
 export const SECOND_FRACTIONS: readonly Forms[] = [
   { one: "decimo", many: "decimi" }, { one: "centesimo", many: "centesimi" }, { one: "millesimo", many: "millesimi" },
 ];
-export const INCH: Forms = { one: "pollice", many: "pollici" };
 
 // Words around a 5'5" which make it feet and inches: è alto 5'5"
 export const HEIGHT_CUES: ReadonlySet<string> = new Set(["alto", "alta", "altezza", "misura"]);
@@ -107,7 +107,7 @@ export const HEIGHT_CUES: ReadonlySet<string> = new Set(["alto", "alta", "altezz
 // A time or a height written with prime marks
 export const PRIME_UNITS: Readonly<Record<Prime, Forms>> = {
   [Prime.HOUR]: { one: "ora", many: "ore" },     [Prime.MINUTE]: { one: "minuto", many: "minuti" }, [Prime.SECOND]: { one: "secondo", many: "secondi" },
-  [Prime.FOOT]: { one: "piede", many: "piedi" }, [Prime.INCH]: INCH,
+  [Prime.FOOT]: { one: "piede", many: "piedi" }, [Prime.INCH]: UNITS["″"],
 };
 
 // Words before a time with a dot, which make it a time: alle 21.30

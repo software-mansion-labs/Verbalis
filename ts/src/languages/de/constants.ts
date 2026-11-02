@@ -242,7 +242,7 @@ export const FEMININE_NAMES: ReadonlySet<string> = new Set([
 // Words of a text about time, which make its 3'16" minutes and seconds, and a lone 25″ seconds
 export const PRIME_CUES: ReadonlySet<string> = new Set([
   "zeit", "lauf", "rennen", "rekord", "etappe", "vorsprung", "rückstand", "bestzeit", "marathon",
-  "minuten", "sekunden", "sieger", "siegerin", "gesamtwertung",
+  "minuten", "sekunden", "sieger", "siegerin", "gesamtwertung", "lief", "laufen", "gelaufen",
 ]);
 
 // Words around a 6'2" which make it feet and inches: Er ist 6'2" groß

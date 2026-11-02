@@ -70,7 +70,6 @@ import {
   FEMININE_NAMES,
   FEMININE_ROMAN_NOUNS,
   ORDINAL_NOUNS,
-  INCH,
   HEIGHT_CUES,
   PRIME_CUES,
   MINUTE_CUES,
@@ -549,7 +548,7 @@ class Italian extends PatternLanguage {
     if (match.unit === "d" && tail.length > 0 && contains(".'’", tail[0])) {
       return undefined;
     }
-    const unit = match.unit === "″" ? INCH : UNITS[match.unit];
+    const unit = UNITS[match.unit];
     return number.fraction === "" ? counted(number, unit) : `${this.readNumber(number, match)} ${unit.many}`;
   }
 

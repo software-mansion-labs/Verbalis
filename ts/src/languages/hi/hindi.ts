@@ -2,6 +2,7 @@ import {
   DatePattern,
   Pattern,
   PhonePattern,
+  PrimePattern,
   RomanOrdinalPattern,
   RomanPattern,
   SecondsPattern,
@@ -24,6 +25,8 @@ import {
 import { isClearAfter, isClearBefore, isDigitAfter, join } from "../../text/scan.ts";
 import { type Text } from "../../text/strings.ts";
 import { isAlnum, isAlpha, isDigit, isSpace } from "../../text/unicode.ts";
+import { primeFormat } from "../../numbers/formats.ts";
+import type { Prime } from "../grammar.ts";
 import { PatternLanguage, type LanguageHandle } from "../language.ts";
 import {
   CARDINALS,
@@ -36,6 +39,7 @@ import {
   CURRENCIES,
   CURRENCY_WORDS,
   DATE_FORMAT,
+  HEIGHT_CUES,
   DAY_TIMES,
   ENGLISH_ORDINAL_SUFFIXES,
   ENGLISH_ORDINALS,
@@ -51,6 +55,8 @@ import {
   ORDINALS_SPECIAL,
   PHONE_CUES,
   PHONE_FORMATS,
+  PRIME_CUES,
+  PRIME_UNITS,
   ROMAN_CUES,
   ROMAN_ORDINAL_SUFFIXES,
   SYMBOLS,
@@ -226,6 +232,7 @@ class Hindi extends PatternLanguage {
       this.addPattern(new PhonePattern(format));
     }
     this.addPattern(new SecondsPattern([], true));
+    this.addPattern(new PrimePattern(NOTATION, primeFormat({ cues: PRIME_CUES, heights: HEIGHT_CUES })));
     this.addPattern(new PowerPattern());
     this.addPattern(new SuffixPattern(Kind.ORDINAL, [...ORDINAL_SUFFIXES.keys()]));
     this.addPattern(new SuffixPattern(Kind.ORDINAL, ENGLISH_ORDINAL_SUFFIXES));
@@ -466,6 +473,14 @@ class Hindi extends PatternLanguage {
       }
     }
     return super.readRange(from, to, match);
+  }
+
+  // 5'9": पाँच फीट नौ इंच; 1'23"45: एक मिनट तेईस दशमलव चार पाँच सेकंड
+  protected override readPrime(number: Numeral, unit: Prime, match: Match): string {
+    const forms = PRIME_UNITS[unit];
+    const one = number.fraction === "" && value(number) === 1n;
+    const count = number.fraction === "" ? cardinal(value(number)) : this.readNumber(number, match);
+    return `${count} ${one ? forms.one : forms.many}`;
   }
 
   // Whether a number is read digit by digit: a leading zero, twelve digits or more, a mobile number (98765

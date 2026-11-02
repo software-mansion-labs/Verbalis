@@ -76,6 +76,7 @@ inline const std::unordered_map<std::u32string, Forms> kScales = {
 };
 
 inline const std::unordered_map<std::u32string, Forms> kUnits = {
+  {U"″", {U"polegada", U"polegadas"}},
   {U"km", {U"quilômetro", U"quilômetros"}},        {U"m", {U"metro", U"metros"}},
   {U"cm", {U"centímetro", U"centímetros"}},        {U"mm", {U"milímetro", U"milímetros"}},
   {U"nm", {U"nanômetro", U"nanômetros"}},          {U"m²", {U"metro quadrado", U"metros quadrados"}},
@@ -126,17 +127,16 @@ inline const std::vector<std::u32string> kScaleWords = {
 // Words of a text about time, which make its 2'14" minutes and seconds, and a lone 25″ seconds
 inline const std::unordered_set<std::u32string> kPrimeCues = {
   U"tempo", U"corrida", U"prova", U"cronómetro", U"cronômetro", U"recorde", U"vantagem", U"etapa", U"classificação",
-  U"maratona", U"minutos", U"segundos", U"pódio", U"vídeo", U"filme", U"duração"
+  U"maratona", U"minutos", U"segundos", U"pódio", U"vídeo", U"filme", U"duração", U"correu", U"correr", U"marca"
 };
 
 // Words around a lone 10' which make it minutes: aos 6′ do segundo tempo
 inline const std::unordered_set<std::u32string> kMinuteCues = {U"tempo"};
 
-// The tenths to thousandths of a second of a time written with prime marks; and an inch
+// The tenths to thousandths of a second of a time written with prime marks
 inline const std::array<Forms, 3> kSecondFractions = {
   {{U"décimo", U"décimos"}, {U"centésimo", U"centésimos"}, {U"milésimo", U"milésimos"}}
 };
-inline const Forms kInch = {U"polegada", U"polegadas"};
 
 // Words around a 5'5" which make it feet and inches: ele mede 5'5"
 inline const std::unordered_set<std::u32string> kHeightCues = {U"mede", U"altura", U"alto", U"alta"};
@@ -144,7 +144,7 @@ inline const std::unordered_set<std::u32string> kHeightCues = {U"mede", U"altura
 // A time or a height written with prime marks
 inline const std::unordered_map<Prime, Forms> kPrimeUnits = {
   {Prime::HOUR, {U"hora", U"horas"}}, {Prime::MINUTE, {U"minuto", U"minutos"}}, {Prime::SECOND, {U"segundo", U"segundos"}},
-  {Prime::FOOT, {U"pé", U"pés"}},     {Prime::INCH, kInch},
+  {Prime::FOOT, {U"pé", U"pés"}},     {Prime::INCH, kUnits.at(U"″")},
 };
 
 // Words before an hour, which make it feminine: às duas, das dez
