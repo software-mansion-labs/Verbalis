@@ -185,21 +185,13 @@ export class Document {
   changes(): Edit[] {
     const changes: Edit[] = [];
 
-    // Walk the pieces with their position in the current text; only the replaced ones are changes
+    // Walk the pieces with their position in the current text; each replaced one is a change, even when it touches the
+    // previous one: " – " then "ceBooks.de" stay two changes, so a caller can map each back to its own words
     let position = 0;
-    let previousReplaced = false;
     for (const piece of this.#pieces) {
       if (piece.replaced) {
-        // Adjacent replaced pieces form a single change
-        const last = changes.at(-1);
-        if (previousReplaced && last) {
-          last.span.end = piece.original.end;
-          last.text += str(this.#text, position, position + piece.size);
-        } else {
-          changes.push({ span: { ...piece.original }, text: str(this.#text, position, position + piece.size) });
-        }
+        changes.push({ span: { ...piece.original }, text: str(this.#text, position, position + piece.size) });
       }
-      previousReplaced = piece.replaced;
       position += piece.size;
     }
     return changes;
