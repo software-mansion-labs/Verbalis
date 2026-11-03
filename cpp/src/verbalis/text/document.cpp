@@ -134,20 +134,13 @@ void Document::commit() {
 std::vector<Document::Edit> Document::changes() const {
   std::vector<Edit> changes;
 
-  // Walk the pieces with their position in the current text; only the replaced ones are changes
+  // Walk the pieces with their position in the current text; each replaced one is a change, even when it touches the
+  // previous one: " – " then "ceBooks.de" stay two changes, so a caller can map each back to its own words
   size_t position = 0;
-  bool previous_replaced = false;
   for (const auto& piece : pieces_) {
     if (piece.replaced) {
-      // Adjacent replaced pieces form a single change
-      if (previous_replaced) {
-        changes.back().span.end = piece.original.end;
-        changes.back().text.append(text_, position, piece.size);
-      } else {
-        changes.push_back({piece.original, text_.substr(position, piece.size)});
-      }
+      changes.push_back({piece.original, text_.substr(position, piece.size)});
     }
-    previous_replaced = piece.replaced;
     position += piece.size;
   }
   return changes;
