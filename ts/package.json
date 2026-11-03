@@ -1,6 +1,6 @@
 {
   "name": "verbalis",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Rewrites text the way it is read aloud: numbers, dates, symbols, abbreviations, and web addresses as words.",
   "license": "MIT",
   "author": "Software Mansion",
