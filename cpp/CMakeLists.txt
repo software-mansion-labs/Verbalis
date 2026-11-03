@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 # The version of every package (Python reads it from here; ts/package.json must match, see tests/python/test_version.py)
-project(verbalis VERSION 0.1.0 LANGUAGES CXX)
+project(verbalis VERSION 0.1.1 LANGUAGES CXX)
 
 option(VERBALIS_BUILD_TESTS "Build the C++ tests and the parity check" OFF)
 include(GNUInstallDirs)
